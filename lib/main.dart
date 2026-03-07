@@ -1,122 +1,255 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'core/constants/app_colors.dart';
+import 'core/constants/app_spacing.dart';
+import 'core/constants/app_text_styles.dart';
+import 'core/theme/app_theme.dart';
+import 'core/theme/dark_theme.dart';
+import 'core/widgets/app_card.dart';
+import 'core/widgets/app_chip_input.dart';
+import 'core/widgets/app_slider.dart';
+import 'core/widgets/app_timer_display.dart';
+import 'core/widgets/progressive_expand.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: OneCoffeeApp()));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class OneCoffeeApp extends StatelessWidget {
+  const OneCoffeeApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'OneCoffee',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      darkTheme: DarkTheme.dark,
+      themeMode: ThemeMode.light,
+      // Phase 7 will replace this with GoRouter
+      home: const _Phase0DemoPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+/// Temporary demo page to verify Phase 0 deliverables.
+/// Will be replaced by GoRouter + BrewLoggerPage in Phase 7.
+class _Phase0DemoPage extends StatefulWidget {
+  const _Phase0DemoPage();
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<_Phase0DemoPage> createState() => _Phase0DemoPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class _Phase0DemoPageState extends State<_Phase0DemoPage> {
+  double _waterWeight = 225.0;
+  double _waterTemp = 93.0;
+  List<String> _beanTags = [];
+  bool _timerRunning = false;
+  int _elapsed = 42;
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.pageHorizontal,
+            vertical: AppSpacing.pageTop,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Header ────────────────────────────
+              Text(
+                'OneCoffee',
+                style: AppTextStyles.displayLarge.copyWith(
+                  color: AppColors.primary,
+                ),
+              ),
+              Text(
+                'Phase 0 — Design System Demo',
+                style: AppTextStyles.bodySmall,
+              ),
+              const SizedBox(height: AppSpacing.xxl),
+
+              // ── Timer Display ──────────────────────
+              AppCard(
+                child: Column(
+                  children: [
+                    AppTimerDisplay(
+                      elapsedSeconds: _elapsed,
+                      targetSeconds: 180,
+                      bloomSeconds: 30,
+                      isRunning: _timerRunning,
+                      showProgress: true,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    ElevatedButton(
+                      onPressed: () => setState(() {
+                        _timerRunning = !_timerRunning;
+                        if (_timerRunning) _elapsed += 10;
+                      }),
+                      child: Text(_timerRunning ? 'Pause' : 'Start Brewing'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.cardGap),
+
+              // ── Slider Demo ────────────────────────
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Water', style: AppTextStyles.titleMedium),
+                    const SizedBox(height: AppSpacing.sm),
+                    AppSlider(
+                      value: _waterWeight,
+                      min: 100,
+                      max: 500,
+                      divisions: 80,
+                      unit: 'g',
+                      label: '${_waterWeight.round()}g',
+                      onChanged: (v) => setState(() => _waterWeight = v),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text('Temperature', style: AppTextStyles.titleMedium),
+                    const SizedBox(height: AppSpacing.sm),
+                    AppSlider(
+                      value: _waterTemp,
+                      min: 60,
+                      max: 100,
+                      divisions: 40,
+                      unit: '°C',
+                      label: '${_waterTemp.round()}°C',
+                      onChanged: (v) => setState(() => _waterTemp = v),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.cardGap),
+
+              // ── Chip Input Demo ────────────────────
+              AppCard(
+                child: AppChipInput(
+                  tags: _beanTags,
+                  labelText: 'Coffee Bean',
+                  hintText: 'Type bean name…',
+                  suggestions: const [
+                    'Ethiopia Yirgacheffe',
+                    'Colombia Huila',
+                    'Kenya AA',
+                    'Panama Geisha',
+                    'Guatemala Antigua',
+                  ],
+                  singleSelection: true,
+                  onTagsChanged: (tags) => setState(() => _beanTags = tags),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.cardGap),
+
+              // ── Progressive Expand Demo ────────────
+              AppCard(
+                child: ProgressiveExpand(
+                  collapsedChild: Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.tune,
+                          size: 18,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Text(
+                          'Essential Parameters',
+                          style: AppTextStyles.titleMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                  expandedChild: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Bloom Time: 30s', style: AppTextStyles.bodyMedium),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        'Pour Method: Spiral',
+                        style: AppTextStyles.bodyMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        'Water Type: Filtered',
+                        style: AppTextStyles.bodyMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text('Room Temp: 22°C', style: AppTextStyles.bodyMedium),
+                    ],
+                  ),
+                  expandLabel: 'Show advanced parameters',
+                  collapseLabel: 'Hide advanced',
+                ),
+              ),
+              const SizedBox(height: AppSpacing.cardGap),
+
+              // ── Color palette swatch ───────────────
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Color Palette', style: AppTextStyles.titleMedium),
+                    const SizedBox(height: AppSpacing.sm),
+                    Row(
+                      children: [
+                        _ColorSwatch(AppColors.primary, 'Primary'),
+                        const SizedBox(width: AppSpacing.xs),
+                        _ColorSwatch(AppColors.secondary, 'Secondary'),
+                        const SizedBox(width: AppSpacing.xs),
+                        _ColorSwatch(AppColors.background, 'BG', border: true),
+                        const SizedBox(width: AppSpacing.xs),
+                        _ColorSwatch(AppColors.textPrimary, 'Text'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.pageBottom),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+    );
+  }
+}
+
+class _ColorSwatch extends StatelessWidget {
+  const _ColorSwatch(this.color, this.label, {this.border = false});
+
+  final Color color;
+  final String label;
+  final bool border;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+            border: border ? Border.all(color: AppColors.shadowDark) : null,
+            boxShadow: AppColors.softShadow,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(label, style: AppTextStyles.labelSmall),
+      ],
     );
   }
 }
