@@ -7,10 +7,11 @@ import 'core/constants/app_text_styles.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/dark_theme.dart';
 import 'core/widgets/app_card.dart';
-import 'core/widgets/app_chip_input.dart';
 import 'core/widgets/app_slider.dart';
 import 'core/widgets/app_timer_display.dart';
 import 'core/widgets/progressive_expand.dart';
+import 'features/inventory/presentation/widgets/smart_tag_field.dart';
+import 'features/inventory/presentation/widgets/template_picker.dart';
 
 void main() {
   runApp(const ProviderScope(child: OneCoffeeApp()));
@@ -132,21 +133,35 @@ class _Phase0DemoPageState extends State<_Phase0DemoPage> {
               ),
               const SizedBox(height: AppSpacing.cardGap),
 
-              // ── Chip Input Demo ────────────────────
+              // ── Phase 3 Inventory Demo ────────────
               AppCard(
-                child: AppChipInput(
-                  tags: _beanTags,
-                  labelText: 'Coffee Bean',
-                  hintText: 'Type bean name…',
-                  suggestions: const [
-                    'Ethiopia Yirgacheffe',
-                    'Colombia Huila',
-                    'Kenya AA',
-                    'Panama Geisha',
-                    'Guatemala Antigua',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Phase 3: Inventory Integrations',
+                      style: AppTextStyles.titleMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    SmartTagField(
+                      type: TagFieldType.bean,
+                      tags: _beanTags,
+                      labelText: 'Coffee Bean',
+                      hintText: 'Type to add or search...',
+                      singleSelection: true,
+                      onTagsChanged: (tags) => setState(() => _beanTags = tags),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    TemplatePicker(
+                      onTemplateSelected: (template) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Selected template: $template'),
+                          ),
+                        );
+                      },
+                    ),
                   ],
-                  singleSelection: true,
-                  onTagsChanged: (tags) => setState(() => _beanTags = tags),
                 ),
               ),
               const SizedBox(height: AppSpacing.cardGap),
