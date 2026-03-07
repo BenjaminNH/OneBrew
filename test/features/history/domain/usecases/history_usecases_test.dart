@@ -88,6 +88,7 @@ void main() {
       final result = await filterBrews(filter);
 
       expect(result.single.quickScore, 5);
+      verify(mockRepo.filterBrewSummaries(filter)).called(1);
     });
 
     test('filters by date range', () async {
@@ -101,6 +102,7 @@ void main() {
       final result = await filterBrews(filter);
 
       expect(result.length, 2);
+      verify(mockRepo.filterBrewSummaries(filter)).called(1);
     });
   });
 

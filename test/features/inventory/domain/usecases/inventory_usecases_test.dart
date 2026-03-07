@@ -87,6 +87,8 @@ void main() {
       final result = await getSuggestions.equipments('V60');
 
       expect(result.single.name, 'V60 02');
+      verify(mockRepo.searchEquipments('V60')).called(1);
+      verifyNever(mockRepo.getAllEquipments());
     });
   });
 
