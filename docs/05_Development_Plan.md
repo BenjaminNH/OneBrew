@@ -158,20 +158,20 @@ flutter test test/features/history/domain/
 
 ### 交付物
 
-| 文件 | 说明 |
-|---|---|
-| `data/datasources/inventory_local_datasource.dart` | Drift 数据源 |
-| `data/repositories/inventory_repository_impl.dart` | Repository 实现 |
+| 文件                                                   | 说明                  |
+| ---------------------------------------------------- | ------------------- |
+| `data/datasources/inventory_local_datasource.dart`   | Drift 数据源           |
+| `data/repositories/inventory_repository_impl.dart`   | Repository 实现       |
 | `presentation/controllers/inventory_controller.dart` | Riverpod Controller |
-| `presentation/widgets/smart_tag_field.dart` | 自动补全标签输入 |
-| `presentation/widgets/template_picker.dart` | "再冲一次"模板选择 |
-| `test/.../inventory_repository_impl_test.dart` | Repository 实现测试 |
+| `presentation/widgets/smart_tag_field.dart`          | 自动补全标签输入            |
+| `presentation/widgets/template_picker.dart`          | "再冲一次"模板选择          |
+| `test/.../inventory_repository_impl_test.dart`       | Repository 实现测试     |
 
 ### 验收标准
-- [ ] Bean/Equipment 增删改查 + useCount 更新逻辑测试通过
-- [ ] 智能补全（按 useCount 排序 + 模糊匹配）逻辑测试通过
-- [ ] `flutter test test/features/inventory/` 全部通过
-- [ ] Widget Test 验证 `smart_tag_field` 渲染与交互
+- [x] Bean/Equipment 增删改查 + useCount 更新逻辑测试通过
+- [x] 智能补全（按 useCount 排序 + 模糊匹配）逻辑测试通过
+- [x] `flutter test test/features/inventory/` 全部通过
+- [x] Widget Test 验证 `smart_tag_field` 渲染与交互
 
 ### 推荐测试
 ```bash
@@ -411,7 +411,7 @@ flutter build apk --release
 | 0 | Core 基础设施 | ✅ 已完成 | 中 |
 | 1 | Drift 数据库 & Data 层 | ✅ 已完成 | 中 |
 | 2 | Domain 层 | ✅ 已完成 | 中 |
-| 3 | Inventory 功能 | ⬜ 未开始 | 中 |
+| 3 | Inventory 功能 | ✅ 已完成 | 中 |
 | 4 | Brew Logger 功能 | ⬜ 未开始 | 大 |
 | 5 | Rating 评价功能 | ⬜ 未开始 | 中 |
 | 6 | History 历史功能 | ⬜ 未开始 | 中 |
