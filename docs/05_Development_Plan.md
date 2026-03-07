@@ -87,10 +87,10 @@ flutter test test/core/
 | `test/core/database/drift_database_test.dart` | 数据库集成测试（内存库 CRUD） |
 
 ### 验收标准
-- [ ] `dart run build_runner build` 成功生成 `.g.dart` 文件
-- [ ] `flutter test test/core/database/` 全部通过
-- [ ] CRUD（增删改查）对 4 张表均有覆盖
-- [ ] 外键关联（BrewRecord → Bean, BrewRecord → Equipment, BrewRating → BrewRecord）正确
+- [x] `dart run build_runner build` 成功生成 `.g.dart` 文件
+- [x] `flutter test test/core/database/` 全部通过
+- [x] CRUD（增删改查）对 4 张表均有覆盖
+- [x] 外键关联（BrewRecord → Bean, BrewRecord → Equipment, BrewRating → BrewRecord）正确
 
 ### 推荐测试
 ```bash
@@ -409,7 +409,7 @@ flutter build apk --release
 | Phase | 名称 | 状态 | 估计工作量 |
 |---|---|---|---|
 | 0 | Core 基础设施 | ✅ 已完成 | 中 |
-| 1 | Drift 数据库 & Data 层 | ⬜ 未开始 | 中 |
+| 1 | Drift 数据库 & Data 层 | ✅ 已完成 | 中 |
 | 2 | Domain 层 | ⬜ 未开始 | 中 |
 | 3 | Inventory 功能 | ⬜ 未开始 | 中 |
 | 4 | Brew Logger 功能 | ⬜ 未开始 | 大 |
