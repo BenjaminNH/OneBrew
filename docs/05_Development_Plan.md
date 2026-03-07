@@ -131,10 +131,10 @@ flutter test test/core/database/
 | | `test/helpers/mock_repositories.dart` | Mock 仓库（mockito） |
 
 ### 验收标准
-- [ ] `dart run build_runner build` 生成 freezed + mockito 代码成功
-- [ ] Use Case 单元测试（使用 Mock Repository）全部通过
-- [ ] Domain 层无任何对 Flutter SDK / Drift 的 import 依赖
-- [ ] `flutter test test/features/*/domain/` 通过
+- [x] `dart run build_runner build` 生成 freezed + mockito 代码成功
+- [x] Use Case 单元测试（使用 Mock Repository）全部通过
+- [x] Domain 层无任何对 Flutter SDK / Drift 的 import 依赖
+- [x] `flutter test test/features/*/domain/` 通过
 
 ### 推荐测试
 ```bash
@@ -410,7 +410,7 @@ flutter build apk --release
 |---|---|---|---|
 | 0 | Core 基础设施 | ✅ 已完成 | 中 |
 | 1 | Drift 数据库 & Data 层 | ✅ 已完成 | 中 |
-| 2 | Domain 层 | ⬜ 未开始 | 中 |
+| 2 | Domain 层 | ✅ 已完成 | 中 |
 | 3 | Inventory 功能 | ⬜ 未开始 | 中 |
 | 4 | Brew Logger 功能 | ⬜ 未开始 | 大 |
 | 5 | Rating 评价功能 | ⬜ 未开始 | 中 |

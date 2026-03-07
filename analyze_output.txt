@@ -1,0 +1,44 @@
+﻿flutter : Flutter assets will be downloaded from https://storage.flutter-io.cn. Make sure you trust this source!
+所在位置 行:1 字符: 1
++ flutter analyze 2>&1 | Out-File -FilePath "analyze_output.txt" -Encod ...
++ ~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Flutter assets ...st this source!:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Analyzing OneCoffee...                                          
+
+  error - Target of URI doesn't exist: '../../../helpers/mock_repositories.mocks.dart' - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:8:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../../helpers/test_fixtures.dart' - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:9:8 - uri_does_not_exist
+  error - Undefined class 'MockBrewRepository' - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:12:8 - undefined_class
+  error - The function 'MockBrewRepository' isn't defined - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:18:16 - undefined_function
+  error - Undefined name 'TestFixtures' - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:26:22 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:37:22 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:59:22 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:70:22 - undefined_identifier
+  error - Target of URI doesn't exist: '../../../helpers/mock_repositories.mocks.dart' - test\features\history\domain\usecases\get_brew_history_test.dart:8:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../../helpers/test_fixtures.dart' - test\features\history\domain\usecases\get_brew_history_test.dart:9:8 - uri_does_not_exist
+  error - Undefined class 'MockHistoryRepository' - test\features\history\domain\usecases\get_brew_history_test.dart:12:8 - undefined_class
+  error - The function 'MockHistoryRepository' isn't defined - test\features\history\domain\usecases\get_brew_history_test.dart:18:16 - undefined_function
+  error - Undefined name 'TestFixtures' - test\features\history\domain\usecases\get_brew_history_test.dart:25:5 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\history\domain\usecases\get_brew_history_test.dart:30:5 - undefined_identifier
+  error - Target of URI doesn't exist: '../../../helpers/mock_repositories.mocks.dart' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:9:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../../helpers/test_fixtures.dart' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:10:8 - uri_does_not_exist
+  error - Undefined class 'MockInventoryRepository' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:13:8 - undefined_class
+  error - The function 'MockInventoryRepository' isn't defined - test\features\inventory\domain\usecases\inventory_usecases_test.dart:19:16 - undefined_function
+  error - Undefined name 'TestFixtures' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:29:7 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:30:7 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:67:7 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:68:7 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:98:20 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:112:23 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\inventory\domain\usecases\inventory_usecases_test.dart:122:23 - undefined_identifier
+  error - Target of URI doesn't exist: '../../../helpers/mock_repositories.mocks.dart' - test\features\rating\domain\usecases\save_rating_test.dart:5:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: '../../../helpers/test_fixtures.dart' - test\features\rating\domain\usecases\save_rating_test.dart:6:8 - uri_does_not_exist
+  error - Undefined class 'MockRatingRepository' - test\features\rating\domain\usecases\save_rating_test.dart:9:8 - undefined_class
+  error - The function 'MockRatingRepository' isn't defined - test\features\rating\domain\usecases\save_rating_test.dart:13:16 - undefined_function
+  error - Undefined name 'TestFixtures' - test\features\rating\domain\usecases\save_rating_test.dart:19:22 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\rating\domain\usecases\save_rating_test.dart:31:22 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\rating\domain\usecases\save_rating_test.dart:43:22 - undefined_identifier
+  error - Undefined name 'TestFixtures' - test\features\rating\domain\usecases\save_rating_test.dart:56:22 - undefined_identifier
+
+33 issues found. (ran in 1.9s)
