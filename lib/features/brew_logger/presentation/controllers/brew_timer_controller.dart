@@ -58,8 +58,6 @@ const _sentinel = Object();
 /// Ref: docs/05_Development_Plan.md § Phase 4 — brew_timer_controller
 class BrewTimerController extends Notifier<BrewTimerState> {
   Timer? _ticker;
-  DateTime? _startWallClock;
-  int _accumulatedSeconds = 0;
 
   @override
   BrewTimerState build() {
@@ -69,7 +67,6 @@ class BrewTimerController extends Notifier<BrewTimerState> {
 
   void start() {
     if (state.isRunning) return;
-    _startWallClock = DateTime.now();
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(seconds: 1), _onTick);
     state = state.copyWith(isRunning: true, isPaused: false);
@@ -79,16 +76,12 @@ class BrewTimerController extends Notifier<BrewTimerState> {
     if (!state.isRunning) return;
     _ticker?.cancel();
     _ticker = null;
-    _accumulatedSeconds = state.elapsedSeconds;
-    _startWallClock = null;
     state = state.copyWith(isRunning: false, isPaused: true);
   }
 
   void reset() {
     _ticker?.cancel();
     _ticker = null;
-    _startWallClock = null;
-    _accumulatedSeconds = 0;
     state = const BrewTimerState();
   }
 
@@ -104,8 +97,7 @@ class BrewTimerController extends Notifier<BrewTimerState> {
   }
 
   void _onTick(Timer _) {
-    final wallElapsed = DateTime.now().difference(_startWallClock!).inSeconds;
-    state = state.copyWith(elapsedSeconds: _accumulatedSeconds + wallElapsed);
+    state = state.copyWith(elapsedSeconds: state.elapsedSeconds + 1);
   }
 }
 

@@ -208,11 +208,11 @@ flutter test test/features/inventory/
 | `test/.../brew_timer_controller_test.dart` | 计时器逻辑测试 |
 
 ### 验收标准
-- [ ] BrewRecord CRUD + 研磨度三模式逻辑测试通过
-- [ ] 计时器控制器（启动/暂停/重置/后台恢复）单元测试通过
-- [ ] `brew_logger_page` Widget Test：页面渲染、按钮交互、极简/专业模式切换
-- [ ] `flutter test test/features/brew_logger/` 全部通过
-- [ ] 单独运行页面可正常录入一条完整冲煮记录
+- [x] BrewRecord CRUD + 研磨度三模式逻辑测试通过
+- [x] 计时器控制器（启动/暂停/重置/后台恢复）单元测试通过
+- [x] `brew_logger_page` Widget Test：页面渲染、按钮交互、极简/专业模式切换
+- [x] `flutter test test/features/brew_logger/` 全部通过
+- [x] 单独运行页面可正常录入一条完整冲煮记录
 
 ### 推荐测试
 ```bash
@@ -412,7 +412,7 @@ flutter build apk --release
 | 1 | Drift 数据库 & Data 层 | ✅ 已完成 | 中 |
 | 2 | Domain 层 | ✅ 已完成 | 中 |
 | 3 | Inventory 功能 | ✅ 已完成 | 中 |
-| 4 | Brew Logger 功能 | ⬜ 未开始 | 大 |
+| 4 | Brew Logger 功能 | ✅ 已完成 | 大 |
 | 5 | Rating 评价功能 | ⬜ 未开始 | 中 |
 | 6 | History 历史功能 | ⬜ 未开始 | 中 |
 | 7 | 路由 & App Shell | ⬜ 未开始 | 小 |

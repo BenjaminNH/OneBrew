@@ -10,6 +10,7 @@ import 'core/widgets/app_card.dart';
 import 'core/widgets/app_slider.dart';
 import 'core/widgets/app_timer_display.dart';
 import 'core/widgets/progressive_expand.dart';
+import 'features/brew_logger/presentation/pages/brew_logger_page.dart';
 import 'features/inventory/presentation/widgets/smart_tag_field.dart';
 import 'features/inventory/presentation/widgets/template_picker.dart';
 
@@ -28,8 +29,9 @@ class OneCoffeeApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: DarkTheme.dark,
       themeMode: ThemeMode.light,
+      // Temporary pointer to BrewLoggerPage for Phase 4 manual testing.
       // Phase 7 will replace this with GoRouter
-      home: const _Phase0DemoPage(),
+      home: const BrewLoggerPage(),
     );
   }
 }
