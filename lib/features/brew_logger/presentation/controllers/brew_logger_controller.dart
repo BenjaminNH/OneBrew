@@ -244,6 +244,49 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
   void toggleAdvancedExpanded() =>
       state = state.copyWith(isAdvancedExpanded: !state.isAdvancedExpanded);
 
+  /// Applies a historical brew record as a reusable template for the form.
+  ///
+  /// This enables the "brew again" workflow from docs/00_Product_Brief.md.
+  Future<void> applyTemplate(BrewRecord template) async {
+    String? selectedEquipmentName;
+
+    if (template.equipmentId != null) {
+      final equipments = await ref
+          .read(inventoryRepositoryProvider)
+          .getAllEquipments();
+      for (final equipment in equipments) {
+        if (equipment.id == template.equipmentId) {
+          selectedEquipmentName = equipment.name;
+          break;
+        }
+      }
+    }
+
+    state = state.copyWith(
+      beanName: template.beanName,
+      equipmentId: template.equipmentId,
+      selectedEquipmentName: selectedEquipmentName,
+      grindMode: template.grindMode,
+      grindClickValue: template.grindClickValue,
+      grindSimpleLabel: template.grindSimpleLabel,
+      grindMicrons: template.grindMicrons,
+      coffeeWeightG: template.coffeeWeightG,
+      waterWeightG: template.waterWeightG,
+      waterTempC: template.waterTempC,
+      brewDurationS: template.brewDurationS,
+      bloomTimeS: template.bloomTimeS,
+      pourMethod: template.pourMethod,
+      waterType: template.waterType,
+      roomTempC: template.roomTempC,
+      notes: template.notes,
+      isQuickMode: template.isQuickMode,
+      savedRecordId: null,
+      errorMessage: null,
+      originalBrewDate: null,
+      originalCreatedAt: null,
+    );
+  }
+
   Future<int?> saveNewRecord({required int elapsedSeconds}) async {
     if (state.beanName.trim().isEmpty) {
       state = state.copyWith(errorMessage: 'Please enter a bean name.');
@@ -379,3 +422,13 @@ final brewLoggerControllerProvider =
     NotifierProvider<BrewLoggerController, BrewLoggerState>(
       BrewLoggerController.new,
     );
+
+const _recentTemplateLimit = 5;
+
+/// Latest brew records used as "brew again" templates.
+final recentBrewTemplatesProvider = StreamProvider<List<BrewRecord>>((ref) {
+  final repo = ref.watch(brewRepositoryProvider);
+  return repo.watchAllBrewRecords().map(
+    (records) => records.take(_recentTemplateLimit).toList(growable: false),
+  );
+});
