@@ -290,6 +290,8 @@ void main() {
             isGrinder: true,
             grindMinClick: 10,
             grindMaxClick: 30,
+            grindClickStep: 0.5,
+            grindClickUnit: '格',
             addedAt: DateTime(2024),
             useCount: 0,
           );
@@ -304,66 +306,184 @@ void main() {
           final state = container.read(brewLoggerControllerProvider);
           // Midpoint of [10, 30] == 20.
           expect(state.grindClickValue, equals(20.0));
+          expect(state.grindMinClick, equals(10.0));
+          expect(state.grindMaxClick, equals(30.0));
+          expect(state.grindClickStep, equals(0.5));
+          expect(state.grindClickUnit, equals('格'));
+          expect(state.grindSliderDivisions, equals(40));
         },
       );
+
+      test(
+        'falls back to simple mode when selected equipment has no click config',
+        () async {
+          final equip = Equipment(
+            id: 9,
+            name: 'Uncalibrated Grinder',
+            isGrinder: true,
+            addedAt: DateTime(2024),
+            useCount: 0,
+          );
+          final fakeInventory = _FakeInventoryRepo(equipments: [equip]);
+          final container = _makeContainer(inventoryRepo: fakeInventory);
+          addTearDown(container.dispose);
+
+          await container
+              .read(brewLoggerControllerProvider.notifier)
+              .setEquipmentByName('Uncalibrated Grinder');
+
+          final state = container.read(brewLoggerControllerProvider);
+          expect(state.equipmentId, equals(9));
+          expect(state.selectedEquipmentName, equals('Uncalibrated Grinder'));
+          expect(state.grindMode, equals(GrindMode.simple));
+          expect(state.grindClickValue, isNull);
+          expect(state.hasValidGrindClickConfig, isFalse);
+        },
+      );
+
+      test('setGrindClickValue snaps and clamps to configured step', () async {
+        final equip = Equipment(
+          id: 11,
+          name: 'Stepped Grinder',
+          isGrinder: true,
+          grindMinClick: 10,
+          grindMaxClick: 20,
+          grindClickStep: 0.5,
+          addedAt: DateTime(2024),
+          useCount: 0,
+        );
+        final fakeInventory = _FakeInventoryRepo(equipments: [equip]);
+        final container = _makeContainer(inventoryRepo: fakeInventory);
+        addTearDown(container.dispose);
+
+        final ctrl = container.read(brewLoggerControllerProvider.notifier);
+        await ctrl.setEquipmentByName('Stepped Grinder');
+
+        ctrl.setGrindClickValue(12.26);
+        var state = container.read(brewLoggerControllerProvider);
+        expect(state.grindClickValue, equals(12.5));
+
+        ctrl.setGrindClickValue(25);
+        state = container.read(brewLoggerControllerProvider);
+        expect(state.grindClickValue, equals(20.0));
+      });
     });
 
     group('applyTemplate keeps parameters consistent', () {
-      test('copies full brew parameters and resolves equipment name', () async {
-        final equipment = Equipment(
-          id: 88,
-          name: 'Comandante C40',
-          isGrinder: true,
-          addedAt: DateTime(2024),
-          useCount: 5,
-        );
-        final inventoryRepo = _FakeInventoryRepo(equipments: [equipment]);
-        final container = _makeContainer(inventoryRepo: inventoryRepo);
-        addTearDown(container.dispose);
+      test(
+        'copies full brew parameters and resolves equipment name/config',
+        () async {
+          final equipment = Equipment(
+            id: 88,
+            name: 'Comandante C40',
+            isGrinder: true,
+            grindMinClick: 10,
+            grindMaxClick: 30,
+            grindClickStep: 0.5,
+            grindClickUnit: '格',
+            addedAt: DateTime(2024),
+            useCount: 5,
+          );
+          final inventoryRepo = _FakeInventoryRepo(equipments: [equipment]);
+          final container = _makeContainer(inventoryRepo: inventoryRepo);
+          addTearDown(container.dispose);
 
-        final template = BrewRecord(
-          id: 7,
-          brewDate: DateTime(2026, 3, 7, 8, 30),
-          beanName: 'Ethiopia Guji',
-          equipmentId: 88,
-          grindMode: GrindMode.equipment,
-          grindClickValue: 24.0,
-          grindSimpleLabel: null,
-          grindMicrons: null,
-          coffeeWeightG: 18.0,
-          waterWeightG: 288.0,
-          waterTempC: 92.0,
-          brewDurationS: 195,
-          bloomTimeS: 30,
-          pourMethod: 'Pulse',
-          waterType: 'Filtered',
-          roomTempC: 24.0,
-          notes: 'Sweet finish',
-          isQuickMode: false,
-          createdAt: DateTime(2026, 3, 7, 8, 31),
-          updatedAt: DateTime(2026, 3, 7, 8, 31),
-        );
+          final template = BrewRecord(
+            id: 7,
+            brewDate: DateTime(2026, 3, 7, 8, 30),
+            beanName: 'Ethiopia Guji',
+            equipmentId: 88,
+            grindMode: GrindMode.equipment,
+            grindClickValue: 24.0,
+            grindSimpleLabel: null,
+            grindMicrons: null,
+            coffeeWeightG: 18.0,
+            waterWeightG: 288.0,
+            waterTempC: 92.0,
+            brewDurationS: 195,
+            bloomTimeS: 30,
+            pourMethod: 'Pulse',
+            waterType: 'Filtered',
+            roomTempC: 24.0,
+            notes: 'Sweet finish',
+            isQuickMode: false,
+            createdAt: DateTime(2026, 3, 7, 8, 31),
+            updatedAt: DateTime(2026, 3, 7, 8, 31),
+          );
 
-        await container
-            .read(brewLoggerControllerProvider.notifier)
-            .applyTemplate(template);
+          await container
+              .read(brewLoggerControllerProvider.notifier)
+              .applyTemplate(template);
 
-        final state = container.read(brewLoggerControllerProvider);
-        expect(state.beanName, equals(template.beanName));
-        expect(state.equipmentId, equals(template.equipmentId));
-        expect(state.selectedEquipmentName, equals('Comandante C40'));
-        expect(state.grindMode, equals(template.grindMode));
-        expect(state.grindClickValue, equals(template.grindClickValue));
-        expect(state.coffeeWeightG, equals(template.coffeeWeightG));
-        expect(state.waterWeightG, equals(template.waterWeightG));
-        expect(state.waterTempC, equals(template.waterTempC));
-        expect(state.brewDurationS, equals(template.brewDurationS));
-        expect(state.bloomTimeS, equals(template.bloomTimeS));
-        expect(state.pourMethod, equals(template.pourMethod));
-        expect(state.waterType, equals(template.waterType));
-        expect(state.roomTempC, equals(template.roomTempC));
-        expect(state.notes, equals(template.notes));
-      });
+          final state = container.read(brewLoggerControllerProvider);
+          expect(state.beanName, equals(template.beanName));
+          expect(state.equipmentId, equals(template.equipmentId));
+          expect(state.selectedEquipmentName, equals('Comandante C40'));
+          expect(state.grindMode, equals(template.grindMode));
+          expect(state.grindClickValue, equals(template.grindClickValue));
+          expect(state.grindMinClick, equals(10.0));
+          expect(state.grindMaxClick, equals(30.0));
+          expect(state.grindClickStep, equals(0.5));
+          expect(state.grindClickUnit, equals('格'));
+          expect(state.coffeeWeightG, equals(template.coffeeWeightG));
+          expect(state.waterWeightG, equals(template.waterWeightG));
+          expect(state.waterTempC, equals(template.waterTempC));
+          expect(state.brewDurationS, equals(template.brewDurationS));
+          expect(state.bloomTimeS, equals(template.bloomTimeS));
+          expect(state.pourMethod, equals(template.pourMethod));
+          expect(state.waterType, equals(template.waterType));
+          expect(state.roomTempC, equals(template.roomTempC));
+          expect(state.notes, equals(template.notes));
+        },
+      );
+
+      test(
+        'falls back to simple mode when template equipment has no click config',
+        () async {
+          final equipment = Equipment(
+            id: 88,
+            name: 'Uncalibrated Grinder',
+            isGrinder: true,
+            addedAt: DateTime(2024),
+            useCount: 5,
+          );
+          final inventoryRepo = _FakeInventoryRepo(equipments: [equipment]);
+          final container = _makeContainer(inventoryRepo: inventoryRepo);
+          addTearDown(container.dispose);
+
+          final template = BrewRecord(
+            id: 7,
+            brewDate: DateTime(2026, 3, 7, 8, 30),
+            beanName: 'Ethiopia Guji',
+            equipmentId: 88,
+            grindMode: GrindMode.equipment,
+            grindClickValue: 24.0,
+            grindSimpleLabel: null,
+            grindMicrons: null,
+            coffeeWeightG: 18.0,
+            waterWeightG: 288.0,
+            waterTempC: 92.0,
+            brewDurationS: 195,
+            bloomTimeS: 30,
+            pourMethod: 'Pulse',
+            waterType: 'Filtered',
+            roomTempC: 24.0,
+            notes: 'Sweet finish',
+            isQuickMode: false,
+            createdAt: DateTime(2026, 3, 7, 8, 31),
+            updatedAt: DateTime(2026, 3, 7, 8, 31),
+          );
+
+          await container
+              .read(brewLoggerControllerProvider.notifier)
+              .applyTemplate(template);
+
+          final state = container.read(brewLoggerControllerProvider);
+          expect(state.grindMode, equals(GrindMode.simple));
+          expect(state.grindClickValue, isNull);
+          expect(state.hasValidGrindClickConfig, isFalse);
+        },
+      );
     });
   });
 }
