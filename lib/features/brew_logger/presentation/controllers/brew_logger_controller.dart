@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../inventory/data/repositories/inventory_repository_impl.dart';
 import '../../data/repositories/brew_repository_impl.dart';
 import '../../domain/entities/brew_record.dart';
 import '../../domain/usecases/create_brew_record.dart';
@@ -11,6 +12,7 @@ class BrewLoggerState {
   const BrewLoggerState({
     this.beanName = '',
     this.equipmentId,
+    this.selectedEquipmentName,
     this.grindMode = GrindMode.equipment,
     this.grindClickValue,
     this.grindSimpleLabel,
@@ -29,10 +31,17 @@ class BrewLoggerState {
     this.isSaving = false,
     this.savedRecordId,
     this.errorMessage,
+    // Preserved from the original record on edit — null when creating new.
+    this.originalBrewDate,
+    this.originalCreatedAt,
   });
 
   final String beanName;
   final int? equipmentId;
+
+  /// Display name of the selected equipment (for the SmartTagField tags list).
+  final String? selectedEquipmentName;
+
   final GrindMode grindMode;
   final double? grindClickValue;
   final String? grindSimpleLabel;
@@ -52,11 +61,18 @@ class BrewLoggerState {
   final int? savedRecordId;
   final String? errorMessage;
 
+  /// Original brew date, preserved when editing an existing record.
+  final DateTime? originalBrewDate;
+
+  /// Original creation timestamp, preserved when editing an existing record.
+  final DateTime? originalCreatedAt;
+
   double get ratio => coffeeWeightG > 0 ? waterWeightG / coffeeWeightG : 0;
 
   BrewLoggerState copyWith({
     String? beanName,
     Object? equipmentId = _sentinel,
+    Object? selectedEquipmentName = _sentinel,
     GrindMode? grindMode,
     Object? grindClickValue = _sentinel,
     Object? grindSimpleLabel = _sentinel,
@@ -75,12 +91,17 @@ class BrewLoggerState {
     bool? isSaving,
     Object? savedRecordId = _sentinel,
     Object? errorMessage = _sentinel,
+    Object? originalBrewDate = _sentinel,
+    Object? originalCreatedAt = _sentinel,
   }) {
     return BrewLoggerState(
       beanName: beanName ?? this.beanName,
       equipmentId: equipmentId == _sentinel
           ? this.equipmentId
           : equipmentId as int?,
+      selectedEquipmentName: selectedEquipmentName == _sentinel
+          ? this.selectedEquipmentName
+          : selectedEquipmentName as String?,
       grindMode: grindMode ?? this.grindMode,
       grindClickValue: grindClickValue == _sentinel
           ? this.grindClickValue
@@ -115,6 +136,12 @@ class BrewLoggerState {
       errorMessage: errorMessage == _sentinel
           ? this.errorMessage
           : errorMessage as String?,
+      originalBrewDate: originalBrewDate == _sentinel
+          ? this.originalBrewDate
+          : originalBrewDate as DateTime?,
+      originalCreatedAt: originalCreatedAt == _sentinel
+          ? this.originalCreatedAt
+          : originalCreatedAt as DateTime?,
     );
   }
 }
@@ -141,6 +168,47 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
 
   void setBeanName(String name) => state = state.copyWith(beanName: name);
   void setEquipmentId(int? id) => state = state.copyWith(equipmentId: id);
+
+  /// Sets the selected equipment by name and resolves its ID from
+  /// the inventory repository, then updates [grindClickValue] if the
+  /// equipment has a defined click range.
+  Future<void> setEquipmentByName(String? name) async {
+    if (name == null || name.isEmpty) {
+      state = state.copyWith(
+        equipmentId: null,
+        selectedEquipmentName: null,
+        grindClickValue: null,
+      );
+      return;
+    }
+    final inventoryRepo = ref.read(inventoryRepositoryProvider);
+    final equipments = await inventoryRepo.searchEquipments(name);
+    final match = equipments.cast<dynamic>().firstWhere(
+      (e) => (e.name as String).toLowerCase() == name.toLowerCase(),
+      orElse: () => null,
+    );
+    if (match == null) {
+      state = state.copyWith(
+        selectedEquipmentName: name,
+        equipmentId: null,
+        grindClickValue: null,
+      );
+    } else {
+      // Pre-populate grindClickValue with the midpoint of the click range
+      // when available, so the UI shows a sensible default.
+      double? defaultClick;
+      final min = match.grindMinClick as double?;
+      final max = match.grindMaxClick as double?;
+      if (min != null && max != null) {
+        defaultClick = ((min + max) / 2).roundToDouble();
+      }
+      state = state.copyWith(
+        selectedEquipmentName: name,
+        equipmentId: match.id as int,
+        grindClickValue: defaultClick,
+      );
+    }
+  }
 
   void setGrindMode(GrindMode mode) => state = state.copyWith(
     grindMode: mode,
@@ -207,6 +275,10 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
         updatedAt: now,
       );
       final id = await _createBrewRecord(record);
+
+      // Increment use counts so autocomplete ranking stays accurate.
+      await _incrementUseCounts();
+
       state = state.copyWith(isSaving: false, savedRecordId: id);
       return id;
     } catch (e) {
@@ -221,13 +293,19 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
   Future<bool> updateRecord({
     required int existingId,
     required int elapsedSeconds,
+    // These timestamps come from the record that was loaded for editing.
+    // Passing them explicitly avoids storing extra mutable state in this
+    // controller while still preserving the historical data.
+    required DateTime originalBrewDate,
+    required DateTime originalCreatedAt,
   }) async {
     state = state.copyWith(isSaving: true, errorMessage: null);
     try {
       final now = DateTime.now();
       final record = BrewRecord(
         id: existingId,
-        brewDate: now,
+        // Preserve the original brew date — only override editable fields.
+        brewDate: originalBrewDate,
         beanName: state.beanName.trim(),
         equipmentId: state.equipmentId,
         grindMode: state.grindMode,
@@ -244,7 +322,8 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
         roomTempC: state.roomTempC,
         notes: state.notes,
         isQuickMode: state.isQuickMode,
-        createdAt: now,
+        // Preserve the original creation timestamp.
+        createdAt: originalCreatedAt,
         updatedAt: now,
       );
       final success = await _updateBrewRecord(record);
@@ -270,6 +349,29 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
 
   void resetForm() => state = const BrewLoggerState();
   void clearError() => state = state.copyWith(errorMessage: null);
+
+  // ── Private helpers ─────────────────────────────────────────────────────
+
+  /// Increments use counts after a successful save, keeping the autocomplete
+  /// ranking accurate.
+  Future<void> _incrementUseCounts() async {
+    final inventoryRepo = ref.read(inventoryRepositoryProvider);
+    // We don't have a beanId here; the inventory repo uses the name as the
+    // unique lookup key when creating beans, so we search by name first.
+    final beans = await inventoryRepo.searchBeans(state.beanName.trim());
+    final matchedBean = beans.cast<dynamic>().firstWhere(
+      (b) =>
+          (b.name as String).toLowerCase() ==
+          state.beanName.trim().toLowerCase(),
+      orElse: () => null,
+    );
+    if (matchedBean != null) {
+      await inventoryRepo.incrementBeanUseCount(matchedBean.id as int);
+    }
+    if (state.equipmentId != null) {
+      await inventoryRepo.incrementEquipmentUseCount(state.equipmentId!);
+    }
+  }
 }
 
 /// Riverpod provider for [BrewLoggerController].
