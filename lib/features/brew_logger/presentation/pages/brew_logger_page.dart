@@ -25,8 +25,28 @@ class BrewLoggerPage extends ConsumerStatefulWidget {
   ConsumerState<BrewLoggerPage> createState() => _BrewLoggerPageState();
 }
 
-class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
+class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
+    with WidgetsBindingObserver {
   int _currentElapsed = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    ref
+        .read(brewTimerControllerProvider.notifier)
+        .handleAppLifecycleStateChanged(state);
+  }
 
   @override
   Widget build(BuildContext context) {
