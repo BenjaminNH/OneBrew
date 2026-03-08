@@ -5,6 +5,7 @@
 // are deterministic and run instantly in CI without flakiness.
 
 import 'package:fake_async/fake_async.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_timer_controller.dart';
@@ -15,10 +16,12 @@ void main() {
 
     setUp(() {
       container = ProviderContainer();
+      BrewTimerController.now = DateTime.now;
     });
 
     tearDown(() {
       container.dispose();
+      BrewTimerController.now = DateTime.now;
     });
 
     BrewTimerController getController() =>
@@ -37,6 +40,8 @@ void main() {
 
     test('start() begins the timer and transitions state', () {
       fakeAsync((async) {
+        final clock = async.getClock(DateTime(2026, 1, 1));
+        BrewTimerController.now = clock.now;
         getController().start();
 
         var state = getState();
@@ -48,12 +53,14 @@ void main() {
         async.elapse(const Duration(seconds: 1));
 
         state = getState();
-        expect(state.elapsedSeconds, greaterThanOrEqualTo(1));
+        expect(state.elapsedSeconds, 1);
       });
     });
 
     test('pause() stops the timer and preserves elapsed time', () {
       fakeAsync((async) {
+        final clock = async.getClock(DateTime(2026, 1, 1));
+        BrewTimerController.now = clock.now;
         getController().start();
 
         // Advance by 2 seconds to get non-zero elapsed time.
@@ -65,7 +72,7 @@ void main() {
         expect(stateWhenPaused.isPaused, true);
 
         final elapsed = stateWhenPaused.elapsedSeconds;
-        expect(elapsed, greaterThanOrEqualTo(2));
+        expect(elapsed, 2);
 
         // Advance more and check elapsed does not increase while paused.
         async.elapse(const Duration(seconds: 2));
@@ -75,6 +82,8 @@ void main() {
 
     test('reset() clears all accumulated time and state', () {
       fakeAsync((async) {
+        final clock = async.getClock(DateTime(2026, 1, 1));
+        BrewTimerController.now = clock.now;
         getController().start();
         async.elapse(const Duration(seconds: 2));
         getController().reset();
@@ -106,10 +115,31 @@ void main() {
 
     test('timer ticks each second while running', () {
       fakeAsync((async) {
+        final clock = async.getClock(DateTime(2026, 1, 1));
+        BrewTimerController.now = clock.now;
         getController().start();
         async.elapse(const Duration(seconds: 5));
 
         expect(getState().elapsedSeconds, 5);
+      });
+    });
+
+    test('resumed lifecycle catches up elapsed time by wall-clock delta', () {
+      fakeAsync((_) {
+        var now = DateTime(2026, 1, 1, 10, 0, 0);
+        BrewTimerController.now = () => now;
+
+        getController().start();
+        expect(getState().elapsedSeconds, 0);
+
+        now = now.add(const Duration(seconds: 37));
+        getController().handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        );
+
+        final state = getState();
+        expect(state.elapsedSeconds, 37);
+        expect(state.isRunning, true);
       });
     });
   });

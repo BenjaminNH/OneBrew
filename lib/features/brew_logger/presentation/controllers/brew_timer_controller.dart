@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// State held by [BrewTimerController].
@@ -58,22 +59,33 @@ const _sentinel = Object();
 /// Ref: docs/05_Development_Plan.md § Phase 4 — brew_timer_controller
 class BrewTimerController extends Notifier<BrewTimerState> {
   Timer? _ticker;
+  DateTime? _lastWallClockTickAt;
+
+  /// Injectable wall-clock source for deterministic timer tests.
+  @visibleForTesting
+  static DateTime Function() now = DateTime.now;
 
   @override
   BrewTimerState build() {
-    ref.onDispose(() => _ticker?.cancel());
+    ref.onDispose(() {
+      _ticker?.cancel();
+      _ticker = null;
+      _lastWallClockTickAt = null;
+    });
     return const BrewTimerState();
   }
 
   void start() {
     if (state.isRunning) return;
     _ticker?.cancel();
+    _lastWallClockTickAt = now();
     _ticker = Timer.periodic(const Duration(seconds: 1), _onTick);
     state = state.copyWith(isRunning: true, isPaused: false);
   }
 
   void pause() {
     if (!state.isRunning) return;
+    _syncElapsedWithWallClock();
     _ticker?.cancel();
     _ticker = null;
     state = state.copyWith(isRunning: false, isPaused: true);
@@ -82,6 +94,7 @@ class BrewTimerController extends Notifier<BrewTimerState> {
   void reset() {
     _ticker?.cancel();
     _ticker = null;
+    _lastWallClockTickAt = null;
     state = const BrewTimerState();
   }
 
@@ -96,8 +109,37 @@ class BrewTimerController extends Notifier<BrewTimerState> {
     state = state.copyWith(isCountingDown: !state.isCountingDown);
   }
 
+  /// Compensates elapsed time when app resumes from background suspension.
+  void handleAppLifecycleStateChanged(AppLifecycleState lifecycleState) {
+    if (!state.isRunning) return;
+    if (lifecycleState == AppLifecycleState.resumed) {
+      _syncElapsedWithWallClock();
+    }
+  }
+
   void _onTick(Timer _) {
+    if (_syncElapsedWithWallClock()) return;
+
+    // Fallback for environments where wall-clock is frozen (e.g. some test
+    // harnesses) but periodic tick callbacks still fire.
     state = state.copyWith(elapsedSeconds: state.elapsedSeconds + 1);
+    _lastWallClockTickAt = now();
+  }
+
+  bool _syncElapsedWithWallClock() {
+    final lastTickAt = _lastWallClockTickAt;
+    final current = now();
+    if (lastTickAt == null) {
+      _lastWallClockTickAt = current;
+      return false;
+    }
+
+    final deltaSeconds = current.difference(lastTickAt).inSeconds;
+    if (deltaSeconds <= 0) return false;
+
+    state = state.copyWith(elapsedSeconds: state.elapsedSeconds + deltaSeconds);
+    _lastWallClockTickAt = lastTickAt.add(Duration(seconds: deltaSeconds));
+    return true;
   }
 }
 
