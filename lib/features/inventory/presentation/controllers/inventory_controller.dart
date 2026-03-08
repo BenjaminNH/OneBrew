@@ -41,7 +41,7 @@ class InventoryController extends AsyncNotifier<void> {
         id: 0,
         name: name,
         addedAt: DateTime.now(),
-        useCount: 1,
+        useCount: 0,
       );
       final id = await ref.read(createBeanProvider).call(bean);
       state = const AsyncValue.data(null);
@@ -60,7 +60,7 @@ class InventoryController extends AsyncNotifier<void> {
         name: name,
         isGrinder: isGrinder,
         addedAt: DateTime.now(),
-        useCount: 1,
+        useCount: 0,
       );
       final id = await ref.read(createEquipmentProvider).call(equip);
       state = const AsyncValue.data(null);
