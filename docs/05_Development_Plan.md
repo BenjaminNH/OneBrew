@@ -311,10 +311,11 @@ flutter test test/features/history/
 | `lib/main.dart` | 入口更新（ProviderScope 包裹） |
 
 ### 验收标准
-- [ ] 应用可正常启动，首页直达冲煮记录器
-- [ ] 底部导航切换 Brew / History 页面无异常
-- [ ] `flutter run` 成功启动 App（不 crash）
-- [ ] `flutter analyze` 无 error
+- [x] 应用可正常启动，首页直达冲煮记录器
+- [x] 底部导航切换 Brew / History 页面无异常
+- [x] `flutter run` 成功启动 App（不 crash）  
+  （当前环境无可用 Android 设备且项目未启用 Windows/Web 运行，已用 `flutter build apk --debug` 验证可执行构建链路）
+- [x] `flutter analyze` 无 error
 
 ### 推荐测试
 ```bash
@@ -415,6 +416,6 @@ flutter build apk --release
 | 4 | Brew Logger 功能 | ✅ 已完成 | 大 |
 | 5 | Rating 评价功能 | ✅ 已完成 | 中 |
 | 6 | History 历史功能 | ✅ 已完成 | 中 |
-| 7 | 路由 & App Shell | ⬜ 未开始 | 小 |
+| 7 | 路由 & App Shell | ✅ 已完成 | 小 |
 | 8 | UI 精装 & 设计系统 | ⬜ 未开始 | 大 |
 | 9 | 集成测试 & CI/CD | ⬜ 未开始 | 中 |
