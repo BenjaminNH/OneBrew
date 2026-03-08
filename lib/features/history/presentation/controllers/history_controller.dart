@@ -2,12 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/repositories/history_repository_impl.dart';
 import '../../domain/entities/brew_summary.dart';
 import '../../domain/repositories/history_repository.dart';
 import '../../domain/usecases/filter_brews.dart';
 import '../../domain/usecases/get_brew_history.dart';
 import '../../domain/usecases/get_top_brews.dart';
+import '../../history_providers.dart';
 
 class HistoryStats {
   const HistoryStats({

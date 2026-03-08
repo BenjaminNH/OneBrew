@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:one_coffee/features/history/data/repositories/history_repository_impl.dart';
 import 'package:one_coffee/features/history/domain/entities/brew_summary.dart';
 import 'package:one_coffee/features/history/domain/repositories/history_repository.dart';
 import 'package:one_coffee/features/history/presentation/pages/history_page.dart';
+import 'package:one_coffee/features/history/history_providers.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
 

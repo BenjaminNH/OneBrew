@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../inventory/data/repositories/inventory_repository_impl.dart';
+import '../../../inventory/inventory_providers.dart';
 import '../../../inventory/domain/entities/equipment.dart';
-import '../../data/repositories/brew_repository_impl.dart';
+import '../../brew_logger_providers.dart';
 import '../../domain/entities/brew_record.dart';
 import '../../domain/usecases/create_brew_record.dart';
 import '../../domain/usecases/delete_brew_record.dart';

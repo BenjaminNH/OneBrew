@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:one_coffee/features/rating/data/repositories/rating_repository_impl.dart';
 import 'package:one_coffee/features/rating/domain/entities/brew_rating.dart';
 import 'package:one_coffee/features/rating/presentation/controllers/rating_controller.dart';
+import 'package:one_coffee/features/rating/rating_providers.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
 

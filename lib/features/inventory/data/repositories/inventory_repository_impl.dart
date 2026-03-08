@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' as drift;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/drift_database.dart' as db;
 import '../../domain/entities/bean.dart' as domain;
@@ -164,7 +163,3 @@ class InventoryRepositoryImpl implements InventoryRepository {
     return _datasource.incrementEquipmentUseCount(id);
   }
 }
-
-final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
-  return InventoryRepositoryImpl(ref.watch(inventoryLocalDatasourceProvider));
-});

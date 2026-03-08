@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/repositories/rating_repository_impl.dart';
 import '../../domain/entities/brew_rating.dart';
 import '../../domain/usecases/save_rating.dart';
+import '../../rating_providers.dart';
 import '../constants/rating_presets.dart';
 
 class RatingState {

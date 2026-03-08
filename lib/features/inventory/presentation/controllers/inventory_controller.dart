@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/repositories/inventory_repository_impl.dart';
 import '../../domain/entities/bean.dart';
 import '../../domain/entities/equipment.dart';
 import '../../domain/usecases/create_bean.dart';
 import '../../domain/usecases/create_equipment.dart';
 import '../../domain/usecases/get_suggestions.dart';
+import '../../inventory_providers.dart';
 
 final getSuggestionsProvider = Provider<GetSuggestions>((ref) {
   return GetSuggestions(ref.watch(inventoryRepositoryProvider));

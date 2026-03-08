@@ -1,5 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../domain/entities/brew_summary.dart' as domain;
 import '../../domain/repositories/history_repository.dart';
 import '../datasources/history_local_datasource.dart';
@@ -49,7 +47,3 @@ class HistoryRepositoryImpl implements HistoryRepository {
     return rows.map(_toDomain).toList();
   }
 }
-
-final historyRepositoryProvider = Provider<HistoryRepository>((ref) {
-  return HistoryRepositoryImpl(ref.watch(historyLocalDatasourceProvider));
-});

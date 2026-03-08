@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' as drift;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/drift_database.dart' as db;
 import '../../domain/entities/brew_rating.dart' as domain;
@@ -101,7 +100,3 @@ class RatingRepositoryImpl implements RatingRepository {
   @override
   Future<int> deleteRating(int id) => _datasource.deleteRating(id);
 }
-
-final ratingRepositoryProvider = Provider<RatingRepository>((ref) {
-  return RatingRepositoryImpl(ref.watch(ratingLocalDatasourceProvider));
-});

@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart' as drift;
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/database/drift_database.dart' as db;
 import '../../domain/entities/brew_record.dart' as domain;
@@ -149,8 +148,3 @@ class BrewRepositoryImpl implements BrewRepository {
   @override
   Future<int> deleteBrewRecord(int id) => _datasource.deleteBrewRecord(id);
 }
-
-/// Riverpod provider for [BrewRepository].
-final brewRepositoryProvider = Provider<BrewRepository>((ref) {
-  return BrewRepositoryImpl(ref.watch(brewLocalDatasourceProvider));
-});

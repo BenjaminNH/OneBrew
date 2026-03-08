@@ -10,12 +10,12 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 // mockito used transitively via mock_repositories.mocks.dart
-import 'package:one_coffee/features/brew_logger/data/repositories/brew_repository_impl.dart';
+import 'package:one_coffee/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
-import 'package:one_coffee/features/inventory/data/repositories/inventory_repository_impl.dart';
 import 'package:one_coffee/features/inventory/domain/entities/bean.dart';
 import 'package:one_coffee/features/inventory/domain/entities/equipment.dart';
+import 'package:one_coffee/features/inventory/inventory_providers.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
 

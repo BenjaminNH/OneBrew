@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:one_coffee/features/inventory/data/repositories/inventory_repository_impl.dart';
 import 'package:one_coffee/features/inventory/domain/entities/bean.dart';
 import 'package:one_coffee/features/inventory/domain/entities/equipment.dart';
+import 'package:one_coffee/features/inventory/inventory_providers.dart';
 import 'package:one_coffee/features/inventory/presentation/controllers/inventory_controller.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
