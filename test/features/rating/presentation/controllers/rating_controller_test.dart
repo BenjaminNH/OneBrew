@@ -72,4 +72,30 @@ void main() {
     expect(id, 5);
     verify(mockRepo.updateRating(any)).called(1);
   });
+
+  test(
+    'initializeForBrew resets stale state when no existing rating',
+    () async {
+      when(mockRepo.getRatingForBrew(202)).thenAnswer(
+        (_) async => const BrewRating(id: 5, brewRecordId: 202, quickScore: 3),
+      );
+      when(mockRepo.getRatingForBrew(303)).thenAnswer((_) async => null);
+
+      final notifier = container.read(ratingControllerProvider.notifier);
+      await notifier.initializeForBrew(202);
+      notifier.setQuickScore(5);
+      notifier.setEmoji('😍');
+      notifier.toggleFlavorNote('Citrus');
+
+      await notifier.initializeForBrew(303);
+
+      final state = container.read(ratingControllerProvider);
+      expect(state.brewRecordId, 303);
+      expect(state.ratingId, 0);
+      expect(state.quickScore, isNull);
+      expect(state.emoji, isNull);
+      expect(state.flavorNotes, isEmpty);
+      expect(state.isQuickMode, isTrue);
+    },
+  );
 }
