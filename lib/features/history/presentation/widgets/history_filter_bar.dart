@@ -87,31 +87,29 @@ class _HistoryFilterBarState extends State<HistoryFilterBar> {
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: DropdownButtonFormField<int?>(
-                  key: const Key('history-filter-score-dropdown'),
-                  value: _minScore,
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    hintText: 'Min ★',
-                    hintStyle: AppTextStyles.bodySmall,
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.sm,
-                    ),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
                   ),
-                  items: const [
-                    DropdownMenuItem<int?>(value: null, child: Text('All')),
-                    DropdownMenuItem<int?>(value: 3, child: Text('≥3')),
-                    DropdownMenuItem<int?>(value: 4, child: Text('≥4')),
-                    DropdownMenuItem<int?>(value: 5, child: Text('5 only')),
-                  ],
-                  onChanged: (value) => setState(() => _minScore = value),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                  ),
+                  child: DropdownButton<int?>(
+                    key: const Key('history-filter-score-dropdown'),
+                    value: _minScore,
+                    isExpanded: true,
+                    underline: const SizedBox.shrink(),
+                    hint: Text('Min ★', style: AppTextStyles.bodySmall),
+                    items: const [
+                      DropdownMenuItem<int?>(value: null, child: Text('All')),
+                      DropdownMenuItem<int?>(value: 3, child: Text('≥3')),
+                      DropdownMenuItem<int?>(value: 4, child: Text('≥4')),
+                      DropdownMenuItem<int?>(value: 5, child: Text('5 only')),
+                    ],
+                    onChanged: (value) => setState(() => _minScore = value),
+                  ),
                 ),
               ),
             ],

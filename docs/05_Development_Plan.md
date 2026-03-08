@@ -280,10 +280,10 @@ flutter test test/features/rating/
 | `test/.../get_brew_history_test.dart` | Use Case 测试 |
 
 ### 验收标准
-- [ ] 按豆种/评分/日期范围筛选逻辑测试通过
-- [ ] 高分冲煮排名查询测试通过
-- [ ] `history_page` Widget Test：列表渲染、筛选交互
-- [ ] `flutter test test/features/history/` 全部通过
+- [x] 按豆种/评分/日期范围筛选逻辑测试通过
+- [x] 高分冲煮排名查询测试通过
+- [x] `history_page` Widget Test：列表渲染、筛选交互
+- [x] `flutter test test/features/history/` 全部通过
 
 ### 推荐测试
 ```bash
@@ -414,7 +414,7 @@ flutter build apk --release
 | 3 | Inventory 功能 | ✅ 已完成 | 中 |
 | 4 | Brew Logger 功能 | ✅ 已完成 | 大 |
 | 5 | Rating 评价功能 | ✅ 已完成 | 中 |
-| 6 | History 历史功能 | ⬜ 未开始 | 中 |
+| 6 | History 历史功能 | ✅ 已完成 | 中 |
 | 7 | 路由 & App Shell | ⬜ 未开始 | 小 |
 | 8 | UI 精装 & 设计系统 | ⬜ 未开始 | 大 |
 | 9 | 集成测试 & CI/CD | ⬜ 未开始 | 中 |
