@@ -11,8 +11,8 @@ import '../controllers/brew_logger_controller.dart';
 
 /// Advanced parameters panel — revealed after tapping "Show more".
 ///
-/// Contains: temperature, bloom time, grind mode, pour method, water type,
-/// room temperature and notes.
+/// Contains: temperature, bloom time, grind mode, equipment selector,
+/// pour method, water type, room temperature and notes.
 ///
 /// Ref: docs/03_UI_Specification.md § 4.2 — Progressive Disclosure Inputs
 class AdvancedParamsPanel extends ConsumerStatefulWidget {
@@ -45,10 +45,29 @@ class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
     super.dispose();
   }
 
+  /// Synchronise [TextEditingController]s with the current Riverpod state.
+  ///
+  /// This is required after [BrewLoggerController.resetForm] because the
+  /// controllers are only initialised once in [initState] and would otherwise
+  /// still display the old text.
+  void _syncControllersFromState(BrewLoggerState state) {
+    final notes = state.notes ?? '';
+    if (_notesCtrl.text != notes) _notesCtrl.text = notes;
+
+    final pourMethod = state.pourMethod ?? '';
+    if (_pourMethodCtrl.text != pourMethod) _pourMethodCtrl.text = pourMethod;
+
+    final waterType = state.waterType ?? '';
+    if (_waterTypeCtrl.text != waterType) _waterTypeCtrl.text = waterType;
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(brewLoggerControllerProvider);
     final ctrl = ref.read(brewLoggerControllerProvider.notifier);
+
+    // Keep text controllers in sync with state (handles resets).
+    _syncControllersFromState(state);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,13 +117,39 @@ class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
         if (state.grindMode == GrindMode.equipment) ...[
           SmartTagField(
             type: TagFieldType.equipment,
-            tags: [], // equipment name tags handled by inventory controller
+            // Show the currently selected equipment name as a tag.
+            tags: state.selectedEquipmentName != null
+                ? [state.selectedEquipmentName!]
+                : [],
             labelText: 'Grinder / Equipment',
             hintText: 'Select grinder...',
             singleSelection: true,
-            onTagsChanged: (_) {}, // equipment ID linkage via inventory flow
+            onTagsChanged: (tags) {
+              // tags is empty when the user removes the selection.
+              ctrl.setEquipmentByName(tags.isEmpty ? null : tags.first);
+            },
           ),
           const SizedBox(height: AppSpacing.md),
+
+          // ── Grind click value (visible once an equipment is linked) ─
+          if (state.equipmentId != null) ...[
+            _ParamRow(
+              label: 'Grind Clicks',
+              valueText: state.grindClickValue != null
+                  ? '${state.grindClickValue!.toStringAsFixed(1)} clicks'
+                  : '—',
+              child: AppSlider(
+                value: state.grindClickValue ?? 0,
+                min: 0,
+                max: 50,
+                divisions: 100,
+                unit: 'clicks',
+                onChanged: ctrl.setGrindClickValue,
+                semanticLabel: 'Grind click value',
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
         ],
 
         // ── Pour Method ───────────────────────────────────────────────
