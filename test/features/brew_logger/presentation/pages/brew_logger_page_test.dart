@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:one_coffee/features/brew_logger/data/repositories/brew_repository_impl.dart';
+import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_coffee/features/brew_logger/presentation/pages/brew_logger_page.dart';
 import 'package:one_coffee/features/inventory/data/repositories/inventory_repository_impl.dart';
@@ -19,6 +20,9 @@ void main() {
     setUp(() {
       mockBrewRepo = MockBrewRepository();
       when(mockBrewRepo.createBrewRecord(any)).thenAnswer((_) async => 1);
+      when(
+        mockBrewRepo.watchAllBrewRecords(),
+      ).thenAnswer((_) => Stream.value(const <BrewRecord>[]));
 
       mockInventoryRepo = MockInventoryRepository();
       when(mockInventoryRepo.searchBeans(any)).thenAnswer((_) async => []);
@@ -140,7 +144,7 @@ void main() {
       await tester.tap(find.text('Skip for now'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Brew saved! ☕'), findsOneWidget);
+      expect(find.text('Brew saved!'), findsOneWidget);
     });
   });
 }

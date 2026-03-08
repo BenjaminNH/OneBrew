@@ -5,20 +5,19 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/timer_utils.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../inventory/presentation/widgets/template_picker.dart';
 import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
+import '../../domain/entities/brew_record.dart';
 import '../controllers/brew_logger_controller.dart';
 import '../controllers/brew_timer_controller.dart';
 import '../widgets/brew_timer_widget.dart';
 import '../widgets/param_input_section.dart';
 
-/// The main brew logger page.
+/// Main brew logging page.
 ///
-/// Orchestrates the timer, parameter inputs, and the save action.
-/// Per UI Spec § 3.1, no full-screen navigation; forms are presented via
-/// bottom sheets. Save is a single tap on the floating action area.
-///
-/// Ref: docs/05_Development_Plan.md § Phase 4 deliverables
+/// The page coordinates timer, parameter inputs, template reuse, and save flow.
 class BrewLoggerPage extends ConsumerStatefulWidget {
   const BrewLoggerPage({super.key});
 
@@ -33,8 +32,8 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
   Widget build(BuildContext context) {
     final loggerState = ref.watch(brewLoggerControllerProvider);
     final timerState = ref.watch(brewTimerControllerProvider);
+    final templatesAsync = ref.watch(recentBrewTemplatesProvider);
 
-    // Listen for save errors to show snackbar
     ref.listen<BrewLoggerState>(brewLoggerControllerProvider, (_, next) {
       if (next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -55,7 +54,6 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // ── Breathing header ──────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -65,8 +63,33 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
                 child: _PageHeader(beanName: loggerState.beanName),
               ),
             ),
-
-            // ── Timer dial ────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.pageHorizontal,
+                ),
+                child: templatesAsync.when(
+                  data: (records) => TemplatePicker(
+                    templates: _toTemplateOptions(records),
+                    onTemplateSelected: (option) {
+                      _onTemplateSelected(option.brewRecordId, records);
+                    },
+                  ),
+                  loading: () => TemplatePicker(
+                    templates: const [],
+                    isLoading: true,
+                    onTemplateSelected: (_) {},
+                  ),
+                  error: (error, stackTrace) => AppCard(
+                    child: Text(
+                      'Templates unavailable right now.',
+                      style: AppTextStyles.bodySmall,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -83,15 +106,9 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
                 ),
               ),
             ),
-
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
-
-            // ── Parameter input section ───────────────────────────────
             const SliverToBoxAdapter(child: ParamInputSection()),
-
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
-
-            // ── Save action bar ───────────────────────────────────────
             SliverToBoxAdapter(
               child: _SaveActionBar(
                 isRunning: timerState.isRunning,
@@ -100,7 +117,6 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
                 onSave: _onSaveTapped,
               ),
             ),
-
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpacing.pageBottom),
             ),
@@ -111,15 +127,60 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
   }
 
   Future<void> _onSaveTapped() async {
-    // Pause timer on save
     ref.read(brewTimerControllerProvider.notifier).pause();
     await ref
         .read(brewLoggerControllerProvider.notifier)
         .saveNewRecord(elapsedSeconds: _currentElapsed);
   }
 
+  Future<void> _onTemplateSelected(
+    int templateId,
+    List<BrewRecord> templates,
+  ) async {
+    BrewRecord? selected;
+    for (final template in templates) {
+      if (template.id == templateId) {
+        selected = template;
+        break;
+      }
+    }
+    if (selected == null) return;
+
+    await ref
+        .read(brewLoggerControllerProvider.notifier)
+        .applyTemplate(selected);
+    ref.read(brewTimerControllerProvider.notifier).reset();
+    setState(() => _currentElapsed = 0);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Template applied: ${selected.beanName}'),
+        backgroundColor: AppColors.success,
+      ),
+    );
+  }
+
+  List<BrewTemplateOption> _toTemplateOptions(List<BrewRecord> records) {
+    return records
+        .map((record) {
+          final title = record.beanName.trim().isEmpty
+              ? 'Untitled Brew'
+              : record.beanName;
+          final subtitle =
+              '${record.coffeeWeightG.toStringAsFixed(1)}g -> '
+              '${record.waterWeightG.toStringAsFixed(0)}g | '
+              '${TimerUtils.formatSeconds(record.brewDurationS)}';
+          return BrewTemplateOption(
+            brewRecordId: record.id,
+            title: title,
+            subtitle: subtitle,
+          );
+        })
+        .toList(growable: false);
+  }
+
   void _onSaveSuccess(int savedId) {
-    // Reset timer and form for next brew session
     ref.read(brewTimerControllerProvider.notifier).reset();
     ref.read(brewLoggerControllerProvider.notifier).resetForm();
     setState(() => _currentElapsed = 0);
@@ -137,7 +198,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          didSaveRating == true ? 'Brew & rating saved! ☕' : 'Brew saved! ☕',
+          didSaveRating == true ? 'Brew and rating saved!' : 'Brew saved!',
         ),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
@@ -162,11 +223,6 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Sub-widgets
-// ─────────────────────────────────────────────────────────────────────────────
-
-/// Breathing info-only header following UI Spec § 3.2.
 class _PageHeader extends StatelessWidget {
   const _PageHeader({required this.beanName});
   final String beanName;
@@ -200,7 +256,6 @@ class _PageHeader extends StatelessWidget {
   }
 }
 
-/// Save action bar at the bottom of the scrollable page.
 class _SaveActionBar extends StatefulWidget {
   const _SaveActionBar({
     required this.isRunning,

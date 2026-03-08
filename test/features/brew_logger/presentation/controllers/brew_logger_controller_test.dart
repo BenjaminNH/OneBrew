@@ -65,6 +65,9 @@ class _FakeInventoryRepo extends MockInventoryRepository {
       .toList();
 
   @override
+  Future<List<Equipment>> getAllEquipments() async => _equipments;
+
+  @override
   Future<List<Equipment>> searchEquipments(String? query) async => _equipments
       .where(
         (e) =>
@@ -303,6 +306,64 @@ void main() {
           expect(state.grindClickValue, equals(20.0));
         },
       );
+    });
+
+    group('applyTemplate keeps parameters consistent', () {
+      test('copies full brew parameters and resolves equipment name', () async {
+        final equipment = Equipment(
+          id: 88,
+          name: 'Comandante C40',
+          isGrinder: true,
+          addedAt: DateTime(2024),
+          useCount: 5,
+        );
+        final inventoryRepo = _FakeInventoryRepo(equipments: [equipment]);
+        final container = _makeContainer(inventoryRepo: inventoryRepo);
+        addTearDown(container.dispose);
+
+        final template = BrewRecord(
+          id: 7,
+          brewDate: DateTime(2026, 3, 7, 8, 30),
+          beanName: 'Ethiopia Guji',
+          equipmentId: 88,
+          grindMode: GrindMode.equipment,
+          grindClickValue: 24.0,
+          grindSimpleLabel: null,
+          grindMicrons: null,
+          coffeeWeightG: 18.0,
+          waterWeightG: 288.0,
+          waterTempC: 92.0,
+          brewDurationS: 195,
+          bloomTimeS: 30,
+          pourMethod: 'Pulse',
+          waterType: 'Filtered',
+          roomTempC: 24.0,
+          notes: 'Sweet finish',
+          isQuickMode: false,
+          createdAt: DateTime(2026, 3, 7, 8, 31),
+          updatedAt: DateTime(2026, 3, 7, 8, 31),
+        );
+
+        await container
+            .read(brewLoggerControllerProvider.notifier)
+            .applyTemplate(template);
+
+        final state = container.read(brewLoggerControllerProvider);
+        expect(state.beanName, equals(template.beanName));
+        expect(state.equipmentId, equals(template.equipmentId));
+        expect(state.selectedEquipmentName, equals('Comandante C40'));
+        expect(state.grindMode, equals(template.grindMode));
+        expect(state.grindClickValue, equals(template.grindClickValue));
+        expect(state.coffeeWeightG, equals(template.coffeeWeightG));
+        expect(state.waterWeightG, equals(template.waterWeightG));
+        expect(state.waterTempC, equals(template.waterTempC));
+        expect(state.brewDurationS, equals(template.brewDurationS));
+        expect(state.bloomTimeS, equals(template.bloomTimeS));
+        expect(state.pourMethod, equals(template.pourMethod));
+        expect(state.waterType, equals(template.waterType));
+        expect(state.roomTempC, equals(template.roomTempC));
+        expect(state.notes, equals(template.notes));
+      });
     });
   });
 }
