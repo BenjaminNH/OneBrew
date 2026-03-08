@@ -243,10 +243,10 @@ flutter test test/features/brew_logger/
 | `test/.../quick_rating_bar_test.dart` | Widget Test |
 
 ### 验收标准
-- [ ] 评价 CRUD 逻辑测试通过（快速模式 + 专业模式）
-- [ ] quickScore 1-5 范围校验、emoji 选择
-- [ ] `quick_rating_bar` Widget Test：滑动交互、渲染断言
-- [ ] `flutter test test/features/rating/` 全部通过
+- [x] 评价 CRUD 逻辑测试通过（快速模式 + 专业模式）
+- [x] quickScore 1-5 范围校验、emoji 选择
+- [x] `quick_rating_bar` Widget Test：滑动交互、渲染断言
+- [x] `flutter test test/features/rating/` 全部通过
 
 ### 推荐测试
 ```bash
@@ -413,7 +413,7 @@ flutter build apk --release
 | 2 | Domain 层 | ✅ 已完成 | 中 |
 | 3 | Inventory 功能 | ✅ 已完成 | 中 |
 | 4 | Brew Logger 功能 | ✅ 已完成 | 大 |
-| 5 | Rating 评价功能 | ⬜ 未开始 | 中 |
+| 5 | Rating 评价功能 | ✅ 已完成 | 中 |
 | 6 | History 历史功能 | ⬜ 未开始 | 中 |
 | 7 | 路由 & App Shell | ⬜ 未开始 | 小 |
 | 8 | UI 精装 & 设计系统 | ⬜ 未开始 | 大 |
