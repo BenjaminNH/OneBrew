@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../inventory/data/repositories/inventory_repository_impl.dart';
+import '../../../inventory/domain/entities/equipment.dart';
 import '../../data/repositories/brew_repository_impl.dart';
 import '../../domain/entities/brew_record.dart';
 import '../../domain/usecases/create_brew_record.dart';
@@ -17,6 +18,10 @@ class BrewLoggerState {
     this.grindClickValue,
     this.grindSimpleLabel,
     this.grindMicrons,
+    this.grindMinClick,
+    this.grindMaxClick,
+    this.grindClickStep,
+    this.grindClickUnit,
     this.coffeeWeightG = 15.0,
     this.waterWeightG = 225.0,
     this.waterTempC = 93.0,
@@ -46,6 +51,10 @@ class BrewLoggerState {
   final double? grindClickValue;
   final String? grindSimpleLabel;
   final int? grindMicrons;
+  final double? grindMinClick;
+  final double? grindMaxClick;
+  final double? grindClickStep;
+  final String? grindClickUnit;
   final double coffeeWeightG;
   final double waterWeightG;
   final double? waterTempC;
@@ -69,6 +78,41 @@ class BrewLoggerState {
 
   double get ratio => coffeeWeightG > 0 ? waterWeightG / coffeeWeightG : 0;
 
+  bool get hasValidGrindClickConfig {
+    final min = grindMinClick;
+    final max = grindMaxClick;
+    final step = grindClickStep;
+    return min != null && max != null && step != null && max > min && step > 0;
+  }
+
+  double get grindSliderMin => grindMinClick ?? 0;
+  double get grindSliderMax => grindMaxClick ?? 50;
+  double get grindSliderStep => grindClickStep ?? 0.5;
+
+  String get grindSliderUnit {
+    final unit = grindClickUnit?.trim();
+    if (unit == null || unit.isEmpty) return 'clicks';
+    return unit;
+  }
+
+  int get grindSliderDivisions {
+    if (!hasValidGrindClickConfig) return 100;
+    final raw = (grindSliderMax - grindSliderMin) / grindSliderStep;
+    final rounded = raw.round();
+    return rounded <= 0 ? 1 : rounded;
+  }
+
+  int get grindValueFractionDigits {
+    final step = grindClickStep;
+    if (step == null || step <= 0) return 1;
+    final text = step.toString();
+    if (!text.contains('.')) return 0;
+    final fraction = text.split('.').last.replaceAll(RegExp(r'0+$'), '');
+    if (fraction.isEmpty) return 0;
+    if (fraction.length > 3) return 3;
+    return fraction.length;
+  }
+
   BrewLoggerState copyWith({
     String? beanName,
     Object? equipmentId = _sentinel,
@@ -77,6 +121,10 @@ class BrewLoggerState {
     Object? grindClickValue = _sentinel,
     Object? grindSimpleLabel = _sentinel,
     Object? grindMicrons = _sentinel,
+    Object? grindMinClick = _sentinel,
+    Object? grindMaxClick = _sentinel,
+    Object? grindClickStep = _sentinel,
+    Object? grindClickUnit = _sentinel,
     double? coffeeWeightG,
     double? waterWeightG,
     Object? waterTempC = _sentinel,
@@ -112,6 +160,18 @@ class BrewLoggerState {
       grindMicrons: grindMicrons == _sentinel
           ? this.grindMicrons
           : grindMicrons as int?,
+      grindMinClick: grindMinClick == _sentinel
+          ? this.grindMinClick
+          : grindMinClick as double?,
+      grindMaxClick: grindMaxClick == _sentinel
+          ? this.grindMaxClick
+          : grindMaxClick as double?,
+      grindClickStep: grindClickStep == _sentinel
+          ? this.grindClickStep
+          : grindClickStep as double?,
+      grindClickUnit: grindClickUnit == _sentinel
+          ? this.grindClickUnit
+          : grindClickUnit as String?,
       coffeeWeightG: coffeeWeightG ?? this.coffeeWeightG,
       waterWeightG: waterWeightG ?? this.waterWeightG,
       waterTempC: waterTempC == _sentinel
@@ -178,47 +238,113 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
         equipmentId: null,
         selectedEquipmentName: null,
         grindClickValue: null,
+        grindMinClick: null,
+        grindMaxClick: null,
+        grindClickStep: null,
+        grindClickUnit: null,
       );
       return;
     }
     final inventoryRepo = ref.read(inventoryRepositoryProvider);
     final equipments = await inventoryRepo.searchEquipments(name);
-    final match = equipments.cast<dynamic>().firstWhere(
-      (e) => (e.name as String).toLowerCase() == name.toLowerCase(),
-      orElse: () => null,
-    );
+    Equipment? match;
+    for (final equipment in equipments) {
+      if (equipment.name.toLowerCase() == name.toLowerCase()) {
+        match = equipment;
+        break;
+      }
+    }
+
     if (match == null) {
       state = state.copyWith(
         selectedEquipmentName: name,
         equipmentId: null,
         grindClickValue: null,
+        grindMinClick: null,
+        grindMaxClick: null,
+        grindClickStep: null,
+        grindClickUnit: null,
       );
     } else {
-      // Pre-populate grindClickValue with the midpoint of the click range
-      // when available, so the UI shows a sensible default.
-      double? defaultClick;
-      final min = match.grindMinClick as double?;
-      final max = match.grindMaxClick as double?;
-      if (min != null && max != null) {
-        defaultClick = ((min + max) / 2).roundToDouble();
+      if (!_hasValidGrindClickConfig(match)) {
+        // ADR-004 fallback: equipment without click calibration falls back
+        // to simple mode.
+        state = state.copyWith(
+          selectedEquipmentName: match.name,
+          equipmentId: match.id,
+          grindMode: GrindMode.simple,
+          grindClickValue: null,
+          grindMinClick: null,
+          grindMaxClick: null,
+          grindClickStep: null,
+          grindClickUnit: null,
+        );
+        return;
       }
+
+      final min = match.grindMinClick!;
+      final max = match.grindMaxClick!;
+      final step = match.grindClickStep!;
+      final defaultClick = _snapGrindClickValue(
+        (min + max) / 2,
+        min: min,
+        max: max,
+        step: step,
+      );
+
       state = state.copyWith(
-        selectedEquipmentName: name,
-        equipmentId: match.id as int,
+        selectedEquipmentName: match.name,
+        equipmentId: match.id,
         grindClickValue: defaultClick,
+        grindMinClick: min,
+        grindMaxClick: max,
+        grindClickStep: step,
+        grindClickUnit: _normalizeGrindClickUnit(match.grindClickUnit),
       );
     }
   }
 
-  void setGrindMode(GrindMode mode) => state = state.copyWith(
-    grindMode: mode,
-    grindClickValue: null,
-    grindSimpleLabel: null,
-    grindMicrons: null,
-  );
+  void setGrindMode(GrindMode mode) {
+    if (mode == GrindMode.equipment &&
+        state.equipmentId != null &&
+        !state.hasValidGrindClickConfig) {
+      state = state.copyWith(
+        grindMode: GrindMode.simple,
+        grindClickValue: null,
+        grindSimpleLabel: null,
+        grindMicrons: null,
+      );
+      return;
+    }
 
-  void setGrindClickValue(double? value) =>
-      state = state.copyWith(grindClickValue: value);
+    state = state.copyWith(
+      grindMode: mode,
+      grindClickValue: null,
+      grindSimpleLabel: null,
+      grindMicrons: null,
+    );
+  }
+
+  void setGrindClickValue(double? value) {
+    if (value == null) {
+      state = state.copyWith(grindClickValue: null);
+      return;
+    }
+
+    var normalized = value;
+    if (state.grindMode == GrindMode.equipment &&
+        state.hasValidGrindClickConfig) {
+      normalized = _snapGrindClickValue(
+        value,
+        min: state.grindSliderMin,
+        max: state.grindSliderMax,
+        step: state.grindSliderStep,
+      );
+    }
+
+    state = state.copyWith(grindClickValue: normalized);
+  }
+
   void setGrindSimpleLabel(String? label) =>
       state = state.copyWith(grindSimpleLabel: label);
   void setGrindMicrons(int? microns) =>
@@ -249,6 +375,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
   /// This enables the "brew again" workflow from docs/00_Product_Brief.md.
   Future<void> applyTemplate(BrewRecord template) async {
     String? selectedEquipmentName;
+    Equipment? selectedEquipment;
 
     if (template.equipmentId != null) {
       final equipments = await ref
@@ -257,19 +384,50 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       for (final equipment in equipments) {
         if (equipment.id == template.equipmentId) {
           selectedEquipmentName = equipment.name;
+          selectedEquipment = equipment;
           break;
         }
       }
+    }
+
+    final hasGrindConfig =
+        selectedEquipment != null &&
+        _hasValidGrindClickConfig(selectedEquipment);
+
+    final resolvedGrindMode =
+        template.grindMode == GrindMode.equipment && !hasGrindConfig
+        ? GrindMode.simple
+        : template.grindMode;
+
+    double? resolvedGrindClickValue = template.grindClickValue;
+    if (resolvedGrindMode == GrindMode.equipment && selectedEquipment != null) {
+      final min = selectedEquipment.grindMinClick!;
+      final max = selectedEquipment.grindMaxClick!;
+      final step = selectedEquipment.grindClickStep!;
+      resolvedGrindClickValue = _snapGrindClickValue(
+        template.grindClickValue ?? (min + max) / 2,
+        min: min,
+        max: max,
+        step: step,
+      );
+    } else if (resolvedGrindMode != GrindMode.equipment) {
+      resolvedGrindClickValue = null;
     }
 
     state = state.copyWith(
       beanName: template.beanName,
       equipmentId: template.equipmentId,
       selectedEquipmentName: selectedEquipmentName,
-      grindMode: template.grindMode,
-      grindClickValue: template.grindClickValue,
+      grindMode: resolvedGrindMode,
+      grindClickValue: resolvedGrindClickValue,
       grindSimpleLabel: template.grindSimpleLabel,
       grindMicrons: template.grindMicrons,
+      grindMinClick: hasGrindConfig ? selectedEquipment.grindMinClick : null,
+      grindMaxClick: hasGrindConfig ? selectedEquipment.grindMaxClick : null,
+      grindClickStep: hasGrindConfig ? selectedEquipment.grindClickStep : null,
+      grindClickUnit: hasGrindConfig
+          ? _normalizeGrindClickUnit(selectedEquipment.grindClickUnit)
+          : null,
       coffeeWeightG: template.coffeeWeightG,
       waterWeightG: template.waterWeightG,
       waterTempC: template.waterTempC,
@@ -414,6 +572,32 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     if (state.equipmentId != null) {
       await inventoryRepo.incrementEquipmentUseCount(state.equipmentId!);
     }
+  }
+
+  bool _hasValidGrindClickConfig(Equipment equipment) {
+    final min = equipment.grindMinClick;
+    final max = equipment.grindMaxClick;
+    final step = equipment.grindClickStep;
+    return min != null && max != null && step != null && max > min && step > 0;
+  }
+
+  String _normalizeGrindClickUnit(String? unit) {
+    final normalized = unit?.trim();
+    if (normalized == null || normalized.isEmpty) return 'clicks';
+    return normalized;
+  }
+
+  double _snapGrindClickValue(
+    double value, {
+    required double min,
+    required double max,
+    required double step,
+  }) {
+    final clamped = value.clamp(min, max).toDouble();
+    final steps = ((clamped - min) / step).round();
+    final snapped = min + (steps * step);
+    final bounded = snapped.clamp(min, max).toDouble();
+    return double.parse(bounded.toStringAsFixed(4));
   }
 }
 

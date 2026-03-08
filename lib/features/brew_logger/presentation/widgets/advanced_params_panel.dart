@@ -132,18 +132,16 @@ class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
           const SizedBox(height: AppSpacing.md),
 
           // ── Grind click value (visible once an equipment is linked) ─
-          if (state.equipmentId != null) ...[
+          if (state.equipmentId != null && state.hasValidGrindClickConfig) ...[
             _ParamRow(
               label: 'Grind Clicks',
-              valueText: state.grindClickValue != null
-                  ? '${state.grindClickValue!.toStringAsFixed(1)} clicks'
-                  : '—',
+              valueText: _formatGrindClickValue(state),
               child: AppSlider(
-                value: state.grindClickValue ?? 0,
-                min: 0,
-                max: 50,
-                divisions: 100,
-                unit: 'clicks',
+                value: state.grindClickValue ?? state.grindSliderMin,
+                min: state.grindSliderMin,
+                max: state.grindSliderMax,
+                divisions: state.grindSliderDivisions,
+                unit: state.grindSliderUnit,
                 onChanged: ctrl.setGrindClickValue,
                 semanticLabel: 'Grind click value',
               ),
@@ -215,6 +213,13 @@ const _grindSimpleLabels = [
   'Coarse',
   'Extra Coarse',
 ];
+
+String _formatGrindClickValue(BrewLoggerState state) {
+  final clickValue = state.grindClickValue;
+  if (clickValue == null) return '—';
+  return '${clickValue.toStringAsFixed(state.grindValueFractionDigits)} '
+      '${state.grindSliderUnit}';
+}
 
 class _GrindModeSection extends StatelessWidget {
   const _GrindModeSection({required this.state, required this.ctrl});
