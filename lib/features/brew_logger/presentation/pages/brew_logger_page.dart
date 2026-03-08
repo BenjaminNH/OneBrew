@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -132,7 +133,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
           label: 'View',
           textColor: Colors.white,
           onPressed: () {
-            /* navigate to history — Phase 7 */
+            context.go('/history');
           },
         ),
       ),

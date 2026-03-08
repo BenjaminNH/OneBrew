@@ -8,7 +8,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:one_coffee/main.dart';
+import 'package:one_coffee/app.dart';
 
 void main() {
   testWidgets('OneCoffeeApp renders without crashing', (
@@ -16,7 +16,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const ProviderScope(child: OneCoffeeApp()));
     await tester.pumpAndSettle();
-    // Phase 0 demo page should display the app title
+    // Phase 7 initial route should land on the brew logger page.
     expect(find.text('OneCoffee'), findsOneWidget);
   });
 }
