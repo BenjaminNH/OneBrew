@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Code Review reports (temporary, not for version control)
+docs/CR_*.md
