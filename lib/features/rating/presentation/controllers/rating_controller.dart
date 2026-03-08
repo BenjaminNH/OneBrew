@@ -88,11 +88,7 @@ class RatingController extends Notifier<RatingState> {
   RatingState build() => const RatingState();
 
   Future<void> initializeForBrew(int brewRecordId) async {
-    state = state.copyWith(
-      isLoading: true,
-      brewRecordId: brewRecordId,
-      errorMessage: null,
-    );
+    state = RatingState(brewRecordId: brewRecordId, isLoading: true);
 
     try {
       final existing = await ref
@@ -100,21 +96,30 @@ class RatingController extends Notifier<RatingState> {
           .getRatingForBrew(brewRecordId);
 
       if (existing == null) {
-        state = state.copyWith(isLoading: false, ratingId: 0);
+        state = RatingState(brewRecordId: brewRecordId, isLoading: false);
         return;
       }
+
+      final notes = _parseFlavorNotes(existing.flavorNotes);
+      final hasProfessionalScores =
+          existing.acidity != null ||
+          existing.sweetness != null ||
+          existing.bitterness != null ||
+          existing.body != null ||
+          notes.isNotEmpty;
 
       state = state.copyWith(
         isLoading: false,
         ratingId: existing.id,
         brewRecordId: existing.brewRecordId,
+        isQuickMode: !hasProfessionalScores,
         quickScore: existing.quickScore,
         emoji: existing.emoji,
         acidity: existing.acidity ?? 5.0,
         sweetness: existing.sweetness ?? 5.0,
         bitterness: existing.bitterness ?? 5.0,
         body: existing.body ?? 5.0,
-        flavorNotes: _parseFlavorNotes(existing.flavorNotes),
+        flavorNotes: notes,
       );
     } catch (e) {
       state = state.copyWith(

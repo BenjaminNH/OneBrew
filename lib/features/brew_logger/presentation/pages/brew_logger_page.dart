@@ -6,6 +6,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
 import '../controllers/brew_logger_controller.dart';
 import '../controllers/brew_timer_controller.dart';
 import '../widgets/brew_timer_widget.dart';
@@ -123,10 +124,21 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
     ref.read(brewLoggerControllerProvider.notifier).resetForm();
     setState(() => _currentElapsed = 0);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _showSaveSuccessFlow(savedId);
+    });
+  }
+
+  Future<void> _showSaveSuccessFlow(int savedId) async {
+    final didSaveRating = await _openRatingSheet(savedId);
+
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Brew saved! ☕'),
+        content: Text(
+          didSaveRating == true ? 'Brew & rating saved! ☕' : 'Brew saved! ☕',
+        ),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
@@ -137,6 +149,15 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage> {
           },
         ),
       ),
+    );
+  }
+
+  Future<bool?> _openRatingSheet(int brewRecordId) {
+    return showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BrewRatingSheet(brewRecordId: brewRecordId),
     );
   }
 }
