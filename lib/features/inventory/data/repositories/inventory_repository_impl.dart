@@ -3,11 +3,13 @@ import 'package:drift/drift.dart' as drift;
 import '../../../../core/database/drift_database.dart' as db;
 import '../../domain/entities/bean.dart' as domain;
 import '../../domain/entities/equipment.dart' as domain;
+import '../../domain/inventory_exceptions.dart';
 import '../../domain/repositories/inventory_repository.dart';
 import '../datasources/inventory_local_datasource.dart';
 
 class InventoryRepositoryImpl implements InventoryRepository {
   final InventoryLocalDatasource _datasource;
+  static const int _maxGrinderSegments = 1000;
 
   InventoryRepositoryImpl(this._datasource);
 
@@ -72,7 +74,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<int> createBean(domain.Bean bean) async {
-    final existing = await _datasource.getBeanByName(bean.name);
+    final existing = await _datasource.getBeanByNameIgnoreCase(bean.name);
     if (existing != null) return existing.id;
 
     final companion = db.BeansCompanion.insert(
@@ -99,6 +101,17 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<int> deleteBean(int id) async {
+    final bean = await _datasource.getBeanById(id);
+    if (bean == null) return 0;
+
+    final referenceCount = await _datasource.countBrewRecordsByBeanName(
+      bean.name,
+    );
+    if (referenceCount > 0) {
+      throw const InventoryReferenceException(
+        'This bean is referenced by brew history and cannot be deleted.',
+      );
+    }
     return _datasource.deleteBean(id);
   }
 
@@ -120,8 +133,20 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
+  Future<List<domain.Equipment>> getAllGrinders() async {
+    final ds = await _datasource.getAllGrinders();
+    return ds.map(_mapEquipmentToDomain).toList();
+  }
+
+  @override
+  Future<List<domain.Equipment>> searchGrinders(String query) async {
+    final ds = await _datasource.searchGrinders(query);
+    return ds.map(_mapEquipmentToDomain).toList();
+  }
+
+  @override
   Future<int> createEquipment(domain.Equipment e) async {
-    final existing = await _datasource.getEquipmentByName(e.name);
+    final existing = await _datasource.getEquipmentByNameIgnoreCase(e.name);
     if (existing != null) return existing.id;
 
     final companion = db.EquipmentsCompanion.insert(
@@ -155,11 +180,109 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<int> deleteEquipment(int id) async {
+    final references = await _datasource.countBrewRecordsByEquipmentId(id);
+    if (references > 0) {
+      throw const InventoryReferenceException(
+        'This equipment is referenced by brew history and cannot be deleted.',
+      );
+    }
     return _datasource.deleteEquipment(id);
   }
 
   @override
   Future<void> incrementEquipmentUseCount(int id) async {
     return _datasource.incrementEquipmentUseCount(id);
+  }
+
+  @override
+  Future<bool> renameBeanAndPropagate({
+    required int beanId,
+    required String newName,
+  }) async {
+    final normalizedName = newName.trim();
+    if (normalizedName.isEmpty) {
+      throw const InventoryValidationException('Bean name cannot be empty.');
+    }
+
+    final bean = await _datasource.getBeanById(beanId);
+    if (bean == null) return false;
+
+    final conflict = await _datasource.getBeanByNameIgnoreCase(normalizedName);
+    if (conflict != null && conflict.id != beanId) {
+      throw const InventoryConflictException(
+        'A bean with the same name already exists.',
+      );
+    }
+
+    return _datasource.renameBeanAndPropagate(
+      beanId: beanId,
+      newName: normalizedName,
+    );
+  }
+
+  @override
+  Future<bool> updateGrinder(domain.Equipment grinder) async {
+    _validateGrinderConfig(grinder);
+    return _datasource.updateEquipment(_mapEquipmentToDb(grinder));
+  }
+
+  @override
+  Future<int> deleteGrinderWithGuard(int grinderId) async {
+    final grinder = await _datasource.getEquipmentById(grinderId);
+    if (grinder == null) return 0;
+    if (!grinder.isGrinder) {
+      throw const InventoryValidationException(
+        'Only grinder equipment can be deleted from grinder management.',
+      );
+    }
+
+    final references = await _datasource.countBrewRecordsByEquipmentId(
+      grinderId,
+    );
+    if (references > 0) {
+      throw const InventoryReferenceException(
+        'This grinder is referenced by brew history and cannot be deleted.',
+      );
+    }
+
+    return _datasource.deleteEquipment(grinderId);
+  }
+
+  void _validateGrinderConfig(domain.Equipment grinder) {
+    if (!grinder.isGrinder) {
+      throw const InventoryValidationException(
+        'Grinder update requires isGrinder=true.',
+      );
+    }
+
+    final min = grinder.grindMinClick;
+    final max = grinder.grindMaxClick;
+    final step = grinder.grindClickStep;
+    if (min == null || max == null || step == null) {
+      throw const InventoryValidationException(
+        'Grinder configuration requires min/max/step values.',
+      );
+    }
+
+    if (max <= min) {
+      throw const InventoryValidationException(
+        'Grinder max click must be greater than min click.',
+      );
+    }
+
+    if (step <= 0) {
+      throw const InventoryValidationException(
+        'Grinder click step must be greater than 0.',
+      );
+    }
+
+    final segmentCount = (max - min) / step;
+    if (!segmentCount.isFinite ||
+        segmentCount <= 0 ||
+        segmentCount > _maxGrinderSegments) {
+      throw InventoryValidationException(
+        'Grinder range is too large. Maximum segments: $_maxGrinderSegments.',
+      );
+    }
   }
 }

@@ -3,7 +3,10 @@ import 'package:mockito/mockito.dart';
 import 'package:one_coffee/features/inventory/domain/entities/equipment.dart';
 import 'package:one_coffee/features/inventory/domain/usecases/create_bean.dart';
 import 'package:one_coffee/features/inventory/domain/usecases/create_equipment.dart';
+import 'package:one_coffee/features/inventory/domain/usecases/delete_grinder_with_guard.dart';
 import 'package:one_coffee/features/inventory/domain/usecases/get_suggestions.dart';
+import 'package:one_coffee/features/inventory/domain/usecases/rename_bean_and_propagate.dart';
+import 'package:one_coffee/features/inventory/domain/usecases/update_grinder.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
 import '../../../../helpers/test_fixtures.dart';
@@ -13,12 +16,18 @@ void main() {
   late GetSuggestions getSuggestions;
   late CreateBean createBean;
   late CreateEquipment createEquipment;
+  late RenameBeanAndPropagate renameBeanAndPropagate;
+  late UpdateGrinder updateGrinder;
+  late DeleteGrinderWithGuard deleteGrinderWithGuard;
 
   setUp(() {
     mockRepo = MockInventoryRepository();
     getSuggestions = GetSuggestions(mockRepo);
     createBean = CreateBean(mockRepo);
     createEquipment = CreateEquipment(mockRepo);
+    renameBeanAndPropagate = RenameBeanAndPropagate(mockRepo);
+    updateGrinder = UpdateGrinder(mockRepo);
+    deleteGrinderWithGuard = DeleteGrinderWithGuard(mockRepo);
   });
 
   // ─── GetSuggestions ─────────────────────────────────────────────────────
@@ -130,6 +139,60 @@ void main() {
           verify(mockRepo.createEquipment(captureAny)).captured.single
               as Equipment;
       expect(captured.isGrinder, isFalse);
+    });
+  });
+
+  group('Phase 7B use cases', () {
+    test('RenameBeanAndPropagate delegates to repository', () async {
+      when(
+        mockRepo.renameBeanAndPropagate(beanId: 1, newName: 'Renamed Bean'),
+      ).thenAnswer((_) async => true);
+
+      final success = await renameBeanAndPropagate(
+        beanId: 1,
+        newName: 'Renamed Bean',
+      );
+
+      expect(success, isTrue);
+      verify(
+        mockRepo.renameBeanAndPropagate(beanId: 1, newName: 'Renamed Bean'),
+      ).called(1);
+    });
+
+    test('UpdateGrinder delegates and returns update result', () async {
+      final grinder = TestFixtures.grinder(
+        id: 9,
+        grindMinClick: 0,
+        grindMaxClick: 40,
+        grindClickStep: 1,
+      );
+      when(mockRepo.updateGrinder(grinder)).thenAnswer((_) async => true);
+
+      final result = await updateGrinder(grinder);
+
+      expect(result, isTrue);
+      verify(mockRepo.updateGrinder(grinder)).called(1);
+    });
+
+    test(
+      'DeleteGrinderWithGuard returns true when repository deletes row',
+      () async {
+        when(mockRepo.deleteGrinderWithGuard(5)).thenAnswer((_) async => 1);
+
+        final result = await deleteGrinderWithGuard(5);
+
+        expect(result, isTrue);
+        verify(mockRepo.deleteGrinderWithGuard(5)).called(1);
+      },
+    );
+
+    test('DeleteGrinderWithGuard returns false when no row deleted', () async {
+      when(mockRepo.deleteGrinderWithGuard(99)).thenAnswer((_) async => 0);
+
+      final result = await deleteGrinderWithGuard(99);
+
+      expect(result, isFalse);
+      verify(mockRepo.deleteGrinderWithGuard(99)).called(1);
     });
   });
 }
