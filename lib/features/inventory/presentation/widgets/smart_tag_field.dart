@@ -259,6 +259,7 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
       labelText: widget.labelText,
       singleSelection: widget.singleSelection,
       onSubmit: (tag) async {
+        final messenger = ScaffoldMessenger.maybeOf(context);
         final controller = ref.read(inventoryControllerProvider.notifier);
         final isKnown = _isKnownSuggestion(tag);
 
@@ -287,7 +288,7 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
           }
         } catch (error) {
           if (mounted) {
-            ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+            messenger?.showSnackBar(
               SnackBar(content: Text('Failed to save "$tag": $error')),
             );
           }
