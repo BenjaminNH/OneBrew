@@ -33,6 +33,12 @@ abstract interface class InventoryRepository {
   /// Returns equipment whose name fuzzy-matches [query], ordered by use count.
   Future<List<Equipment>> searchEquipments(String query);
 
+  /// Returns grinders only (`isGrinder == true`) ordered by use count.
+  Future<List<Equipment>> getAllGrinders();
+
+  /// Returns grinders whose name fuzzy-matches [query].
+  Future<List<Equipment>> searchGrinders(String query);
+
   /// Persists a new equipment item and returns its assigned ID.
   Future<int> createEquipment(Equipment equipment);
 
@@ -44,4 +50,17 @@ abstract interface class InventoryRepository {
 
   /// Increments [Equipment.useCount] for the equipment with [id].
   Future<void> incrementEquipmentUseCount(int id);
+
+  /// Renames bean [beanId] and propagates name changes to historical records.
+  Future<bool> renameBeanAndPropagate({
+    required int beanId,
+    required String newName,
+  });
+
+  /// Updates grinder settings with domain validation.
+  Future<bool> updateGrinder(Equipment grinder);
+
+  /// Deletes grinder [grinderId] if there are no historical references.
+  /// Returns the number of deleted rows.
+  Future<int> deleteGrinderWithGuard(int grinderId);
 }

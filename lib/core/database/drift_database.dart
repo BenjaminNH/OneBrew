@@ -66,14 +66,25 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
   /// Returns all beans ordered by [Beans.useCount] descending
   /// (most-used first — smart autocomplete order).
   Future<List<Bean>> getAllBeans() =>
-      (select(beans)..orderBy([(b) => OrderingTerm.desc(b.useCount)])).get();
+      (select(beans)..orderBy([
+            (b) => OrderingTerm.desc(b.useCount),
+            (b) => OrderingTerm.desc(b.addedAt),
+          ]))
+          .get();
 
   /// Returns beans whose [Beans.name] contains [query] (case-insensitive).
   Future<List<Bean>> searchBeans(String query) =>
       (select(beans)
             ..where((b) => b.name.lower().contains(query.toLowerCase()))
-            ..orderBy([(b) => OrderingTerm.desc(b.useCount)]))
+            ..orderBy([
+              (b) => OrderingTerm.desc(b.useCount),
+              (b) => OrderingTerm.desc(b.addedAt),
+            ]))
           .get();
+
+  /// Returns a single bean by [id], or null when not found.
+  Future<Bean?> getBeanById(int id) =>
+      (select(beans)..where((b) => b.id.equals(id))).getSingleOrNull();
 
   /// Inserts a new bean; returns the new row's id.
   Future<int> insertBean(BeansCompanion bean) => into(beans).insert(bean);
@@ -93,21 +104,87 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
     );
   }
 
+  /// Renames a bean and propagates its name to historical brew records
+  /// in one transaction.
+  Future<bool> renameBeanAndPropagate({
+    required int beanId,
+    required String newName,
+  }) async {
+    return transaction(() async {
+      final existingBean = await getBeanById(beanId);
+      if (existingBean == null) return false;
+
+      await (update(beans)..where((b) => b.id.equals(beanId))).write(
+        BeansCompanion(name: Value(newName)),
+      );
+      await customStatement(
+        'UPDATE brew_records SET bean_name = ? WHERE lower(bean_name) = lower(?)',
+        [newName, existingBean.name],
+      );
+      return true;
+    });
+  }
+
+  /// Counts brew records referencing the given bean name (case-insensitive).
+  Future<int> countBrewRecordsByBeanName(String beanName) async {
+    final row = await customSelect(
+      'SELECT COUNT(*) AS ref_count FROM brew_records '
+      'WHERE lower(bean_name) = lower(?)',
+      variables: [Variable<String>(beanName)],
+      readsFrom: {brewRecords},
+    ).getSingle();
+    return row.read<int>('ref_count');
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // Equipment queries
   // ─────────────────────────────────────────────────────────────────────────
 
   /// Returns all equipment ordered by [Equipments.useCount] descending.
-  Future<List<Equipment>> getAllEquipments() => (select(
-    equipments,
-  )..orderBy([(e) => OrderingTerm.desc(e.useCount)])).get();
+  Future<List<Equipment>> getAllEquipments() =>
+      (select(equipments)..orderBy([
+            (e) => OrderingTerm.desc(e.useCount),
+            (e) => OrderingTerm.desc(e.addedAt),
+          ]))
+          .get();
 
   /// Returns equipment whose [Equipments.name] contains [query].
   Future<List<Equipment>> searchEquipments(String query) =>
       (select(equipments)
             ..where((e) => e.name.lower().contains(query.toLowerCase()))
-            ..orderBy([(e) => OrderingTerm.desc(e.useCount)]))
+            ..orderBy([
+              (e) => OrderingTerm.desc(e.useCount),
+              (e) => OrderingTerm.desc(e.addedAt),
+            ]))
           .get();
+
+  /// Returns grinder equipment ordered by use count then add time.
+  Future<List<Equipment>> getAllGrinders() =>
+      (select(equipments)
+            ..where((e) => e.isGrinder.equals(true))
+            ..orderBy([
+              (e) => OrderingTerm.desc(e.useCount),
+              (e) => OrderingTerm.desc(e.addedAt),
+            ]))
+          .get();
+
+  /// Returns grinder equipment filtered by [query].
+  Future<List<Equipment>> searchGrinders(String query) =>
+      (select(equipments)
+            ..where(
+              (e) =>
+                  e.isGrinder.equals(true) &
+                  e.name.lower().contains(query.toLowerCase()),
+            )
+            ..orderBy([
+              (e) => OrderingTerm.desc(e.useCount),
+              (e) => OrderingTerm.desc(e.addedAt),
+            ]))
+          .get();
+
+  /// Returns a single equipment by [id], or null when not found.
+  Future<Equipment?> getEquipmentById(int id) =>
+      (select(equipments)..where((e) => e.id.equals(id))).getSingleOrNull();
 
   /// Inserts a new equipment row; returns the new row's id.
   Future<int> insertEquipment(EquipmentsCompanion equipment) =>
@@ -127,6 +204,16 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
       'UPDATE equipments SET use_count = use_count + 1 WHERE id = ?',
       [id],
     );
+  }
+
+  /// Counts brew records referencing equipment [id].
+  Future<int> countBrewRecordsByEquipmentId(int id) async {
+    final row = await customSelect(
+      'SELECT COUNT(*) AS ref_count FROM brew_records WHERE equipment_id = ?',
+      variables: [Variable<int>(id)],
+      readsFrom: {brewRecords},
+    ).getSingle();
+    return row.read<int>('ref_count');
   }
 
   // ─────────────────────────────────────────────────────────────────────────

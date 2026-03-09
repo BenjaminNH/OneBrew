@@ -179,6 +179,26 @@ class MockInventoryRepository extends _i1.Mock
           as _i3.Future<List<_i7.Equipment>>);
 
   @override
+  _i3.Future<List<_i7.Equipment>> getAllGrinders() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllGrinders, []),
+            returnValue: _i3.Future<List<_i7.Equipment>>.value(
+              <_i7.Equipment>[],
+            ),
+          )
+          as _i3.Future<List<_i7.Equipment>>);
+
+  @override
+  _i3.Future<List<_i7.Equipment>> searchGrinders(String? query) =>
+      (super.noSuchMethod(
+            Invocation.method(#searchGrinders, [query]),
+            returnValue: _i3.Future<List<_i7.Equipment>>.value(
+              <_i7.Equipment>[],
+            ),
+          )
+          as _i3.Future<List<_i7.Equipment>>);
+
+  @override
   _i3.Future<int> createEquipment(_i7.Equipment? equipment) =>
       (super.noSuchMethod(
             Invocation.method(#createEquipment, [equipment]),
@@ -210,6 +230,36 @@ class MockInventoryRepository extends _i1.Mock
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<bool> renameBeanAndPropagate({
+    required int? beanId,
+    required String? newName,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#renameBeanAndPropagate, [], {
+              #beanId: beanId,
+              #newName: newName,
+            }),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
+
+  @override
+  _i3.Future<bool> updateGrinder(_i7.Equipment? grinder) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateGrinder, [grinder]),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
+
+  @override
+  _i3.Future<int> deleteGrinderWithGuard(int? grinderId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteGrinderWithGuard, [grinderId]),
+            returnValue: _i3.Future<int>.value(0),
+          )
+          as _i3.Future<int>);
 }
 
 /// A class which mocks [RatingRepository].
