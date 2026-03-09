@@ -480,11 +480,11 @@ flutter test test/features/history/
 | `test/features/inventory/` | Bean/Grinder 管理相关测试 |
 
 ### 验收标准
-- [ ] Beans 默认按 `useCount desc, addedAt desc` 排序，支持搜索和编辑
-- [ ] Bean 重命名冲突会被拦截；重命名成功后历史 `beanName` 同步更新
-- [ ] Grinders 支持刻度配置（min/max/step/unit）并进行合法性校验
-- [ ] 被历史记录引用的 Grinder 删除会被拦截
-- [ ] `flutter test test/features/inventory/` 全部通过
+- [x] Beans 默认按 `useCount desc, addedAt desc` 排序，支持搜索和编辑
+- [x] Bean 重命名冲突会被拦截；重命名成功后历史 `beanName` 同步更新
+- [x] Grinders 支持刻度配置（min/max/step/unit）并进行合法性校验
+- [x] 被历史记录引用的 Grinder 删除会被拦截
+- [x] `flutter test test/features/inventory/` 全部通过
 
 ### 推荐测试
 ```bash
@@ -558,5 +558,5 @@ flutter test
 | 8 | UI 精装 & 设计系统 | ⬜ 未开始 | 大 |
 | 9 | 集成测试 & CI/CD | ⬜ 未开始 | 中 |
 | 7A | History 详情闭环（查询 + 详情页 + 再冲一次） | ⬜ 未开始 | 中 |
-| 7B | Inventory 管理闭环（Bean + Grinder） | ⬜ 未开始 | 中 |
+| 7B | Inventory 管理闭环（Bean + Grinder） | ✅ 已完成 | 中 |
 | 7C | 入口整合与新增功能回归 | ⬜ 未开始 | 小 |
