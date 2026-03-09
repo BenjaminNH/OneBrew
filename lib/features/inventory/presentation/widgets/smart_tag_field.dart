@@ -37,6 +37,13 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
     _loadSuggestions();
   }
 
+  List<String> _tagsAfterSubmit(String tag) {
+    if (widget.singleSelection) return [tag];
+    final updated = widget.tags.where((existing) => existing != tag).toList();
+    updated.add(tag);
+    return updated;
+  }
+
   Future<void> _loadSuggestions() async {
     final controller = ref.read(inventoryControllerProvider.notifier);
     if (widget.type == TagFieldType.bean) {
@@ -70,10 +77,15 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
         if (widget.type == TagFieldType.bean) {
           await controller.addBean(tag);
         } else {
-          await controller.addEquipment(tag);
+          await controller.addEquipment(tag, isGrinder: true);
+          if (mounted) {
+            // Re-emit the selected equipment after persistence completes.
+            // This avoids the race where setEquipmentByName runs before insert.
+            widget.onTagsChanged(_tagsAfterSubmit(tag));
+          }
         }
         // Reload suggestions so the newly added item shows up if we type it again
-        _loadSuggestions();
+        await _loadSuggestions();
       },
     );
   }
