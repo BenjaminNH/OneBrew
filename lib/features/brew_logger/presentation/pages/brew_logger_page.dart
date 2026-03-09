@@ -19,7 +19,9 @@ import '../widgets/param_input_section.dart';
 ///
 /// The page coordinates timer, parameter inputs, template reuse, and save flow.
 class BrewLoggerPage extends ConsumerStatefulWidget {
-  const BrewLoggerPage({super.key});
+  const BrewLoggerPage({super.key, this.templateRecordId});
+
+  final int? templateRecordId;
 
   @override
   ConsumerState<BrewLoggerPage> createState() => _BrewLoggerPageState();
@@ -28,11 +30,15 @@ class BrewLoggerPage extends ConsumerStatefulWidget {
 class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     with WidgetsBindingObserver {
   int _currentElapsed = 0;
+  int? _appliedTemplateRecordId;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _applyTemplateFromRouteIfNeeded();
+    });
   }
 
   @override
@@ -46,6 +52,14 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     ref
         .read(brewTimerControllerProvider.notifier)
         .handleAppLifecycleStateChanged(state);
+  }
+
+  @override
+  void didUpdateWidget(covariant BrewLoggerPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.templateRecordId != widget.templateRecordId) {
+      _applyTemplateFromRouteIfNeeded();
+    }
   }
 
   @override
@@ -151,6 +165,29 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     await ref
         .read(brewLoggerControllerProvider.notifier)
         .saveNewRecord(elapsedSeconds: _currentElapsed);
+  }
+
+  Future<void> _applyTemplateFromRouteIfNeeded() async {
+    final recordId = widget.templateRecordId;
+    if (recordId == null || _appliedTemplateRecordId == recordId) {
+      return;
+    }
+    _appliedTemplateRecordId = recordId;
+    final applied = await ref
+        .read(brewLoggerControllerProvider.notifier)
+        .applyTemplateByRecordId(recordId);
+    if (!applied || !mounted) {
+      return;
+    }
+
+    ref.read(brewTimerControllerProvider.notifier).reset();
+    setState(() => _currentElapsed = 0);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Template loaded from history'),
+        backgroundColor: AppColors.success,
+      ),
+    );
   }
 
   Future<void> _onTemplateSelected(

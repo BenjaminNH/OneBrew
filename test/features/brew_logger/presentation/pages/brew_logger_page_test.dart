@@ -25,6 +25,7 @@ void main() {
       when(
         mockBrewRepo.watchAllBrewRecords(),
       ).thenAnswer((_) => Stream.value(const <BrewRecord>[]));
+      when(mockBrewRepo.getBrewRecordById(any)).thenAnswer((_) async => null);
 
       mockInventoryRepo = MockInventoryRepository();
       when(mockInventoryRepo.searchBeans(any)).thenAnswer((_) async => []);
@@ -38,14 +39,16 @@ void main() {
       when(mockRatingRepo.updateRating(any)).thenAnswer((_) async => true);
     });
 
-    Widget createWidget() {
+    Widget createWidget({int? templateRecordId}) {
       return ProviderScope(
         overrides: [
           brewRepositoryProvider.overrideWithValue(mockBrewRepo),
           inventoryRepositoryProvider.overrideWithValue(mockInventoryRepo),
           ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
         ],
-        child: const MaterialApp(home: BrewLoggerPage()),
+        child: MaterialApp(
+          home: BrewLoggerPage(templateRecordId: templateRecordId),
+        ),
       );
     }
 
@@ -197,6 +200,51 @@ void main() {
       expect(slider.max, equals(30.0));
       expect(slider.divisions, equals(40));
       expect(slider.unit, equals('格'));
+    });
+
+    testWidgets('applies route templateRecordId into form state', (
+      WidgetTester tester,
+    ) async {
+      final template = BrewRecord(
+        id: 11,
+        brewDate: DateTime(2026, 3, 7, 8, 0),
+        beanName: 'Template Bean',
+        equipmentId: null,
+        grindMode: GrindMode.simple,
+        grindSimpleLabel: 'Medium',
+        coffeeWeightG: 17.0,
+        waterWeightG: 272.0,
+        waterTempC: 92.0,
+        brewDurationS: 185,
+        bloomTimeS: 30,
+        pourMethod: 'Pulse',
+        waterType: 'Filtered',
+        roomTempC: 23.0,
+        notes: 'Template note',
+        isQuickMode: true,
+        createdAt: DateTime(2026, 3, 7, 8, 1),
+        updatedAt: DateTime(2026, 3, 7, 8, 1),
+      );
+      when(
+        mockBrewRepo.getBrewRecordById(11),
+      ).thenAnswer((_) async => template);
+
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget(templateRecordId: 11));
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BrewLoggerPage)),
+      );
+      final state = container.read(brewLoggerControllerProvider);
+      expect(state.beanName, 'Template Bean');
+      expect(state.coffeeWeightG, 17.0);
+      expect(state.waterWeightG, 272.0);
+      expect(find.text('Template loaded from history'), findsOneWidget);
     });
   });
 }
