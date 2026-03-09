@@ -5,15 +5,17 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/router/app_router.dart';
 import '../controllers/history_controller.dart';
 import '../widgets/brew_record_card.dart';
 import '../widgets/brew_stats_header.dart';
 import '../widgets/history_filter_bar.dart';
 
 class HistoryPage extends ConsumerStatefulWidget {
-  const HistoryPage({super.key, this.onOpenDetail});
+  const HistoryPage({super.key, this.onOpenDetail, this.onOpenInventoryManage});
 
   final ValueChanged<int>? onOpenDetail;
+  final VoidCallback? onOpenInventoryManage;
 
   @override
   ConsumerState<HistoryPage> createState() => _HistoryPageState();
@@ -89,6 +91,11 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                       .read(historyControllerProvider.notifier)
                       .clearFilter();
                 },
+                onOpenInventoryManage:
+                    widget.onOpenInventoryManage ??
+                    () {
+                      context.push(AppRoutePaths.inventoryManage);
+                    },
               ),
             ),
             const SizedBox(height: AppSpacing.sm),

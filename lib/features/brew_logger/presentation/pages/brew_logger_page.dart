@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/timer_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../inventory/presentation/widgets/template_picker.dart';
@@ -19,9 +20,14 @@ import '../widgets/param_input_section.dart';
 ///
 /// The page coordinates timer, parameter inputs, template reuse, and save flow.
 class BrewLoggerPage extends ConsumerStatefulWidget {
-  const BrewLoggerPage({super.key, this.templateRecordId});
+  const BrewLoggerPage({
+    super.key,
+    this.templateRecordId,
+    this.onOpenInventoryManage,
+  });
 
   final int? templateRecordId;
+  final VoidCallback? onOpenInventoryManage;
 
   @override
   ConsumerState<BrewLoggerPage> createState() => _BrewLoggerPageState();
@@ -141,7 +147,15 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
-            const SliverToBoxAdapter(child: ParamInputSection()),
+            SliverToBoxAdapter(
+              child: ParamInputSection(
+                onOpenInventoryManage:
+                    widget.onOpenInventoryManage ??
+                    () {
+                      context.push(AppRoutePaths.inventoryManage);
+                    },
+              ),
+            ),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
             SliverToBoxAdapter(
               child: _SaveActionBar(

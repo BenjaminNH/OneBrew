@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:one_coffee/features/brew_logger/presentation/pages/brew_logger_page.dart';
 import 'package:one_coffee/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_coffee/features/history/presentation/pages/history_page.dart';
+import 'package:one_coffee/features/inventory/presentation/pages/inventory_manage_page.dart';
 
 /// Canonical route paths used by the app shell.
 abstract final class AppRoutePaths {
   static const brew = '/brew';
   static const history = '/history';
+  static const inventoryManage = '/inventory/manage';
 }
 
 /// Global app router used by [MaterialApp.router].
@@ -45,6 +47,10 @@ final GoRouter appRouter = GoRouter(
               },
             ),
           ],
+        ),
+        GoRoute(
+          path: AppRoutePaths.inventoryManage,
+          builder: (_, _) => const InventoryManagePage(),
         ),
       ],
     ),
