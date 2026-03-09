@@ -1,4 +1,5 @@
 import '../entities/brew_summary.dart';
+import '../entities/brew_detail.dart';
 
 /// Filter criteria for querying brew history.
 class BrewFilter {
@@ -48,4 +49,8 @@ abstract interface class HistoryRepository {
 
   /// Returns the top [limit] brew summaries ordered by quick score descending.
   Future<List<BrewSummary>> getTopBrews({int limit = 10});
+
+  /// Returns the full detail aggregate for one brew record by [id].
+  /// Returns `null` when no record exists.
+  Future<BrewDetail?> getBrewDetailById(int id);
 }
