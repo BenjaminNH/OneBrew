@@ -52,13 +52,24 @@ class InventoryController extends AsyncNotifier<void> {
     }
   }
 
-  Future<int> addEquipment(String name, {bool isGrinder = false}) async {
+  Future<int> addEquipment(
+    String name, {
+    bool isGrinder = false,
+    double? grindMinClick,
+    double? grindMaxClick,
+    double? grindClickStep,
+    String? grindClickUnit,
+  }) async {
     state = const AsyncValue.loading();
     try {
       final equip = Equipment(
         id: 0,
         name: name,
         isGrinder: isGrinder,
+        grindMinClick: isGrinder ? grindMinClick : null,
+        grindMaxClick: isGrinder ? grindMaxClick : null,
+        grindClickStep: isGrinder ? grindClickStep : null,
+        grindClickUnit: isGrinder ? grindClickUnit : null,
         addedAt: DateTime.now(),
         useCount: 0,
       );

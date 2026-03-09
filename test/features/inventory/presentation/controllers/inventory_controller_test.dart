@@ -49,5 +49,26 @@ void main() {
               as Equipment;
       expect(captured.useCount, 0);
     });
+
+    test('addEquipment keeps grinder click config when provided', () async {
+      await container
+          .read(inventoryControllerProvider.notifier)
+          .addEquipment(
+            'Lagom Mini',
+            isGrinder: true,
+            grindMinClick: 0,
+            grindMaxClick: 40,
+            grindClickStep: 1,
+            grindClickUnit: 'clicks',
+          );
+
+      final captured =
+          verify(mockRepository.createEquipment(captureAny)).captured.single
+              as Equipment;
+      expect(captured.grindMinClick, 0);
+      expect(captured.grindMaxClick, 40);
+      expect(captured.grindClickStep, 1);
+      expect(captured.grindClickUnit, 'clicks');
+    });
   });
 }
