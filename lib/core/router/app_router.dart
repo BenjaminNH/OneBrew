@@ -9,8 +9,8 @@ import 'package:one_coffee/features/inventory/presentation/pages/inventory_manag
 /// Canonical route paths used by the app shell.
 abstract final class AppRoutePaths {
   static const brew = '/brew';
+  static const manage = '/manage';
   static const history = '/history';
-  static const inventoryManage = '/inventory/manage';
 }
 
 /// Global app router used by [MaterialApp.router].
@@ -31,6 +31,10 @@ final GoRouter appRouter = GoRouter(
           },
         ),
         GoRoute(
+          path: AppRoutePaths.manage,
+          builder: (_, _) => const InventoryManagePage(),
+        ),
+        GoRoute(
           path: AppRoutePaths.history,
           builder: (_, _) => const HistoryPage(),
           routes: [
@@ -47,10 +51,6 @@ final GoRouter appRouter = GoRouter(
               },
             ),
           ],
-        ),
-        GoRoute(
-          path: AppRoutePaths.inventoryManage,
-          builder: (_, _) => const InventoryManagePage(),
         ),
       ],
     ),
@@ -74,9 +74,11 @@ class AppShell extends StatelessWidget {
         key: const Key('app-shell-navigation-bar'),
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) {
-          final target = index == 0
-              ? AppRoutePaths.brew
-              : AppRoutePaths.history;
+          final target = switch (index) {
+            0 => AppRoutePaths.brew,
+            1 => AppRoutePaths.manage,
+            _ => AppRoutePaths.history,
+          };
           if (location != target) {
             context.go(target);
           }
@@ -86,6 +88,11 @@ class AppShell extends StatelessWidget {
             icon: Icon(Icons.coffee_outlined),
             selectedIcon: Icon(Icons.coffee),
             label: 'Brew',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_outlined),
+            selectedIcon: Icon(Icons.inventory_2),
+            label: 'Manage',
           ),
           NavigationDestination(
             icon: Icon(Icons.history_outlined),
@@ -98,8 +105,11 @@ class AppShell extends StatelessWidget {
   }
 
   int _locationToIndex(String currentLocation) {
-    if (currentLocation.startsWith(AppRoutePaths.history)) {
+    if (currentLocation.startsWith(AppRoutePaths.manage)) {
       return 1;
+    }
+    if (currentLocation.startsWith(AppRoutePaths.history)) {
+      return 2;
     }
     return 0;
   }

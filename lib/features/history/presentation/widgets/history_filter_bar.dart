@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/router/app_router.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../domain/repositories/history_repository.dart';
@@ -15,13 +13,11 @@ class HistoryFilterBar extends StatefulWidget {
     required this.filter,
     required this.onFilterChanged,
     required this.onClear,
-    this.onOpenInventoryManage,
   });
 
   final BrewFilter filter;
   final ValueChanged<BrewFilter> onFilterChanged;
   final VoidCallback onClear;
-  final VoidCallback? onOpenInventoryManage;
 
   @override
   State<HistoryFilterBar> createState() => _HistoryFilterBarState();
@@ -142,21 +138,6 @@ class _HistoryFilterBarState extends State<HistoryFilterBar> {
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              IconButton(
-                key: const Key('history-open-inventory-manage'),
-                tooltip: 'Manage inventory',
-                onPressed: () {
-                  if (widget.onOpenInventoryManage != null) {
-                    widget.onOpenInventoryManage!.call();
-                    return;
-                  }
-                  GoRouter.maybeOf(
-                    context,
-                  )?.push(AppRoutePaths.inventoryManage);
-                },
-                icon: const Icon(Icons.inventory_2_outlined),
-              ),
-              const SizedBox(width: AppSpacing.xs),
               IconButton.filled(
                 key: const Key('history-filter-apply'),
                 onPressed: _applyFilter,
