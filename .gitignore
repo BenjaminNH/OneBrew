@@ -46,3 +46,6 @@ app.*.map.json
 
 # Code Review reports (temporary, not for version control)
 docs/CR_*.md
+
+# Flutter DevTools local config
+devtools_options.yaml
