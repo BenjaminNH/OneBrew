@@ -60,7 +60,7 @@ abstract interface class InventoryRepository {
   /// Updates grinder settings with domain validation.
   Future<bool> updateGrinder(Equipment grinder);
 
-  /// Deletes grinder [grinderId] if there are no historical references.
+  /// Deletes grinder [grinderId] and detaches historical references first.
   /// Returns the number of deleted rows.
   Future<int> deleteGrinderWithGuard(int grinderId);
 }

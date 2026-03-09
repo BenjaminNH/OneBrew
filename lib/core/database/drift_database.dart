@@ -216,6 +216,15 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
     return row.read<int>('ref_count');
   }
 
+  /// Clears [BrewRecords.equipmentId] for rows that reference the given
+  /// equipment id.
+  Future<void> clearBrewRecordEquipmentReferences(int id) async {
+    await customStatement(
+      'UPDATE brew_records SET equipment_id = NULL WHERE equipment_id = ?',
+      [id],
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // BrewRecord queries
   // ─────────────────────────────────────────────────────────────────────────

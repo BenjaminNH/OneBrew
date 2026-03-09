@@ -1,6 +1,6 @@
 import '../repositories/inventory_repository.dart';
 
-/// Use Case: delete a grinder only when there are no historical references.
+/// Use Case: delete a grinder and detach historical references beforehand.
 class DeleteGrinderWithGuard {
   const DeleteGrinderWithGuard(this._repository);
 

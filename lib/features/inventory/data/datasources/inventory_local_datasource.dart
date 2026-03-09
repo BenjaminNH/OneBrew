@@ -31,6 +31,7 @@ abstract interface class InventoryLocalDatasource {
   Future<Equipment?> getEquipmentByName(String name);
   Future<Equipment?> getEquipmentByNameIgnoreCase(String name);
   Future<int> countBrewRecordsByEquipmentId(int equipmentId);
+  Future<void> clearBrewRecordEquipmentReferences(int equipmentId);
 }
 
 /// Implementation wrapping the Drift database.
@@ -145,6 +146,10 @@ class InventoryLocalDatasourceImpl implements InventoryLocalDatasource {
   @override
   Future<int> countBrewRecordsByEquipmentId(int equipmentId) =>
       _db.countBrewRecordsByEquipmentId(equipmentId);
+
+  @override
+  Future<void> clearBrewRecordEquipmentReferences(int equipmentId) =>
+      _db.clearBrewRecordEquipmentReferences(equipmentId);
 }
 
 final inventoryLocalDatasourceProvider = Provider<InventoryLocalDatasource>((

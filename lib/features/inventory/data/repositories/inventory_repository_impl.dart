@@ -101,17 +101,6 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<int> deleteBean(int id) async {
-    final bean = await _datasource.getBeanById(id);
-    if (bean == null) return 0;
-
-    final referenceCount = await _datasource.countBrewRecordsByBeanName(
-      bean.name,
-    );
-    if (referenceCount > 0) {
-      throw const InventoryReferenceException(
-        'This bean is referenced by brew history and cannot be deleted.',
-      );
-    }
     return _datasource.deleteBean(id);
   }
 
@@ -180,12 +169,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<int> deleteEquipment(int id) async {
-    final references = await _datasource.countBrewRecordsByEquipmentId(id);
-    if (references > 0) {
-      throw const InventoryReferenceException(
-        'This equipment is referenced by brew history and cannot be deleted.',
-      );
-    }
+    await _datasource.clearBrewRecordEquipmentReferences(id);
     return _datasource.deleteEquipment(id);
   }
 
@@ -236,15 +220,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
       );
     }
 
-    final references = await _datasource.countBrewRecordsByEquipmentId(
-      grinderId,
-    );
-    if (references > 0) {
-      throw const InventoryReferenceException(
-        'This grinder is referenced by brew history and cannot be deleted.',
-      );
-    }
-
+    await _datasource.clearBrewRecordEquipmentReferences(grinderId);
     return _datasource.deleteEquipment(grinderId);
   }
 

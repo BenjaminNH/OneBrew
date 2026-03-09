@@ -207,22 +207,29 @@ void main() {
       );
     });
 
-    test('deleteBean blocks when bean is referenced by brew history', () async {
-      final beanId = await repository.createBean(
-        domain.Bean(
-          id: 0,
-          name: 'Protected Bean',
-          addedAt: DateTime.now(),
-          useCount: 0,
-        ),
-      );
-      await insertBrewForBean(beanName: 'Protected Bean');
+    test(
+      'deleteBean allows deletion even when bean is referenced by brew history',
+      () async {
+        final beanId = await repository.createBean(
+          domain.Bean(
+            id: 0,
+            name: 'Protected Bean',
+            addedAt: DateTime.now(),
+            useCount: 0,
+          ),
+        );
+        await insertBrewForBean(beanName: 'Protected Bean');
 
-      expect(
-        () => repository.deleteBean(beanId),
-        throwsA(isA<InventoryReferenceException>()),
-      );
-    });
+        final deleted = await repository.deleteBean(beanId);
+        expect(deleted, 1);
+
+        final beans = await repository.getAllBeans();
+        expect(beans.where((e) => e.id == beanId), isEmpty);
+
+        final brews = await db.getAllBrewRecords();
+        expect(brews.single.beanName, 'Protected Bean');
+      },
+    );
   });
 
   group('InventoryRepositoryImpl Equipment Tests', () {
@@ -338,25 +345,32 @@ void main() {
       );
     });
 
-    test('deleteGrinderWithGuard blocks referenced grinder', () async {
-      final grinderId = await repository.createEquipment(
-        domain.Equipment(
-          id: 0,
-          name: 'Referenced Grinder',
-          isGrinder: true,
-          grindMinClick: 0,
-          grindMaxClick: 40,
-          grindClickStep: 1,
-          addedAt: DateTime.now(),
-          useCount: 0,
-        ),
-      );
-      await insertBrewForBean(beanName: 'Some Bean', equipmentId: grinderId);
+    test(
+      'deleteGrinderWithGuard allows deletion and detaches history references',
+      () async {
+        final grinderId = await repository.createEquipment(
+          domain.Equipment(
+            id: 0,
+            name: 'Referenced Grinder',
+            isGrinder: true,
+            grindMinClick: 0,
+            grindMaxClick: 40,
+            grindClickStep: 1,
+            addedAt: DateTime.now(),
+            useCount: 0,
+          ),
+        );
+        await insertBrewForBean(beanName: 'Some Bean', equipmentId: grinderId);
 
-      expect(
-        () => repository.deleteGrinderWithGuard(grinderId),
-        throwsA(isA<InventoryReferenceException>()),
-      );
-    });
+        final deleted = await repository.deleteGrinderWithGuard(grinderId);
+        expect(deleted, 1);
+
+        final allEquipments = await repository.getAllEquipments();
+        expect(allEquipments.where((e) => e.id == grinderId), isEmpty);
+
+        final brews = await db.getAllBrewRecords();
+        expect(brews.single.equipmentId, isNull);
+      },
+    );
   });
 }
