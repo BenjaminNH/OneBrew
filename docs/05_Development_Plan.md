@@ -25,7 +25,14 @@ graph TD
   P0 --> P7["Phase 7: 路由 & App Shell"]
   P4 --> P7
   P6 --> P7
-  P7 --> P8["Phase 8: UI 精装 & 设计系统"]
+  P4 --> P7A["Phase 7A: History 详情闭环"]
+  P6 --> P7A
+  P7 --> P7A
+  P3 --> P7B["Phase 7B: Inventory 管理闭环"]
+  P7 --> P7B
+  P7A --> P7C["Phase 7C: 入口整合与新增功能回归"]
+  P7B --> P7C
+  P7C --> P8["Phase 8: UI 精装 & 设计系统"]
   P8 --> P9["Phase 9: 集成测试 & CI/CD"]
 ```
 
@@ -389,6 +396,137 @@ flutter build apk --release
 
 ---
 
+## 测试后新增功能拆分（Phase 7A-7C）
+
+> 基于文档 `06_TestFollowup_NewFeaturePoints_HistoryDetail_InventoryManage.md`。
+> 执行顺序：`Phase 7 -> 7A -> 7B -> 7C -> 8 -> 9`。  
+> 设计取舍：当前 agent context window 较大，采用“3 个中等 Phase”而非细颗粒多 Phase，降低上下文切换成本。
+
+### 拆分原则（中颗粒度）
+1. **按业务闭环拆分**：History 详情闭环、Inventory 管理闭环、入口与回归闭环。
+2. **每个 Phase 可独立验收**：阶段结束必须有明确测试命令和可观察结果。
+3. **保持架构边界**：先补 Domain/Data，再落 Presentation；避免在 UI 层堆业务逻辑。
+4. **不改既有 Phase 定义**：Phase 0-9 文本保持原意，新增功能以 `7A-7C` 插入。
+
+---
+
+## Phase 7A: History 详情闭环（查询 + 详情页 + 再冲一次）
+
+### 范围
+一次性完成 History 详情能力的端到端闭环：
+- 按记录 ID 聚合查询详情
+- 详情页展示（只读）
+- “再冲一次”回填到 Brew 页
+
+### 前置依赖
+- Phase 6 (History 历史功能)
+- Phase 7 (路由 & App Shell)
+- Phase 4 (Brew Logger 功能)
+
+### 交付物
+
+| 文件 | 说明 |
+|---|---|
+| `lib/features/history/domain/entities/brew_detail.dart` | 详情聚合实体 |
+| `lib/features/history/domain/repositories/history_repository.dart` | 新增详情查询接口 |
+| `lib/features/history/domain/usecases/get_brew_detail.dart` | 查询用例 |
+| `lib/features/history/data/datasources/history_local_datasource.dart` | 详情 join 查询 |
+| `lib/features/history/data/repositories/history_repository_impl.dart` | 详情映射实现 |
+| `lib/features/history/presentation/controllers/brew_detail_controller.dart` | 详情状态控制 |
+| `lib/features/history/presentation/pages/brew_detail_page.dart` | 详情页面（只读） |
+| `lib/features/history/presentation/widgets/brew_record_card.dart` | 卡片点击进入详情 |
+| `lib/core/router/app_router.dart` | 新增详情路由（如 `/history/:id`） |
+| `lib/features/brew_logger/presentation/controllers/brew_logger_controller.dart` | 支持按指定记录回填 |
+| `test/features/history/` | 详情 Domain/Data/Presentation 测试 |
+
+### 验收标准
+- [ ] History 列表点击记录可进入详情页面
+- [ ] 详情展示完整，空值统一占位，不出现 `null`
+- [ ] 点击“再冲一次”后可回到 Brew 并完成参数回填
+- [ ] `flutter test test/features/history/` 全部通过
+
+### 推荐测试
+```bash
+flutter test test/features/history/
+```
+
+---
+
+## Phase 7B: Inventory 管理闭环（Bean + Grinder）
+
+### 范围
+一次性完成 Bean 与 Grinder 管理能力：
+- 管理页（单页双 Tab：Beans / Grinders）
+- Beans：列表/搜索/新增/编辑/重命名联动历史
+- Grinders：列表/搜索/新增/编辑/配置校验/删除拦截
+
+### 前置依赖
+- Phase 3 (Inventory 功能)
+- Phase 7 (路由 & App Shell)
+
+### 交付物
+
+| 文件 | 说明 |
+|---|---|
+| `lib/features/inventory/presentation/pages/inventory_manage_page.dart` | 管理页容器（双 Tab） |
+| `lib/features/inventory/presentation/widgets/bean_manage_list.dart` | Bean 管理列表 |
+| `lib/features/inventory/presentation/widgets/grinder_manage_list.dart` | Grinder 管理列表 |
+| `lib/features/inventory/presentation/widgets/grinder_form_sheet.dart` | Grinder 参数表单校验 |
+| `lib/features/inventory/domain/usecases/rename_bean_and_propagate.dart` | Bean 重命名联动 |
+| `lib/features/inventory/domain/usecases/update_grinder.dart` | Grinder 更新 |
+| `lib/features/inventory/domain/usecases/delete_grinder_with_guard.dart` | Grinder 删除拦截 |
+| `lib/features/inventory/data/datasources/inventory_local_datasource.dart` | 事务化联动与引用检查 |
+| `lib/features/inventory/data/repositories/inventory_repository_impl.dart` | 管理能力实现补齐 |
+| `test/features/inventory/` | Bean/Grinder 管理相关测试 |
+
+### 验收标准
+- [ ] Beans 默认按 `useCount desc, addedAt desc` 排序，支持搜索和编辑
+- [ ] Bean 重命名冲突会被拦截；重命名成功后历史 `beanName` 同步更新
+- [ ] Grinders 支持刻度配置（min/max/step/unit）并进行合法性校验
+- [ ] 被历史记录引用的 Grinder 删除会被拦截
+- [ ] `flutter test test/features/inventory/` 全部通过
+
+### 推荐测试
+```bash
+flutter test test/features/inventory/
+```
+
+---
+
+## Phase 7C: 入口整合与新增功能回归
+
+### 范围
+整合 History/Brew 到 Inventory 管理入口，补齐新增功能核心回归测试，保证 7A/7B 在主流程可达且稳定。
+
+### 前置依赖
+- Phase 7A (History 详情闭环)
+- Phase 7B (Inventory 管理闭环)
+
+### 交付物
+
+| 文件 | 说明 |
+|---|---|
+| `lib/core/router/app_router.dart` | 新增管理页路由与导航接入 |
+| `lib/features/brew_logger/presentation/widgets/param_input_section.dart` | Brew 入口到管理页 |
+| `lib/features/history/presentation/widgets/history_filter_bar.dart` | History 次级入口到管理页 |
+| `test/features/brew_logger/presentation/pages/brew_logger_page_test.dart` | Brew 入口可达性回归 |
+| `test/features/history/presentation/pages/history_page_test.dart` | History 入口可达性回归 |
+| `test/features/history/presentation/pages/brew_detail_page_test.dart` | 详情->再冲一次链路回归 |
+| `integration_test/brew_history_inventory_flow_test.dart` | 新增功能关键流（可先最小化） |
+
+### 验收标准
+- [ ] Brew 与 History 至少各有一个稳定入口可到 Inventory 管理页
+- [ ] “History 详情 -> 再冲一次 -> Brew 回填”主链路回归通过
+- [ ] “Bean 重命名后 -> History 展示一致”回归通过
+- [ ] `flutter test` 全量通过（若已启用 integration_test 则一并通过）
+
+### 推荐测试
+```bash
+flutter test
+```
+
+---
+
 ## 开发会话规划建议
 
 > [!TIP]
@@ -419,3 +557,6 @@ flutter build apk --release
 | 7 | 路由 & App Shell | ✅ 已完成 | 小 |
 | 8 | UI 精装 & 设计系统 | ⬜ 未开始 | 大 |
 | 9 | 集成测试 & CI/CD | ⬜ 未开始 | 中 |
+| 7A | History 详情闭环（查询 + 详情页 + 再冲一次） | ⬜ 未开始 | 中 |
+| 7B | Inventory 管理闭环（Bean + Grinder） | ⬜ 未开始 | 中 |
+| 7C | 入口整合与新增功能回归 | ⬜ 未开始 | 小 |
