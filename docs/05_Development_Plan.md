@@ -515,10 +515,10 @@ flutter test test/features/inventory/
 | `integration_test/brew_history_inventory_flow_test.dart` | 新增功能关键流（可先最小化） |
 
 ### 验收标准
-- [ ] Brew 与 History 至少各有一个稳定入口可到 Inventory 管理页
-- [ ] “History 详情 -> 再冲一次 -> Brew 回填”主链路回归通过
-- [ ] “Bean 重命名后 -> History 展示一致”回归通过
-- [ ] `flutter test` 全量通过（若已启用 integration_test 则一并通过）
+- [x] Brew 与 History 至少各有一个稳定入口可到 Inventory 管理页
+- [x] “History 详情 -> 再冲一次 -> Brew 回填”主链路回归通过
+- [x] “Bean 重命名后 -> History 展示一致”回归通过
+- [x] `flutter test` 全量通过（若已启用 integration_test 则一并通过）
 
 ### 推荐测试
 ```bash
@@ -559,4 +559,4 @@ flutter test
 | 9 | 集成测试 & CI/CD | ⬜ 未开始 | 中 |
 | 7A | History 详情闭环（查询 + 详情页 + 再冲一次） | ✅ 已完成  | 中 |
 | 7B | Inventory 管理闭环（Bean + Grinder） | ✅ 已完成 | 中 |
-| 7C | 入口整合与新增功能回归 | ⬜ 未开始 | 小 |
+| 7C | 入口整合与新增功能回归 | ✅ 已完成 | 小 |
