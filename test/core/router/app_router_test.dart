@@ -5,10 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:one_coffee/app.dart';
 import 'package:one_coffee/core/database/drift_database.dart' hide BrewRecord;
+import 'package:one_coffee/core/router/app_router.dart';
 import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_coffee/features/brew_logger/presentation/pages/brew_logger_page.dart';
 import 'package:one_coffee/features/history/presentation/pages/history_page.dart';
+import 'package:one_coffee/features/inventory/presentation/pages/inventory_manage_page.dart';
 import 'package:one_coffee/shared/providers/database_providers.dart';
 
 void main() {
@@ -29,10 +31,43 @@ void main() {
       expect(find.byType(HistoryPage), findsOneWidget);
       expect(find.text('Brew History'), findsOneWidget);
     });
+
+    testWidgets('brew page entry opens InventoryManagePage', (tester) async {
+      await _pumpApp(tester);
+
+      final entry = find.byKey(const Key('brew-open-inventory-manage'));
+      await tester.ensureVisible(entry);
+      await tester.tap(entry);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(InventoryManagePage), findsOneWidget);
+      expect(find.text('Inventory Manage'), findsOneWidget);
+    });
+
+    testWidgets('history page entry opens InventoryManagePage', (tester) async {
+      await _pumpApp(tester);
+
+      await tester.tap(find.text('History'));
+      await tester.pumpAndSettle();
+
+      final entry = find.byKey(const Key('history-open-inventory-manage'));
+      await tester.tap(entry);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(InventoryManagePage), findsOneWidget);
+      expect(find.text('Inventory Manage'), findsOneWidget);
+    });
   });
 }
 
 Future<void> _pumpApp(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(1080, 3000);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
+  appRouter.go(AppRoutePaths.brew);
+
   final testDb = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
   addTearDown(() async {
     // Unmount first so provider disposal completes before DB close.
