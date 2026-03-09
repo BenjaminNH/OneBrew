@@ -445,6 +445,19 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     );
   }
 
+  /// Loads a historical brew by id and applies it as a template.
+  Future<bool> applyTemplateByRecordId(int recordId) async {
+    final record = await ref
+        .read(brewRepositoryProvider)
+        .getBrewRecordById(recordId);
+    if (record == null) {
+      state = state.copyWith(errorMessage: 'Template record not found.');
+      return false;
+    }
+    await applyTemplate(record);
+    return true;
+  }
+
   Future<int?> saveNewRecord({required int elapsedSeconds}) async {
     if (state.beanName.trim().isEmpty) {
       state = state.copyWith(errorMessage: 'Please enter a bean name.');
