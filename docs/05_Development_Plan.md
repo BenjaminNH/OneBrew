@@ -319,7 +319,7 @@ flutter test test/features/history/
 
 ### 验收标准
 - [x] 应用可正常启动，首页直达冲煮记录器
-- [x] 底部导航切换 Brew / History 页面无异常
+- [x] 底部导航切换 Brew / Manage / History 页面无异常
 - [x] `flutter run` 成功启动 App（不 crash）  
   （当前环境无可用 Android 设备且项目未启用 Windows/Web 运行，已用 `flutter build apk --debug` 验证可执行构建链路）
 - [x] `flutter analyze` 无 error
@@ -458,7 +458,7 @@ flutter test test/features/history/
 一次性完成 Bean 与 Grinder 管理能力：
 - 管理页（单页双 Tab：Beans / Grinders）
 - Beans：列表/搜索/新增/编辑/重命名联动历史
-- Grinders：列表/搜索/新增/编辑/配置校验/删除拦截
+- Grinders：列表/搜索/新增/编辑/配置校验/删除解关联
 
 ### 前置依赖
 - Phase 3 (Inventory 功能)
@@ -474,7 +474,7 @@ flutter test test/features/history/
 | `lib/features/inventory/presentation/widgets/grinder_form_sheet.dart` | Grinder 参数表单校验 |
 | `lib/features/inventory/domain/usecases/rename_bean_and_propagate.dart` | Bean 重命名联动 |
 | `lib/features/inventory/domain/usecases/update_grinder.dart` | Grinder 更新 |
-| `lib/features/inventory/domain/usecases/delete_grinder_with_guard.dart` | Grinder 删除拦截 |
+| `lib/features/inventory/domain/usecases/delete_grinder_with_guard.dart` | Grinder 删除（含历史解关联） |
 | `lib/features/inventory/data/datasources/inventory_local_datasource.dart` | 事务化联动与引用检查 |
 | `lib/features/inventory/data/repositories/inventory_repository_impl.dart` | 管理能力实现补齐 |
 | `test/features/inventory/` | Bean/Grinder 管理相关测试 |
@@ -483,7 +483,7 @@ flutter test test/features/history/
 - [x] Beans 默认按 `useCount desc, addedAt desc` 排序，支持搜索和编辑
 - [x] Bean 重命名冲突会被拦截；重命名成功后历史 `beanName` 同步更新
 - [x] Grinders 支持刻度配置（min/max/step/unit）并进行合法性校验
-- [x] 被历史记录引用的 Grinder 删除会被拦截
+- [x] 删除 Grinder 时会自动清理历史记录中的 `equipmentId` 引用
 - [x] `flutter test test/features/inventory/` 全部通过
 
 ### 推荐测试
@@ -496,7 +496,7 @@ flutter test test/features/inventory/
 ## Phase 7C: 入口整合与新增功能回归
 
 ### 范围
-整合 History/Brew 到 Inventory 管理入口，补齐新增功能核心回归测试，保证 7A/7B 在主流程可达且稳定。
+将 Inventory Manage 作为底部导航独立页面接入主流程（位于 Brew 与 History 中间），并补齐新增功能核心回归测试，保证 7A/7B 在主流程可达且稳定。
 
 ### 前置依赖
 - Phase 7A (History 详情闭环)
@@ -506,16 +506,13 @@ flutter test test/features/inventory/
 
 | 文件 | 说明 |
 |---|---|
-| `lib/core/router/app_router.dart` | 新增管理页路由与导航接入 |
-| `lib/features/brew_logger/presentation/widgets/param_input_section.dart` | Brew 入口到管理页 |
-| `lib/features/history/presentation/widgets/history_filter_bar.dart` | History 次级入口到管理页 |
-| `test/features/brew_logger/presentation/pages/brew_logger_page_test.dart` | Brew 入口可达性回归 |
-| `test/features/history/presentation/pages/history_page_test.dart` | History 入口可达性回归 |
+| `lib/core/router/app_router.dart` | 底部导航新增独立 Manage 页面（Brew / Manage / History） |
+| `test/core/router/app_router_test.dart` | 底部导航顺序与可达性回归 |
 | `test/features/history/presentation/pages/brew_detail_page_test.dart` | 详情->再冲一次链路回归 |
 | `integration_test/brew_history_inventory_flow_test.dart` | 新增功能关键流（可先最小化） |
 
 ### 验收标准
-- [x] Brew 与 History 至少各有一个稳定入口可到 Inventory 管理页
+- [x] 底部导航固定为 Brew / Manage / History，且 Manage 位于中间
 - [x] “History 详情 -> 再冲一次 -> Brew 回填”主链路回归通过
 - [x] “Bean 重命名后 -> History 展示一致”回归通过
 - [x] `flutter test` 全量通过（若已启用 integration_test 则一并通过）

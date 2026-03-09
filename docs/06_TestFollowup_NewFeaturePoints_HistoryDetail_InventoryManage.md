@@ -20,13 +20,13 @@
 ### 2.1 约束
 - 保持 MVP 原则：`Local-First`、低摩擦录入、不阻塞冲煮主流程。
 - 与当前架构一致：Feature-First + Clean Architecture + Riverpod + Drift。
-- 不引入云同步，不改变主导航核心路径（Brew / History）。
+- 不引入云同步，主导航保留 Brew / History 并新增中间 Manage 页面。
 
 ### 2.2 假设
 - 管理能力为“可选后置能力”，不得强制用户先建库存再冲煮。
 - History 详情本期为只读，不在详情内编辑冲泡记录。
 - Bean 重命名需要同步历史记录中的 `brewRecords.beanName`。
-- Grinder 若被历史记录引用，则禁止删除。
+- Grinder 删除时应自动解除历史记录中的器具引用（`equipmentId -> null`）。
 - 目标规模（MVP）：
   - 冲泡记录 <= 10,000
   - Beans <= 500
@@ -98,8 +98,8 @@
   - 列表/搜索/新增/编辑（name、grindMinClick、grindMaxClick、grindClickStep、grindClickUnit）
   - 展示 useCount、addedAt
 - 入口要求：
-  - Brew 参数输入区域可进入管理页面
-  - History 过滤区或次级入口至少保留一个稳定入口
+  - Inventory Manage 为底部导航独立页面
+  - 底部导航顺序固定为：Brew -> Manage -> History
 
 ### 4.4 非范围（Out of Scope）
 - Bean 合并（merge duplicates）
@@ -115,21 +115,21 @@
   - `grindMinClick < grindMaxClick`
   - `grindClickStep > 0`
   - `(max-min)/step` 必须处于合理范围（防止极端分段）
-- `FR-IM-06`：删除拦截规则：
-  - Bean 被 `brewRecords.beanName` 引用时禁止删除
-  - Grinder 被 `brewRecords.equipmentId` 引用时禁止删除
+- `FR-IM-06`：删除规则：
+  - Bean 删除不应影响历史记录（历史中的 `beanName` 作为快照保留）
+  - Grinder 删除前需事务化清理历史引用（`brewRecords.equipmentId` 置空）后再删除
 - `FR-IM-07`：保存后自动补全候选应同会话即时生效。
 
 ### 4.6 非功能需求（NFR）
 - 性能: 500 Beans / 200 Grinders 下首屏加载目标 < 300ms。
 - 可靠性: 重命名联动更新必须事务化，避免部分成功。
 - 可维护性: 管理逻辑经 Repository/UseCase 下沉，避免 Presentation 直接拼 SQL。
-- 可测试性: CRUD、校验、重命名联动、删除拦截必须有自动化测试。
+- 可测试性: CRUD、校验、重命名联动、删除解关联必须有自动化测试。
 
 ### 4.7 验收标准（AC）
 - `AC-IM-01`: Given 新建 Bean/Grinder，When 保存成功，Then Brew 自动补全可立即检索到。
-- `AC-IM-02`: Given Bean 被历史记录引用，When 删除，Then 被拦截并提示不可删除。
-- `AC-IM-03`: Given Grinder 被历史记录引用，When 删除，Then 被拦截并提示不可删除。
+- `AC-IM-02`: Given Bean 被历史记录引用，When 删除，Then 删除成功且历史展示保持原 beanName。
+- `AC-IM-03`: Given Grinder 被历史记录引用，When 删除，Then 删除成功且历史中的 equipmentId 被清空。
 - `AC-IM-04`: Given Bean 重命名成功，When 查看历史详情，Then 相关记录名称一致更新。
 - `AC-IM-05`: Given Grinder 配置非法，When 保存，Then 阻止提交并显示校验错误。
 
@@ -144,8 +144,8 @@
 
 ## 6. 对开发计划的映射建议
 - 在 `docs/05_Development_Plan.md` 增加：
-  - `Phase 3A`: Inventory Manage（Bean/Grinder 管理页 + 校验 + 引用拦截 + 事务）
+  - `Phase 3A`: Inventory Manage（Bean/Grinder 管理页 + 校验 + 删除解关联 + 事务）
   - `Phase 6A`: History Detail（详情聚合查询 + UI + 再冲一次回填）
 - 在 `docs/01_Architecture.md` 补充：
   - `HistoryDetail` 对应实体/用例描述
-  - Bean 重命名联动、删除拦截的业务规则说明
+  - Bean 重命名联动、删除解关联的业务规则说明

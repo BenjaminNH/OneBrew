@@ -408,6 +408,10 @@ GoRouter appRouter = GoRouter(
           builder: (_, __) => const BrewLoggerPage(),
         ),
         GoRoute(
+          path: '/manage',
+          builder: (_, __) => const InventoryManagePage(),
+        ),
+        GoRoute(
           path: '/history',
           builder: (_, __) => const HistoryPage(),
         ),
