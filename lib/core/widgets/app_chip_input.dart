@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -64,7 +66,7 @@ class AppChipInput extends StatefulWidget {
   final bool singleSelection;
 
   /// Called when the user submits a value (tag added)
-  final ValueChanged<String>? onSubmit;
+  final Future<void> Function(String)? onSubmit;
 
   @override
   State<AppChipInput> createState() => _AppChipInputState();
@@ -121,7 +123,7 @@ class _AppChipInputState extends State<AppChipInput> {
     });
   }
 
-  void _addTag(String value) {
+  Future<void> _addTag(String value) async {
     final trimmed = value.trim();
     if (trimmed.isEmpty) return;
     if (widget.tags.contains(trimmed)) {
@@ -135,7 +137,20 @@ class _AppChipInputState extends State<AppChipInput> {
         : [...widget.tags, trimmed];
 
     widget.onTagsChanged(newTags);
-    widget.onSubmit?.call(trimmed);
+    try {
+      if (widget.onSubmit != null) {
+        await widget.onSubmit!(trimmed);
+      }
+    } catch (error, stackTrace) {
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'app_chip_input',
+          context: ErrorDescription('while handling chip submit callback'),
+        ),
+      );
+    }
 
     _textController.clear();
     setState(() {
@@ -204,7 +219,9 @@ class _AppChipInputState extends State<AppChipInput> {
                         vertical: AppSpacing.xs,
                       ),
                     ),
-                    onSubmitted: _addTag,
+                    onSubmitted: (value) {
+                      unawaited(_addTag(value));
+                    },
                     textInputAction: TextInputAction.done,
                     onChanged: (_) {}, // handled by listener
                   ),
@@ -255,7 +272,9 @@ class _AppChipInputState extends State<AppChipInput> {
         mainAxisSize: MainAxisSize.min,
         children: _filteredSuggestions.map((suggestion) {
           return InkWell(
-            onTap: () => _addTag(suggestion),
+            onTap: () {
+              unawaited(_addTag(suggestion));
+            },
             borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
             child: Padding(
               padding: const EdgeInsets.symmetric(

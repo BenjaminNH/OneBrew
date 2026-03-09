@@ -110,6 +110,10 @@ void main() {
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
 
+      expect(find.text('Quick Grinder Setup'), findsOneWidget);
+      await tester.tap(find.text('Use Defaults'));
+      await tester.pumpAndSettle();
+
       final container = ProviderScope.containerOf(
         tester.element(find.byType(_EquipmentSelectionHarness)),
       );
@@ -122,6 +126,49 @@ void main() {
       final equipments = await inventoryRepo.searchEquipments('Lagom Mini');
       expect(equipments, hasLength(1));
       expect(equipments.first.isGrinder, isTrue);
+      expect(equipments.first.grindMinClick, 0);
+      expect(equipments.first.grindMaxClick, 40);
+      expect(equipments.first.grindClickStep, 1);
+      expect(equipments.first.grindClickUnit, 'clicks');
+    },
+  );
+
+  testWidgets(
+    'Quick grinder setup Save works with empty fields',
+    (WidgetTester tester) async {
+      final db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [databaseProvider.overrideWithValue(db)],
+          child: const MaterialApp(
+            home: Scaffold(body: _EquipmentSelectionHarness()),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'K-Ultra');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Quick Grinder Setup'), findsOneWidget);
+      await tester.tap(find.text('Save Grinder'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Quick Grinder Setup'), findsNothing);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(_EquipmentSelectionHarness)),
+      );
+      final inventoryRepo = container.read(inventoryRepositoryProvider);
+      final equipments = await inventoryRepo.searchEquipments('K-Ultra');
+      expect(equipments, hasLength(1));
+      expect(equipments.first.grindMinClick, 0);
+      expect(equipments.first.grindMaxClick, 40);
+      expect(equipments.first.grindClickStep, 1);
+      expect(equipments.first.grindClickUnit, 'clicks');
     },
   );
 }
