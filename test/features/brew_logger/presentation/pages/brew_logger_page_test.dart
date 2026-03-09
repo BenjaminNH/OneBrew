@@ -39,10 +39,7 @@ void main() {
       when(mockRatingRepo.updateRating(any)).thenAnswer((_) async => true);
     });
 
-    Widget createWidget({
-      int? templateRecordId,
-      VoidCallback? onOpenInventoryManage,
-    }) {
+    Widget createWidget({int? templateRecordId}) {
       return ProviderScope(
         overrides: [
           brewRepositoryProvider.overrideWithValue(mockBrewRepo),
@@ -50,10 +47,7 @@ void main() {
           ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
         ],
         child: MaterialApp(
-          home: BrewLoggerPage(
-            templateRecordId: templateRecordId,
-            onOpenInventoryManage: onOpenInventoryManage,
-          ),
+          home: BrewLoggerPage(templateRecordId: templateRecordId),
         ),
       );
     }
@@ -251,31 +245,6 @@ void main() {
       expect(state.coffeeWeightG, 17.0);
       expect(state.waterWeightG, 272.0);
       expect(find.text('Template loaded from history'), findsOneWidget);
-    });
-
-    testWidgets('inventory manage entry triggers callback', (
-      WidgetTester tester,
-    ) async {
-      var opened = false;
-
-      tester.view.physicalSize = const Size(1080, 3000);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-
-      await tester.pumpWidget(
-        createWidget(
-          onOpenInventoryManage: () {
-            opened = true;
-          },
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('brew-open-inventory-manage')));
-      await tester.pumpAndSettle();
-
-      expect(opened, isTrue);
     });
   });
 }

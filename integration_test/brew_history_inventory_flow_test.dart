@@ -42,14 +42,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('brew-open-inventory-manage')));
-    await tester.pumpAndSettle();
-    expect(find.byType(InventoryManagePage), findsOneWidget);
-
-    await tester.tap(find.text('History'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('history-open-inventory-manage')));
+    await tester.tap(find.text('Manage'));
     await tester.pumpAndSettle();
     expect(find.byType(InventoryManagePage), findsOneWidget);
 

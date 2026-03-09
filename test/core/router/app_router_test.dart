@@ -1,5 +1,5 @@
 import 'package:drift/native.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -20,42 +20,37 @@ void main() {
 
       expect(find.byType(BrewLoggerPage), findsOneWidget);
       expect(find.byKey(const Key('app-shell-navigation-bar')), findsOneWidget);
+      expect(find.text('Brew'), findsOneWidget);
+      expect(find.text('Manage'), findsOneWidget);
+      expect(find.text('History'), findsOneWidget);
+      final nav = tester.widget<NavigationBar>(
+        find.byKey(const Key('app-shell-navigation-bar')),
+      );
+      expect(nav.selectedIndex, 0);
     });
 
-    testWidgets('bottom navigation switches to HistoryPage', (tester) async {
+    testWidgets('bottom navigation switches to Manage and History', (
+      tester,
+    ) async {
       await _pumpApp(tester);
+
+      await tester.tap(find.text('Manage'));
+      await tester.pumpAndSettle();
+      expect(find.byType(InventoryManagePage), findsOneWidget);
+      var nav = tester.widget<NavigationBar>(
+        find.byKey(const Key('app-shell-navigation-bar')),
+      );
+      expect(nav.selectedIndex, 1);
 
       await tester.tap(find.text('History'));
       await tester.pumpAndSettle();
 
       expect(find.byType(HistoryPage), findsOneWidget);
       expect(find.text('Brew History'), findsOneWidget);
-    });
-
-    testWidgets('brew page entry opens InventoryManagePage', (tester) async {
-      await _pumpApp(tester);
-
-      final entry = find.byKey(const Key('brew-open-inventory-manage'));
-      await tester.ensureVisible(entry);
-      await tester.tap(entry);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(InventoryManagePage), findsOneWidget);
-      expect(find.text('Inventory Manage'), findsOneWidget);
-    });
-
-    testWidgets('history page entry opens InventoryManagePage', (tester) async {
-      await _pumpApp(tester);
-
-      await tester.tap(find.text('History'));
-      await tester.pumpAndSettle();
-
-      final entry = find.byKey(const Key('history-open-inventory-manage'));
-      await tester.tap(entry);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(InventoryManagePage), findsOneWidget);
-      expect(find.text('Inventory Manage'), findsOneWidget);
+      nav = tester.widget<NavigationBar>(
+        find.byKey(const Key('app-shell-navigation-bar')),
+      );
+      expect(nav.selectedIndex, 2);
     });
   });
 }

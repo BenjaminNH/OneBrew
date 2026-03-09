@@ -57,18 +57,10 @@ void main() {
     });
   });
 
-  Widget createWidget({
-    ValueChanged<int>? onOpenDetail,
-    VoidCallback? onOpenInventoryManage,
-  }) {
+  Widget createWidget({ValueChanged<int>? onOpenDetail}) {
     return ProviderScope(
       overrides: [historyRepositoryProvider.overrideWithValue(mockHistoryRepo)],
-      child: MaterialApp(
-        home: HistoryPage(
-          onOpenDetail: onOpenDetail,
-          onOpenInventoryManage: onOpenInventoryManage,
-        ),
-      ),
+      child: MaterialApp(home: HistoryPage(onOpenDetail: onOpenDetail)),
     );
   }
 
@@ -122,23 +114,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(openedId, 1);
-    });
-
-    testWidgets('inventory manage entry triggers callback', (tester) async {
-      var opened = false;
-      await tester.pumpWidget(
-        createWidget(
-          onOpenInventoryManage: () {
-            opened = true;
-          },
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('history-open-inventory-manage')));
-      await tester.pumpAndSettle();
-
-      expect(opened, isTrue);
     });
   });
 }
