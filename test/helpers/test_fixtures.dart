@@ -1,5 +1,6 @@
 import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_coffee/features/history/domain/entities/brew_summary.dart';
+import 'package:one_coffee/features/history/domain/entities/brew_detail.dart';
 import 'package:one_coffee/features/inventory/domain/entities/bean.dart';
 import 'package:one_coffee/features/inventory/domain/entities/equipment.dart';
 import 'package:one_coffee/features/rating/domain/entities/brew_rating.dart';
@@ -166,5 +167,58 @@ class TestFixtures {
     quickScore: quickScore,
     emoji: emoji,
     isQuickMode: isQuickMode,
+  );
+
+  // ─── BrewDetail ──────────────────────────────────────────────────────────
+
+  /// Returns a [BrewDetail] representing a full detail aggregate.
+  static BrewDetail brewDetail({
+    int id = 1,
+    String beanName = 'Ethiopia Yirgacheffe',
+    String? roaster = 'Sample Roasters',
+    String? origin = 'Ethiopia',
+    String? roastLevel = 'Light',
+    int? equipmentId = 1,
+    String? equipmentName = 'Comandante C40',
+    GrindMode grindMode = GrindMode.equipment,
+    double? grindClickValue = 24.0,
+    String? grindClickUnit = 'clicks',
+    String? grindSimpleLabel,
+    int? grindMicrons,
+    int? quickScore = 4,
+    String? emoji = '😊',
+  }) => BrewDetail(
+    id: id,
+    brewDate: _baseDate,
+    beanName: beanName,
+    roaster: roaster,
+    origin: origin,
+    roastLevel: roastLevel,
+    equipmentId: equipmentId,
+    equipmentName: equipmentName,
+    grindMode: grindMode,
+    grindClickValue: grindClickValue,
+    grindClickUnit: grindClickUnit,
+    grindSimpleLabel: grindSimpleLabel,
+    grindMicrons: grindMicrons,
+    coffeeWeightG: 15.0,
+    waterWeightG: 240.0,
+    waterTempC: 93.0,
+    brewDurationS: 180,
+    bloomTimeS: 30,
+    pourMethod: 'Pulse',
+    waterType: 'Filtered',
+    roomTempC: 24.0,
+    quickScore: quickScore,
+    emoji: emoji,
+    acidity: 3.5,
+    sweetness: 4.0,
+    bitterness: 2.0,
+    body: 3.0,
+    flavorNotes: 'jasmine,citrus',
+    notes: 'Clean cup',
+    isQuickMode: true,
+    createdAt: _baseDate,
+    updatedAt: _baseDate,
   );
 }

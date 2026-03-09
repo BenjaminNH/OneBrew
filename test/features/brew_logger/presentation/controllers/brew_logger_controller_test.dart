@@ -23,8 +23,12 @@ import '../../../../helpers/mock_repositories.mocks.dart';
 // A minimal fake BrewRepository that records the companion passed to update.
 // ---------------------------------------------------------------------------
 class _FakeBrewRepo extends MockBrewRepository {
+  _FakeBrewRepo({Map<int, BrewRecord>? recordsById})
+    : _recordsById = recordsById ?? const {};
+
   BrewRecord? lastCreatedRecord;
   BrewRecord? lastUpdatedRecord;
+  final Map<int, BrewRecord> _recordsById;
 
   @override
   Future<int> createBrewRecord(BrewRecord? record) async {
@@ -40,6 +44,12 @@ class _FakeBrewRepo extends MockBrewRepository {
 
   @override
   Stream<List<BrewRecord>> watchAllBrewRecords() => const Stream.empty();
+
+  @override
+  Future<BrewRecord?> getBrewRecordById(int? id) async {
+    if (id == null) return null;
+    return _recordsById[id];
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -484,6 +494,61 @@ void main() {
           expect(state.hasValidGrindClickConfig, isFalse);
         },
       );
+    });
+
+    group('applyTemplateByRecordId', () {
+      test('loads brew by id and applies it as template', () async {
+        final template = BrewRecord(
+          id: 101,
+          brewDate: DateTime(2026, 3, 8, 7, 0),
+          beanName: 'Rwanda Gitesi',
+          equipmentId: null,
+          grindMode: GrindMode.simple,
+          grindClickValue: null,
+          grindSimpleLabel: 'Medium-Fine',
+          grindMicrons: null,
+          coffeeWeightG: 16.0,
+          waterWeightG: 256.0,
+          waterTempC: 91.0,
+          brewDurationS: 180,
+          bloomTimeS: 28,
+          pourMethod: 'Center pour',
+          waterType: 'Filtered',
+          roomTempC: 23.0,
+          notes: 'Balanced cup',
+          isQuickMode: true,
+          createdAt: DateTime(2026, 3, 8, 7, 1),
+          updatedAt: DateTime(2026, 3, 8, 7, 1),
+        );
+        final brewRepo = _FakeBrewRepo(recordsById: {101: template});
+        final container = _makeContainer(brewRepo: brewRepo);
+        addTearDown(container.dispose);
+
+        final applied = await container
+            .read(brewLoggerControllerProvider.notifier)
+            .applyTemplateByRecordId(101);
+
+        final state = container.read(brewLoggerControllerProvider);
+        expect(applied, isTrue);
+        expect(state.beanName, template.beanName);
+        expect(state.grindMode, template.grindMode);
+        expect(state.grindSimpleLabel, template.grindSimpleLabel);
+        expect(state.coffeeWeightG, template.coffeeWeightG);
+      });
+
+      test('returns false and sets error when brew is missing', () async {
+        final brewRepo = _FakeBrewRepo();
+        final container = _makeContainer(brewRepo: brewRepo);
+        addTearDown(container.dispose);
+
+        final applied = await container
+            .read(brewLoggerControllerProvider.notifier)
+            .applyTemplateByRecordId(999);
+
+        final state = container.read(brewLoggerControllerProvider);
+        expect(applied, isFalse);
+        expect(state.errorMessage, 'Template record not found.');
+      });
     });
   });
 }

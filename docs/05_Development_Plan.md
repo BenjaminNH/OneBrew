@@ -440,10 +440,10 @@ flutter build apk --release
 | `test/features/history/` | 详情 Domain/Data/Presentation 测试 |
 
 ### 验收标准
-- [ ] History 列表点击记录可进入详情页面
-- [ ] 详情展示完整，空值统一占位，不出现 `null`
-- [ ] 点击“再冲一次”后可回到 Brew 并完成参数回填
-- [ ] `flutter test test/features/history/` 全部通过
+- [x] History 列表点击记录可进入详情页面
+- [x] 详情展示完整，空值统一占位，不出现 `null`
+- [x] 点击“再冲一次”后可回到 Brew 并完成参数回填
+- [x] `flutter test test/features/history/` 全部通过
 
 ### 推荐测试
 ```bash
@@ -557,6 +557,6 @@ flutter test
 | 7 | 路由 & App Shell | ✅ 已完成 | 小 |
 | 8 | UI 精装 & 设计系统 | ⬜ 未开始 | 大 |
 | 9 | 集成测试 & CI/CD | ⬜ 未开始 | 中 |
-| 7A | History 详情闭环（查询 + 详情页 + 再冲一次） | ⬜ 未开始 | 中 |
+| 7A | History 详情闭环（查询 + 详情页 + 再冲一次） | ✅ 已完成  | 中 |
 | 7B | Inventory 管理闭环（Bean + Grinder） | ✅ 已完成 | 中 |
 | 7C | 入口整合与新增功能回归 | ⬜ 未开始 | 小 |

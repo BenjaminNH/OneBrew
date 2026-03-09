@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:one_coffee/features/brew_logger/presentation/pages/brew_logger_page.dart';
+import 'package:one_coffee/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_coffee/features/history/presentation/pages/history_page.dart';
 
 /// Canonical route paths used by the app shell.
@@ -20,11 +21,30 @@ final GoRouter appRouter = GoRouter(
       routes: [
         GoRoute(
           path: AppRoutePaths.brew,
-          builder: (_, _) => const BrewLoggerPage(),
+          builder: (_, state) {
+            final templateRecordId = int.tryParse(
+              state.uri.queryParameters['templateRecordId'] ?? '',
+            );
+            return BrewLoggerPage(templateRecordId: templateRecordId);
+          },
         ),
         GoRoute(
           path: AppRoutePaths.history,
           builder: (_, _) => const HistoryPage(),
+          routes: [
+            GoRoute(
+              path: ':id',
+              builder: (_, state) {
+                final id = int.tryParse(state.pathParameters['id'] ?? '');
+                if (id == null) {
+                  return const _RouteErrorPage(
+                    message: 'Invalid history detail id.',
+                  );
+                }
+                return BrewDetailPage(brewId: id);
+              },
+            ),
+          ],
         ),
       ],
     ),
@@ -76,5 +96,25 @@ class AppShell extends StatelessWidget {
       return 1;
     }
     return 0;
+  }
+}
+
+class _RouteErrorPage extends StatelessWidget {
+  const _RouteErrorPage({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(message, textAlign: TextAlign.center),
+          ),
+        ),
+      ),
+    );
   }
 }

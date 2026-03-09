@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:one_coffee/features/history/domain/repositories/history_repository.dart';
 import 'package:one_coffee/features/history/domain/usecases/filter_brews.dart';
+import 'package:one_coffee/features/history/domain/usecases/get_brew_detail.dart';
 import 'package:one_coffee/features/history/domain/usecases/get_brew_history.dart';
 import 'package:one_coffee/features/history/domain/usecases/get_top_brews.dart';
 
@@ -13,12 +14,14 @@ void main() {
   late GetBrewHistory getBrewHistory;
   late FilterBrews filterBrews;
   late GetTopBrews getTopBrews;
+  late GetBrewDetail getBrewDetail;
 
   setUp(() {
     mockRepo = MockHistoryRepository();
     getBrewHistory = GetBrewHistory(mockRepo);
     filterBrews = FilterBrews(mockRepo);
     getTopBrews = GetTopBrews(mockRepo);
+    getBrewDetail = GetBrewDetail(mockRepo);
   });
 
   final summaries = [
@@ -127,6 +130,29 @@ void main() {
 
       expect(result.length, 1);
       verify(mockRepo.getTopBrews(limit: 3)).called(1);
+    });
+  });
+
+  // ─── GetBrewDetail ──────────────────────────────────────────────────────
+
+  group('GetBrewDetail', () {
+    test('returns detail when repository has the brew', () async {
+      final detail = TestFixtures.brewDetail(id: 42, beanName: 'Panama Geisha');
+      when(mockRepo.getBrewDetailById(42)).thenAnswer((_) async => detail);
+
+      final result = await getBrewDetail(42);
+
+      expect(result, detail);
+      verify(mockRepo.getBrewDetailById(42)).called(1);
+    });
+
+    test('returns null when brew does not exist', () async {
+      when(mockRepo.getBrewDetailById(999)).thenAnswer((_) async => null);
+
+      final result = await getBrewDetail(999);
+
+      expect(result, isNull);
+      verify(mockRepo.getBrewDetailById(999)).called(1);
     });
   });
 }

@@ -57,10 +57,10 @@ void main() {
     });
   });
 
-  Widget createWidget() {
+  Widget createWidget({ValueChanged<int>? onOpenDetail}) {
     return ProviderScope(
       overrides: [historyRepositoryProvider.overrideWithValue(mockHistoryRepo)],
-      child: const MaterialApp(home: HistoryPage()),
+      child: MaterialApp(home: HistoryPage(onOpenDetail: onOpenDetail)),
     );
   }
 
@@ -97,6 +97,23 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(const ValueKey('history-record-card-1')), findsNothing);
+    });
+
+    testWidgets('taps card and requests detail navigation', (tester) async {
+      int? openedId;
+      await tester.pumpWidget(
+        createWidget(
+          onOpenDetail: (id) {
+            openedId = id;
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const ValueKey('history-record-card-1')));
+      await tester.pumpAndSettle();
+
+      expect(openedId, 1);
     });
   });
 }

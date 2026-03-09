@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -10,7 +11,9 @@ import '../widgets/brew_stats_header.dart';
 import '../widgets/history_filter_bar.dart';
 
 class HistoryPage extends ConsumerStatefulWidget {
-  const HistoryPage({super.key});
+  const HistoryPage({super.key, this.onOpenDetail});
+
+  final ValueChanged<int>? onOpenDetail;
 
   @override
   ConsumerState<HistoryPage> createState() => _HistoryPageState();
@@ -122,7 +125,17 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                     separatorBuilder: (_, _) =>
                         const SizedBox(height: AppSpacing.cardGap),
                     itemBuilder: (context, index) {
-                      return BrewRecordCard(summary: state.visibleBrews[index]);
+                      final summary = state.visibleBrews[index];
+                      return BrewRecordCard(
+                        summary: summary,
+                        onTap: () {
+                          if (widget.onOpenDetail != null) {
+                            widget.onOpenDetail!(summary.id);
+                            return;
+                          }
+                          context.go('/history/${summary.id}');
+                        },
+                      );
                     },
                   );
                 },

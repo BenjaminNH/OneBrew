@@ -10,6 +10,8 @@ import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart
     as _i4;
 import 'package:one_coffee/features/brew_logger/domain/repositories/brew_repository.dart'
     as _i2;
+import 'package:one_coffee/features/history/domain/entities/brew_detail.dart'
+    as _i12;
 import 'package:one_coffee/features/history/domain/entities/brew_summary.dart'
     as _i11;
 import 'package:one_coffee/features/history/domain/repositories/history_repository.dart'
@@ -340,4 +342,12 @@ class MockHistoryRepository extends _i1.Mock implements _i10.HistoryRepository {
             ),
           )
           as _i3.Future<List<_i11.BrewSummary>>);
+
+  @override
+  _i3.Future<_i12.BrewDetail?> getBrewDetailById(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#getBrewDetailById, [id]),
+            returnValue: _i3.Future<_i12.BrewDetail?>.value(),
+          )
+          as _i3.Future<_i12.BrewDetail?>);
 }

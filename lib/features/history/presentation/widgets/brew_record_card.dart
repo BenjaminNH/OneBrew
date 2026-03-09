@@ -8,9 +8,10 @@ import '../../../../core/widgets/app_card.dart';
 import '../../domain/entities/brew_summary.dart';
 
 class BrewRecordCard extends StatelessWidget {
-  const BrewRecordCard({super.key, required this.summary});
+  const BrewRecordCard({super.key, required this.summary, this.onTap});
 
   final BrewSummary summary;
+  final VoidCallback? onTap;
 
   bool get _isHighScore => (summary.quickScore ?? 0) >= 4;
 
@@ -22,6 +23,7 @@ class BrewRecordCard extends StatelessWidget {
 
     return AppCard(
       key: ValueKey('history-record-card-${summary.id}'),
+      onTap: onTap,
       borderRadius: AppSpacing.radiusMd,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
