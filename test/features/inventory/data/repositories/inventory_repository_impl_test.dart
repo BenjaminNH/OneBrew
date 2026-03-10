@@ -346,7 +346,7 @@ void main() {
     });
 
     test(
-      'deleteGrinderWithGuard allows deletion and detaches history references',
+      'deleteGrinderWithGuard soft-deletes grinder when referenced',
       () async {
         final grinderId = await repository.createEquipment(
           domain.Equipment(
@@ -369,8 +369,36 @@ void main() {
         expect(allEquipments.where((e) => e.id == grinderId), isEmpty);
 
         final brews = await db.getAllBrewRecords();
-        expect(brews.single.equipmentId, isNull);
+        expect(brews.single.equipmentId, grinderId);
+
+        final stored = await db.getEquipmentById(grinderId);
+        expect(stored, isNotNull);
+        expect(stored!.isDeleted, isTrue);
       },
     );
+
+    test('deleteGrinderWithGuard hard-deletes grinder when unreferenced', () async {
+      final grinderId = await repository.createEquipment(
+        domain.Equipment(
+          id: 0,
+          name: 'Unused Grinder',
+          isGrinder: true,
+          grindMinClick: 0,
+          grindMaxClick: 40,
+          grindClickStep: 1,
+          addedAt: DateTime.now(),
+          useCount: 0,
+        ),
+      );
+
+      final deleted = await repository.deleteGrinderWithGuard(grinderId);
+      expect(deleted, 1);
+
+      final allEquipments = await repository.getAllEquipments();
+      expect(allEquipments.where((e) => e.id == grinderId), isEmpty);
+
+      final stored = await db.getEquipmentById(grinderId);
+      expect(stored, isNull);
+    });
   });
 }
