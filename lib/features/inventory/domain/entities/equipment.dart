@@ -24,6 +24,9 @@ abstract class Equipment with _$Equipment {
     /// Whether this equipment is a grinder that exposes click-range config.
     required bool isGrinder,
 
+    /// Whether this equipment is archived (soft-deleted).
+    @Default(false) bool isDeleted,
+
     /// Minimum grinder click value (e.g. 0). Only relevant when [isGrinder].
     double? grindMinClick,
 

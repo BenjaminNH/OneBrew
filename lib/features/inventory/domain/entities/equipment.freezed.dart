@@ -18,7 +18,8 @@ mixin _$Equipment {
  int get id;/// Equipment name, unique across the inventory (e.g. "Comandante C40").
  String get name;/// Category label (optional, e.g. "grinder", "dripper", "kettle").
  String? get category;/// Whether this equipment is a grinder that exposes click-range config.
- bool get isGrinder;/// Minimum grinder click value (e.g. 0). Only relevant when [isGrinder].
+ bool get isGrinder;/// Whether this equipment is archived (soft-deleted).
+ bool get isDeleted;/// Minimum grinder click value (e.g. 0). Only relevant when [isGrinder].
  double? get grindMinClick;/// Maximum grinder click value (e.g. 40). Only relevant when [isGrinder].
  double? get grindMaxClick;/// Step size between clicks (e.g. 1.0 for full-click, 0.5 for half-click).
  double? get grindClickStep;/// Unit label for the click display (e.g. "clicks", "格", "数字").
@@ -35,16 +36,16 @@ $EquipmentCopyWith<Equipment> get copyWith => _$EquipmentCopyWithImpl<Equipment>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Equipment&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.isGrinder, isGrinder) || other.isGrinder == isGrinder)&&(identical(other.grindMinClick, grindMinClick) || other.grindMinClick == grindMinClick)&&(identical(other.grindMaxClick, grindMaxClick) || other.grindMaxClick == grindMaxClick)&&(identical(other.grindClickStep, grindClickStep) || other.grindClickStep == grindClickStep)&&(identical(other.grindClickUnit, grindClickUnit) || other.grindClickUnit == grindClickUnit)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.useCount, useCount) || other.useCount == useCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Equipment&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.isGrinder, isGrinder) || other.isGrinder == isGrinder)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&(identical(other.grindMinClick, grindMinClick) || other.grindMinClick == grindMinClick)&&(identical(other.grindMaxClick, grindMaxClick) || other.grindMaxClick == grindMaxClick)&&(identical(other.grindClickStep, grindClickStep) || other.grindClickStep == grindClickStep)&&(identical(other.grindClickUnit, grindClickUnit) || other.grindClickUnit == grindClickUnit)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.useCount, useCount) || other.useCount == useCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,category,isGrinder,grindMinClick,grindMaxClick,grindClickStep,grindClickUnit,addedAt,useCount);
+int get hashCode => Object.hash(runtimeType,id,name,category,isGrinder,isDeleted,grindMinClick,grindMaxClick,grindClickStep,grindClickUnit,addedAt,useCount);
 
 @override
 String toString() {
-  return 'Equipment(id: $id, name: $name, category: $category, isGrinder: $isGrinder, grindMinClick: $grindMinClick, grindMaxClick: $grindMaxClick, grindClickStep: $grindClickStep, grindClickUnit: $grindClickUnit, addedAt: $addedAt, useCount: $useCount)';
+  return 'Equipment(id: $id, name: $name, category: $category, isGrinder: $isGrinder, isDeleted: $isDeleted, grindMinClick: $grindMinClick, grindMaxClick: $grindMaxClick, grindClickStep: $grindClickStep, grindClickUnit: $grindClickUnit, addedAt: $addedAt, useCount: $useCount)';
 }
 
 
@@ -55,7 +56,7 @@ abstract mixin class $EquipmentCopyWith<$Res>  {
   factory $EquipmentCopyWith(Equipment value, $Res Function(Equipment) _then) = _$EquipmentCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, String? category, bool isGrinder, double? grindMinClick, double? grindMaxClick, double? grindClickStep, String? grindClickUnit, DateTime addedAt, int useCount
+ int id, String name, String? category, bool isGrinder, bool isDeleted, double? grindMinClick, double? grindMaxClick, double? grindClickStep, String? grindClickUnit, DateTime addedAt, int useCount
 });
 
 
@@ -72,12 +73,13 @@ class _$EquipmentCopyWithImpl<$Res>
 
 /// Create a copy of Equipment
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = freezed,Object? isGrinder = null,Object? grindMinClick = freezed,Object? grindMaxClick = freezed,Object? grindClickStep = freezed,Object? grindClickUnit = freezed,Object? addedAt = null,Object? useCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? category = freezed,Object? isGrinder = null,Object? isDeleted = null,Object? grindMinClick = freezed,Object? grindMaxClick = freezed,Object? grindClickStep = freezed,Object? grindClickUnit = freezed,Object? addedAt = null,Object? useCount = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String?,isGrinder: null == isGrinder ? _self.isGrinder : isGrinder // ignore: cast_nullable_to_non_nullable
+as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
 as bool,grindMinClick: freezed == grindMinClick ? _self.grindMinClick : grindMinClick // ignore: cast_nullable_to_non_nullable
 as double?,grindMaxClick: freezed == grindMaxClick ? _self.grindMaxClick : grindMaxClick // ignore: cast_nullable_to_non_nullable
 as double?,grindClickStep: freezed == grindClickStep ? _self.grindClickStep : grindClickStep // ignore: cast_nullable_to_non_nullable
@@ -169,10 +171,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String? category,  bool isGrinder,  double? grindMinClick,  double? grindMaxClick,  double? grindClickStep,  String? grindClickUnit,  DateTime addedAt,  int useCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String? category,  bool isGrinder,  bool isDeleted,  double? grindMinClick,  double? grindMaxClick,  double? grindClickStep,  String? grindClickUnit,  DateTime addedAt,  int useCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Equipment() when $default != null:
-return $default(_that.id,_that.name,_that.category,_that.isGrinder,_that.grindMinClick,_that.grindMaxClick,_that.grindClickStep,_that.grindClickUnit,_that.addedAt,_that.useCount);case _:
+return $default(_that.id,_that.name,_that.category,_that.isGrinder,_that.isDeleted,_that.grindMinClick,_that.grindMaxClick,_that.grindClickStep,_that.grindClickUnit,_that.addedAt,_that.useCount);case _:
   return orElse();
 
 }
@@ -190,10 +192,10 @@ return $default(_that.id,_that.name,_that.category,_that.isGrinder,_that.grindMi
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String? category,  bool isGrinder,  double? grindMinClick,  double? grindMaxClick,  double? grindClickStep,  String? grindClickUnit,  DateTime addedAt,  int useCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String? category,  bool isGrinder,  bool isDeleted,  double? grindMinClick,  double? grindMaxClick,  double? grindClickStep,  String? grindClickUnit,  DateTime addedAt,  int useCount)  $default,) {final _that = this;
 switch (_that) {
 case _Equipment():
-return $default(_that.id,_that.name,_that.category,_that.isGrinder,_that.grindMinClick,_that.grindMaxClick,_that.grindClickStep,_that.grindClickUnit,_that.addedAt,_that.useCount);case _:
+return $default(_that.id,_that.name,_that.category,_that.isGrinder,_that.isDeleted,_that.grindMinClick,_that.grindMaxClick,_that.grindClickStep,_that.grindClickUnit,_that.addedAt,_that.useCount);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +212,10 @@ return $default(_that.id,_that.name,_that.category,_that.isGrinder,_that.grindMi
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String? category,  bool isGrinder,  double? grindMinClick,  double? grindMaxClick,  double? grindClickStep,  String? grindClickUnit,  DateTime addedAt,  int useCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String? category,  bool isGrinder,  bool isDeleted,  double? grindMinClick,  double? grindMaxClick,  double? grindClickStep,  String? grindClickUnit,  DateTime addedAt,  int useCount)?  $default,) {final _that = this;
 switch (_that) {
 case _Equipment() when $default != null:
-return $default(_that.id,_that.name,_that.category,_that.isGrinder,_that.grindMinClick,_that.grindMaxClick,_that.grindClickStep,_that.grindClickUnit,_that.addedAt,_that.useCount);case _:
+return $default(_that.id,_that.name,_that.category,_that.isGrinder,_that.isDeleted,_that.grindMinClick,_that.grindMaxClick,_that.grindClickStep,_that.grindClickUnit,_that.addedAt,_that.useCount);case _:
   return null;
 
 }
@@ -225,7 +227,7 @@ return $default(_that.id,_that.name,_that.category,_that.isGrinder,_that.grindMi
 
 
 class _Equipment implements Equipment {
-  const _Equipment({required this.id, required this.name, this.category, required this.isGrinder, this.grindMinClick, this.grindMaxClick, this.grindClickStep, this.grindClickUnit, required this.addedAt, required this.useCount});
+  const _Equipment({required this.id, required this.name, this.category, required this.isGrinder, this.isDeleted = false, this.grindMinClick, this.grindMaxClick, this.grindClickStep, this.grindClickUnit, required this.addedAt, required this.useCount});
   
 
 /// Unique identifier.
@@ -236,6 +238,8 @@ class _Equipment implements Equipment {
 @override final  String? category;
 /// Whether this equipment is a grinder that exposes click-range config.
 @override final  bool isGrinder;
+/// Whether this equipment is archived (soft-deleted).
+@override@JsonKey() final  bool isDeleted;
 /// Minimum grinder click value (e.g. 0). Only relevant when [isGrinder].
 @override final  double? grindMinClick;
 /// Maximum grinder click value (e.g. 40). Only relevant when [isGrinder].
@@ -259,16 +263,16 @@ _$EquipmentCopyWith<_Equipment> get copyWith => __$EquipmentCopyWithImpl<_Equipm
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Equipment&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.isGrinder, isGrinder) || other.isGrinder == isGrinder)&&(identical(other.grindMinClick, grindMinClick) || other.grindMinClick == grindMinClick)&&(identical(other.grindMaxClick, grindMaxClick) || other.grindMaxClick == grindMaxClick)&&(identical(other.grindClickStep, grindClickStep) || other.grindClickStep == grindClickStep)&&(identical(other.grindClickUnit, grindClickUnit) || other.grindClickUnit == grindClickUnit)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.useCount, useCount) || other.useCount == useCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Equipment&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.category, category) || other.category == category)&&(identical(other.isGrinder, isGrinder) || other.isGrinder == isGrinder)&&(identical(other.isDeleted, isDeleted) || other.isDeleted == isDeleted)&&(identical(other.grindMinClick, grindMinClick) || other.grindMinClick == grindMinClick)&&(identical(other.grindMaxClick, grindMaxClick) || other.grindMaxClick == grindMaxClick)&&(identical(other.grindClickStep, grindClickStep) || other.grindClickStep == grindClickStep)&&(identical(other.grindClickUnit, grindClickUnit) || other.grindClickUnit == grindClickUnit)&&(identical(other.addedAt, addedAt) || other.addedAt == addedAt)&&(identical(other.useCount, useCount) || other.useCount == useCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,category,isGrinder,grindMinClick,grindMaxClick,grindClickStep,grindClickUnit,addedAt,useCount);
+int get hashCode => Object.hash(runtimeType,id,name,category,isGrinder,isDeleted,grindMinClick,grindMaxClick,grindClickStep,grindClickUnit,addedAt,useCount);
 
 @override
 String toString() {
-  return 'Equipment(id: $id, name: $name, category: $category, isGrinder: $isGrinder, grindMinClick: $grindMinClick, grindMaxClick: $grindMaxClick, grindClickStep: $grindClickStep, grindClickUnit: $grindClickUnit, addedAt: $addedAt, useCount: $useCount)';
+  return 'Equipment(id: $id, name: $name, category: $category, isGrinder: $isGrinder, isDeleted: $isDeleted, grindMinClick: $grindMinClick, grindMaxClick: $grindMaxClick, grindClickStep: $grindClickStep, grindClickUnit: $grindClickUnit, addedAt: $addedAt, useCount: $useCount)';
 }
 
 
@@ -279,7 +283,7 @@ abstract mixin class _$EquipmentCopyWith<$Res> implements $EquipmentCopyWith<$Re
   factory _$EquipmentCopyWith(_Equipment value, $Res Function(_Equipment) _then) = __$EquipmentCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, String? category, bool isGrinder, double? grindMinClick, double? grindMaxClick, double? grindClickStep, String? grindClickUnit, DateTime addedAt, int useCount
+ int id, String name, String? category, bool isGrinder, bool isDeleted, double? grindMinClick, double? grindMaxClick, double? grindClickStep, String? grindClickUnit, DateTime addedAt, int useCount
 });
 
 
@@ -296,12 +300,13 @@ class __$EquipmentCopyWithImpl<$Res>
 
 /// Create a copy of Equipment
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = freezed,Object? isGrinder = null,Object? grindMinClick = freezed,Object? grindMaxClick = freezed,Object? grindClickStep = freezed,Object? grindClickUnit = freezed,Object? addedAt = null,Object? useCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? category = freezed,Object? isGrinder = null,Object? isDeleted = null,Object? grindMinClick = freezed,Object? grindMaxClick = freezed,Object? grindClickStep = freezed,Object? grindClickUnit = freezed,Object? addedAt = null,Object? useCount = null,}) {
   return _then(_Equipment(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as String?,isGrinder: null == isGrinder ? _self.isGrinder : isGrinder // ignore: cast_nullable_to_non_nullable
+as bool,isDeleted: null == isDeleted ? _self.isDeleted : isDeleted // ignore: cast_nullable_to_non_nullable
 as bool,grindMinClick: freezed == grindMinClick ? _self.grindMinClick : grindMinClick // ignore: cast_nullable_to_non_nullable
 as double?,grindMaxClick: freezed == grindMaxClick ? _self.grindMaxClick : grindMaxClick // ignore: cast_nullable_to_non_nullable
 as double?,grindClickStep: freezed == grindClickStep ? _self.grindClickStep : grindClickStep // ignore: cast_nullable_to_non_nullable

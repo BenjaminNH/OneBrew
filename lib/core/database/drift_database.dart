@@ -49,10 +49,15 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
   OneCoffeeDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(equipments, equipments.isDeleted);
+      }
+    },
     beforeOpen: (details) async {
       // Enable foreign-key constraints on every connection.
       await customStatement('PRAGMA foreign_keys = ON');
@@ -142,16 +147,22 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
 
   /// Returns all equipment ordered by [Equipments.useCount] descending.
   Future<List<Equipment>> getAllEquipments() =>
-      (select(equipments)..orderBy([
-            (e) => OrderingTerm.desc(e.useCount),
-            (e) => OrderingTerm.desc(e.addedAt),
-          ]))
+      (select(equipments)
+            ..where((e) => e.isDeleted.equals(false))
+            ..orderBy([
+              (e) => OrderingTerm.desc(e.useCount),
+              (e) => OrderingTerm.desc(e.addedAt),
+            ]))
           .get();
 
   /// Returns equipment whose [Equipments.name] contains [query].
   Future<List<Equipment>> searchEquipments(String query) =>
       (select(equipments)
-            ..where((e) => e.name.lower().contains(query.toLowerCase()))
+            ..where(
+              (e) =>
+                  e.isDeleted.equals(false) &
+                  e.name.lower().contains(query.toLowerCase()),
+            )
             ..orderBy([
               (e) => OrderingTerm.desc(e.useCount),
               (e) => OrderingTerm.desc(e.addedAt),
@@ -161,7 +172,7 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
   /// Returns grinder equipment ordered by use count then add time.
   Future<List<Equipment>> getAllGrinders() =>
       (select(equipments)
-            ..where((e) => e.isGrinder.equals(true))
+            ..where((e) => e.isGrinder.equals(true) & e.isDeleted.equals(false))
             ..orderBy([
               (e) => OrderingTerm.desc(e.useCount),
               (e) => OrderingTerm.desc(e.addedAt),
@@ -174,6 +185,7 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
             ..where(
               (e) =>
                   e.isGrinder.equals(true) &
+                  e.isDeleted.equals(false) &
                   e.name.lower().contains(query.toLowerCase()),
             )
             ..orderBy([
@@ -197,6 +209,11 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
   /// Deletes equipment by [id].
   Future<int> deleteEquipment(int id) =>
       (delete(equipments)..where((e) => e.id.equals(id))).go();
+
+  /// Soft-deletes equipment by [id] (kept for history joins).
+  Future<int> softDeleteEquipment(int id) => (update(equipments)
+        ..where((e) => e.id.equals(id)))
+      .write(const EquipmentsCompanion(isDeleted: Value(true)));
 
   /// Increments [Equipments.useCount] for the equipment with [id].
   Future<void> incrementEquipmentUseCount(int id) async {

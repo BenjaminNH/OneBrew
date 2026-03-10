@@ -23,6 +23,10 @@ class Equipments extends Table {
   /// grind mode becomes available in BrewRecord.
   BoolColumn get isGrinder => boolean().withDefault(const Constant(false))();
 
+  /// Soft delete flag. Deleted equipment stays for historical records
+  /// but is hidden from active inventory lists and suggestions.
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+
   /// Minimum grind click value for grinders (e.g. 0).
   RealColumn get grindMinClick => real().nullable()();
 

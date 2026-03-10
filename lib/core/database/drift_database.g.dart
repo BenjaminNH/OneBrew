@@ -516,6 +516,21 @@ class $EquipmentsTable extends Equipments
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
+    'isDeleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+    'is_deleted',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deleted" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _grindMinClickMeta = const VerificationMeta(
     'grindMinClick',
   );
@@ -590,6 +605,7 @@ class $EquipmentsTable extends Equipments
     name,
     category,
     isGrinder,
+    isDeleted,
     grindMinClick,
     grindMaxClick,
     grindClickStep,
@@ -630,6 +646,12 @@ class $EquipmentsTable extends Equipments
       context.handle(
         _isGrinderMeta,
         isGrinder.isAcceptableOrUnknown(data['is_grinder']!, _isGrinderMeta),
+      );
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(
+        _isDeletedMeta,
+        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
       );
     }
     if (data.containsKey('grind_min_click')) {
@@ -705,6 +727,10 @@ class $EquipmentsTable extends Equipments
         DriftSqlType.bool,
         data['${effectivePrefix}is_grinder'],
       )!,
+      isDeleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deleted'],
+      )!,
       grindMinClick: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}grind_min_click'],
@@ -753,6 +779,10 @@ class Equipment extends DataClass implements Insertable<Equipment> {
   /// grind mode becomes available in BrewRecord.
   final bool isGrinder;
 
+  /// Soft delete flag. Deleted equipment stays for historical records
+  /// but is hidden from active inventory lists and suggestions.
+  final bool isDeleted;
+
   /// Minimum grind click value for grinders (e.g. 0).
   final double? grindMinClick;
 
@@ -775,6 +805,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
     required this.name,
     this.category,
     required this.isGrinder,
+    required this.isDeleted,
     this.grindMinClick,
     this.grindMaxClick,
     this.grindClickStep,
@@ -791,6 +822,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
       map['category'] = Variable<String>(category);
     }
     map['is_grinder'] = Variable<bool>(isGrinder);
+    map['is_deleted'] = Variable<bool>(isDeleted);
     if (!nullToAbsent || grindMinClick != null) {
       map['grind_min_click'] = Variable<double>(grindMinClick);
     }
@@ -816,6 +848,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
           ? const Value.absent()
           : Value(category),
       isGrinder: Value(isGrinder),
+      isDeleted: Value(isDeleted),
       grindMinClick: grindMinClick == null && nullToAbsent
           ? const Value.absent()
           : Value(grindMinClick),
@@ -843,6 +876,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
       name: serializer.fromJson<String>(json['name']),
       category: serializer.fromJson<String?>(json['category']),
       isGrinder: serializer.fromJson<bool>(json['isGrinder']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       grindMinClick: serializer.fromJson<double?>(json['grindMinClick']),
       grindMaxClick: serializer.fromJson<double?>(json['grindMaxClick']),
       grindClickStep: serializer.fromJson<double?>(json['grindClickStep']),
@@ -859,6 +893,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
       'name': serializer.toJson<String>(name),
       'category': serializer.toJson<String?>(category),
       'isGrinder': serializer.toJson<bool>(isGrinder),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
       'grindMinClick': serializer.toJson<double?>(grindMinClick),
       'grindMaxClick': serializer.toJson<double?>(grindMaxClick),
       'grindClickStep': serializer.toJson<double?>(grindClickStep),
@@ -873,6 +908,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
     String? name,
     Value<String?> category = const Value.absent(),
     bool? isGrinder,
+    bool? isDeleted,
     Value<double?> grindMinClick = const Value.absent(),
     Value<double?> grindMaxClick = const Value.absent(),
     Value<double?> grindClickStep = const Value.absent(),
@@ -884,6 +920,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
     name: name ?? this.name,
     category: category.present ? category.value : this.category,
     isGrinder: isGrinder ?? this.isGrinder,
+    isDeleted: isDeleted ?? this.isDeleted,
     grindMinClick: grindMinClick.present
         ? grindMinClick.value
         : this.grindMinClick,
@@ -905,6 +942,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
       name: data.name.present ? data.name.value : this.name,
       category: data.category.present ? data.category.value : this.category,
       isGrinder: data.isGrinder.present ? data.isGrinder.value : this.isGrinder,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       grindMinClick: data.grindMinClick.present
           ? data.grindMinClick.value
           : this.grindMinClick,
@@ -929,6 +967,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
           ..write('name: $name, ')
           ..write('category: $category, ')
           ..write('isGrinder: $isGrinder, ')
+          ..write('isDeleted: $isDeleted, ')
           ..write('grindMinClick: $grindMinClick, ')
           ..write('grindMaxClick: $grindMaxClick, ')
           ..write('grindClickStep: $grindClickStep, ')
@@ -945,6 +984,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
     name,
     category,
     isGrinder,
+    isDeleted,
     grindMinClick,
     grindMaxClick,
     grindClickStep,
@@ -960,6 +1000,7 @@ class Equipment extends DataClass implements Insertable<Equipment> {
           other.name == this.name &&
           other.category == this.category &&
           other.isGrinder == this.isGrinder &&
+          other.isDeleted == this.isDeleted &&
           other.grindMinClick == this.grindMinClick &&
           other.grindMaxClick == this.grindMaxClick &&
           other.grindClickStep == this.grindClickStep &&
@@ -973,6 +1014,7 @@ class EquipmentsCompanion extends UpdateCompanion<Equipment> {
   final Value<String> name;
   final Value<String?> category;
   final Value<bool> isGrinder;
+  final Value<bool> isDeleted;
   final Value<double?> grindMinClick;
   final Value<double?> grindMaxClick;
   final Value<double?> grindClickStep;
@@ -984,6 +1026,7 @@ class EquipmentsCompanion extends UpdateCompanion<Equipment> {
     this.name = const Value.absent(),
     this.category = const Value.absent(),
     this.isGrinder = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.grindMinClick = const Value.absent(),
     this.grindMaxClick = const Value.absent(),
     this.grindClickStep = const Value.absent(),
@@ -996,6 +1039,7 @@ class EquipmentsCompanion extends UpdateCompanion<Equipment> {
     required String name,
     this.category = const Value.absent(),
     this.isGrinder = const Value.absent(),
+    this.isDeleted = const Value.absent(),
     this.grindMinClick = const Value.absent(),
     this.grindMaxClick = const Value.absent(),
     this.grindClickStep = const Value.absent(),
@@ -1008,6 +1052,7 @@ class EquipmentsCompanion extends UpdateCompanion<Equipment> {
     Expression<String>? name,
     Expression<String>? category,
     Expression<bool>? isGrinder,
+    Expression<bool>? isDeleted,
     Expression<double>? grindMinClick,
     Expression<double>? grindMaxClick,
     Expression<double>? grindClickStep,
@@ -1020,6 +1065,7 @@ class EquipmentsCompanion extends UpdateCompanion<Equipment> {
       if (name != null) 'name': name,
       if (category != null) 'category': category,
       if (isGrinder != null) 'is_grinder': isGrinder,
+      if (isDeleted != null) 'is_deleted': isDeleted,
       if (grindMinClick != null) 'grind_min_click': grindMinClick,
       if (grindMaxClick != null) 'grind_max_click': grindMaxClick,
       if (grindClickStep != null) 'grind_click_step': grindClickStep,
@@ -1034,6 +1080,7 @@ class EquipmentsCompanion extends UpdateCompanion<Equipment> {
     Value<String>? name,
     Value<String?>? category,
     Value<bool>? isGrinder,
+    Value<bool>? isDeleted,
     Value<double?>? grindMinClick,
     Value<double?>? grindMaxClick,
     Value<double?>? grindClickStep,
@@ -1046,6 +1093,7 @@ class EquipmentsCompanion extends UpdateCompanion<Equipment> {
       name: name ?? this.name,
       category: category ?? this.category,
       isGrinder: isGrinder ?? this.isGrinder,
+      isDeleted: isDeleted ?? this.isDeleted,
       grindMinClick: grindMinClick ?? this.grindMinClick,
       grindMaxClick: grindMaxClick ?? this.grindMaxClick,
       grindClickStep: grindClickStep ?? this.grindClickStep,
@@ -1069,6 +1117,9 @@ class EquipmentsCompanion extends UpdateCompanion<Equipment> {
     }
     if (isGrinder.present) {
       map['is_grinder'] = Variable<bool>(isGrinder.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
     if (grindMinClick.present) {
       map['grind_min_click'] = Variable<double>(grindMinClick.value);
@@ -1098,6 +1149,7 @@ class EquipmentsCompanion extends UpdateCompanion<Equipment> {
           ..write('name: $name, ')
           ..write('category: $category, ')
           ..write('isGrinder: $isGrinder, ')
+          ..write('isDeleted: $isDeleted, ')
           ..write('grindMinClick: $grindMinClick, ')
           ..write('grindMaxClick: $grindMaxClick, ')
           ..write('grindClickStep: $grindClickStep, ')
@@ -3142,6 +3194,7 @@ typedef $$EquipmentsTableCreateCompanionBuilder =
       required String name,
       Value<String?> category,
       Value<bool> isGrinder,
+      Value<bool> isDeleted,
       Value<double?> grindMinClick,
       Value<double?> grindMaxClick,
       Value<double?> grindClickStep,
@@ -3155,6 +3208,7 @@ typedef $$EquipmentsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> category,
       Value<bool> isGrinder,
+      Value<bool> isDeleted,
       Value<double?> grindMinClick,
       Value<double?> grindMaxClick,
       Value<double?> grindClickStep,
@@ -3216,6 +3270,11 @@ class $$EquipmentsTableFilterComposer
 
   ColumnFilters<bool> get isGrinder => $composableBuilder(
     column: $table.isGrinder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3304,6 +3363,11 @@ class $$EquipmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+    column: $table.isDeleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get grindMinClick => $composableBuilder(
     column: $table.grindMinClick,
     builder: (column) => ColumnOrderings(column),
@@ -3355,6 +3419,9 @@ class $$EquipmentsTableAnnotationComposer
 
   GeneratedColumn<bool> get isGrinder =>
       $composableBuilder(column: $table.isGrinder, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
   GeneratedColumn<double> get grindMinClick => $composableBuilder(
     column: $table.grindMinClick,
@@ -3440,6 +3507,7 @@ class $$EquipmentsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> category = const Value.absent(),
                 Value<bool> isGrinder = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
                 Value<double?> grindMinClick = const Value.absent(),
                 Value<double?> grindMaxClick = const Value.absent(),
                 Value<double?> grindClickStep = const Value.absent(),
@@ -3451,6 +3519,7 @@ class $$EquipmentsTableTableManager
                 name: name,
                 category: category,
                 isGrinder: isGrinder,
+                isDeleted: isDeleted,
                 grindMinClick: grindMinClick,
                 grindMaxClick: grindMaxClick,
                 grindClickStep: grindClickStep,
@@ -3464,6 +3533,7 @@ class $$EquipmentsTableTableManager
                 required String name,
                 Value<String?> category = const Value.absent(),
                 Value<bool> isGrinder = const Value.absent(),
+                Value<bool> isDeleted = const Value.absent(),
                 Value<double?> grindMinClick = const Value.absent(),
                 Value<double?> grindMaxClick = const Value.absent(),
                 Value<double?> grindClickStep = const Value.absent(),
@@ -3475,6 +3545,7 @@ class $$EquipmentsTableTableManager
                 name: name,
                 category: category,
                 isGrinder: isGrinder,
+                isDeleted: isDeleted,
                 grindMinClick: grindMinClick,
                 grindMaxClick: grindMaxClick,
                 grindClickStep: grindClickStep,

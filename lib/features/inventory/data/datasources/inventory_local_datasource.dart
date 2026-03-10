@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/database/drift_database.dart';
 import '../../../../shared/providers/database_providers.dart';
@@ -26,6 +27,7 @@ abstract interface class InventoryLocalDatasource {
   Future<int> insertEquipment(EquipmentsCompanion equipment);
   Future<bool> updateEquipment(EquipmentsCompanion equipment);
   Future<int> deleteEquipment(int id);
+  Future<int> softDeleteEquipment(int id);
   Future<void> incrementEquipmentUseCount(int id);
   Future<Equipment?> getEquipmentById(int id);
   Future<Equipment?> getEquipmentByName(String name);
@@ -117,6 +119,9 @@ class InventoryLocalDatasourceImpl implements InventoryLocalDatasource {
   Future<int> deleteEquipment(int id) => _db.deleteEquipment(id);
 
   @override
+  Future<int> softDeleteEquipment(int id) => _db.softDeleteEquipment(id);
+
+  @override
   Future<void> incrementEquipmentUseCount(int id) =>
       _db.incrementEquipmentUseCount(id);
 
@@ -134,13 +139,9 @@ class InventoryLocalDatasourceImpl implements InventoryLocalDatasource {
   Future<Equipment?> getEquipmentByNameIgnoreCase(String name) async {
     final normalized = name.trim().toLowerCase();
     if (normalized.isEmpty) return null;
-    final candidates = await _db.searchEquipments(name);
-    for (final equipment in candidates) {
-      if (equipment.name.trim().toLowerCase() == normalized) {
-        return equipment;
-      }
-    }
-    return null;
+    return (_db.select(_db.equipments)
+          ..where((e) => e.name.lower().equals(normalized)))
+        .getSingleOrNull();
   }
 
   @override

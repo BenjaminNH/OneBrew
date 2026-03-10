@@ -38,6 +38,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
     name: e.name,
     category: e.category,
     isGrinder: e.isGrinder,
+    isDeleted: e.isDeleted,
     grindMinClick: e.grindMinClick,
     grindMaxClick: e.grindMaxClick,
     grindClickStep: e.grindClickStep,
@@ -52,6 +53,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
         name: drift.Value(e.name),
         category: drift.Value(e.category),
         isGrinder: drift.Value(e.isGrinder),
+        isDeleted: drift.Value(e.isDeleted),
         grindMinClick: drift.Value(e.grindMinClick),
         grindMaxClick: drift.Value(e.grindMaxClick),
         grindClickStep: drift.Value(e.grindClickStep),
@@ -136,7 +138,18 @@ class InventoryRepositoryImpl implements InventoryRepository {
   @override
   Future<int> createEquipment(domain.Equipment e) async {
     final existing = await _datasource.getEquipmentByNameIgnoreCase(e.name);
-    if (existing != null) return existing.id;
+    if (existing != null) {
+      if (!existing.isDeleted) return existing.id;
+
+      final restored = e.copyWith(
+        id: existing.id,
+        isDeleted: false,
+        addedAt: existing.addedAt,
+        useCount: existing.useCount,
+      );
+      await _datasource.updateEquipment(_mapEquipmentToDb(restored));
+      return existing.id;
+    }
 
     final companion = db.EquipmentsCompanion.insert(
       name: e.name,
@@ -169,7 +182,10 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<int> deleteEquipment(int id) async {
-    await _datasource.clearBrewRecordEquipmentReferences(id);
+    final refs = await _datasource.countBrewRecordsByEquipmentId(id);
+    if (refs > 0) {
+      return _datasource.softDeleteEquipment(id);
+    }
     return _datasource.deleteEquipment(id);
   }
 
@@ -220,7 +236,10 @@ class InventoryRepositoryImpl implements InventoryRepository {
       );
     }
 
-    await _datasource.clearBrewRecordEquipmentReferences(grinderId);
+    final refs = await _datasource.countBrewRecordsByEquipmentId(grinderId);
+    if (refs > 0) {
+      return _datasource.softDeleteEquipment(grinderId);
+    }
     return _datasource.deleteEquipment(grinderId);
   }
 
