@@ -483,7 +483,7 @@ flutter test test/features/history/
 - [x] Beans 默认按 `useCount desc, addedAt desc` 排序，支持搜索和编辑
 - [x] Bean 重命名冲突会被拦截；重命名成功后历史 `beanName` 同步更新
 - [x] Grinders 支持刻度配置（min/max/step/unit）并进行合法性校验
-- [x] 删除 Grinder 时会自动清理历史记录中的 `equipmentId` 引用
+- [x] 删除 Grinder 时：有历史引用则软删除（保留历史可见且不清理 `equipmentId`），无历史引用则硬删除释放数据
 - [x] `flutter test test/features/inventory/` 全部通过
 
 ### 推荐测试

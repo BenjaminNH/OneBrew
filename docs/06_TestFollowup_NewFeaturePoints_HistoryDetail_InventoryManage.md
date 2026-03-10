@@ -115,9 +115,7 @@
   - `grindMinClick < grindMaxClick`
   - `grindClickStep > 0`
   - `(max-min)/step` 必须处于合理范围（防止极端分段）
-- `FR-IM-06`：删除规则：
-  - Bean 删除不应影响历史记录（历史中的 `beanName` 作为快照保留）
-  - Grinder 删除前需事务化清理历史引用（`brewRecords.equipmentId` 置空）后再删除
+- `FR-IM-06`：删除规则：Bean 删除不应影响历史记录（历史中的 `beanName` 作为快照保留）；Grinder 若有历史引用则软删除（保留历史可见且不清理 `equipmentId`），无历史引用则硬删除
 - `FR-IM-07`：保存后自动补全候选应同会话即时生效。
 
 ### 4.6 非功能需求（NFR）
@@ -129,7 +127,7 @@
 ### 4.7 验收标准（AC）
 - `AC-IM-01`: Given 新建 Bean/Grinder，When 保存成功，Then Brew 自动补全可立即检索到。
 - `AC-IM-02`: Given Bean 被历史记录引用，When 删除，Then 删除成功且历史展示保持原 beanName。
-- `AC-IM-03`: Given Grinder 被历史记录引用，When 删除，Then 删除成功且历史中的 equipmentId 被清空。
+- `AC-IM-03`: Given Grinder 被历史记录引用，When 删除，Then 删除成功且历史详情仍显示该设备。
 - `AC-IM-04`: Given Bean 重命名成功，When 查看历史详情，Then 相关记录名称一致更新。
 - `AC-IM-05`: Given Grinder 配置非法，When 保存，Then 阻止提交并显示校验错误。
 
