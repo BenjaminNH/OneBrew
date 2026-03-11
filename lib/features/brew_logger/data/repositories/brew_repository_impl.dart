@@ -24,6 +24,7 @@ class BrewRepositoryImpl implements BrewRepository {
     brewDate: row.brewDate,
     beanName: row.beanName,
     equipmentId: row.equipmentId,
+    brewMethod: _brewMethodToDomain(row.brewMethod),
     grindMode: _grindModeToDomain(row.grindMode),
     grindClickValue: row.grindClickValue,
     grindSimpleLabel: row.grindSimpleLabel,
@@ -53,6 +54,17 @@ class BrewRepositoryImpl implements BrewRepository {
     }
   }
 
+  domain.BrewMethod _brewMethodToDomain(String raw) {
+    switch (raw) {
+      case 'espresso':
+        return domain.BrewMethod.espresso;
+      case 'custom':
+        return domain.BrewMethod.custom;
+      default:
+        return domain.BrewMethod.pourOver;
+    }
+  }
+
   String _grindModeToDb(domain.GrindMode mode) {
     switch (mode) {
       case domain.GrindMode.simple:
@@ -64,12 +76,24 @@ class BrewRepositoryImpl implements BrewRepository {
     }
   }
 
+  String _brewMethodToDb(domain.BrewMethod method) {
+    switch (method) {
+      case domain.BrewMethod.espresso:
+        return 'espresso';
+      case domain.BrewMethod.custom:
+        return 'custom';
+      case domain.BrewMethod.pourOver:
+        return 'pour_over';
+    }
+  }
+
   db.BrewRecordsCompanion _toCompanion(domain.BrewRecord record) =>
       db.BrewRecordsCompanion(
         id: drift.Value(record.id),
         brewDate: drift.Value(record.brewDate),
         beanName: drift.Value(record.beanName),
         equipmentId: drift.Value(record.equipmentId),
+        brewMethod: drift.Value(_brewMethodToDb(record.brewMethod)),
         grindMode: drift.Value(_grindModeToDb(record.grindMode)),
         grindClickValue: drift.Value(record.grindClickValue),
         grindSimpleLabel: drift.Value(record.grindSimpleLabel),
@@ -93,6 +117,7 @@ class BrewRepositoryImpl implements BrewRepository {
         brewDate: record.brewDate,
         beanName: record.beanName,
         equipmentId: drift.Value(record.equipmentId),
+        brewMethod: drift.Value(_brewMethodToDb(record.brewMethod)),
         grindMode: drift.Value(_grindModeToDb(record.grindMode)),
         grindClickValue: drift.Value(record.grindClickValue),
         grindSimpleLabel: drift.Value(record.grindSimpleLabel),

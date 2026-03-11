@@ -554,9 +554,9 @@ flutter test
 | `test/features/brew_logger/data/` | 参数表 CRUD 与默认模板测试 |
 
 ### 验收标准
-- [ ] 参数定义/可见性/值三表 CRUD 测试通过
-- [ ] 默认模板初始化可生成手冲/意式两套参数
-- [ ] `brewMethod` 字段完整可读写
+- [x] 参数定义/可见性/值三表 CRUD 测试通过
+- [x] 默认模板初始化可生成手冲/意式两套参数
+- [x] `brewMethod` 字段完整可读写
 
 ### 推荐测试
 ```bash
@@ -638,5 +638,5 @@ flutter test test/features/history/presentation/
 | 7A | History 详情闭环（查询 + 详情页 + 再冲一次） | ✅ 已完成  | 中 |
 | 7B | Inventory 管理闭环（Bean + Grinder） | ✅ 已完成 | 中 |
 | 7C | 入口整合与新增功能回归 | ✅ 已完成 | 小 |
-| 7D | 参数系统基础（Data/Domain） | ⬜ 未开始 | 中 |
+| 7D | 参数系统基础（Data/Domain） | ✅ 已完成 | 中 |
 | 7E | 首次引导与参数偏好 UI | ⬜ 未开始 | 中 |

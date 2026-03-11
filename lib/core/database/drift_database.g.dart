@@ -1216,6 +1216,18 @@ class $BrewRecordsTable extends BrewRecords
       'REFERENCES equipments (id)',
     ),
   );
+  static const VerificationMeta _brewMethodMeta = const VerificationMeta(
+    'brewMethod',
+  );
+  @override
+  late final GeneratedColumn<String> brewMethod = GeneratedColumn<String>(
+    'brew_method',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pour_over'),
+  );
   static const VerificationMeta _grindModeMeta = const VerificationMeta(
     'grindMode',
   );
@@ -1403,6 +1415,7 @@ class $BrewRecordsTable extends BrewRecords
     brewDate,
     beanName,
     equipmentId,
+    brewMethod,
     grindMode,
     grindClickValue,
     grindSimpleLabel,
@@ -1458,6 +1471,12 @@ class $BrewRecordsTable extends BrewRecords
           data['equipment_id']!,
           _equipmentIdMeta,
         ),
+      );
+    }
+    if (data.containsKey('brew_method')) {
+      context.handle(
+        _brewMethodMeta,
+        brewMethod.isAcceptableOrUnknown(data['brew_method']!, _brewMethodMeta),
       );
     }
     if (data.containsKey('grind_mode')) {
@@ -1614,6 +1633,10 @@ class $BrewRecordsTable extends BrewRecords
         DriftSqlType.int,
         data['${effectivePrefix}equipment_id'],
       ),
+      brewMethod: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brew_method'],
+      )!,
       grindMode: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}grind_mode'],
@@ -1702,6 +1725,10 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
   /// Optional FK to Equipments — used for equipment-linked grind mode.
   final int? equipmentId;
 
+  /// Brew method classification.
+  /// One of: 'pour_over', 'espresso', 'custom'.
+  final String brewMethod;
+
   /// Grind recording mode.
   /// Maps to [GrindMode] enum via text encoding.
   final String grindMode;
@@ -1756,6 +1783,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     required this.brewDate,
     required this.beanName,
     this.equipmentId,
+    required this.brewMethod,
     required this.grindMode,
     this.grindClickValue,
     this.grindSimpleLabel,
@@ -1782,6 +1810,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     if (!nullToAbsent || equipmentId != null) {
       map['equipment_id'] = Variable<int>(equipmentId);
     }
+    map['brew_method'] = Variable<String>(brewMethod);
     map['grind_mode'] = Variable<String>(grindMode);
     if (!nullToAbsent || grindClickValue != null) {
       map['grind_click_value'] = Variable<double>(grindClickValue);
@@ -1827,6 +1856,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       equipmentId: equipmentId == null && nullToAbsent
           ? const Value.absent()
           : Value(equipmentId),
+      brewMethod: Value(brewMethod),
       grindMode: Value(grindMode),
       grindClickValue: grindClickValue == null && nullToAbsent
           ? const Value.absent()
@@ -1874,6 +1904,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       brewDate: serializer.fromJson<DateTime>(json['brewDate']),
       beanName: serializer.fromJson<String>(json['beanName']),
       equipmentId: serializer.fromJson<int?>(json['equipmentId']),
+      brewMethod: serializer.fromJson<String>(json['brewMethod']),
       grindMode: serializer.fromJson<String>(json['grindMode']),
       grindClickValue: serializer.fromJson<double?>(json['grindClickValue']),
       grindSimpleLabel: serializer.fromJson<String?>(json['grindSimpleLabel']),
@@ -1900,6 +1931,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       'brewDate': serializer.toJson<DateTime>(brewDate),
       'beanName': serializer.toJson<String>(beanName),
       'equipmentId': serializer.toJson<int?>(equipmentId),
+      'brewMethod': serializer.toJson<String>(brewMethod),
       'grindMode': serializer.toJson<String>(grindMode),
       'grindClickValue': serializer.toJson<double?>(grindClickValue),
       'grindSimpleLabel': serializer.toJson<String?>(grindSimpleLabel),
@@ -1924,6 +1956,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     DateTime? brewDate,
     String? beanName,
     Value<int?> equipmentId = const Value.absent(),
+    String? brewMethod,
     String? grindMode,
     Value<double?> grindClickValue = const Value.absent(),
     Value<String?> grindSimpleLabel = const Value.absent(),
@@ -1945,6 +1978,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     brewDate: brewDate ?? this.brewDate,
     beanName: beanName ?? this.beanName,
     equipmentId: equipmentId.present ? equipmentId.value : this.equipmentId,
+    brewMethod: brewMethod ?? this.brewMethod,
     grindMode: grindMode ?? this.grindMode,
     grindClickValue: grindClickValue.present
         ? grindClickValue.value
@@ -1974,6 +2008,9 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       equipmentId: data.equipmentId.present
           ? data.equipmentId.value
           : this.equipmentId,
+      brewMethod: data.brewMethod.present
+          ? data.brewMethod.value
+          : this.brewMethod,
       grindMode: data.grindMode.present ? data.grindMode.value : this.grindMode,
       grindClickValue: data.grindClickValue.present
           ? data.grindClickValue.value
@@ -2020,6 +2057,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
           ..write('brewDate: $brewDate, ')
           ..write('beanName: $beanName, ')
           ..write('equipmentId: $equipmentId, ')
+          ..write('brewMethod: $brewMethod, ')
           ..write('grindMode: $grindMode, ')
           ..write('grindClickValue: $grindClickValue, ')
           ..write('grindSimpleLabel: $grindSimpleLabel, ')
@@ -2041,11 +2079,12 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     brewDate,
     beanName,
     equipmentId,
+    brewMethod,
     grindMode,
     grindClickValue,
     grindSimpleLabel,
@@ -2062,7 +2101,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     isQuickMode,
     createdAt,
     updatedAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2071,6 +2110,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
           other.brewDate == this.brewDate &&
           other.beanName == this.beanName &&
           other.equipmentId == this.equipmentId &&
+          other.brewMethod == this.brewMethod &&
           other.grindMode == this.grindMode &&
           other.grindClickValue == this.grindClickValue &&
           other.grindSimpleLabel == this.grindSimpleLabel &&
@@ -2094,6 +2134,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
   final Value<DateTime> brewDate;
   final Value<String> beanName;
   final Value<int?> equipmentId;
+  final Value<String> brewMethod;
   final Value<String> grindMode;
   final Value<double?> grindClickValue;
   final Value<String?> grindSimpleLabel;
@@ -2115,6 +2156,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     this.brewDate = const Value.absent(),
     this.beanName = const Value.absent(),
     this.equipmentId = const Value.absent(),
+    this.brewMethod = const Value.absent(),
     this.grindMode = const Value.absent(),
     this.grindClickValue = const Value.absent(),
     this.grindSimpleLabel = const Value.absent(),
@@ -2137,6 +2179,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     required DateTime brewDate,
     required String beanName,
     this.equipmentId = const Value.absent(),
+    this.brewMethod = const Value.absent(),
     this.grindMode = const Value.absent(),
     this.grindClickValue = const Value.absent(),
     this.grindSimpleLabel = const Value.absent(),
@@ -2163,6 +2206,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     Expression<DateTime>? brewDate,
     Expression<String>? beanName,
     Expression<int>? equipmentId,
+    Expression<String>? brewMethod,
     Expression<String>? grindMode,
     Expression<double>? grindClickValue,
     Expression<String>? grindSimpleLabel,
@@ -2185,6 +2229,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
       if (brewDate != null) 'brew_date': brewDate,
       if (beanName != null) 'bean_name': beanName,
       if (equipmentId != null) 'equipment_id': equipmentId,
+      if (brewMethod != null) 'brew_method': brewMethod,
       if (grindMode != null) 'grind_mode': grindMode,
       if (grindClickValue != null) 'grind_click_value': grindClickValue,
       if (grindSimpleLabel != null) 'grind_simple_label': grindSimpleLabel,
@@ -2209,6 +2254,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     Value<DateTime>? brewDate,
     Value<String>? beanName,
     Value<int?>? equipmentId,
+    Value<String>? brewMethod,
     Value<String>? grindMode,
     Value<double?>? grindClickValue,
     Value<String?>? grindSimpleLabel,
@@ -2231,6 +2277,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
       brewDate: brewDate ?? this.brewDate,
       beanName: beanName ?? this.beanName,
       equipmentId: equipmentId ?? this.equipmentId,
+      brewMethod: brewMethod ?? this.brewMethod,
       grindMode: grindMode ?? this.grindMode,
       grindClickValue: grindClickValue ?? this.grindClickValue,
       grindSimpleLabel: grindSimpleLabel ?? this.grindSimpleLabel,
@@ -2264,6 +2311,9 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     }
     if (equipmentId.present) {
       map['equipment_id'] = Variable<int>(equipmentId.value);
+    }
+    if (brewMethod.present) {
+      map['brew_method'] = Variable<String>(brewMethod.value);
     }
     if (grindMode.present) {
       map['grind_mode'] = Variable<String>(grindMode.value);
@@ -2323,6 +2373,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
           ..write('brewDate: $brewDate, ')
           ..write('beanName: $beanName, ')
           ..write('equipmentId: $equipmentId, ')
+          ..write('brewMethod: $brewMethod, ')
           ..write('grindMode: $grindMode, ')
           ..write('grindClickValue: $grindClickValue, ')
           ..write('grindSimpleLabel: $grindSimpleLabel, ')
@@ -2931,6 +2982,1521 @@ class BrewRatingsCompanion extends UpdateCompanion<BrewRating> {
   }
 }
 
+class $BrewMethodConfigsTable extends BrewMethodConfigs
+    with TableInfo<$BrewMethodConfigsTable, BrewMethodConfig> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BrewMethodConfigsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _methodMeta = const VerificationMeta('method');
+  @override
+  late final GeneratedColumn<String> method = GeneratedColumn<String>(
+    'method',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _displayNameMeta = const VerificationMeta(
+    'displayName',
+  );
+  @override
+  late final GeneratedColumn<String> displayName = GeneratedColumn<String>(
+    'display_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _defaultRecordModeMeta = const VerificationMeta(
+    'defaultRecordMode',
+  );
+  @override
+  late final GeneratedColumn<String> defaultRecordMode =
+      GeneratedColumn<String>(
+        'default_record_mode',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _isEnabledMeta = const VerificationMeta(
+    'isEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> isEnabled = GeneratedColumn<bool>(
+    'is_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    method,
+    displayName,
+    defaultRecordMode,
+    isEnabled,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'brew_method_configs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BrewMethodConfig> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('method')) {
+      context.handle(
+        _methodMeta,
+        method.isAcceptableOrUnknown(data['method']!, _methodMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_methodMeta);
+    }
+    if (data.containsKey('display_name')) {
+      context.handle(
+        _displayNameMeta,
+        displayName.isAcceptableOrUnknown(
+          data['display_name']!,
+          _displayNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_displayNameMeta);
+    }
+    if (data.containsKey('default_record_mode')) {
+      context.handle(
+        _defaultRecordModeMeta,
+        defaultRecordMode.isAcceptableOrUnknown(
+          data['default_record_mode']!,
+          _defaultRecordModeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_defaultRecordModeMeta);
+    }
+    if (data.containsKey('is_enabled')) {
+      context.handle(
+        _isEnabledMeta,
+        isEnabled.isAcceptableOrUnknown(data['is_enabled']!, _isEnabledMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BrewMethodConfig map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BrewMethodConfig(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      method: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}method'],
+      )!,
+      displayName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_name'],
+      )!,
+      defaultRecordMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_record_mode'],
+      )!,
+      isEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_enabled'],
+      )!,
+    );
+  }
+
+  @override
+  $BrewMethodConfigsTable createAlias(String alias) {
+    return $BrewMethodConfigsTable(attachedDatabase, alias);
+  }
+}
+
+class BrewMethodConfig extends DataClass
+    implements Insertable<BrewMethodConfig> {
+  final int id;
+
+  /// Method identifier: 'pour_over' | 'espresso' | 'custom'.
+  final String method;
+
+  /// Display name shown in UI (e.g. "Pour Over").
+  final String displayName;
+
+  /// Default record mode: 'quick' | 'detail' | 'pro'.
+  final String defaultRecordMode;
+
+  /// Whether this brew method is enabled for the user.
+  final bool isEnabled;
+  const BrewMethodConfig({
+    required this.id,
+    required this.method,
+    required this.displayName,
+    required this.defaultRecordMode,
+    required this.isEnabled,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['method'] = Variable<String>(method);
+    map['display_name'] = Variable<String>(displayName);
+    map['default_record_mode'] = Variable<String>(defaultRecordMode);
+    map['is_enabled'] = Variable<bool>(isEnabled);
+    return map;
+  }
+
+  BrewMethodConfigsCompanion toCompanion(bool nullToAbsent) {
+    return BrewMethodConfigsCompanion(
+      id: Value(id),
+      method: Value(method),
+      displayName: Value(displayName),
+      defaultRecordMode: Value(defaultRecordMode),
+      isEnabled: Value(isEnabled),
+    );
+  }
+
+  factory BrewMethodConfig.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BrewMethodConfig(
+      id: serializer.fromJson<int>(json['id']),
+      method: serializer.fromJson<String>(json['method']),
+      displayName: serializer.fromJson<String>(json['displayName']),
+      defaultRecordMode: serializer.fromJson<String>(json['defaultRecordMode']),
+      isEnabled: serializer.fromJson<bool>(json['isEnabled']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'method': serializer.toJson<String>(method),
+      'displayName': serializer.toJson<String>(displayName),
+      'defaultRecordMode': serializer.toJson<String>(defaultRecordMode),
+      'isEnabled': serializer.toJson<bool>(isEnabled),
+    };
+  }
+
+  BrewMethodConfig copyWith({
+    int? id,
+    String? method,
+    String? displayName,
+    String? defaultRecordMode,
+    bool? isEnabled,
+  }) => BrewMethodConfig(
+    id: id ?? this.id,
+    method: method ?? this.method,
+    displayName: displayName ?? this.displayName,
+    defaultRecordMode: defaultRecordMode ?? this.defaultRecordMode,
+    isEnabled: isEnabled ?? this.isEnabled,
+  );
+  BrewMethodConfig copyWithCompanion(BrewMethodConfigsCompanion data) {
+    return BrewMethodConfig(
+      id: data.id.present ? data.id.value : this.id,
+      method: data.method.present ? data.method.value : this.method,
+      displayName: data.displayName.present
+          ? data.displayName.value
+          : this.displayName,
+      defaultRecordMode: data.defaultRecordMode.present
+          ? data.defaultRecordMode.value
+          : this.defaultRecordMode,
+      isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BrewMethodConfig(')
+          ..write('id: $id, ')
+          ..write('method: $method, ')
+          ..write('displayName: $displayName, ')
+          ..write('defaultRecordMode: $defaultRecordMode, ')
+          ..write('isEnabled: $isEnabled')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, method, displayName, defaultRecordMode, isEnabled);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BrewMethodConfig &&
+          other.id == this.id &&
+          other.method == this.method &&
+          other.displayName == this.displayName &&
+          other.defaultRecordMode == this.defaultRecordMode &&
+          other.isEnabled == this.isEnabled);
+}
+
+class BrewMethodConfigsCompanion extends UpdateCompanion<BrewMethodConfig> {
+  final Value<int> id;
+  final Value<String> method;
+  final Value<String> displayName;
+  final Value<String> defaultRecordMode;
+  final Value<bool> isEnabled;
+  const BrewMethodConfigsCompanion({
+    this.id = const Value.absent(),
+    this.method = const Value.absent(),
+    this.displayName = const Value.absent(),
+    this.defaultRecordMode = const Value.absent(),
+    this.isEnabled = const Value.absent(),
+  });
+  BrewMethodConfigsCompanion.insert({
+    this.id = const Value.absent(),
+    required String method,
+    required String displayName,
+    required String defaultRecordMode,
+    this.isEnabled = const Value.absent(),
+  }) : method = Value(method),
+       displayName = Value(displayName),
+       defaultRecordMode = Value(defaultRecordMode);
+  static Insertable<BrewMethodConfig> custom({
+    Expression<int>? id,
+    Expression<String>? method,
+    Expression<String>? displayName,
+    Expression<String>? defaultRecordMode,
+    Expression<bool>? isEnabled,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (method != null) 'method': method,
+      if (displayName != null) 'display_name': displayName,
+      if (defaultRecordMode != null) 'default_record_mode': defaultRecordMode,
+      if (isEnabled != null) 'is_enabled': isEnabled,
+    });
+  }
+
+  BrewMethodConfigsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? method,
+    Value<String>? displayName,
+    Value<String>? defaultRecordMode,
+    Value<bool>? isEnabled,
+  }) {
+    return BrewMethodConfigsCompanion(
+      id: id ?? this.id,
+      method: method ?? this.method,
+      displayName: displayName ?? this.displayName,
+      defaultRecordMode: defaultRecordMode ?? this.defaultRecordMode,
+      isEnabled: isEnabled ?? this.isEnabled,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (method.present) {
+      map['method'] = Variable<String>(method.value);
+    }
+    if (displayName.present) {
+      map['display_name'] = Variable<String>(displayName.value);
+    }
+    if (defaultRecordMode.present) {
+      map['default_record_mode'] = Variable<String>(defaultRecordMode.value);
+    }
+    if (isEnabled.present) {
+      map['is_enabled'] = Variable<bool>(isEnabled.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BrewMethodConfigsCompanion(')
+          ..write('id: $id, ')
+          ..write('method: $method, ')
+          ..write('displayName: $displayName, ')
+          ..write('defaultRecordMode: $defaultRecordMode, ')
+          ..write('isEnabled: $isEnabled')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BrewParamDefinitionsTable extends BrewParamDefinitions
+    with TableInfo<$BrewParamDefinitionsTable, BrewParamDefinition> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BrewParamDefinitionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _methodMeta = const VerificationMeta('method');
+  @override
+  late final GeneratedColumn<String> method = GeneratedColumn<String>(
+    'method',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isSystemMeta = const VerificationMeta(
+    'isSystem',
+  );
+  @override
+  late final GeneratedColumn<bool> isSystem = GeneratedColumn<bool>(
+    'is_system',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_system" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    method,
+    name,
+    type,
+    unit,
+    isSystem,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'brew_param_definitions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BrewParamDefinition> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('method')) {
+      context.handle(
+        _methodMeta,
+        method.isAcceptableOrUnknown(data['method']!, _methodMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_methodMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    }
+    if (data.containsKey('is_system')) {
+      context.handle(
+        _isSystemMeta,
+        isSystem.isAcceptableOrUnknown(data['is_system']!, _isSystemMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BrewParamDefinition map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BrewParamDefinition(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      method: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}method'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      ),
+      isSystem: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_system'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $BrewParamDefinitionsTable createAlias(String alias) {
+    return $BrewParamDefinitionsTable(attachedDatabase, alias);
+  }
+}
+
+class BrewParamDefinition extends DataClass
+    implements Insertable<BrewParamDefinition> {
+  final int id;
+
+  /// Method identifier: 'pour_over' | 'espresso' | 'custom'.
+  final String method;
+
+  /// Parameter display name (e.g. "Water Temp").
+  final String name;
+
+  /// Parameter type: 'number' | 'text'.
+  final String type;
+
+  /// Optional unit label provided by user (e.g. "g", "C").
+  final String? unit;
+
+  /// Whether this is a system preset parameter.
+  final bool isSystem;
+
+  /// Sort order within the method parameter list.
+  final int sortOrder;
+  const BrewParamDefinition({
+    required this.id,
+    required this.method,
+    required this.name,
+    required this.type,
+    this.unit,
+    required this.isSystem,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['method'] = Variable<String>(method);
+    map['name'] = Variable<String>(name);
+    map['type'] = Variable<String>(type);
+    if (!nullToAbsent || unit != null) {
+      map['unit'] = Variable<String>(unit);
+    }
+    map['is_system'] = Variable<bool>(isSystem);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  BrewParamDefinitionsCompanion toCompanion(bool nullToAbsent) {
+    return BrewParamDefinitionsCompanion(
+      id: Value(id),
+      method: Value(method),
+      name: Value(name),
+      type: Value(type),
+      unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
+      isSystem: Value(isSystem),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory BrewParamDefinition.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BrewParamDefinition(
+      id: serializer.fromJson<int>(json['id']),
+      method: serializer.fromJson<String>(json['method']),
+      name: serializer.fromJson<String>(json['name']),
+      type: serializer.fromJson<String>(json['type']),
+      unit: serializer.fromJson<String?>(json['unit']),
+      isSystem: serializer.fromJson<bool>(json['isSystem']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'method': serializer.toJson<String>(method),
+      'name': serializer.toJson<String>(name),
+      'type': serializer.toJson<String>(type),
+      'unit': serializer.toJson<String?>(unit),
+      'isSystem': serializer.toJson<bool>(isSystem),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  BrewParamDefinition copyWith({
+    int? id,
+    String? method,
+    String? name,
+    String? type,
+    Value<String?> unit = const Value.absent(),
+    bool? isSystem,
+    int? sortOrder,
+  }) => BrewParamDefinition(
+    id: id ?? this.id,
+    method: method ?? this.method,
+    name: name ?? this.name,
+    type: type ?? this.type,
+    unit: unit.present ? unit.value : this.unit,
+    isSystem: isSystem ?? this.isSystem,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  BrewParamDefinition copyWithCompanion(BrewParamDefinitionsCompanion data) {
+    return BrewParamDefinition(
+      id: data.id.present ? data.id.value : this.id,
+      method: data.method.present ? data.method.value : this.method,
+      name: data.name.present ? data.name.value : this.name,
+      type: data.type.present ? data.type.value : this.type,
+      unit: data.unit.present ? data.unit.value : this.unit,
+      isSystem: data.isSystem.present ? data.isSystem.value : this.isSystem,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BrewParamDefinition(')
+          ..write('id: $id, ')
+          ..write('method: $method, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('unit: $unit, ')
+          ..write('isSystem: $isSystem, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, method, name, type, unit, isSystem, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BrewParamDefinition &&
+          other.id == this.id &&
+          other.method == this.method &&
+          other.name == this.name &&
+          other.type == this.type &&
+          other.unit == this.unit &&
+          other.isSystem == this.isSystem &&
+          other.sortOrder == this.sortOrder);
+}
+
+class BrewParamDefinitionsCompanion
+    extends UpdateCompanion<BrewParamDefinition> {
+  final Value<int> id;
+  final Value<String> method;
+  final Value<String> name;
+  final Value<String> type;
+  final Value<String?> unit;
+  final Value<bool> isSystem;
+  final Value<int> sortOrder;
+  const BrewParamDefinitionsCompanion({
+    this.id = const Value.absent(),
+    this.method = const Value.absent(),
+    this.name = const Value.absent(),
+    this.type = const Value.absent(),
+    this.unit = const Value.absent(),
+    this.isSystem = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+  });
+  BrewParamDefinitionsCompanion.insert({
+    this.id = const Value.absent(),
+    required String method,
+    required String name,
+    required String type,
+    this.unit = const Value.absent(),
+    this.isSystem = const Value.absent(),
+    required int sortOrder,
+  }) : method = Value(method),
+       name = Value(name),
+       type = Value(type),
+       sortOrder = Value(sortOrder);
+  static Insertable<BrewParamDefinition> custom({
+    Expression<int>? id,
+    Expression<String>? method,
+    Expression<String>? name,
+    Expression<String>? type,
+    Expression<String>? unit,
+    Expression<bool>? isSystem,
+    Expression<int>? sortOrder,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (method != null) 'method': method,
+      if (name != null) 'name': name,
+      if (type != null) 'type': type,
+      if (unit != null) 'unit': unit,
+      if (isSystem != null) 'is_system': isSystem,
+      if (sortOrder != null) 'sort_order': sortOrder,
+    });
+  }
+
+  BrewParamDefinitionsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? method,
+    Value<String>? name,
+    Value<String>? type,
+    Value<String?>? unit,
+    Value<bool>? isSystem,
+    Value<int>? sortOrder,
+  }) {
+    return BrewParamDefinitionsCompanion(
+      id: id ?? this.id,
+      method: method ?? this.method,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      unit: unit ?? this.unit,
+      isSystem: isSystem ?? this.isSystem,
+      sortOrder: sortOrder ?? this.sortOrder,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (method.present) {
+      map['method'] = Variable<String>(method.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
+    if (isSystem.present) {
+      map['is_system'] = Variable<bool>(isSystem.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BrewParamDefinitionsCompanion(')
+          ..write('id: $id, ')
+          ..write('method: $method, ')
+          ..write('name: $name, ')
+          ..write('type: $type, ')
+          ..write('unit: $unit, ')
+          ..write('isSystem: $isSystem, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BrewParamVisibilitiesTable extends BrewParamVisibilities
+    with TableInfo<$BrewParamVisibilitiesTable, BrewParamVisibility> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BrewParamVisibilitiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _methodMeta = const VerificationMeta('method');
+  @override
+  late final GeneratedColumn<String> method = GeneratedColumn<String>(
+    'method',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _paramIdMeta = const VerificationMeta(
+    'paramId',
+  );
+  @override
+  late final GeneratedColumn<int> paramId = GeneratedColumn<int>(
+    'param_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES brew_param_definitions (id)',
+    ),
+  );
+  static const VerificationMeta _isVisibleMeta = const VerificationMeta(
+    'isVisible',
+  );
+  @override
+  late final GeneratedColumn<bool> isVisible = GeneratedColumn<bool>(
+    'is_visible',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_visible" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, method, paramId, isVisible];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'brew_param_visibilities';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BrewParamVisibility> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('method')) {
+      context.handle(
+        _methodMeta,
+        method.isAcceptableOrUnknown(data['method']!, _methodMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_methodMeta);
+    }
+    if (data.containsKey('param_id')) {
+      context.handle(
+        _paramIdMeta,
+        paramId.isAcceptableOrUnknown(data['param_id']!, _paramIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_paramIdMeta);
+    }
+    if (data.containsKey('is_visible')) {
+      context.handle(
+        _isVisibleMeta,
+        isVisible.isAcceptableOrUnknown(data['is_visible']!, _isVisibleMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BrewParamVisibility map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BrewParamVisibility(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      method: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}method'],
+      )!,
+      paramId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}param_id'],
+      )!,
+      isVisible: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_visible'],
+      )!,
+    );
+  }
+
+  @override
+  $BrewParamVisibilitiesTable createAlias(String alias) {
+    return $BrewParamVisibilitiesTable(attachedDatabase, alias);
+  }
+}
+
+class BrewParamVisibility extends DataClass
+    implements Insertable<BrewParamVisibility> {
+  final int id;
+
+  /// Method identifier: 'pour_over' | 'espresso' | 'custom'.
+  final String method;
+
+  /// FK to parameter definition.
+  final int paramId;
+
+  /// Whether this parameter is visible in the record UI.
+  final bool isVisible;
+  const BrewParamVisibility({
+    required this.id,
+    required this.method,
+    required this.paramId,
+    required this.isVisible,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['method'] = Variable<String>(method);
+    map['param_id'] = Variable<int>(paramId);
+    map['is_visible'] = Variable<bool>(isVisible);
+    return map;
+  }
+
+  BrewParamVisibilitiesCompanion toCompanion(bool nullToAbsent) {
+    return BrewParamVisibilitiesCompanion(
+      id: Value(id),
+      method: Value(method),
+      paramId: Value(paramId),
+      isVisible: Value(isVisible),
+    );
+  }
+
+  factory BrewParamVisibility.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BrewParamVisibility(
+      id: serializer.fromJson<int>(json['id']),
+      method: serializer.fromJson<String>(json['method']),
+      paramId: serializer.fromJson<int>(json['paramId']),
+      isVisible: serializer.fromJson<bool>(json['isVisible']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'method': serializer.toJson<String>(method),
+      'paramId': serializer.toJson<int>(paramId),
+      'isVisible': serializer.toJson<bool>(isVisible),
+    };
+  }
+
+  BrewParamVisibility copyWith({
+    int? id,
+    String? method,
+    int? paramId,
+    bool? isVisible,
+  }) => BrewParamVisibility(
+    id: id ?? this.id,
+    method: method ?? this.method,
+    paramId: paramId ?? this.paramId,
+    isVisible: isVisible ?? this.isVisible,
+  );
+  BrewParamVisibility copyWithCompanion(BrewParamVisibilitiesCompanion data) {
+    return BrewParamVisibility(
+      id: data.id.present ? data.id.value : this.id,
+      method: data.method.present ? data.method.value : this.method,
+      paramId: data.paramId.present ? data.paramId.value : this.paramId,
+      isVisible: data.isVisible.present ? data.isVisible.value : this.isVisible,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BrewParamVisibility(')
+          ..write('id: $id, ')
+          ..write('method: $method, ')
+          ..write('paramId: $paramId, ')
+          ..write('isVisible: $isVisible')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, method, paramId, isVisible);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BrewParamVisibility &&
+          other.id == this.id &&
+          other.method == this.method &&
+          other.paramId == this.paramId &&
+          other.isVisible == this.isVisible);
+}
+
+class BrewParamVisibilitiesCompanion
+    extends UpdateCompanion<BrewParamVisibility> {
+  final Value<int> id;
+  final Value<String> method;
+  final Value<int> paramId;
+  final Value<bool> isVisible;
+  const BrewParamVisibilitiesCompanion({
+    this.id = const Value.absent(),
+    this.method = const Value.absent(),
+    this.paramId = const Value.absent(),
+    this.isVisible = const Value.absent(),
+  });
+  BrewParamVisibilitiesCompanion.insert({
+    this.id = const Value.absent(),
+    required String method,
+    required int paramId,
+    this.isVisible = const Value.absent(),
+  }) : method = Value(method),
+       paramId = Value(paramId);
+  static Insertable<BrewParamVisibility> custom({
+    Expression<int>? id,
+    Expression<String>? method,
+    Expression<int>? paramId,
+    Expression<bool>? isVisible,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (method != null) 'method': method,
+      if (paramId != null) 'param_id': paramId,
+      if (isVisible != null) 'is_visible': isVisible,
+    });
+  }
+
+  BrewParamVisibilitiesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? method,
+    Value<int>? paramId,
+    Value<bool>? isVisible,
+  }) {
+    return BrewParamVisibilitiesCompanion(
+      id: id ?? this.id,
+      method: method ?? this.method,
+      paramId: paramId ?? this.paramId,
+      isVisible: isVisible ?? this.isVisible,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (method.present) {
+      map['method'] = Variable<String>(method.value);
+    }
+    if (paramId.present) {
+      map['param_id'] = Variable<int>(paramId.value);
+    }
+    if (isVisible.present) {
+      map['is_visible'] = Variable<bool>(isVisible.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BrewParamVisibilitiesCompanion(')
+          ..write('id: $id, ')
+          ..write('method: $method, ')
+          ..write('paramId: $paramId, ')
+          ..write('isVisible: $isVisible')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BrewParamValuesTable extends BrewParamValues
+    with TableInfo<$BrewParamValuesTable, BrewParamValue> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BrewParamValuesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _brewRecordIdMeta = const VerificationMeta(
+    'brewRecordId',
+  );
+  @override
+  late final GeneratedColumn<int> brewRecordId = GeneratedColumn<int>(
+    'brew_record_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES brew_records (id)',
+    ),
+  );
+  static const VerificationMeta _paramIdMeta = const VerificationMeta(
+    'paramId',
+  );
+  @override
+  late final GeneratedColumn<int> paramId = GeneratedColumn<int>(
+    'param_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES brew_param_definitions (id)',
+    ),
+  );
+  static const VerificationMeta _valueNumberMeta = const VerificationMeta(
+    'valueNumber',
+  );
+  @override
+  late final GeneratedColumn<double> valueNumber = GeneratedColumn<double>(
+    'value_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _valueTextMeta = const VerificationMeta(
+    'valueText',
+  );
+  @override
+  late final GeneratedColumn<String> valueText = GeneratedColumn<String>(
+    'value_text',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    brewRecordId,
+    paramId,
+    valueNumber,
+    valueText,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'brew_param_values';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BrewParamValue> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('brew_record_id')) {
+      context.handle(
+        _brewRecordIdMeta,
+        brewRecordId.isAcceptableOrUnknown(
+          data['brew_record_id']!,
+          _brewRecordIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_brewRecordIdMeta);
+    }
+    if (data.containsKey('param_id')) {
+      context.handle(
+        _paramIdMeta,
+        paramId.isAcceptableOrUnknown(data['param_id']!, _paramIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_paramIdMeta);
+    }
+    if (data.containsKey('value_number')) {
+      context.handle(
+        _valueNumberMeta,
+        valueNumber.isAcceptableOrUnknown(
+          data['value_number']!,
+          _valueNumberMeta,
+        ),
+      );
+    }
+    if (data.containsKey('value_text')) {
+      context.handle(
+        _valueTextMeta,
+        valueText.isAcceptableOrUnknown(data['value_text']!, _valueTextMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BrewParamValue map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BrewParamValue(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      brewRecordId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}brew_record_id'],
+      )!,
+      paramId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}param_id'],
+      )!,
+      valueNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}value_number'],
+      ),
+      valueText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value_text'],
+      ),
+    );
+  }
+
+  @override
+  $BrewParamValuesTable createAlias(String alias) {
+    return $BrewParamValuesTable(attachedDatabase, alias);
+  }
+}
+
+class BrewParamValue extends DataClass implements Insertable<BrewParamValue> {
+  final int id;
+
+  /// FK to brew record.
+  final int brewRecordId;
+
+  /// FK to parameter definition.
+  final int paramId;
+
+  /// Numeric value (when ParamType == number).
+  final double? valueNumber;
+
+  /// Text value (when ParamType == text).
+  final String? valueText;
+  const BrewParamValue({
+    required this.id,
+    required this.brewRecordId,
+    required this.paramId,
+    this.valueNumber,
+    this.valueText,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['brew_record_id'] = Variable<int>(brewRecordId);
+    map['param_id'] = Variable<int>(paramId);
+    if (!nullToAbsent || valueNumber != null) {
+      map['value_number'] = Variable<double>(valueNumber);
+    }
+    if (!nullToAbsent || valueText != null) {
+      map['value_text'] = Variable<String>(valueText);
+    }
+    return map;
+  }
+
+  BrewParamValuesCompanion toCompanion(bool nullToAbsent) {
+    return BrewParamValuesCompanion(
+      id: Value(id),
+      brewRecordId: Value(brewRecordId),
+      paramId: Value(paramId),
+      valueNumber: valueNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(valueNumber),
+      valueText: valueText == null && nullToAbsent
+          ? const Value.absent()
+          : Value(valueText),
+    );
+  }
+
+  factory BrewParamValue.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BrewParamValue(
+      id: serializer.fromJson<int>(json['id']),
+      brewRecordId: serializer.fromJson<int>(json['brewRecordId']),
+      paramId: serializer.fromJson<int>(json['paramId']),
+      valueNumber: serializer.fromJson<double?>(json['valueNumber']),
+      valueText: serializer.fromJson<String?>(json['valueText']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'brewRecordId': serializer.toJson<int>(brewRecordId),
+      'paramId': serializer.toJson<int>(paramId),
+      'valueNumber': serializer.toJson<double?>(valueNumber),
+      'valueText': serializer.toJson<String?>(valueText),
+    };
+  }
+
+  BrewParamValue copyWith({
+    int? id,
+    int? brewRecordId,
+    int? paramId,
+    Value<double?> valueNumber = const Value.absent(),
+    Value<String?> valueText = const Value.absent(),
+  }) => BrewParamValue(
+    id: id ?? this.id,
+    brewRecordId: brewRecordId ?? this.brewRecordId,
+    paramId: paramId ?? this.paramId,
+    valueNumber: valueNumber.present ? valueNumber.value : this.valueNumber,
+    valueText: valueText.present ? valueText.value : this.valueText,
+  );
+  BrewParamValue copyWithCompanion(BrewParamValuesCompanion data) {
+    return BrewParamValue(
+      id: data.id.present ? data.id.value : this.id,
+      brewRecordId: data.brewRecordId.present
+          ? data.brewRecordId.value
+          : this.brewRecordId,
+      paramId: data.paramId.present ? data.paramId.value : this.paramId,
+      valueNumber: data.valueNumber.present
+          ? data.valueNumber.value
+          : this.valueNumber,
+      valueText: data.valueText.present ? data.valueText.value : this.valueText,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BrewParamValue(')
+          ..write('id: $id, ')
+          ..write('brewRecordId: $brewRecordId, ')
+          ..write('paramId: $paramId, ')
+          ..write('valueNumber: $valueNumber, ')
+          ..write('valueText: $valueText')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, brewRecordId, paramId, valueNumber, valueText);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BrewParamValue &&
+          other.id == this.id &&
+          other.brewRecordId == this.brewRecordId &&
+          other.paramId == this.paramId &&
+          other.valueNumber == this.valueNumber &&
+          other.valueText == this.valueText);
+}
+
+class BrewParamValuesCompanion extends UpdateCompanion<BrewParamValue> {
+  final Value<int> id;
+  final Value<int> brewRecordId;
+  final Value<int> paramId;
+  final Value<double?> valueNumber;
+  final Value<String?> valueText;
+  const BrewParamValuesCompanion({
+    this.id = const Value.absent(),
+    this.brewRecordId = const Value.absent(),
+    this.paramId = const Value.absent(),
+    this.valueNumber = const Value.absent(),
+    this.valueText = const Value.absent(),
+  });
+  BrewParamValuesCompanion.insert({
+    this.id = const Value.absent(),
+    required int brewRecordId,
+    required int paramId,
+    this.valueNumber = const Value.absent(),
+    this.valueText = const Value.absent(),
+  }) : brewRecordId = Value(brewRecordId),
+       paramId = Value(paramId);
+  static Insertable<BrewParamValue> custom({
+    Expression<int>? id,
+    Expression<int>? brewRecordId,
+    Expression<int>? paramId,
+    Expression<double>? valueNumber,
+    Expression<String>? valueText,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (brewRecordId != null) 'brew_record_id': brewRecordId,
+      if (paramId != null) 'param_id': paramId,
+      if (valueNumber != null) 'value_number': valueNumber,
+      if (valueText != null) 'value_text': valueText,
+    });
+  }
+
+  BrewParamValuesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? brewRecordId,
+    Value<int>? paramId,
+    Value<double?>? valueNumber,
+    Value<String?>? valueText,
+  }) {
+    return BrewParamValuesCompanion(
+      id: id ?? this.id,
+      brewRecordId: brewRecordId ?? this.brewRecordId,
+      paramId: paramId ?? this.paramId,
+      valueNumber: valueNumber ?? this.valueNumber,
+      valueText: valueText ?? this.valueText,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (brewRecordId.present) {
+      map['brew_record_id'] = Variable<int>(brewRecordId.value);
+    }
+    if (paramId.present) {
+      map['param_id'] = Variable<int>(paramId.value);
+    }
+    if (valueNumber.present) {
+      map['value_number'] = Variable<double>(valueNumber.value);
+    }
+    if (valueText.present) {
+      map['value_text'] = Variable<String>(valueText.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BrewParamValuesCompanion(')
+          ..write('id: $id, ')
+          ..write('brewRecordId: $brewRecordId, ')
+          ..write('paramId: $paramId, ')
+          ..write('valueNumber: $valueNumber, ')
+          ..write('valueText: $valueText')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$OneCoffeeDatabase extends GeneratedDatabase {
   _$OneCoffeeDatabase(QueryExecutor e) : super(e);
   $OneCoffeeDatabaseManager get managers => $OneCoffeeDatabaseManager(this);
@@ -2938,6 +4504,15 @@ abstract class _$OneCoffeeDatabase extends GeneratedDatabase {
   late final $EquipmentsTable equipments = $EquipmentsTable(this);
   late final $BrewRecordsTable brewRecords = $BrewRecordsTable(this);
   late final $BrewRatingsTable brewRatings = $BrewRatingsTable(this);
+  late final $BrewMethodConfigsTable brewMethodConfigs =
+      $BrewMethodConfigsTable(this);
+  late final $BrewParamDefinitionsTable brewParamDefinitions =
+      $BrewParamDefinitionsTable(this);
+  late final $BrewParamVisibilitiesTable brewParamVisibilities =
+      $BrewParamVisibilitiesTable(this);
+  late final $BrewParamValuesTable brewParamValues = $BrewParamValuesTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2947,6 +4522,10 @@ abstract class _$OneCoffeeDatabase extends GeneratedDatabase {
     equipments,
     brewRecords,
     brewRatings,
+    brewMethodConfigs,
+    brewParamDefinitions,
+    brewParamVisibilities,
+    brewParamValues,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3617,6 +5196,7 @@ typedef $$BrewRecordsTableCreateCompanionBuilder =
       required DateTime brewDate,
       required String beanName,
       Value<int?> equipmentId,
+      Value<String> brewMethod,
       Value<String> grindMode,
       Value<double?> grindClickValue,
       Value<String?> grindSimpleLabel,
@@ -3640,6 +5220,7 @@ typedef $$BrewRecordsTableUpdateCompanionBuilder =
       Value<DateTime> brewDate,
       Value<String> beanName,
       Value<int?> equipmentId,
+      Value<String> brewMethod,
       Value<String> grindMode,
       Value<double?> grindClickValue,
       Value<String?> grindSimpleLabel,
@@ -3702,6 +5283,30 @@ final class $$BrewRecordsTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$BrewParamValuesTable, List<BrewParamValue>>
+  _brewParamValuesRefsTable(_$OneCoffeeDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.brewParamValues,
+        aliasName: $_aliasNameGenerator(
+          db.brewRecords.id,
+          db.brewParamValues.brewRecordId,
+        ),
+      );
+
+  $$BrewParamValuesTableProcessedTableManager get brewParamValuesRefs {
+    final manager = $$BrewParamValuesTableTableManager(
+      $_db,
+      $_db.brewParamValues,
+    ).filter((f) => f.brewRecordId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _brewParamValuesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$BrewRecordsTableFilterComposer
@@ -3725,6 +5330,11 @@ class $$BrewRecordsTableFilterComposer
 
   ColumnFilters<String> get beanName => $composableBuilder(
     column: $table.beanName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get brewMethod => $composableBuilder(
+    column: $table.brewMethod,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3855,6 +5465,31 @@ class $$BrewRecordsTableFilterComposer
     );
     return f(composer);
   }
+
+  Expression<bool> brewParamValuesRefs(
+    Expression<bool> Function($$BrewParamValuesTableFilterComposer f) f,
+  ) {
+    final $$BrewParamValuesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.brewParamValues,
+      getReferencedColumn: (t) => t.brewRecordId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewParamValuesTableFilterComposer(
+            $db: $db,
+            $table: $db.brewParamValues,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BrewRecordsTableOrderingComposer
@@ -3878,6 +5513,11 @@ class $$BrewRecordsTableOrderingComposer
 
   ColumnOrderings<String> get beanName => $composableBuilder(
     column: $table.beanName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get brewMethod => $composableBuilder(
+    column: $table.brewMethod,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4003,6 +5643,11 @@ class $$BrewRecordsTableAnnotationComposer
   GeneratedColumn<String> get beanName =>
       $composableBuilder(column: $table.beanName, builder: (column) => column);
 
+  GeneratedColumn<String> get brewMethod => $composableBuilder(
+    column: $table.brewMethod,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get grindMode =>
       $composableBuilder(column: $table.grindMode, builder: (column) => column);
 
@@ -4118,6 +5763,31 @@ class $$BrewRecordsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> brewParamValuesRefs<T extends Object>(
+    Expression<T> Function($$BrewParamValuesTableAnnotationComposer a) f,
+  ) {
+    final $$BrewParamValuesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.brewParamValues,
+      getReferencedColumn: (t) => t.brewRecordId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewParamValuesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.brewParamValues,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BrewRecordsTableTableManager
@@ -4133,7 +5803,11 @@ class $$BrewRecordsTableTableManager
           $$BrewRecordsTableUpdateCompanionBuilder,
           (BrewRecord, $$BrewRecordsTableReferences),
           BrewRecord,
-          PrefetchHooks Function({bool equipmentId, bool brewRatingsRefs})
+          PrefetchHooks Function({
+            bool equipmentId,
+            bool brewRatingsRefs,
+            bool brewParamValuesRefs,
+          })
         > {
   $$BrewRecordsTableTableManager(
     _$OneCoffeeDatabase db,
@@ -4154,6 +5828,7 @@ class $$BrewRecordsTableTableManager
                 Value<DateTime> brewDate = const Value.absent(),
                 Value<String> beanName = const Value.absent(),
                 Value<int?> equipmentId = const Value.absent(),
+                Value<String> brewMethod = const Value.absent(),
                 Value<String> grindMode = const Value.absent(),
                 Value<double?> grindClickValue = const Value.absent(),
                 Value<String?> grindSimpleLabel = const Value.absent(),
@@ -4175,6 +5850,7 @@ class $$BrewRecordsTableTableManager
                 brewDate: brewDate,
                 beanName: beanName,
                 equipmentId: equipmentId,
+                brewMethod: brewMethod,
                 grindMode: grindMode,
                 grindClickValue: grindClickValue,
                 grindSimpleLabel: grindSimpleLabel,
@@ -4198,6 +5874,7 @@ class $$BrewRecordsTableTableManager
                 required DateTime brewDate,
                 required String beanName,
                 Value<int?> equipmentId = const Value.absent(),
+                Value<String> brewMethod = const Value.absent(),
                 Value<String> grindMode = const Value.absent(),
                 Value<double?> grindClickValue = const Value.absent(),
                 Value<String?> grindSimpleLabel = const Value.absent(),
@@ -4219,6 +5896,7 @@ class $$BrewRecordsTableTableManager
                 brewDate: brewDate,
                 beanName: beanName,
                 equipmentId: equipmentId,
+                brewMethod: brewMethod,
                 grindMode: grindMode,
                 grindClickValue: grindClickValue,
                 grindSimpleLabel: grindSimpleLabel,
@@ -4245,11 +5923,16 @@ class $$BrewRecordsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({equipmentId = false, brewRatingsRefs = false}) {
+              ({
+                equipmentId = false,
+                brewRatingsRefs = false,
+                brewParamValuesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (brewRatingsRefs) db.brewRatings,
+                    if (brewParamValuesRefs) db.brewParamValues,
                   ],
                   addJoins:
                       <
@@ -4308,6 +5991,27 @@ class $$BrewRecordsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (brewParamValuesRefs)
+                        await $_getPrefetchedData<
+                          BrewRecord,
+                          $BrewRecordsTable,
+                          BrewParamValue
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BrewRecordsTableReferences
+                              ._brewParamValuesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BrewRecordsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).brewParamValuesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.brewRecordId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -4328,7 +6032,11 @@ typedef $$BrewRecordsTableProcessedTableManager =
       $$BrewRecordsTableUpdateCompanionBuilder,
       (BrewRecord, $$BrewRecordsTableReferences),
       BrewRecord,
-      PrefetchHooks Function({bool equipmentId, bool brewRatingsRefs})
+      PrefetchHooks Function({
+        bool equipmentId,
+        bool brewRatingsRefs,
+        bool brewParamValuesRefs,
+      })
     >;
 typedef $$BrewRatingsTableCreateCompanionBuilder =
     BrewRatingsCompanion Function({
@@ -4727,6 +6435,1436 @@ typedef $$BrewRatingsTableProcessedTableManager =
       BrewRating,
       PrefetchHooks Function({bool brewRecordId})
     >;
+typedef $$BrewMethodConfigsTableCreateCompanionBuilder =
+    BrewMethodConfigsCompanion Function({
+      Value<int> id,
+      required String method,
+      required String displayName,
+      required String defaultRecordMode,
+      Value<bool> isEnabled,
+    });
+typedef $$BrewMethodConfigsTableUpdateCompanionBuilder =
+    BrewMethodConfigsCompanion Function({
+      Value<int> id,
+      Value<String> method,
+      Value<String> displayName,
+      Value<String> defaultRecordMode,
+      Value<bool> isEnabled,
+    });
+
+class $$BrewMethodConfigsTableFilterComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewMethodConfigsTable> {
+  $$BrewMethodConfigsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultRecordMode => $composableBuilder(
+    column: $table.defaultRecordMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BrewMethodConfigsTableOrderingComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewMethodConfigsTable> {
+  $$BrewMethodConfigsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get defaultRecordMode => $composableBuilder(
+    column: $table.defaultRecordMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isEnabled => $composableBuilder(
+    column: $table.isEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BrewMethodConfigsTableAnnotationComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewMethodConfigsTable> {
+  $$BrewMethodConfigsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get method =>
+      $composableBuilder(column: $table.method, builder: (column) => column);
+
+  GeneratedColumn<String> get displayName => $composableBuilder(
+    column: $table.displayName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get defaultRecordMode => $composableBuilder(
+    column: $table.defaultRecordMode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isEnabled =>
+      $composableBuilder(column: $table.isEnabled, builder: (column) => column);
+}
+
+class $$BrewMethodConfigsTableTableManager
+    extends
+        RootTableManager<
+          _$OneCoffeeDatabase,
+          $BrewMethodConfigsTable,
+          BrewMethodConfig,
+          $$BrewMethodConfigsTableFilterComposer,
+          $$BrewMethodConfigsTableOrderingComposer,
+          $$BrewMethodConfigsTableAnnotationComposer,
+          $$BrewMethodConfigsTableCreateCompanionBuilder,
+          $$BrewMethodConfigsTableUpdateCompanionBuilder,
+          (
+            BrewMethodConfig,
+            BaseReferences<
+              _$OneCoffeeDatabase,
+              $BrewMethodConfigsTable,
+              BrewMethodConfig
+            >,
+          ),
+          BrewMethodConfig,
+          PrefetchHooks Function()
+        > {
+  $$BrewMethodConfigsTableTableManager(
+    _$OneCoffeeDatabase db,
+    $BrewMethodConfigsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BrewMethodConfigsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BrewMethodConfigsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BrewMethodConfigsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> method = const Value.absent(),
+                Value<String> displayName = const Value.absent(),
+                Value<String> defaultRecordMode = const Value.absent(),
+                Value<bool> isEnabled = const Value.absent(),
+              }) => BrewMethodConfigsCompanion(
+                id: id,
+                method: method,
+                displayName: displayName,
+                defaultRecordMode: defaultRecordMode,
+                isEnabled: isEnabled,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String method,
+                required String displayName,
+                required String defaultRecordMode,
+                Value<bool> isEnabled = const Value.absent(),
+              }) => BrewMethodConfigsCompanion.insert(
+                id: id,
+                method: method,
+                displayName: displayName,
+                defaultRecordMode: defaultRecordMode,
+                isEnabled: isEnabled,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BrewMethodConfigsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$OneCoffeeDatabase,
+      $BrewMethodConfigsTable,
+      BrewMethodConfig,
+      $$BrewMethodConfigsTableFilterComposer,
+      $$BrewMethodConfigsTableOrderingComposer,
+      $$BrewMethodConfigsTableAnnotationComposer,
+      $$BrewMethodConfigsTableCreateCompanionBuilder,
+      $$BrewMethodConfigsTableUpdateCompanionBuilder,
+      (
+        BrewMethodConfig,
+        BaseReferences<
+          _$OneCoffeeDatabase,
+          $BrewMethodConfigsTable,
+          BrewMethodConfig
+        >,
+      ),
+      BrewMethodConfig,
+      PrefetchHooks Function()
+    >;
+typedef $$BrewParamDefinitionsTableCreateCompanionBuilder =
+    BrewParamDefinitionsCompanion Function({
+      Value<int> id,
+      required String method,
+      required String name,
+      required String type,
+      Value<String?> unit,
+      Value<bool> isSystem,
+      required int sortOrder,
+    });
+typedef $$BrewParamDefinitionsTableUpdateCompanionBuilder =
+    BrewParamDefinitionsCompanion Function({
+      Value<int> id,
+      Value<String> method,
+      Value<String> name,
+      Value<String> type,
+      Value<String?> unit,
+      Value<bool> isSystem,
+      Value<int> sortOrder,
+    });
+
+final class $$BrewParamDefinitionsTableReferences
+    extends
+        BaseReferences<
+          _$OneCoffeeDatabase,
+          $BrewParamDefinitionsTable,
+          BrewParamDefinition
+        > {
+  $$BrewParamDefinitionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<
+    $BrewParamVisibilitiesTable,
+    List<BrewParamVisibility>
+  >
+  _brewParamVisibilitiesRefsTable(_$OneCoffeeDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.brewParamVisibilities,
+        aliasName: $_aliasNameGenerator(
+          db.brewParamDefinitions.id,
+          db.brewParamVisibilities.paramId,
+        ),
+      );
+
+  $$BrewParamVisibilitiesTableProcessedTableManager
+  get brewParamVisibilitiesRefs {
+    final manager = $$BrewParamVisibilitiesTableTableManager(
+      $_db,
+      $_db.brewParamVisibilities,
+    ).filter((f) => f.paramId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _brewParamVisibilitiesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$BrewParamValuesTable, List<BrewParamValue>>
+  _brewParamValuesRefsTable(_$OneCoffeeDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.brewParamValues,
+        aliasName: $_aliasNameGenerator(
+          db.brewParamDefinitions.id,
+          db.brewParamValues.paramId,
+        ),
+      );
+
+  $$BrewParamValuesTableProcessedTableManager get brewParamValuesRefs {
+    final manager = $$BrewParamValuesTableTableManager(
+      $_db,
+      $_db.brewParamValues,
+    ).filter((f) => f.paramId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _brewParamValuesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$BrewParamDefinitionsTableFilterComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewParamDefinitionsTable> {
+  $$BrewParamDefinitionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isSystem => $composableBuilder(
+    column: $table.isSystem,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> brewParamVisibilitiesRefs(
+    Expression<bool> Function($$BrewParamVisibilitiesTableFilterComposer f) f,
+  ) {
+    final $$BrewParamVisibilitiesTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.brewParamVisibilities,
+          getReferencedColumn: (t) => t.paramId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BrewParamVisibilitiesTableFilterComposer(
+                $db: $db,
+                $table: $db.brewParamVisibilities,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> brewParamValuesRefs(
+    Expression<bool> Function($$BrewParamValuesTableFilterComposer f) f,
+  ) {
+    final $$BrewParamValuesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.brewParamValues,
+      getReferencedColumn: (t) => t.paramId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewParamValuesTableFilterComposer(
+            $db: $db,
+            $table: $db.brewParamValues,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$BrewParamDefinitionsTableOrderingComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewParamDefinitionsTable> {
+  $$BrewParamDefinitionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isSystem => $composableBuilder(
+    column: $table.isSystem,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BrewParamDefinitionsTableAnnotationComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewParamDefinitionsTable> {
+  $$BrewParamDefinitionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get method =>
+      $composableBuilder(column: $table.method, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSystem =>
+      $composableBuilder(column: $table.isSystem, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  Expression<T> brewParamVisibilitiesRefs<T extends Object>(
+    Expression<T> Function($$BrewParamVisibilitiesTableAnnotationComposer a) f,
+  ) {
+    final $$BrewParamVisibilitiesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.brewParamVisibilities,
+          getReferencedColumn: (t) => t.paramId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BrewParamVisibilitiesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.brewParamVisibilities,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> brewParamValuesRefs<T extends Object>(
+    Expression<T> Function($$BrewParamValuesTableAnnotationComposer a) f,
+  ) {
+    final $$BrewParamValuesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.brewParamValues,
+      getReferencedColumn: (t) => t.paramId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewParamValuesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.brewParamValues,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$BrewParamDefinitionsTableTableManager
+    extends
+        RootTableManager<
+          _$OneCoffeeDatabase,
+          $BrewParamDefinitionsTable,
+          BrewParamDefinition,
+          $$BrewParamDefinitionsTableFilterComposer,
+          $$BrewParamDefinitionsTableOrderingComposer,
+          $$BrewParamDefinitionsTableAnnotationComposer,
+          $$BrewParamDefinitionsTableCreateCompanionBuilder,
+          $$BrewParamDefinitionsTableUpdateCompanionBuilder,
+          (BrewParamDefinition, $$BrewParamDefinitionsTableReferences),
+          BrewParamDefinition,
+          PrefetchHooks Function({
+            bool brewParamVisibilitiesRefs,
+            bool brewParamValuesRefs,
+          })
+        > {
+  $$BrewParamDefinitionsTableTableManager(
+    _$OneCoffeeDatabase db,
+    $BrewParamDefinitionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BrewParamDefinitionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BrewParamDefinitionsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$BrewParamDefinitionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> method = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String?> unit = const Value.absent(),
+                Value<bool> isSystem = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+              }) => BrewParamDefinitionsCompanion(
+                id: id,
+                method: method,
+                name: name,
+                type: type,
+                unit: unit,
+                isSystem: isSystem,
+                sortOrder: sortOrder,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String method,
+                required String name,
+                required String type,
+                Value<String?> unit = const Value.absent(),
+                Value<bool> isSystem = const Value.absent(),
+                required int sortOrder,
+              }) => BrewParamDefinitionsCompanion.insert(
+                id: id,
+                method: method,
+                name: name,
+                type: type,
+                unit: unit,
+                isSystem: isSystem,
+                sortOrder: sortOrder,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$BrewParamDefinitionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                brewParamVisibilitiesRefs = false,
+                brewParamValuesRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (brewParamVisibilitiesRefs) db.brewParamVisibilities,
+                    if (brewParamValuesRefs) db.brewParamValues,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (brewParamVisibilitiesRefs)
+                        await $_getPrefetchedData<
+                          BrewParamDefinition,
+                          $BrewParamDefinitionsTable,
+                          BrewParamVisibility
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BrewParamDefinitionsTableReferences
+                              ._brewParamVisibilitiesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BrewParamDefinitionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).brewParamVisibilitiesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.paramId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (brewParamValuesRefs)
+                        await $_getPrefetchedData<
+                          BrewParamDefinition,
+                          $BrewParamDefinitionsTable,
+                          BrewParamValue
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BrewParamDefinitionsTableReferences
+                              ._brewParamValuesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BrewParamDefinitionsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).brewParamValuesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.paramId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$BrewParamDefinitionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$OneCoffeeDatabase,
+      $BrewParamDefinitionsTable,
+      BrewParamDefinition,
+      $$BrewParamDefinitionsTableFilterComposer,
+      $$BrewParamDefinitionsTableOrderingComposer,
+      $$BrewParamDefinitionsTableAnnotationComposer,
+      $$BrewParamDefinitionsTableCreateCompanionBuilder,
+      $$BrewParamDefinitionsTableUpdateCompanionBuilder,
+      (BrewParamDefinition, $$BrewParamDefinitionsTableReferences),
+      BrewParamDefinition,
+      PrefetchHooks Function({
+        bool brewParamVisibilitiesRefs,
+        bool brewParamValuesRefs,
+      })
+    >;
+typedef $$BrewParamVisibilitiesTableCreateCompanionBuilder =
+    BrewParamVisibilitiesCompanion Function({
+      Value<int> id,
+      required String method,
+      required int paramId,
+      Value<bool> isVisible,
+    });
+typedef $$BrewParamVisibilitiesTableUpdateCompanionBuilder =
+    BrewParamVisibilitiesCompanion Function({
+      Value<int> id,
+      Value<String> method,
+      Value<int> paramId,
+      Value<bool> isVisible,
+    });
+
+final class $$BrewParamVisibilitiesTableReferences
+    extends
+        BaseReferences<
+          _$OneCoffeeDatabase,
+          $BrewParamVisibilitiesTable,
+          BrewParamVisibility
+        > {
+  $$BrewParamVisibilitiesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BrewParamDefinitionsTable _paramIdTable(_$OneCoffeeDatabase db) =>
+      db.brewParamDefinitions.createAlias(
+        $_aliasNameGenerator(
+          db.brewParamVisibilities.paramId,
+          db.brewParamDefinitions.id,
+        ),
+      );
+
+  $$BrewParamDefinitionsTableProcessedTableManager get paramId {
+    final $_column = $_itemColumn<int>('param_id')!;
+
+    final manager = $$BrewParamDefinitionsTableTableManager(
+      $_db,
+      $_db.brewParamDefinitions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_paramIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$BrewParamVisibilitiesTableFilterComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewParamVisibilitiesTable> {
+  $$BrewParamVisibilitiesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isVisible => $composableBuilder(
+    column: $table.isVisible,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BrewParamDefinitionsTableFilterComposer get paramId {
+    final $$BrewParamDefinitionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.paramId,
+      referencedTable: $db.brewParamDefinitions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewParamDefinitionsTableFilterComposer(
+            $db: $db,
+            $table: $db.brewParamDefinitions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BrewParamVisibilitiesTableOrderingComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewParamVisibilitiesTable> {
+  $$BrewParamVisibilitiesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get method => $composableBuilder(
+    column: $table.method,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isVisible => $composableBuilder(
+    column: $table.isVisible,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BrewParamDefinitionsTableOrderingComposer get paramId {
+    final $$BrewParamDefinitionsTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.paramId,
+          referencedTable: $db.brewParamDefinitions,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BrewParamDefinitionsTableOrderingComposer(
+                $db: $db,
+                $table: $db.brewParamDefinitions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$BrewParamVisibilitiesTableAnnotationComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewParamVisibilitiesTable> {
+  $$BrewParamVisibilitiesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get method =>
+      $composableBuilder(column: $table.method, builder: (column) => column);
+
+  GeneratedColumn<bool> get isVisible =>
+      $composableBuilder(column: $table.isVisible, builder: (column) => column);
+
+  $$BrewParamDefinitionsTableAnnotationComposer get paramId {
+    final $$BrewParamDefinitionsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.paramId,
+          referencedTable: $db.brewParamDefinitions,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BrewParamDefinitionsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.brewParamDefinitions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$BrewParamVisibilitiesTableTableManager
+    extends
+        RootTableManager<
+          _$OneCoffeeDatabase,
+          $BrewParamVisibilitiesTable,
+          BrewParamVisibility,
+          $$BrewParamVisibilitiesTableFilterComposer,
+          $$BrewParamVisibilitiesTableOrderingComposer,
+          $$BrewParamVisibilitiesTableAnnotationComposer,
+          $$BrewParamVisibilitiesTableCreateCompanionBuilder,
+          $$BrewParamVisibilitiesTableUpdateCompanionBuilder,
+          (BrewParamVisibility, $$BrewParamVisibilitiesTableReferences),
+          BrewParamVisibility,
+          PrefetchHooks Function({bool paramId})
+        > {
+  $$BrewParamVisibilitiesTableTableManager(
+    _$OneCoffeeDatabase db,
+    $BrewParamVisibilitiesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BrewParamVisibilitiesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$BrewParamVisibilitiesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$BrewParamVisibilitiesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> method = const Value.absent(),
+                Value<int> paramId = const Value.absent(),
+                Value<bool> isVisible = const Value.absent(),
+              }) => BrewParamVisibilitiesCompanion(
+                id: id,
+                method: method,
+                paramId: paramId,
+                isVisible: isVisible,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String method,
+                required int paramId,
+                Value<bool> isVisible = const Value.absent(),
+              }) => BrewParamVisibilitiesCompanion.insert(
+                id: id,
+                method: method,
+                paramId: paramId,
+                isVisible: isVisible,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$BrewParamVisibilitiesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({paramId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (paramId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.paramId,
+                                referencedTable:
+                                    $$BrewParamVisibilitiesTableReferences
+                                        ._paramIdTable(db),
+                                referencedColumn:
+                                    $$BrewParamVisibilitiesTableReferences
+                                        ._paramIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$BrewParamVisibilitiesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$OneCoffeeDatabase,
+      $BrewParamVisibilitiesTable,
+      BrewParamVisibility,
+      $$BrewParamVisibilitiesTableFilterComposer,
+      $$BrewParamVisibilitiesTableOrderingComposer,
+      $$BrewParamVisibilitiesTableAnnotationComposer,
+      $$BrewParamVisibilitiesTableCreateCompanionBuilder,
+      $$BrewParamVisibilitiesTableUpdateCompanionBuilder,
+      (BrewParamVisibility, $$BrewParamVisibilitiesTableReferences),
+      BrewParamVisibility,
+      PrefetchHooks Function({bool paramId})
+    >;
+typedef $$BrewParamValuesTableCreateCompanionBuilder =
+    BrewParamValuesCompanion Function({
+      Value<int> id,
+      required int brewRecordId,
+      required int paramId,
+      Value<double?> valueNumber,
+      Value<String?> valueText,
+    });
+typedef $$BrewParamValuesTableUpdateCompanionBuilder =
+    BrewParamValuesCompanion Function({
+      Value<int> id,
+      Value<int> brewRecordId,
+      Value<int> paramId,
+      Value<double?> valueNumber,
+      Value<String?> valueText,
+    });
+
+final class $$BrewParamValuesTableReferences
+    extends
+        BaseReferences<
+          _$OneCoffeeDatabase,
+          $BrewParamValuesTable,
+          BrewParamValue
+        > {
+  $$BrewParamValuesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BrewRecordsTable _brewRecordIdTable(_$OneCoffeeDatabase db) =>
+      db.brewRecords.createAlias(
+        $_aliasNameGenerator(
+          db.brewParamValues.brewRecordId,
+          db.brewRecords.id,
+        ),
+      );
+
+  $$BrewRecordsTableProcessedTableManager get brewRecordId {
+    final $_column = $_itemColumn<int>('brew_record_id')!;
+
+    final manager = $$BrewRecordsTableTableManager(
+      $_db,
+      $_db.brewRecords,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_brewRecordIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $BrewParamDefinitionsTable _paramIdTable(_$OneCoffeeDatabase db) =>
+      db.brewParamDefinitions.createAlias(
+        $_aliasNameGenerator(
+          db.brewParamValues.paramId,
+          db.brewParamDefinitions.id,
+        ),
+      );
+
+  $$BrewParamDefinitionsTableProcessedTableManager get paramId {
+    final $_column = $_itemColumn<int>('param_id')!;
+
+    final manager = $$BrewParamDefinitionsTableTableManager(
+      $_db,
+      $_db.brewParamDefinitions,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_paramIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$BrewParamValuesTableFilterComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewParamValuesTable> {
+  $$BrewParamValuesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get valueNumber => $composableBuilder(
+    column: $table.valueNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get valueText => $composableBuilder(
+    column: $table.valueText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BrewRecordsTableFilterComposer get brewRecordId {
+    final $$BrewRecordsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.brewRecordId,
+      referencedTable: $db.brewRecords,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewRecordsTableFilterComposer(
+            $db: $db,
+            $table: $db.brewRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BrewParamDefinitionsTableFilterComposer get paramId {
+    final $$BrewParamDefinitionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.paramId,
+      referencedTable: $db.brewParamDefinitions,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewParamDefinitionsTableFilterComposer(
+            $db: $db,
+            $table: $db.brewParamDefinitions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BrewParamValuesTableOrderingComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewParamValuesTable> {
+  $$BrewParamValuesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get valueNumber => $composableBuilder(
+    column: $table.valueNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get valueText => $composableBuilder(
+    column: $table.valueText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BrewRecordsTableOrderingComposer get brewRecordId {
+    final $$BrewRecordsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.brewRecordId,
+      referencedTable: $db.brewRecords,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewRecordsTableOrderingComposer(
+            $db: $db,
+            $table: $db.brewRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BrewParamDefinitionsTableOrderingComposer get paramId {
+    final $$BrewParamDefinitionsTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.paramId,
+          referencedTable: $db.brewParamDefinitions,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BrewParamDefinitionsTableOrderingComposer(
+                $db: $db,
+                $table: $db.brewParamDefinitions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$BrewParamValuesTableAnnotationComposer
+    extends Composer<_$OneCoffeeDatabase, $BrewParamValuesTable> {
+  $$BrewParamValuesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get valueNumber => $composableBuilder(
+    column: $table.valueNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get valueText =>
+      $composableBuilder(column: $table.valueText, builder: (column) => column);
+
+  $$BrewRecordsTableAnnotationComposer get brewRecordId {
+    final $$BrewRecordsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.brewRecordId,
+      referencedTable: $db.brewRecords,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewRecordsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.brewRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BrewParamDefinitionsTableAnnotationComposer get paramId {
+    final $$BrewParamDefinitionsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.paramId,
+          referencedTable: $db.brewParamDefinitions,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BrewParamDefinitionsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.brewParamDefinitions,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$BrewParamValuesTableTableManager
+    extends
+        RootTableManager<
+          _$OneCoffeeDatabase,
+          $BrewParamValuesTable,
+          BrewParamValue,
+          $$BrewParamValuesTableFilterComposer,
+          $$BrewParamValuesTableOrderingComposer,
+          $$BrewParamValuesTableAnnotationComposer,
+          $$BrewParamValuesTableCreateCompanionBuilder,
+          $$BrewParamValuesTableUpdateCompanionBuilder,
+          (BrewParamValue, $$BrewParamValuesTableReferences),
+          BrewParamValue,
+          PrefetchHooks Function({bool brewRecordId, bool paramId})
+        > {
+  $$BrewParamValuesTableTableManager(
+    _$OneCoffeeDatabase db,
+    $BrewParamValuesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BrewParamValuesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BrewParamValuesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BrewParamValuesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> brewRecordId = const Value.absent(),
+                Value<int> paramId = const Value.absent(),
+                Value<double?> valueNumber = const Value.absent(),
+                Value<String?> valueText = const Value.absent(),
+              }) => BrewParamValuesCompanion(
+                id: id,
+                brewRecordId: brewRecordId,
+                paramId: paramId,
+                valueNumber: valueNumber,
+                valueText: valueText,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int brewRecordId,
+                required int paramId,
+                Value<double?> valueNumber = const Value.absent(),
+                Value<String?> valueText = const Value.absent(),
+              }) => BrewParamValuesCompanion.insert(
+                id: id,
+                brewRecordId: brewRecordId,
+                paramId: paramId,
+                valueNumber: valueNumber,
+                valueText: valueText,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$BrewParamValuesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({brewRecordId = false, paramId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (brewRecordId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.brewRecordId,
+                                referencedTable:
+                                    $$BrewParamValuesTableReferences
+                                        ._brewRecordIdTable(db),
+                                referencedColumn:
+                                    $$BrewParamValuesTableReferences
+                                        ._brewRecordIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (paramId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.paramId,
+                                referencedTable:
+                                    $$BrewParamValuesTableReferences
+                                        ._paramIdTable(db),
+                                referencedColumn:
+                                    $$BrewParamValuesTableReferences
+                                        ._paramIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$BrewParamValuesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$OneCoffeeDatabase,
+      $BrewParamValuesTable,
+      BrewParamValue,
+      $$BrewParamValuesTableFilterComposer,
+      $$BrewParamValuesTableOrderingComposer,
+      $$BrewParamValuesTableAnnotationComposer,
+      $$BrewParamValuesTableCreateCompanionBuilder,
+      $$BrewParamValuesTableUpdateCompanionBuilder,
+      (BrewParamValue, $$BrewParamValuesTableReferences),
+      BrewParamValue,
+      PrefetchHooks Function({bool brewRecordId, bool paramId})
+    >;
 
 class $OneCoffeeDatabaseManager {
   final _$OneCoffeeDatabase _db;
@@ -4739,4 +7877,12 @@ class $OneCoffeeDatabaseManager {
       $$BrewRecordsTableTableManager(_db, _db.brewRecords);
   $$BrewRatingsTableTableManager get brewRatings =>
       $$BrewRatingsTableTableManager(_db, _db.brewRatings);
+  $$BrewMethodConfigsTableTableManager get brewMethodConfigs =>
+      $$BrewMethodConfigsTableTableManager(_db, _db.brewMethodConfigs);
+  $$BrewParamDefinitionsTableTableManager get brewParamDefinitions =>
+      $$BrewParamDefinitionsTableTableManager(_db, _db.brewParamDefinitions);
+  $$BrewParamVisibilitiesTableTableManager get brewParamVisibilities =>
+      $$BrewParamVisibilitiesTableTableManager(_db, _db.brewParamVisibilities);
+  $$BrewParamValuesTableTableManager get brewParamValues =>
+      $$BrewParamValuesTableTableManager(_db, _db.brewParamValues);
 }

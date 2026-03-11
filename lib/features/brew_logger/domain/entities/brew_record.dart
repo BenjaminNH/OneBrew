@@ -1,5 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'brew_method.dart';
+
+export 'brew_method.dart';
+
 part 'brew_record.freezed.dart';
 
 /// Grind mode determines which grind-degree field is populated.
@@ -31,6 +35,9 @@ abstract class BrewRecord with _$BrewRecord {
 
     /// Optional FK to equipment (grinder) used.
     int? equipmentId,
+
+    /// Brew method classification for this record.
+    required BrewMethod brewMethod,
 
     /// Which grind-mode was used for this brew.
     required GrindMode grindMode,

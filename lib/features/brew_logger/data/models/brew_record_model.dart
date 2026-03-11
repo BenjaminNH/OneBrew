@@ -35,6 +35,11 @@ class BrewRecords extends Table {
   IntColumn get equipmentId =>
       integer().nullable().references(Equipments, #id)();
 
+  /// Brew method classification.
+  /// One of: 'pour_over', 'espresso', 'custom'.
+  TextColumn get brewMethod =>
+      text().withDefault(const Constant('pour_over'))();
+
   /// Grind recording mode.
   /// Maps to [GrindMode] enum via text encoding.
   TextColumn get grindMode => text().withDefault(const Constant('equipment'))();

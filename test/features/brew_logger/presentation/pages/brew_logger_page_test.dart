@@ -210,6 +210,7 @@ void main() {
         brewDate: DateTime(2026, 3, 7, 8, 0),
         beanName: 'Template Bean',
         equipmentId: null,
+        brewMethod: BrewMethod.pourOver,
         grindMode: GrindMode.simple,
         grindSimpleLabel: 'Medium',
         coffeeWeightG: 17.0,
