@@ -592,10 +592,10 @@ flutter test test/features/brew_logger/data/
 | `test/features/history/presentation/` | 历史详情显示断言 |
 
 ### 验收标准
-- [ ] 首次启动进入引导，支持跳过（默认模板生效）
-- [ ] 至少保留一个冲煮方式（0 选中时禁用主 CTA）
-- [ ] Brew 页面方式切换后参数列表正确刷新
-- [ ] 设置变更不影响历史已记录参数显示
+- [x] 首次启动进入引导，支持跳过（默认模板生效）
+- [x] 至少保留一个冲煮方式（0 选中时禁用主 CTA）
+- [x] Brew 页面方式切换后参数列表正确刷新
+- [x] 设置变更不影响历史已记录参数显示
 
 ### 推荐测试
 ```bash
@@ -639,4 +639,4 @@ flutter test test/features/history/presentation/
 | 7B | Inventory 管理闭环（Bean + Grinder） | ✅ 已完成 | 中 |
 | 7C | 入口整合与新增功能回归 | ✅ 已完成 | 小 |
 | 7D | 参数系统基础（Data/Domain） | ✅ 已完成 | 中 |
-| 7E | 首次引导与参数偏好 UI | ⬜ 未开始 | 中 |
+| 7E | 首次引导与参数偏好 UI | ✅ 已完成 | 中 |
