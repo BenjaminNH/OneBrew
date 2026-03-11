@@ -554,9 +554,9 @@ flutter test
 | `test/features/brew_logger/data/` | 参数表 CRUD 与默认模板测试 |
 
 ### 验收标准
-- [ ] 参数定义/可见性/值三表 CRUD 测试通过
-- [ ] 默认模板初始化可生成手冲/意式两套参数
-- [ ] `brewMethod` 字段完整可读写
+- [x] 参数定义/可见性/值三表 CRUD 测试通过
+- [x] 默认模板初始化可生成手冲/意式两套参数
+- [x] `brewMethod` 字段完整可读写
 
 ### 推荐测试
 ```bash
