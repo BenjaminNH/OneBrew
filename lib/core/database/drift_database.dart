@@ -6,6 +6,10 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 import '../../features/brew_logger/data/models/brew_record_model.dart';
+import '../../features/brew_logger/data/models/brew_method_config_model.dart';
+import '../../features/brew_logger/data/models/brew_param_definition_model.dart';
+import '../../features/brew_logger/data/models/brew_param_visibility_model.dart';
+import '../../features/brew_logger/data/models/brew_param_value_model.dart';
 import '../../features/inventory/data/models/bean_model.dart';
 import '../../features/inventory/data/models/equipment_model.dart';
 import '../../features/rating/data/models/brew_rating_model.dart';
@@ -26,11 +30,15 @@ LazyDatabase _openConnection() {
 
 /// Main Drift database for OneCoffee.
 ///
-/// Contains all four domain tables:
-///   - [Beans]       — coffee bean inventory
-///   - [Equipments]  — brew equipment / grinder inventory
-///   - [BrewRecords] — individual brew session records
-///   - [BrewRatings] — optional rating attached to a brew record
+/// Contains all domain tables:
+///   - [Beans]                — coffee bean inventory
+///   - [Equipments]           — brew equipment / grinder inventory
+///   - [BrewRecords]          — individual brew session records
+///   - [BrewRatings]          — optional rating attached to a brew record
+///   - [BrewMethodConfigs]    — brew method preferences
+///   - [BrewParamDefinitions] — parameter definitions per method
+///   - [BrewParamVisibilities]— per-method visibility rules
+///   - [BrewParamValues]      — recorded parameter values per brew
 ///
 /// Use [OneCoffeeDatabase.instance] (or the Riverpod provider from
 /// `shared/providers/database_providers.dart`) to get a singleton.
@@ -38,7 +46,18 @@ LazyDatabase _openConnection() {
 /// Foreign-key enforcement is enabled via a pragma on connection open.
 ///
 /// Ref: docs/01_Architecture.md § 4.1 — driftDatabaseProvider
-@DriftDatabase(tables: [Beans, Equipments, BrewRecords, BrewRatings])
+@DriftDatabase(
+  tables: [
+    Beans,
+    Equipments,
+    BrewRecords,
+    BrewRatings,
+    BrewMethodConfigs,
+    BrewParamDefinitions,
+    BrewParamVisibilities,
+    BrewParamValues,
+  ],
+)
 class OneCoffeeDatabase extends _$OneCoffeeDatabase {
   /// Creates a database backed by the given [QueryExecutor].
   /// Use the named constructor [OneCoffeeDatabase.forTesting] for in-memory
@@ -49,13 +68,20 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
   OneCoffeeDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         await m.addColumn(equipments, equipments.isDeleted);
+      }
+      if (from < 3) {
+        await m.addColumn(brewRecords, brewRecords.brewMethod);
+        await m.createTable(brewMethodConfigs);
+        await m.createTable(brewParamDefinitions);
+        await m.createTable(brewParamVisibilities);
+        await m.createTable(brewParamValues);
       }
     },
     beforeOpen: (details) async {
@@ -294,4 +320,105 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
   /// Deletes a rating by [id].
   Future<int> deleteRating(int id) =>
       (delete(brewRatings)..where((r) => r.id.equals(id))).go();
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BrewMethodConfig queries
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<List<BrewMethodConfig>> getBrewMethodConfigs() =>
+      select(brewMethodConfigs).get();
+
+  Future<BrewMethodConfig?> getBrewMethodConfigByMethod(String method) =>
+      (select(brewMethodConfigs)
+            ..where((m) => m.method.equals(method)))
+          .getSingleOrNull();
+
+  Future<int> insertBrewMethodConfig(BrewMethodConfigsCompanion config) =>
+      into(brewMethodConfigs).insert(config);
+
+  Future<bool> updateBrewMethodConfig(BrewMethodConfigsCompanion config) =>
+      update(brewMethodConfigs).replace(config);
+
+  Future<int> deleteBrewMethodConfig(int id) =>
+      (delete(brewMethodConfigs)..where((m) => m.id.equals(id))).go();
+
+  Future<int> countBrewMethodConfigs() async {
+    final row = await customSelect(
+      'SELECT COUNT(*) AS config_count FROM brew_method_configs',
+      readsFrom: {brewMethodConfigs},
+    ).getSingle();
+    return row.read<int>('config_count');
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BrewParamDefinition queries
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<List<BrewParamDefinition>> getBrewParamDefinitionsByMethod(
+    String method,
+  ) =>
+      (select(brewParamDefinitions)
+            ..where((p) => p.method.equals(method))
+            ..orderBy([(p) => OrderingTerm.asc(p.sortOrder)]))
+          .get();
+
+  Future<BrewParamDefinition?> getBrewParamDefinitionById(int id) =>
+      (select(brewParamDefinitions)..where((p) => p.id.equals(id)))
+          .getSingleOrNull();
+
+  Future<int> insertBrewParamDefinition(BrewParamDefinitionsCompanion def) =>
+      into(brewParamDefinitions).insert(def);
+
+  Future<bool> updateBrewParamDefinition(BrewParamDefinitionsCompanion def) =>
+      update(brewParamDefinitions).replace(def);
+
+  Future<int> deleteBrewParamDefinition(int id) =>
+      (delete(brewParamDefinitions)..where((p) => p.id.equals(id))).go();
+
+  Future<int> countBrewParamDefinitions() async {
+    final row = await customSelect(
+      'SELECT COUNT(*) AS def_count FROM brew_param_definitions',
+      readsFrom: {brewParamDefinitions},
+    ).getSingle();
+    return row.read<int>('def_count');
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BrewParamVisibility queries
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<List<BrewParamVisibility>> getBrewParamVisibilitiesByMethod(
+    String method,
+  ) =>
+      (select(brewParamVisibilities)
+            ..where((v) => v.method.equals(method))
+            ..orderBy([(v) => OrderingTerm.asc(v.id)]))
+          .get();
+
+  Future<int> insertBrewParamVisibility(BrewParamVisibilitiesCompanion vis) =>
+      into(brewParamVisibilities).insert(vis);
+
+  Future<bool> updateBrewParamVisibility(BrewParamVisibilitiesCompanion vis) =>
+      update(brewParamVisibilities).replace(vis);
+
+  Future<int> deleteBrewParamVisibility(int id) =>
+      (delete(brewParamVisibilities)..where((v) => v.id.equals(id))).go();
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // BrewParamValue queries
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<List<BrewParamValue>> getBrewParamValuesForBrew(int brewRecordId) =>
+      (select(brewParamValues)
+            ..where((v) => v.brewRecordId.equals(brewRecordId)))
+          .get();
+
+  Future<int> insertBrewParamValue(BrewParamValuesCompanion value) =>
+      into(brewParamValues).insert(value);
+
+  Future<bool> updateBrewParamValue(BrewParamValuesCompanion value) =>
+      update(brewParamValues).replace(value);
+
+  Future<int> deleteBrewParamValue(int id) =>
+      (delete(brewParamValues)..where((v) => v.id.equals(id))).go();
 }

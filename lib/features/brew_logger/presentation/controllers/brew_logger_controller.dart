@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../inventory/inventory_providers.dart';
 import '../../../inventory/domain/entities/equipment.dart';
 import '../../brew_logger_providers.dart';
+import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_record.dart';
 import '../../domain/usecases/create_brew_record.dart';
 import '../../domain/usecases/delete_brew_record.dart';
@@ -14,6 +15,7 @@ class BrewLoggerState {
     this.beanName = '',
     this.equipmentId,
     this.selectedEquipmentName,
+    this.brewMethod = BrewMethod.pourOver,
     this.grindMode = GrindMode.equipment,
     this.grindClickValue,
     this.grindSimpleLabel,
@@ -46,6 +48,9 @@ class BrewLoggerState {
 
   /// Display name of the selected equipment (for the SmartTagField tags list).
   final String? selectedEquipmentName;
+
+  /// Brew method selection (pour over / espresso / custom).
+  final BrewMethod brewMethod;
 
   final GrindMode grindMode;
   final double? grindClickValue;
@@ -117,6 +122,7 @@ class BrewLoggerState {
     String? beanName,
     Object? equipmentId = _sentinel,
     Object? selectedEquipmentName = _sentinel,
+    BrewMethod? brewMethod,
     GrindMode? grindMode,
     Object? grindClickValue = _sentinel,
     Object? grindSimpleLabel = _sentinel,
@@ -150,6 +156,7 @@ class BrewLoggerState {
       selectedEquipmentName: selectedEquipmentName == _sentinel
           ? this.selectedEquipmentName
           : selectedEquipmentName as String?,
+      brewMethod: brewMethod ?? this.brewMethod,
       grindMode: grindMode ?? this.grindMode,
       grindClickValue: grindClickValue == _sentinel
           ? this.grindClickValue
@@ -418,6 +425,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       beanName: template.beanName,
       equipmentId: template.equipmentId,
       selectedEquipmentName: selectedEquipmentName,
+      brewMethod: template.brewMethod,
       grindMode: resolvedGrindMode,
       grindClickValue: resolvedGrindClickValue,
       grindSimpleLabel: template.grindSimpleLabel,
@@ -471,6 +479,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
         brewDate: now,
         beanName: state.beanName.trim(),
         equipmentId: state.equipmentId,
+        brewMethod: state.brewMethod,
         grindMode: state.grindMode,
         grindClickValue: state.grindClickValue,
         grindSimpleLabel: state.grindSimpleLabel,
@@ -522,6 +531,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
         brewDate: originalBrewDate,
         beanName: state.beanName.trim(),
         equipmentId: state.equipmentId,
+        brewMethod: state.brewMethod,
         grindMode: state.grindMode,
         grindClickValue: state.grindClickValue,
         grindSimpleLabel: state.grindSimpleLabel,

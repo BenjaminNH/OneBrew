@@ -18,7 +18,8 @@ mixin _$BrewRecord {
  int get id;/// Timestamp of the brew session.
  DateTime get brewDate;/// Name of the coffee bean used (FK to Bean.name).
  String get beanName;/// Optional FK to equipment (grinder) used.
- int? get equipmentId;/// Which grind-mode was used for this brew.
+ int? get equipmentId;/// Brew method classification for this record.
+ BrewMethod get brewMethod;/// Which grind-mode was used for this brew.
  GrindMode get grindMode;/// Grinder click value when [grindMode] == [GrindMode.equipment].
  double? get grindClickValue;/// Coarse label when [grindMode] == [GrindMode.simple].
 /// e.g. "medium-fine", "coarse".
@@ -46,16 +47,16 @@ $BrewRecordCopyWith<BrewRecord> get copyWith => _$BrewRecordCopyWithImpl<BrewRec
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrewRecord&&(identical(other.id, id) || other.id == id)&&(identical(other.brewDate, brewDate) || other.brewDate == brewDate)&&(identical(other.beanName, beanName) || other.beanName == beanName)&&(identical(other.equipmentId, equipmentId) || other.equipmentId == equipmentId)&&(identical(other.grindMode, grindMode) || other.grindMode == grindMode)&&(identical(other.grindClickValue, grindClickValue) || other.grindClickValue == grindClickValue)&&(identical(other.grindSimpleLabel, grindSimpleLabel) || other.grindSimpleLabel == grindSimpleLabel)&&(identical(other.grindMicrons, grindMicrons) || other.grindMicrons == grindMicrons)&&(identical(other.coffeeWeightG, coffeeWeightG) || other.coffeeWeightG == coffeeWeightG)&&(identical(other.waterWeightG, waterWeightG) || other.waterWeightG == waterWeightG)&&(identical(other.waterTempC, waterTempC) || other.waterTempC == waterTempC)&&(identical(other.brewDurationS, brewDurationS) || other.brewDurationS == brewDurationS)&&(identical(other.bloomTimeS, bloomTimeS) || other.bloomTimeS == bloomTimeS)&&(identical(other.pourMethod, pourMethod) || other.pourMethod == pourMethod)&&(identical(other.waterType, waterType) || other.waterType == waterType)&&(identical(other.roomTempC, roomTempC) || other.roomTempC == roomTempC)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.isQuickMode, isQuickMode) || other.isQuickMode == isQuickMode)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrewRecord&&(identical(other.id, id) || other.id == id)&&(identical(other.brewDate, brewDate) || other.brewDate == brewDate)&&(identical(other.beanName, beanName) || other.beanName == beanName)&&(identical(other.equipmentId, equipmentId) || other.equipmentId == equipmentId)&&(identical(other.brewMethod, brewMethod) || other.brewMethod == brewMethod)&&(identical(other.grindMode, grindMode) || other.grindMode == grindMode)&&(identical(other.grindClickValue, grindClickValue) || other.grindClickValue == grindClickValue)&&(identical(other.grindSimpleLabel, grindSimpleLabel) || other.grindSimpleLabel == grindSimpleLabel)&&(identical(other.grindMicrons, grindMicrons) || other.grindMicrons == grindMicrons)&&(identical(other.coffeeWeightG, coffeeWeightG) || other.coffeeWeightG == coffeeWeightG)&&(identical(other.waterWeightG, waterWeightG) || other.waterWeightG == waterWeightG)&&(identical(other.waterTempC, waterTempC) || other.waterTempC == waterTempC)&&(identical(other.brewDurationS, brewDurationS) || other.brewDurationS == brewDurationS)&&(identical(other.bloomTimeS, bloomTimeS) || other.bloomTimeS == bloomTimeS)&&(identical(other.pourMethod, pourMethod) || other.pourMethod == pourMethod)&&(identical(other.waterType, waterType) || other.waterType == waterType)&&(identical(other.roomTempC, roomTempC) || other.roomTempC == roomTempC)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.isQuickMode, isQuickMode) || other.isQuickMode == isQuickMode)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,brewDate,beanName,equipmentId,grindMode,grindClickValue,grindSimpleLabel,grindMicrons,coffeeWeightG,waterWeightG,waterTempC,brewDurationS,bloomTimeS,pourMethod,waterType,roomTempC,notes,isQuickMode,createdAt,updatedAt]);
+int get hashCode => Object.hashAll([runtimeType,id,brewDate,beanName,equipmentId,brewMethod,grindMode,grindClickValue,grindSimpleLabel,grindMicrons,coffeeWeightG,waterWeightG,waterTempC,brewDurationS,bloomTimeS,pourMethod,waterType,roomTempC,notes,isQuickMode,createdAt,updatedAt]);
 
 @override
 String toString() {
-  return 'BrewRecord(id: $id, brewDate: $brewDate, beanName: $beanName, equipmentId: $equipmentId, grindMode: $grindMode, grindClickValue: $grindClickValue, grindSimpleLabel: $grindSimpleLabel, grindMicrons: $grindMicrons, coffeeWeightG: $coffeeWeightG, waterWeightG: $waterWeightG, waterTempC: $waterTempC, brewDurationS: $brewDurationS, bloomTimeS: $bloomTimeS, pourMethod: $pourMethod, waterType: $waterType, roomTempC: $roomTempC, notes: $notes, isQuickMode: $isQuickMode, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'BrewRecord(id: $id, brewDate: $brewDate, beanName: $beanName, equipmentId: $equipmentId, brewMethod: $brewMethod, grindMode: $grindMode, grindClickValue: $grindClickValue, grindSimpleLabel: $grindSimpleLabel, grindMicrons: $grindMicrons, coffeeWeightG: $coffeeWeightG, waterWeightG: $waterWeightG, waterTempC: $waterTempC, brewDurationS: $brewDurationS, bloomTimeS: $bloomTimeS, pourMethod: $pourMethod, waterType: $waterType, roomTempC: $roomTempC, notes: $notes, isQuickMode: $isQuickMode, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -66,7 +67,7 @@ abstract mixin class $BrewRecordCopyWith<$Res>  {
   factory $BrewRecordCopyWith(BrewRecord value, $Res Function(BrewRecord) _then) = _$BrewRecordCopyWithImpl;
 @useResult
 $Res call({
- int id, DateTime brewDate, String beanName, int? equipmentId, GrindMode grindMode, double? grindClickValue, String? grindSimpleLabel, int? grindMicrons, double coffeeWeightG, double waterWeightG, double? waterTempC, int brewDurationS, int? bloomTimeS, String? pourMethod, String? waterType, double? roomTempC, String? notes, bool isQuickMode, DateTime createdAt, DateTime updatedAt
+ int id, DateTime brewDate, String beanName, int? equipmentId, BrewMethod brewMethod, GrindMode grindMode, double? grindClickValue, String? grindSimpleLabel, int? grindMicrons, double coffeeWeightG, double waterWeightG, double? waterTempC, int brewDurationS, int? bloomTimeS, String? pourMethod, String? waterType, double? roomTempC, String? notes, bool isQuickMode, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -83,13 +84,14 @@ class _$BrewRecordCopyWithImpl<$Res>
 
 /// Create a copy of BrewRecord
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? brewDate = null,Object? beanName = null,Object? equipmentId = freezed,Object? grindMode = null,Object? grindClickValue = freezed,Object? grindSimpleLabel = freezed,Object? grindMicrons = freezed,Object? coffeeWeightG = null,Object? waterWeightG = null,Object? waterTempC = freezed,Object? brewDurationS = null,Object? bloomTimeS = freezed,Object? pourMethod = freezed,Object? waterType = freezed,Object? roomTempC = freezed,Object? notes = freezed,Object? isQuickMode = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? brewDate = null,Object? beanName = null,Object? equipmentId = freezed,Object? brewMethod = null,Object? grindMode = null,Object? grindClickValue = freezed,Object? grindSimpleLabel = freezed,Object? grindMicrons = freezed,Object? coffeeWeightG = null,Object? waterWeightG = null,Object? waterTempC = freezed,Object? brewDurationS = null,Object? bloomTimeS = freezed,Object? pourMethod = freezed,Object? waterType = freezed,Object? roomTempC = freezed,Object? notes = freezed,Object? isQuickMode = null,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,brewDate: null == brewDate ? _self.brewDate : brewDate // ignore: cast_nullable_to_non_nullable
 as DateTime,beanName: null == beanName ? _self.beanName : beanName // ignore: cast_nullable_to_non_nullable
 as String,equipmentId: freezed == equipmentId ? _self.equipmentId : equipmentId // ignore: cast_nullable_to_non_nullable
-as int?,grindMode: null == grindMode ? _self.grindMode : grindMode // ignore: cast_nullable_to_non_nullable
+as int?,brewMethod: null == brewMethod ? _self.brewMethod : brewMethod // ignore: cast_nullable_to_non_nullable
+as BrewMethod,grindMode: null == grindMode ? _self.grindMode : grindMode // ignore: cast_nullable_to_non_nullable
 as GrindMode,grindClickValue: freezed == grindClickValue ? _self.grindClickValue : grindClickValue // ignore: cast_nullable_to_non_nullable
 as double?,grindSimpleLabel: freezed == grindSimpleLabel ? _self.grindSimpleLabel : grindSimpleLabel // ignore: cast_nullable_to_non_nullable
 as String?,grindMicrons: freezed == grindMicrons ? _self.grindMicrons : grindMicrons // ignore: cast_nullable_to_non_nullable
@@ -190,10 +192,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  DateTime brewDate,  String beanName,  int? equipmentId,  GrindMode grindMode,  double? grindClickValue,  String? grindSimpleLabel,  int? grindMicrons,  double coffeeWeightG,  double waterWeightG,  double? waterTempC,  int brewDurationS,  int? bloomTimeS,  String? pourMethod,  String? waterType,  double? roomTempC,  String? notes,  bool isQuickMode,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  DateTime brewDate,  String beanName,  int? equipmentId,  BrewMethod brewMethod,  GrindMode grindMode,  double? grindClickValue,  String? grindSimpleLabel,  int? grindMicrons,  double coffeeWeightG,  double waterWeightG,  double? waterTempC,  int brewDurationS,  int? bloomTimeS,  String? pourMethod,  String? waterType,  double? roomTempC,  String? notes,  bool isQuickMode,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BrewRecord() when $default != null:
-return $default(_that.id,_that.brewDate,_that.beanName,_that.equipmentId,_that.grindMode,_that.grindClickValue,_that.grindSimpleLabel,_that.grindMicrons,_that.coffeeWeightG,_that.waterWeightG,_that.waterTempC,_that.brewDurationS,_that.bloomTimeS,_that.pourMethod,_that.waterType,_that.roomTempC,_that.notes,_that.isQuickMode,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.brewDate,_that.beanName,_that.equipmentId,_that.brewMethod,_that.grindMode,_that.grindClickValue,_that.grindSimpleLabel,_that.grindMicrons,_that.coffeeWeightG,_that.waterWeightG,_that.waterTempC,_that.brewDurationS,_that.bloomTimeS,_that.pourMethod,_that.waterType,_that.roomTempC,_that.notes,_that.isQuickMode,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -211,10 +213,10 @@ return $default(_that.id,_that.brewDate,_that.beanName,_that.equipmentId,_that.g
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  DateTime brewDate,  String beanName,  int? equipmentId,  GrindMode grindMode,  double? grindClickValue,  String? grindSimpleLabel,  int? grindMicrons,  double coffeeWeightG,  double waterWeightG,  double? waterTempC,  int brewDurationS,  int? bloomTimeS,  String? pourMethod,  String? waterType,  double? roomTempC,  String? notes,  bool isQuickMode,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  DateTime brewDate,  String beanName,  int? equipmentId,  BrewMethod brewMethod,  GrindMode grindMode,  double? grindClickValue,  String? grindSimpleLabel,  int? grindMicrons,  double coffeeWeightG,  double waterWeightG,  double? waterTempC,  int brewDurationS,  int? bloomTimeS,  String? pourMethod,  String? waterType,  double? roomTempC,  String? notes,  bool isQuickMode,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _BrewRecord():
-return $default(_that.id,_that.brewDate,_that.beanName,_that.equipmentId,_that.grindMode,_that.grindClickValue,_that.grindSimpleLabel,_that.grindMicrons,_that.coffeeWeightG,_that.waterWeightG,_that.waterTempC,_that.brewDurationS,_that.bloomTimeS,_that.pourMethod,_that.waterType,_that.roomTempC,_that.notes,_that.isQuickMode,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.brewDate,_that.beanName,_that.equipmentId,_that.brewMethod,_that.grindMode,_that.grindClickValue,_that.grindSimpleLabel,_that.grindMicrons,_that.coffeeWeightG,_that.waterWeightG,_that.waterTempC,_that.brewDurationS,_that.bloomTimeS,_that.pourMethod,_that.waterType,_that.roomTempC,_that.notes,_that.isQuickMode,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -231,10 +233,10 @@ return $default(_that.id,_that.brewDate,_that.beanName,_that.equipmentId,_that.g
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  DateTime brewDate,  String beanName,  int? equipmentId,  GrindMode grindMode,  double? grindClickValue,  String? grindSimpleLabel,  int? grindMicrons,  double coffeeWeightG,  double waterWeightG,  double? waterTempC,  int brewDurationS,  int? bloomTimeS,  String? pourMethod,  String? waterType,  double? roomTempC,  String? notes,  bool isQuickMode,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  DateTime brewDate,  String beanName,  int? equipmentId,  BrewMethod brewMethod,  GrindMode grindMode,  double? grindClickValue,  String? grindSimpleLabel,  int? grindMicrons,  double coffeeWeightG,  double waterWeightG,  double? waterTempC,  int brewDurationS,  int? bloomTimeS,  String? pourMethod,  String? waterType,  double? roomTempC,  String? notes,  bool isQuickMode,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _BrewRecord() when $default != null:
-return $default(_that.id,_that.brewDate,_that.beanName,_that.equipmentId,_that.grindMode,_that.grindClickValue,_that.grindSimpleLabel,_that.grindMicrons,_that.coffeeWeightG,_that.waterWeightG,_that.waterTempC,_that.brewDurationS,_that.bloomTimeS,_that.pourMethod,_that.waterType,_that.roomTempC,_that.notes,_that.isQuickMode,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.brewDate,_that.beanName,_that.equipmentId,_that.brewMethod,_that.grindMode,_that.grindClickValue,_that.grindSimpleLabel,_that.grindMicrons,_that.coffeeWeightG,_that.waterWeightG,_that.waterTempC,_that.brewDurationS,_that.bloomTimeS,_that.pourMethod,_that.waterType,_that.roomTempC,_that.notes,_that.isQuickMode,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -246,7 +248,7 @@ return $default(_that.id,_that.brewDate,_that.beanName,_that.equipmentId,_that.g
 
 
 class _BrewRecord implements BrewRecord {
-  const _BrewRecord({required this.id, required this.brewDate, required this.beanName, this.equipmentId, required this.grindMode, this.grindClickValue, this.grindSimpleLabel, this.grindMicrons, required this.coffeeWeightG, required this.waterWeightG, this.waterTempC, required this.brewDurationS, this.bloomTimeS, this.pourMethod, this.waterType, this.roomTempC, this.notes, required this.isQuickMode, required this.createdAt, required this.updatedAt});
+  const _BrewRecord({required this.id, required this.brewDate, required this.beanName, this.equipmentId, required this.brewMethod, required this.grindMode, this.grindClickValue, this.grindSimpleLabel, this.grindMicrons, required this.coffeeWeightG, required this.waterWeightG, this.waterTempC, required this.brewDurationS, this.bloomTimeS, this.pourMethod, this.waterType, this.roomTempC, this.notes, required this.isQuickMode, required this.createdAt, required this.updatedAt});
   
 
 /// Unique identifier (matches the Drift table PK).
@@ -257,6 +259,8 @@ class _BrewRecord implements BrewRecord {
 @override final  String beanName;
 /// Optional FK to equipment (grinder) used.
 @override final  int? equipmentId;
+/// Brew method classification for this record.
+@override final  BrewMethod brewMethod;
 /// Which grind-mode was used for this brew.
 @override final  GrindMode grindMode;
 /// Grinder click value when [grindMode] == [GrindMode.equipment].
@@ -301,16 +305,16 @@ _$BrewRecordCopyWith<_BrewRecord> get copyWith => __$BrewRecordCopyWithImpl<_Bre
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrewRecord&&(identical(other.id, id) || other.id == id)&&(identical(other.brewDate, brewDate) || other.brewDate == brewDate)&&(identical(other.beanName, beanName) || other.beanName == beanName)&&(identical(other.equipmentId, equipmentId) || other.equipmentId == equipmentId)&&(identical(other.grindMode, grindMode) || other.grindMode == grindMode)&&(identical(other.grindClickValue, grindClickValue) || other.grindClickValue == grindClickValue)&&(identical(other.grindSimpleLabel, grindSimpleLabel) || other.grindSimpleLabel == grindSimpleLabel)&&(identical(other.grindMicrons, grindMicrons) || other.grindMicrons == grindMicrons)&&(identical(other.coffeeWeightG, coffeeWeightG) || other.coffeeWeightG == coffeeWeightG)&&(identical(other.waterWeightG, waterWeightG) || other.waterWeightG == waterWeightG)&&(identical(other.waterTempC, waterTempC) || other.waterTempC == waterTempC)&&(identical(other.brewDurationS, brewDurationS) || other.brewDurationS == brewDurationS)&&(identical(other.bloomTimeS, bloomTimeS) || other.bloomTimeS == bloomTimeS)&&(identical(other.pourMethod, pourMethod) || other.pourMethod == pourMethod)&&(identical(other.waterType, waterType) || other.waterType == waterType)&&(identical(other.roomTempC, roomTempC) || other.roomTempC == roomTempC)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.isQuickMode, isQuickMode) || other.isQuickMode == isQuickMode)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrewRecord&&(identical(other.id, id) || other.id == id)&&(identical(other.brewDate, brewDate) || other.brewDate == brewDate)&&(identical(other.beanName, beanName) || other.beanName == beanName)&&(identical(other.equipmentId, equipmentId) || other.equipmentId == equipmentId)&&(identical(other.brewMethod, brewMethod) || other.brewMethod == brewMethod)&&(identical(other.grindMode, grindMode) || other.grindMode == grindMode)&&(identical(other.grindClickValue, grindClickValue) || other.grindClickValue == grindClickValue)&&(identical(other.grindSimpleLabel, grindSimpleLabel) || other.grindSimpleLabel == grindSimpleLabel)&&(identical(other.grindMicrons, grindMicrons) || other.grindMicrons == grindMicrons)&&(identical(other.coffeeWeightG, coffeeWeightG) || other.coffeeWeightG == coffeeWeightG)&&(identical(other.waterWeightG, waterWeightG) || other.waterWeightG == waterWeightG)&&(identical(other.waterTempC, waterTempC) || other.waterTempC == waterTempC)&&(identical(other.brewDurationS, brewDurationS) || other.brewDurationS == brewDurationS)&&(identical(other.bloomTimeS, bloomTimeS) || other.bloomTimeS == bloomTimeS)&&(identical(other.pourMethod, pourMethod) || other.pourMethod == pourMethod)&&(identical(other.waterType, waterType) || other.waterType == waterType)&&(identical(other.roomTempC, roomTempC) || other.roomTempC == roomTempC)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.isQuickMode, isQuickMode) || other.isQuickMode == isQuickMode)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 
 @override
-int get hashCode => Object.hashAll([runtimeType,id,brewDate,beanName,equipmentId,grindMode,grindClickValue,grindSimpleLabel,grindMicrons,coffeeWeightG,waterWeightG,waterTempC,brewDurationS,bloomTimeS,pourMethod,waterType,roomTempC,notes,isQuickMode,createdAt,updatedAt]);
+int get hashCode => Object.hashAll([runtimeType,id,brewDate,beanName,equipmentId,brewMethod,grindMode,grindClickValue,grindSimpleLabel,grindMicrons,coffeeWeightG,waterWeightG,waterTempC,brewDurationS,bloomTimeS,pourMethod,waterType,roomTempC,notes,isQuickMode,createdAt,updatedAt]);
 
 @override
 String toString() {
-  return 'BrewRecord(id: $id, brewDate: $brewDate, beanName: $beanName, equipmentId: $equipmentId, grindMode: $grindMode, grindClickValue: $grindClickValue, grindSimpleLabel: $grindSimpleLabel, grindMicrons: $grindMicrons, coffeeWeightG: $coffeeWeightG, waterWeightG: $waterWeightG, waterTempC: $waterTempC, brewDurationS: $brewDurationS, bloomTimeS: $bloomTimeS, pourMethod: $pourMethod, waterType: $waterType, roomTempC: $roomTempC, notes: $notes, isQuickMode: $isQuickMode, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'BrewRecord(id: $id, brewDate: $brewDate, beanName: $beanName, equipmentId: $equipmentId, brewMethod: $brewMethod, grindMode: $grindMode, grindClickValue: $grindClickValue, grindSimpleLabel: $grindSimpleLabel, grindMicrons: $grindMicrons, coffeeWeightG: $coffeeWeightG, waterWeightG: $waterWeightG, waterTempC: $waterTempC, brewDurationS: $brewDurationS, bloomTimeS: $bloomTimeS, pourMethod: $pourMethod, waterType: $waterType, roomTempC: $roomTempC, notes: $notes, isQuickMode: $isQuickMode, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -321,7 +325,7 @@ abstract mixin class _$BrewRecordCopyWith<$Res> implements $BrewRecordCopyWith<$
   factory _$BrewRecordCopyWith(_BrewRecord value, $Res Function(_BrewRecord) _then) = __$BrewRecordCopyWithImpl;
 @override @useResult
 $Res call({
- int id, DateTime brewDate, String beanName, int? equipmentId, GrindMode grindMode, double? grindClickValue, String? grindSimpleLabel, int? grindMicrons, double coffeeWeightG, double waterWeightG, double? waterTempC, int brewDurationS, int? bloomTimeS, String? pourMethod, String? waterType, double? roomTempC, String? notes, bool isQuickMode, DateTime createdAt, DateTime updatedAt
+ int id, DateTime brewDate, String beanName, int? equipmentId, BrewMethod brewMethod, GrindMode grindMode, double? grindClickValue, String? grindSimpleLabel, int? grindMicrons, double coffeeWeightG, double waterWeightG, double? waterTempC, int brewDurationS, int? bloomTimeS, String? pourMethod, String? waterType, double? roomTempC, String? notes, bool isQuickMode, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -338,13 +342,14 @@ class __$BrewRecordCopyWithImpl<$Res>
 
 /// Create a copy of BrewRecord
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? brewDate = null,Object? beanName = null,Object? equipmentId = freezed,Object? grindMode = null,Object? grindClickValue = freezed,Object? grindSimpleLabel = freezed,Object? grindMicrons = freezed,Object? coffeeWeightG = null,Object? waterWeightG = null,Object? waterTempC = freezed,Object? brewDurationS = null,Object? bloomTimeS = freezed,Object? pourMethod = freezed,Object? waterType = freezed,Object? roomTempC = freezed,Object? notes = freezed,Object? isQuickMode = null,Object? createdAt = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? brewDate = null,Object? beanName = null,Object? equipmentId = freezed,Object? brewMethod = null,Object? grindMode = null,Object? grindClickValue = freezed,Object? grindSimpleLabel = freezed,Object? grindMicrons = freezed,Object? coffeeWeightG = null,Object? waterWeightG = null,Object? waterTempC = freezed,Object? brewDurationS = null,Object? bloomTimeS = freezed,Object? pourMethod = freezed,Object? waterType = freezed,Object? roomTempC = freezed,Object? notes = freezed,Object? isQuickMode = null,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_BrewRecord(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,brewDate: null == brewDate ? _self.brewDate : brewDate // ignore: cast_nullable_to_non_nullable
 as DateTime,beanName: null == beanName ? _self.beanName : beanName // ignore: cast_nullable_to_non_nullable
 as String,equipmentId: freezed == equipmentId ? _self.equipmentId : equipmentId // ignore: cast_nullable_to_non_nullable
-as int?,grindMode: null == grindMode ? _self.grindMode : grindMode // ignore: cast_nullable_to_non_nullable
+as int?,brewMethod: null == brewMethod ? _self.brewMethod : brewMethod // ignore: cast_nullable_to_non_nullable
+as BrewMethod,grindMode: null == grindMode ? _self.grindMode : grindMode // ignore: cast_nullable_to_non_nullable
 as GrindMode,grindClickValue: freezed == grindClickValue ? _self.grindClickValue : grindClickValue // ignore: cast_nullable_to_non_nullable
 as double?,grindSimpleLabel: freezed == grindSimpleLabel ? _self.grindSimpleLabel : grindSimpleLabel // ignore: cast_nullable_to_non_nullable
 as String?,grindMicrons: freezed == grindMicrons ? _self.grindMicrons : grindMicrons // ignore: cast_nullable_to_non_nullable

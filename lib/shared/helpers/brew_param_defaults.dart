@@ -5,7 +5,202 @@
 /// Used by BrewLoggerController and form initialization
 /// to pre-fill parameters, reducing friction for new records.
 /// Ref: docs/01_Architecture.md § 3.3 — 参数默认值
+import 'package:one_coffee/features/brew_logger/domain/entities/brew_method.dart';
+
+class BrewMethodConfigSeed {
+  const BrewMethodConfigSeed({
+    required this.method,
+    required this.displayName,
+    required this.defaultRecordMode,
+    required this.isEnabled,
+  });
+
+  final BrewMethod method;
+  final String displayName;
+  final RecordMode defaultRecordMode;
+  final bool isEnabled;
+}
+
+class BrewParamTemplate {
+  const BrewParamTemplate({
+    required this.method,
+    required this.name,
+    required this.type,
+    this.unit,
+    this.isSystem = true,
+    this.isVisible = true,
+    required this.sortOrder,
+  });
+
+  final BrewMethod method;
+  final String name;
+  final ParamType type;
+  final String? unit;
+  final bool isSystem;
+  final bool isVisible;
+  final int sortOrder;
+}
+
 abstract final class BrewParamDefaults {
+  // ─────────────────────────────────────────
+  // Default templates (Phase 7D)
+  // ─────────────────────────────────────────
+
+  static const List<BrewMethodConfigSeed> methodConfigSeeds = [
+    BrewMethodConfigSeed(
+      method: BrewMethod.pourOver,
+      displayName: 'Pour Over',
+      defaultRecordMode: RecordMode.quick,
+      isEnabled: true,
+    ),
+    BrewMethodConfigSeed(
+      method: BrewMethod.espresso,
+      displayName: 'Espresso',
+      defaultRecordMode: RecordMode.quick,
+      isEnabled: true,
+    ),
+    BrewMethodConfigSeed(
+      method: BrewMethod.custom,
+      displayName: 'Custom',
+      defaultRecordMode: RecordMode.quick,
+      isEnabled: false,
+    ),
+  ];
+
+  static const List<BrewParamTemplate> paramTemplates = [
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Coffee Weight',
+      type: ParamType.number,
+      unit: 'g',
+      sortOrder: 1,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Water Weight',
+      type: ParamType.number,
+      unit: 'g',
+      sortOrder: 2,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Brew Ratio',
+      type: ParamType.number,
+      sortOrder: 3,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Water Temp',
+      type: ParamType.number,
+      unit: 'C',
+      sortOrder: 4,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Grind Size',
+      type: ParamType.text,
+      sortOrder: 5,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Brew Time',
+      type: ParamType.number,
+      unit: 's',
+      sortOrder: 6,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Bloom Time',
+      type: ParamType.number,
+      unit: 's',
+      sortOrder: 7,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Bloom Water',
+      type: ParamType.number,
+      unit: 'g',
+      sortOrder: 8,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Pour Method',
+      type: ParamType.text,
+      sortOrder: 9,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Agitation',
+      type: ParamType.text,
+      sortOrder: 10,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      name: 'Filter/Dripper',
+      type: ParamType.text,
+      sortOrder: 11,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      name: 'Coffee Dose',
+      type: ParamType.number,
+      unit: 'g',
+      sortOrder: 1,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      name: 'Yield',
+      type: ParamType.number,
+      unit: 'g',
+      sortOrder: 2,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      name: 'Brew Ratio',
+      type: ParamType.number,
+      sortOrder: 3,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      name: 'Extraction Time',
+      type: ParamType.number,
+      unit: 's',
+      sortOrder: 4,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      name: 'Pressure',
+      type: ParamType.number,
+      unit: 'bar',
+      sortOrder: 5,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      name: 'Water Temp',
+      type: ParamType.number,
+      unit: 'C',
+      sortOrder: 6,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      name: 'Pre-infusion Time',
+      type: ParamType.number,
+      unit: 's',
+      sortOrder: 7,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      name: 'Grind Size',
+      type: ParamType.text,
+      sortOrder: 8,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      name: 'Distribution/Tamping',
+      type: ParamType.text,
+      sortOrder: 9,
+    ),
+  ];
   // ─────────────────────────────────────────
   // Essential Parameters (always shown)
   // ─────────────────────────────────────────
