@@ -32,7 +32,9 @@ graph TD
   P7 --> P7B
   P7A --> P7C["Phase 7C: 入口整合与新增功能回归"]
   P7B --> P7C
-  P7C --> P8["Phase 8: UI 精装 & 设计系统"]
+  P7C --> P7D["Phase 7D: 参数系统基础（Data/Domain）"]
+  P7D --> P7E["Phase 7E: 首次引导与参数偏好 UI"]
+  P7E --> P8["Phase 8: UI 精装 & 设计系统"]
   P8 --> P9["Phase 9: 集成测试 & CI/CD"]
 ```
 
@@ -396,10 +398,10 @@ flutter build apk --release
 
 ---
 
-## 测试后新增功能拆分（Phase 7A-7C）
+## 测试后新增功能拆分（Phase 7A-7E）
 
 > 基于文档 `06_TestFollowup_NewFeaturePoints_HistoryDetail_InventoryManage.md`。
-> 执行顺序：`Phase 7 -> 7A -> 7B -> 7C -> 8 -> 9`。  
+> 执行顺序：`Phase 7 -> 7A -> 7B -> 7C -> 7D -> 7E -> 8 -> 9`。  
 > 设计取舍：当前 agent context window 较大，采用“3 个中等 Phase”而非细颗粒多 Phase，降低上下文切换成本。
 
 ### 拆分原则（中颗粒度）
@@ -496,7 +498,7 @@ flutter test test/features/inventory/
 ## Phase 7C: 入口整合与新增功能回归
 
 ### 范围
-将 Inventory Manage 作为底部导航独立页面接入主流程（位于 Brew 与 History 中间），并补齐新增功能核心回归测试，保证 7A/7B 在主流程可达且稳定。
+将 Inventory Manage 作为底部导航独立页面接入主流程（位于 Brew 与 History 中间），并补齐新增功能核心回归测试，保证 7A/7B 在主流程可达且稳定。（导航显示名称：Manage）
 
 ### 前置依赖
 - Phase 7A (History 详情闭环)
@@ -506,7 +508,7 @@ flutter test test/features/inventory/
 
 | 文件 | 说明 |
 |---|---|
-| `lib/core/router/app_router.dart` | 底部导航新增独立 Manage 页面（Brew / Manage / History） |
+| `lib/core/router/app_router.dart` | 底部导航展示 Manage（原库存管理页更名，含记录偏好子页）（Brew / Manage / History） |
 | `test/core/router/app_router_test.dart` | 底部导航顺序与可达性回归 |
 | `test/features/history/presentation/pages/brew_detail_page_test.dart` | 详情->再冲一次链路回归 |
 | `integration_test/brew_history_inventory_flow_test.dart` | 新增功能关键流（可先最小化） |
@@ -520,6 +522,85 @@ flutter test test/features/inventory/
 ### 推荐测试
 ```bash
 flutter test
+```
+
+---
+
+## Phase 7D: 参数系统基础（Data/Domain）
+
+### 范围
+落地“按需参数记录”的数据结构与领域逻辑，为后续 UI 引导与记录页渲染提供基础能力：
+- 新增冲煮方式配置（手冲/意式/自定义）
+- 新增参数定义/可见性/参数值三表
+- BrewRecord 增加 `brewMethod` 字段
+- 水粉比由粉量与注水量自动计算（非手动输入）
+- 默认模板初始化（系统预设参数 + 可见性）
+
+### 前置依赖
+- Phase 7C (入口整合完成)
+
+### 交付物
+
+| 文件 | 说明 |
+|---|---|
+| `lib/core/database/drift_database.dart` | 新增 4 张表与 BrewRecord 字段 |
+| `lib/features/brew_logger/data/models/brew_record_model.dart` | 增加 `brewMethod` |
+| `lib/features/brew_logger/data/models/` | 新增 `brew_method_config_model.dart` 等参数表 |
+| `lib/features/brew_logger/domain/entities/` | 新增 BrewMethodConfig/ParamDefinition/ParamValue |
+| `lib/features/brew_logger/domain/repositories/` | 新增参数配置仓库接口 |
+| `lib/features/brew_logger/domain/usecases/` | 初始化默认模板、读取/更新可见性 |
+| `lib/features/brew_logger/data/repositories/` | 参数配置仓库实现 |
+| `lib/shared/helpers/brew_param_defaults.dart` | 默认模板定义 |
+| `test/features/brew_logger/data/` | 参数表 CRUD 与默认模板测试 |
+
+### 验收标准
+- [ ] 参数定义/可见性/值三表 CRUD 测试通过
+- [ ] 默认模板初始化可生成手冲/意式两套参数
+- [ ] `brewMethod` 字段完整可读写
+
+### 推荐测试
+```bash
+flutter test test/features/brew_logger/data/
+```
+
+---
+
+## Phase 7E: 首次引导与参数偏好 UI
+
+### 范围
+完成首次启动引导与参数偏好配置 UI，并与 Brew 页面/历史详情联动：
+- 首次启动全屏三步引导（方式选择/默认记录模式/参数清单）
+- 参数清单支持系统预设隐藏 + 自定义参数新增/删除
+- Brew 页面按方式分段切换并加载对应参数清单
+- 历史详情仅展示已记录参数（历史不可变）
+- 入口合并到库存管理页中的“记录偏好”
+
+### 前置依赖
+- Phase 7D (参数系统基础)
+
+### 交付物
+
+| 文件 | 说明 |
+|---|---|
+| `lib/features/brew_logger/presentation/pages/` | 新增 Onboarding/Preferences 页面 |
+| `lib/features/brew_logger/presentation/widgets/` | 参数清单与分段切换组件 |
+| `lib/features/brew_logger/presentation/controllers/` | 引导与偏好配置控制器 |
+| `lib/features/brew_logger/presentation/pages/brew_logger_page.dart` | 按方式加载参数清单 |
+| `lib/features/history/presentation/pages/brew_detail_page.dart` | 仅展示已记录参数 |
+| `lib/features/inventory/presentation/pages/inventory_manage_page.dart` | Manage 页新增“记录偏好”入口 |
+| `test/features/brew_logger/presentation/` | 引导流程与参数清单 Widget Tests |
+| `test/features/history/presentation/` | 历史详情显示断言 |
+
+### 验收标准
+- [ ] 首次启动进入引导，支持跳过（默认模板生效）
+- [ ] 至少保留一个冲煮方式（0 选中时禁用主 CTA）
+- [ ] Brew 页面方式切换后参数列表正确刷新
+- [ ] 设置变更不影响历史已记录参数显示
+
+### 推荐测试
+```bash
+flutter test test/features/brew_logger/presentation/
+flutter test test/features/history/presentation/
 ```
 
 ---
@@ -557,3 +638,5 @@ flutter test
 | 7A | History 详情闭环（查询 + 详情页 + 再冲一次） | ✅ 已完成  | 中 |
 | 7B | Inventory 管理闭环（Bean + Grinder） | ✅ 已完成 | 中 |
 | 7C | 入口整合与新增功能回归 | ✅ 已完成 | 小 |
+| 7D | 参数系统基础（Data/Domain） | ⬜ 未开始 | 中 |
+| 7E | 首次引导与参数偏好 UI | ⬜ 未开始 | 中 |
