@@ -638,5 +638,5 @@ flutter test test/features/history/presentation/
 | 7A | History 详情闭环（查询 + 详情页 + 再冲一次） | ✅ 已完成  | 中 |
 | 7B | Inventory 管理闭环（Bean + Grinder） | ✅ 已完成 | 中 |
 | 7C | 入口整合与新增功能回归 | ✅ 已完成 | 小 |
-| 7D | 参数系统基础（Data/Domain） | ⬜ 未开始 | 中 |
+| 7D | 参数系统基础（Data/Domain） | ✅ 已完成 | 中 |
 | 7E | 首次引导与参数偏好 UI | ⬜ 未开始 | 中 |
