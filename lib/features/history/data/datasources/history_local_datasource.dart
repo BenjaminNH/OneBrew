@@ -16,7 +16,6 @@ class HistoryBrewRow {
     required this.waterWeightG,
     required this.quickScore,
     required this.emoji,
-    required this.isQuickMode,
     required this.notes,
   });
 
@@ -29,7 +28,6 @@ class HistoryBrewRow {
   final double waterWeightG;
   final int? quickScore;
   final String? emoji;
-  final bool isQuickMode;
   final String? notes;
 }
 
@@ -66,7 +64,6 @@ class HistoryBrewDetailRow {
     required this.body,
     required this.flavorNotes,
     required this.notes,
-    required this.isQuickMode,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -100,7 +97,6 @@ class HistoryBrewDetailRow {
   final double? body;
   final String? flavorNotes;
   final String? notes;
-  final bool isQuickMode;
   final DateTime createdAt;
   final DateTime updatedAt;
 }
@@ -235,7 +231,6 @@ class HistoryLocalDatasource {
       waterWeightG: brew.waterWeightG,
       quickScore: rating?.quickScore,
       emoji: rating?.emoji,
-      isQuickMode: brew.isQuickMode,
       notes: brew.notes,
     );
   }
@@ -276,7 +271,6 @@ class HistoryLocalDatasource {
       body: rating?.body,
       flavorNotes: rating?.flavorNotes,
       notes: brew.notes,
-      isQuickMode: brew.isQuickMode,
       createdAt: brew.createdAt,
       updatedAt: brew.updatedAt,
     );

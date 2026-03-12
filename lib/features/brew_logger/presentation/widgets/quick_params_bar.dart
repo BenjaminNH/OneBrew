@@ -6,6 +6,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_slider.dart';
 import '../../../../features/inventory/presentation/widgets/smart_tag_field.dart';
+import '../../domain/entities/brew_method.dart';
 import '../controllers/brew_logger_controller.dart';
 
 /// The essential "quick" parameter bar — always visible.
@@ -21,6 +22,9 @@ class QuickParamsBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(brewLoggerControllerProvider);
     final ctrl = ref.read(brewLoggerControllerProvider.notifier);
+    final isEspresso = state.brewMethod == BrewMethod.espresso;
+    final coffeeLabel = isEspresso ? 'Dose' : 'Coffee';
+    final waterLabel = isEspresso ? 'Yield' : 'Water';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,7 +46,7 @@ class QuickParamsBar extends ConsumerWidget {
           children: [
             Expanded(
               child: _ParamColumn(
-                label: 'Coffee',
+                label: coffeeLabel,
                 value: '${state.coffeeWeightG.toStringAsFixed(1)} g',
                 child: AppSlider(
                   value: state.coffeeWeightG,
@@ -51,14 +55,14 @@ class QuickParamsBar extends ConsumerWidget {
                   divisions: 190,
                   unit: 'g',
                   onChanged: ctrl.setCoffeeWeight,
-                  semanticLabel: 'Coffee weight',
+                  semanticLabel: '${coffeeLabel.toLowerCase()} weight',
                 ),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: _ParamColumn(
-                label: 'Water',
+                label: waterLabel,
                 value: '${state.waterWeightG.toStringAsFixed(0)} g',
                 child: AppSlider(
                   value: state.waterWeightG,
@@ -67,7 +71,7 @@ class QuickParamsBar extends ConsumerWidget {
                   divisions: 110,
                   unit: 'g',
                   onChanged: ctrl.setWaterWeight,
-                  semanticLabel: 'Water weight',
+                  semanticLabel: '${waterLabel.toLowerCase()} weight',
                 ),
               ),
             ),

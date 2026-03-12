@@ -68,7 +68,7 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
   OneCoffeeDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -81,6 +81,19 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
         await m.createTable(brewMethodConfigs);
         await m.createTable(brewParamDefinitions);
         await m.createTable(brewParamVisibilities);
+        await m.createTable(brewParamValues);
+      }
+      if (from < 4) {
+        // RecordMode (quick/detail/pro) was removed; reset tables that stored
+        // the old columns to avoid schema mismatches.
+        await m.deleteTable('brew_param_values');
+        await m.deleteTable('brew_ratings');
+        await m.deleteTable('brew_records');
+        await m.deleteTable('brew_method_configs');
+
+        await m.createTable(brewMethodConfigs);
+        await m.createTable(brewRecords);
+        await m.createTable(brewRatings);
         await m.createTable(brewParamValues);
       }
     },
@@ -374,6 +387,13 @@ class OneCoffeeDatabase extends _$OneCoffeeDatabase {
 
   Future<int> deleteBrewParamDefinition(int id) =>
       (delete(brewParamDefinitions)..where((p) => p.id.equals(id))).go();
+
+  Future<int> deleteBrewParamVisibilitiesByParamId(int paramId) =>
+      (delete(brewParamVisibilities)..where((v) => v.paramId.equals(paramId)))
+          .go();
+
+  Future<int> deleteBrewParamValuesByParamId(int paramId) =>
+      (delete(brewParamValues)..where((v) => v.paramId.equals(paramId))).go();
 
   Future<int> countBrewParamDefinitions() async {
     final row = await customSelect(

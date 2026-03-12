@@ -50,6 +50,7 @@ class BrewDetailPage extends ConsumerWidget {
 
             return _Content(
               detail: detail,
+              paramEntries: state.paramEntries,
               onBrewAgain: () {
                 if (onBrewAgain != null) {
                   onBrewAgain!.call();
@@ -66,13 +67,20 @@ class BrewDetailPage extends ConsumerWidget {
 }
 
 class _Content extends StatelessWidget {
-  const _Content({required this.detail, required this.onBrewAgain});
+  const _Content({
+    required this.detail,
+    required this.paramEntries,
+    required this.onBrewAgain,
+  });
 
   final BrewDetail detail;
+  final List<BrewParamEntry> paramEntries;
   final VoidCallback onBrewAgain;
 
   @override
   Widget build(BuildContext context) {
+    final hasParamEntries = paramEntries.isNotEmpty;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontal,
@@ -108,52 +116,70 @@ class _Content extends StatelessWidget {
               _DataRow(label: 'Origin', value: _text(detail.origin)),
               _DataRow(label: 'Roast Level', value: _text(detail.roastLevel)),
               _DataRow(label: 'Duration', value: '${detail.brewDurationS}s'),
-              _DataRow(
-                label: 'Mode',
-                value: detail.isQuickMode ? 'Quick' : 'Pro',
-              ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          _SectionCard(
-            title: 'Brew Params',
-            children: [
-              _DataRow(
-                label: 'Coffee',
-                value: '${detail.coffeeWeightG.toStringAsFixed(1)}g',
-              ),
-              _DataRow(
-                label: 'Water',
-                value: '${detail.waterWeightG.toStringAsFixed(0)}g',
-              ),
-              _DataRow(
-                label: 'Ratio',
-                value: _ratio(detail.coffeeWeightG, detail.waterWeightG),
-              ),
-              _DataRow(
-                label: 'Water Temp',
-                value: _double(detail.waterTempC, suffix: '°C'),
-              ),
-              _DataRow(
-                label: 'Bloom Time',
-                value: _int(detail.bloomTimeS, suffix: 's'),
-              ),
-              _DataRow(label: 'Pour Method', value: _text(detail.pourMethod)),
-              _DataRow(label: 'Water Type', value: _text(detail.waterType)),
-              _DataRow(
-                label: 'Room Temp',
-                value: _double(detail.roomTempC, suffix: '°C'),
+          if (hasParamEntries) ...[
+            _SectionCard(
+              title: 'Recorded Params',
+              children: paramEntries
+                  .map((entry) => _DataRow(label: entry.name, value: entry.value))
+                  .toList(),
+            ),
+            if (detail.waterType != null || detail.roomTempC != null) ...[
+              const SizedBox(height: AppSpacing.md),
+              _SectionCard(
+                title: 'Environment',
+                children: [
+                  _DataRow(label: 'Water Type', value: _text(detail.waterType)),
+                  _DataRow(
+                    label: 'Room Temp',
+                    value: _double(detail.roomTempC, suffix: '°C'),
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _SectionCard(
-            title: 'Grind',
-            children: [
-              _DataRow(label: 'Mode', value: _grindMode(detail.grindMode)),
-              _DataRow(label: 'Value', value: _grindValue(detail)),
-            ],
-          ),
+          ] else ...[
+            _SectionCard(
+              title: 'Brew Params',
+              children: [
+                _DataRow(
+                  label: 'Coffee',
+                  value: '${detail.coffeeWeightG.toStringAsFixed(1)}g',
+                ),
+                _DataRow(
+                  label: 'Water',
+                  value: '${detail.waterWeightG.toStringAsFixed(0)}g',
+                ),
+                _DataRow(
+                  label: 'Ratio',
+                  value: _ratio(detail.coffeeWeightG, detail.waterWeightG),
+                ),
+                _DataRow(
+                  label: 'Water Temp',
+                  value: _double(detail.waterTempC, suffix: '°C'),
+                ),
+                _DataRow(
+                  label: 'Bloom Time',
+                  value: _int(detail.bloomTimeS, suffix: 's'),
+                ),
+                _DataRow(label: 'Pour Method', value: _text(detail.pourMethod)),
+                _DataRow(label: 'Water Type', value: _text(detail.waterType)),
+                _DataRow(
+                  label: 'Room Temp',
+                  value: _double(detail.roomTempC, suffix: '°C'),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _SectionCard(
+              title: 'Grind',
+              children: [
+                _DataRow(label: 'Mode', value: _grindMode(detail.grindMode)),
+                _DataRow(label: 'Value', value: _grindValue(detail)),
+              ],
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
           _SectionCard(
             title: 'Rating',

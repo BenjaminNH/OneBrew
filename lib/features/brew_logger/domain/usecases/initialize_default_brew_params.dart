@@ -22,7 +22,6 @@ class InitializeDefaultBrewParams {
             id: 0,
             method: seed.method,
             displayName: seed.displayName,
-            defaultRecordMode: seed.defaultRecordMode,
             isEnabled: seed.isEnabled,
           ),
         );

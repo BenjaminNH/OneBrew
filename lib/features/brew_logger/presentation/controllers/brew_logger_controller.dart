@@ -4,10 +4,40 @@ import '../../../inventory/inventory_providers.dart';
 import '../../../inventory/domain/entities/equipment.dart';
 import '../../brew_logger_providers.dart';
 import '../../domain/entities/brew_method.dart';
+import '../../domain/entities/brew_param_definition.dart';
+import '../../domain/entities/brew_param_value.dart';
 import '../../domain/entities/brew_record.dart';
+import '../../domain/repositories/brew_param_repository.dart';
 import '../../domain/usecases/create_brew_record.dart';
 import '../../domain/usecases/delete_brew_record.dart';
 import '../../domain/usecases/update_brew_record.dart';
+import '../models/brew_param_names.dart';
+
+class BrewParamValueDraft {
+  const BrewParamValueDraft({
+    required this.paramId,
+    required this.type,
+    this.valueNumber,
+    this.valueText,
+  });
+
+  final int paramId;
+  final ParamType type;
+  final double? valueNumber;
+  final String? valueText;
+
+  BrewParamValueDraft copyWith({
+    double? valueNumber,
+    String? valueText,
+  }) {
+    return BrewParamValueDraft(
+      paramId: paramId,
+      type: type,
+      valueNumber: valueNumber ?? this.valueNumber,
+      valueText: valueText ?? this.valueText,
+    );
+  }
+}
 
 /// Page-level state for the BrewLogger screen.
 class BrewLoggerState {
@@ -33,7 +63,7 @@ class BrewLoggerState {
     this.waterType,
     this.roomTempC,
     this.notes,
-    this.isQuickMode = true,
+    this.paramValues = const {},
     this.isAdvancedExpanded = false,
     this.isSaving = false,
     this.savedRecordId,
@@ -69,7 +99,7 @@ class BrewLoggerState {
   final String? waterType;
   final double? roomTempC;
   final String? notes;
-  final bool isQuickMode;
+  final Map<int, BrewParamValueDraft> paramValues;
   final bool isAdvancedExpanded;
   final bool isSaving;
   final int? savedRecordId;
@@ -140,7 +170,7 @@ class BrewLoggerState {
     Object? waterType = _sentinel,
     Object? roomTempC = _sentinel,
     Object? notes = _sentinel,
-    bool? isQuickMode,
+    Map<int, BrewParamValueDraft>? paramValues,
     bool? isAdvancedExpanded,
     bool? isSaving,
     Object? savedRecordId = _sentinel,
@@ -194,7 +224,7 @@ class BrewLoggerState {
       waterType: waterType == _sentinel ? this.waterType : waterType as String?,
       roomTempC: roomTempC == _sentinel ? this.roomTempC : roomTempC as double?,
       notes: notes == _sentinel ? this.notes : notes as String?,
-      isQuickMode: isQuickMode ?? this.isQuickMode,
+      paramValues: paramValues ?? this.paramValues,
       isAdvancedExpanded: isAdvancedExpanded ?? this.isAdvancedExpanded,
       isSaving: isSaving ?? this.isSaving,
       savedRecordId: savedRecordId == _sentinel
@@ -223,10 +253,12 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
   late CreateBrewRecord _createBrewRecord;
   late UpdateBrewRecord _updateBrewRecord;
   late DeleteBrewRecord _deleteBrewRecord;
+  late BrewParamRepository _paramRepository;
 
   @override
   BrewLoggerState build() {
     final repo = ref.watch(brewRepositoryProvider);
+    _paramRepository = ref.watch(brewParamRepositoryProvider);
     _createBrewRecord = CreateBrewRecord(repo);
     _updateBrewRecord = UpdateBrewRecord(repo);
     _deleteBrewRecord = DeleteBrewRecord(repo);
@@ -235,6 +267,8 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
 
   void setBeanName(String name) => state = state.copyWith(beanName: name);
   void setEquipmentId(int? id) => state = state.copyWith(equipmentId: id);
+  void setBrewMethod(BrewMethod method) =>
+      state = state.copyWith(brewMethod: method);
 
   /// Sets the selected equipment by name and resolves its ID from
   /// the inventory repository, then updates [grindClickValue] if the
@@ -372,8 +406,40 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
   void setRoomTemp(double? celsius) =>
       state = state.copyWith(roomTempC: celsius);
   void setNotes(String? notes) => state = state.copyWith(notes: notes);
-  void setQuickMode(bool isQuick) =>
-      state = state.copyWith(isQuickMode: isQuick);
+  void setParamNumberValue(int paramId, double? value) {
+    final updated = Map<int, BrewParamValueDraft>.from(state.paramValues);
+    if (value == null) {
+      updated.remove(paramId);
+    } else {
+      final existing = updated[paramId];
+      final type = existing?.type ?? ParamType.number;
+      updated[paramId] = (existing ??
+              BrewParamValueDraft(
+                paramId: paramId,
+                type: type,
+              ))
+          .copyWith(valueNumber: value, valueText: null);
+    }
+    state = state.copyWith(paramValues: updated);
+  }
+
+  void setParamTextValue(int paramId, String? value) {
+    final updated = Map<int, BrewParamValueDraft>.from(state.paramValues);
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      updated.remove(paramId);
+    } else {
+      final existing = updated[paramId];
+      final type = existing?.type ?? ParamType.text;
+      updated[paramId] = (existing ??
+              BrewParamValueDraft(
+                paramId: paramId,
+                type: type,
+              ))
+          .copyWith(valueText: trimmed, valueNumber: null);
+    }
+    state = state.copyWith(paramValues: updated);
+  }
   void toggleAdvancedExpanded() =>
       state = state.copyWith(isAdvancedExpanded: !state.isAdvancedExpanded);
 
@@ -445,12 +511,12 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       waterType: template.waterType,
       roomTempC: template.roomTempC,
       notes: template.notes,
-      isQuickMode: template.isQuickMode,
       savedRecordId: null,
       errorMessage: null,
       originalBrewDate: null,
       originalCreatedAt: null,
     );
+    await loadParamValuesForRecord(template.id);
   }
 
   /// Loads a historical brew by id and applies it as a template.
@@ -464,6 +530,31 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     }
     await applyTemplate(record);
     return true;
+  }
+
+  Future<void> loadParamValuesForRecord(int recordId) async {
+    try {
+      final values = await _paramRepository.getParamValuesForBrew(recordId);
+      if (values.isEmpty) {
+        state = state.copyWith(paramValues: const {});
+        return;
+      }
+      final updated = <int, BrewParamValueDraft>{};
+      for (final value in values) {
+        final def = await _paramRepository.getParamDefinitionById(value.paramId);
+        final type = def?.type ??
+            (value.valueNumber != null ? ParamType.number : ParamType.text);
+        updated[value.paramId] = BrewParamValueDraft(
+          paramId: value.paramId,
+          type: type,
+          valueNumber: value.valueNumber,
+          valueText: value.valueText,
+        );
+      }
+      state = state.copyWith(paramValues: updated);
+    } catch (_) {
+      // Ignore param load failures; core template data still applies.
+    }
   }
 
   Future<int?> saveNewRecord({required int elapsedSeconds}) async {
@@ -493,11 +584,15 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
         waterType: state.waterType,
         roomTempC: state.roomTempC,
         notes: state.notes,
-        isQuickMode: state.isQuickMode,
         createdAt: now,
         updatedAt: now,
       );
       final id = await _createBrewRecord(record);
+
+      await _persistParamValues(
+        brewRecordId: id,
+        elapsedSeconds: elapsedSeconds,
+      );
 
       // Increment use counts so autocomplete ranking stays accurate.
       await _incrementUseCounts();
@@ -545,7 +640,6 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
         waterType: state.waterType,
         roomTempC: state.roomTempC,
         notes: state.notes,
-        isQuickMode: state.isQuickMode,
         // Preserve the original creation timestamp.
         createdAt: originalCreatedAt,
         updatedAt: now,
@@ -594,6 +688,154 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     }
     if (state.equipmentId != null) {
       await inventoryRepo.incrementEquipmentUseCount(state.equipmentId!);
+    }
+  }
+
+  Future<void> _persistParamValues({
+    required int brewRecordId,
+    required int elapsedSeconds,
+  }) async {
+    final definitions = await _paramRepository.getParamDefinitions(
+      state.brewMethod,
+    );
+    if (definitions.isEmpty) return;
+
+    final visibilities = await _paramRepository.getParamVisibilities(
+      state.brewMethod,
+    );
+    final visibilityById = {
+      for (final visibility in visibilities) visibility.paramId: visibility,
+    };
+
+    for (final definition in definitions) {
+      final isVisible =
+          visibilityById[definition.id]?.isVisible ?? true;
+      if (!isVisible) continue;
+
+      final value = _buildParamValue(
+        definition: definition,
+        brewRecordId: brewRecordId,
+        elapsedSeconds: elapsedSeconds,
+      );
+      if (value == null) continue;
+      await _paramRepository.createParamValue(value);
+    }
+  }
+
+  BrewParamValue? _buildParamValue({
+    required BrewParamDefinition definition,
+    required int brewRecordId,
+    required int elapsedSeconds,
+  }) {
+    switch (definition.name) {
+      case BrewParamNames.coffeeWeight:
+      case BrewParamNames.coffeeDose:
+        return BrewParamValue(
+          id: 0,
+          brewRecordId: brewRecordId,
+          paramId: definition.id,
+          valueNumber: state.coffeeWeightG,
+        );
+      case BrewParamNames.waterWeight:
+      case BrewParamNames.yield:
+        return BrewParamValue(
+          id: 0,
+          brewRecordId: brewRecordId,
+          paramId: definition.id,
+          valueNumber: state.waterWeightG,
+        );
+      case BrewParamNames.brewRatio:
+        if (state.coffeeWeightG <= 0) return null;
+        return BrewParamValue(
+          id: 0,
+          brewRecordId: brewRecordId,
+          paramId: definition.id,
+          valueNumber: state.ratio,
+        );
+      case BrewParamNames.waterTemp:
+        if (state.waterTempC == null) return null;
+        return BrewParamValue(
+          id: 0,
+          brewRecordId: brewRecordId,
+          paramId: definition.id,
+          valueNumber: state.waterTempC,
+        );
+      case BrewParamNames.brewTime:
+      case BrewParamNames.extractionTime:
+        if (elapsedSeconds <= 0) return null;
+        return BrewParamValue(
+          id: 0,
+          brewRecordId: brewRecordId,
+          paramId: definition.id,
+          valueNumber: elapsedSeconds.toDouble(),
+        );
+      case BrewParamNames.bloomTime:
+        if (state.bloomTimeS == null) return null;
+        return BrewParamValue(
+          id: 0,
+          brewRecordId: brewRecordId,
+          paramId: definition.id,
+          valueNumber: state.bloomTimeS!.toDouble(),
+        );
+      case BrewParamNames.pourMethod:
+        final method = state.pourMethod?.trim();
+        if (method == null || method.isEmpty) return null;
+        return BrewParamValue(
+          id: 0,
+          brewRecordId: brewRecordId,
+          paramId: definition.id,
+          valueText: method,
+        );
+      case BrewParamNames.grindSize:
+        final grindValue = _formatGrindValueForParam();
+        if (grindValue == null || grindValue.isEmpty) return null;
+        return BrewParamValue(
+          id: 0,
+          brewRecordId: brewRecordId,
+          paramId: definition.id,
+          valueText: grindValue,
+        );
+    }
+
+    final draft = state.paramValues[definition.id];
+    if (draft == null) return null;
+    if (definition.type == ParamType.number) {
+      final valueNumber = draft.valueNumber;
+      if (valueNumber == null) return null;
+      return BrewParamValue(
+        id: 0,
+        brewRecordId: brewRecordId,
+        paramId: definition.id,
+        valueNumber: valueNumber,
+      );
+    }
+
+    final valueText = draft.valueText?.trim();
+    if (valueText == null || valueText.isEmpty) return null;
+    return BrewParamValue(
+      id: 0,
+      brewRecordId: brewRecordId,
+      paramId: definition.id,
+      valueText: valueText,
+    );
+  }
+
+  String? _formatGrindValueForParam() {
+    switch (state.grindMode) {
+      case GrindMode.equipment:
+        final clickValue = state.grindClickValue;
+        if (clickValue == null) return null;
+        final name = state.selectedEquipmentName ?? 'Grinder';
+        final unit = state.grindSliderUnit;
+        final formatted =
+            clickValue.toStringAsFixed(state.grindValueFractionDigits);
+        return '$name · $formatted $unit';
+      case GrindMode.simple:
+        return state.grindSimpleLabel;
+      case GrindMode.pro:
+        final microns = state.grindMicrons;
+        if (microns == null) return null;
+        return '$microns μm';
     }
   }
 

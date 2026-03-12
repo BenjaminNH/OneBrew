@@ -9,10 +9,14 @@ import '../../../../core/utils/timer_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../inventory/presentation/widgets/template_picker.dart';
 import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
+import '../../brew_logger_providers.dart';
+import '../../domain/entities/brew_method.dart';
+import '../../domain/entities/brew_method_config.dart';
 import '../../domain/entities/brew_record.dart';
 import '../controllers/brew_logger_controller.dart';
 import '../controllers/brew_timer_controller.dart';
 import '../widgets/brew_timer_widget.dart';
+import '../widgets/brew_method_selector.dart';
 import '../widgets/param_input_section.dart';
 
 /// Main brew logging page.
@@ -37,6 +41,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkOnboarding();
       _applyTemplateFromRouteIfNeeded();
     });
   }
@@ -67,6 +72,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     final loggerState = ref.watch(brewLoggerControllerProvider);
     final timerState = ref.watch(brewTimerControllerProvider);
     final templatesAsync = ref.watch(recentBrewTemplatesProvider);
+    final methodConfigsAsync = ref.watch(brewMethodConfigsProvider);
 
     ref.listen<BrewLoggerState>(brewLoggerControllerProvider, (_, next) {
       if (next.errorMessage != null) {
@@ -97,6 +103,26 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
                 child: _PageHeader(beanName: loggerState.beanName),
               ),
             ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.pageHorizontal,
+                ),
+                child: methodConfigsAsync.when(
+                  data: (configs) => BrewMethodSelector(configs: configs),
+                  loading: () => const LinearProgressIndicator(
+                    color: AppColors.primary,
+                  ),
+                  error: (_, __) => AppCard(
+                    child: Text(
+                      'Brew methods unavailable.',
+                      style: AppTextStyles.bodySmall,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -188,6 +214,13 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
         backgroundColor: AppColors.success,
       ),
     );
+  }
+
+  Future<void> _checkOnboarding() async {
+    final shouldShow = await ref.read(brewParamBootstrapProvider.future);
+    if (!mounted || !shouldShow) return;
+    if (!mounted) return;
+    context.go('/onboarding');
   }
 
   Future<void> _onTemplateSelected(

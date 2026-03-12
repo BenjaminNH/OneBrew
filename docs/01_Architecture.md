@@ -252,7 +252,7 @@ onecoffee/
 │   ├── app_cold_start_test.dart      # KR: 冷启动 ≤2 次点击到计时器
 │   ├── brew_flow_test.dart           # 完整冲煮流程测试
 │   ├── timer_background_test.dart    # 后台挂起计时异常测试
-│   └── progressive_expand_test.dart  # 极简/专业模式展开测试
+│   └── progressive_expand_test.dart  # 参数面板展开测试
 │
 ├── docs/                             # 📄 项目文档
 │   ├── 00_Product_Brief.md           # 产品简要
@@ -314,7 +314,6 @@ BREW_RECORD ──1:0..*──► BREW_PARAM_VALUE ──*:1──► BREW_PARAM
 | waterType          | String                      | ⬜  | 水质                                               |
 | roomTemp_C         | double                      | ⬜  | 室温 (℃)                                           |
 | notes              | String                      | ⬜  | 备注                                               |
-| isQuickMode        | bool                        | ✅  | 是否使用极简模式                                      |
 | createdAt          | DateTime                    | ✅  | 创建时间                                            |
 | updatedAt          | DateTime                    | ✅  | 更新时间                                            |
 
@@ -369,7 +368,6 @@ BREW_RECORD ──1:0..*──► BREW_PARAM_VALUE ──*:1──► BREW_PARAM
 | id | int (PK) | ✅ | 自增主键 |
 | method | enum (BrewMethod) | ✅ | 方式标识：`pour_over` / `espresso` / `custom` |
 | displayName | String | ✅ | 显示名称（如“手冲”“意式”） |
-| defaultRecordMode | enum (RecordMode) | ✅ | 默认记录模式：`quick` / `detail` / `pro` |
 | isEnabled | bool | ✅ | 是否启用（至少保留一个启用） |
 
 #### BrewParamDefinition (参数定义)
@@ -406,11 +404,14 @@ BREW_RECORD ──1:0..*──► BREW_PARAM_VALUE ──*:1──► BREW_PARAM
 |---|---|---|
 | **Bean/Equipment 创建方式** | 首次手打即自动入库，useCount 追踪使用频次 | 满足 "无摩擦力录入" 需求 |
 | **研磨度三模式** | `equipment`(默认) / `simple` / `pro`，BrewRecord 存三类字段 | 满足从入门到极客的全谱系用户；器具刻度关联让"重现上次好味道"更精确 |
-| **评价模型** | isQuickMode 区分简单/专业模式 | 满足 "分层评价" 需求 |
-| **参数默认值** | isQuickMode=true，高级参数仅在展开后写入 | 渐进式入参 |
+| **评价模型** | 通过评分字段是否为空区分快速/专业评分 | 满足 "分层评价" 需求 |
+| **参数默认值** | 按可见参数写入，仅保存当前启用参数 | 渐进式入参 |
 | **参数自定义与显示** | 参数定义/可见性/值三表分离 | 支持用户自定义参数与按需显示，避免“详细模式全量字段”臃肿 |
 | **历史不可变** | 历史记录仅展示已记录参数 | 用户设置变化不影响历史记录展示 |
 | **数据库选型** | Drift (基于 SQLite) | 类型安全 ORM，Reactive Stream，编译时 SQL 校验，活跃维护 ([ADR_01](./ADR_01_Database_Selection.md)) |
+
+> **记录模式说明**：`quick/detail/pro` 记录模式在后续迭代中移除（2026-03-11），
+> 统一由“冲煮方式 + 参数清单/可见性”控制记录内容与展示。
 
 ---
 

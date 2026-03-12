@@ -44,7 +44,7 @@
 ### 3.3 范围（In Scope）
 - History 记录卡片支持点击进入详情（独立页面或底部详情弹层，项目内保持一种实现）。
 - 详情展示字段覆盖：
-  - 基础信息: 时间、豆子名、烘焙商、产地、烘焙度、冲煮时长、是否 Quick 模式
+  - 基础信息: 时间、豆子名、烘焙商、产地、烘焙度、冲煮时长
   - 冲煮参数: 粉量、水量、粉水比、水温、闷蒸时间、注水方式、水质、室温
   - 研磨信息: `grindMode` + 对应值（equipment/simple/pro）
   - 评价信息: quickScore、emoji、acidity/sweetness/bitterness/body、flavorNotes

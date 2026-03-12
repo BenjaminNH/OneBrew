@@ -40,7 +40,6 @@ abstract class BrewDetail with _$BrewDetail {
     double? body,
     String? flavorNotes,
     String? notes,
-    required bool isQuickMode,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _BrewDetail;

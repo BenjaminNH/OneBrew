@@ -38,7 +38,6 @@ class BrewRepositoryImpl implements BrewRepository {
     waterType: row.waterType,
     roomTempC: row.roomTempC,
     notes: row.notes,
-    isQuickMode: row.isQuickMode,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   );
@@ -107,7 +106,6 @@ class BrewRepositoryImpl implements BrewRepository {
         waterType: drift.Value(record.waterType),
         roomTempC: drift.Value(record.roomTempC),
         notes: drift.Value(record.notes),
-        isQuickMode: drift.Value(record.isQuickMode),
         createdAt: drift.Value(record.createdAt),
         updatedAt: drift.Value(record.updatedAt),
       );
@@ -131,7 +129,6 @@ class BrewRepositoryImpl implements BrewRepository {
         waterType: drift.Value(record.waterType),
         roomTempC: drift.Value(record.roomTempC),
         notes: drift.Value(record.notes),
-        isQuickMode: drift.Value(record.isQuickMode),
         createdAt: drift.Value(record.createdAt),
         updatedAt: drift.Value(record.updatedAt),
       );

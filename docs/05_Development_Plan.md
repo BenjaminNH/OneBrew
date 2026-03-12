@@ -219,7 +219,7 @@ flutter test test/features/inventory/
 ### 验收标准
 - [x] BrewRecord CRUD + 研磨度三模式逻辑测试通过
 - [x] 计时器控制器（启动/暂停/重置/后台恢复）单元测试通过
-- [x] `brew_logger_page` Widget Test：页面渲染、按钮交互、极简/专业模式切换
+- [x] `brew_logger_page` Widget Test：页面渲染、按钮交互、参数清单切换
 - [x] `flutter test test/features/brew_logger/` 全部通过
 - [x] 单独运行页面可正常录入一条完整冲煮记录
 
@@ -380,7 +380,7 @@ flutter test
 | `integration_test/app_cold_start_test.dart` | OKR: 冷启动 ≤2 次点击到计时器 |
 | `integration_test/brew_flow_test.dart` | 完整冲煮流程测试 |
 | `integration_test/timer_background_test.dart` | 后台挂起计时异常测试 |
-| `integration_test/progressive_expand_test.dart` | 极简/专业模式展开测试 |
+| `integration_test/progressive_expand_test.dart` | 参数面板展开测试 |
 | `.github/workflows/ci.yml` | CI Pipeline：Analyze → Test → Build APK |
 | `scripts/build_apk.sh` | 构建 APK 脚本 |
 
@@ -569,7 +569,7 @@ flutter test test/features/brew_logger/data/
 
 ### 范围
 完成首次启动引导与参数偏好配置 UI，并与 Brew 页面/历史详情联动：
-- 首次启动全屏三步引导（方式选择/默认记录模式/参数清单）
+- 首次启动全屏两步引导（方式选择/参数清单）
 - 参数清单支持系统预设隐藏 + 自定义参数新增/删除
 - Brew 页面按方式分段切换并加载对应参数清单
 - 历史详情仅展示已记录参数（历史不可变）
@@ -592,10 +592,10 @@ flutter test test/features/brew_logger/data/
 | `test/features/history/presentation/` | 历史详情显示断言 |
 
 ### 验收标准
-- [ ] 首次启动进入引导，支持跳过（默认模板生效）
-- [ ] 至少保留一个冲煮方式（0 选中时禁用主 CTA）
-- [ ] Brew 页面方式切换后参数列表正确刷新
-- [ ] 设置变更不影响历史已记录参数显示
+- [x] 首次启动进入引导，支持跳过（默认模板生效）
+- [x] 至少保留一个冲煮方式（0 选中时禁用主 CTA）
+- [x] Brew 页面方式切换后参数列表正确刷新
+- [x] 设置变更不影响历史已记录参数显示
 
 ### 推荐测试
 ```bash
@@ -639,4 +639,4 @@ flutter test test/features/history/presentation/
 | 7B | Inventory 管理闭环（Bean + Grinder） | ✅ 已完成 | 中 |
 | 7C | 入口整合与新增功能回归 | ✅ 已完成 | 小 |
 | 7D | 参数系统基础（Data/Domain） | ✅ 已完成 | 中 |
-| 7E | 首次引导与参数偏好 UI | ⬜ 未开始 | 中 |
+| 7E | 首次引导与参数偏好 UI | ✅ 已完成 | 中 |

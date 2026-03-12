@@ -23,7 +23,6 @@ void main() {
       waterWeightG: 240,
       quickScore: 4,
       emoji: '🙂',
-      isQuickMode: true,
     ),
     BrewSummary(
       id: 2,
@@ -35,7 +34,6 @@ void main() {
       waterWeightG: 250,
       quickScore: 5,
       emoji: '😍',
-      isQuickMode: true,
     ),
   ];
 

@@ -19,7 +19,6 @@ class HistoryRepositoryImpl implements HistoryRepository {
     waterWeightG: row.waterWeightG,
     quickScore: row.quickScore,
     emoji: row.emoji,
-    isQuickMode: row.isQuickMode,
     notes: row.notes,
   );
 
@@ -54,7 +53,6 @@ class HistoryRepositoryImpl implements HistoryRepository {
         body: row.body,
         flavorNotes: row.flavorNotes,
         notes: row.notes,
-        isQuickMode: row.isQuickMode,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
       );

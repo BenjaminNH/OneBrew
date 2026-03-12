@@ -12,6 +12,7 @@ import 'package:drift/native.dart';
 
 import 'package:one_coffee/app.dart';
 import 'package:one_coffee/core/database/drift_database.dart' hide BrewRecord;
+import 'package:one_coffee/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_coffee/shared/providers/database_providers.dart';
@@ -32,6 +33,7 @@ void main() {
       ProviderScope(
         overrides: [
           databaseProvider.overrideWithValue(testDb),
+          brewParamBootstrapProvider.overrideWith((ref) async => false),
           recentBrewTemplatesProvider.overrideWith(
             (_) => Stream<List<BrewRecord>>.value(const <BrewRecord>[]),
           ),

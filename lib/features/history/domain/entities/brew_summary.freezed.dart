@@ -23,8 +23,7 @@ mixin _$BrewSummary {
  double get coffeeWeightG;/// Water weight in grams.
  double get waterWeightG;/// Quick score (1–5) from the associated rating, if any.
  int? get quickScore;/// Emoji label from the associated rating, if any.
- String? get emoji;/// Whether the brew was created in quick mode.
- bool get isQuickMode;/// Free-text notes, if any.
+ String? get emoji;/// Free-text notes, if any.
  String? get notes;
 /// Create a copy of BrewSummary
 /// with the given fields replaced by the non-null parameter values.
@@ -36,16 +35,16 @@ $BrewSummaryCopyWith<BrewSummary> get copyWith => _$BrewSummaryCopyWithImpl<Brew
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrewSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.brewDate, brewDate) || other.brewDate == brewDate)&&(identical(other.beanName, beanName) || other.beanName == beanName)&&(identical(other.roaster, roaster) || other.roaster == roaster)&&(identical(other.brewDurationS, brewDurationS) || other.brewDurationS == brewDurationS)&&(identical(other.coffeeWeightG, coffeeWeightG) || other.coffeeWeightG == coffeeWeightG)&&(identical(other.waterWeightG, waterWeightG) || other.waterWeightG == waterWeightG)&&(identical(other.quickScore, quickScore) || other.quickScore == quickScore)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.isQuickMode, isQuickMode) || other.isQuickMode == isQuickMode)&&(identical(other.notes, notes) || other.notes == notes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrewSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.brewDate, brewDate) || other.brewDate == brewDate)&&(identical(other.beanName, beanName) || other.beanName == beanName)&&(identical(other.roaster, roaster) || other.roaster == roaster)&&(identical(other.brewDurationS, brewDurationS) || other.brewDurationS == brewDurationS)&&(identical(other.coffeeWeightG, coffeeWeightG) || other.coffeeWeightG == coffeeWeightG)&&(identical(other.waterWeightG, waterWeightG) || other.waterWeightG == waterWeightG)&&(identical(other.quickScore, quickScore) || other.quickScore == quickScore)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.notes, notes) || other.notes == notes));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,brewDate,beanName,roaster,brewDurationS,coffeeWeightG,waterWeightG,quickScore,emoji,isQuickMode,notes);
+int get hashCode => Object.hash(runtimeType,id,brewDate,beanName,roaster,brewDurationS,coffeeWeightG,waterWeightG,quickScore,emoji,notes);
 
 @override
 String toString() {
-  return 'BrewSummary(id: $id, brewDate: $brewDate, beanName: $beanName, roaster: $roaster, brewDurationS: $brewDurationS, coffeeWeightG: $coffeeWeightG, waterWeightG: $waterWeightG, quickScore: $quickScore, emoji: $emoji, isQuickMode: $isQuickMode, notes: $notes)';
+  return 'BrewSummary(id: $id, brewDate: $brewDate, beanName: $beanName, roaster: $roaster, brewDurationS: $brewDurationS, coffeeWeightG: $coffeeWeightG, waterWeightG: $waterWeightG, quickScore: $quickScore, emoji: $emoji, notes: $notes)';
 }
 
 
@@ -56,7 +55,7 @@ abstract mixin class $BrewSummaryCopyWith<$Res>  {
   factory $BrewSummaryCopyWith(BrewSummary value, $Res Function(BrewSummary) _then) = _$BrewSummaryCopyWithImpl;
 @useResult
 $Res call({
- int id, DateTime brewDate, String beanName, String? roaster, int brewDurationS, double coffeeWeightG, double waterWeightG, int? quickScore, String? emoji, bool isQuickMode, String? notes
+ int id, DateTime brewDate, String beanName, String? roaster, int brewDurationS, double coffeeWeightG, double waterWeightG, int? quickScore, String? emoji, String? notes
 });
 
 
@@ -73,7 +72,7 @@ class _$BrewSummaryCopyWithImpl<$Res>
 
 /// Create a copy of BrewSummary
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? brewDate = null,Object? beanName = null,Object? roaster = freezed,Object? brewDurationS = null,Object? coffeeWeightG = null,Object? waterWeightG = null,Object? quickScore = freezed,Object? emoji = freezed,Object? isQuickMode = null,Object? notes = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? brewDate = null,Object? beanName = null,Object? roaster = freezed,Object? brewDurationS = null,Object? coffeeWeightG = null,Object? waterWeightG = null,Object? quickScore = freezed,Object? emoji = freezed,Object? notes = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,brewDate: null == brewDate ? _self.brewDate : brewDate // ignore: cast_nullable_to_non_nullable
@@ -84,8 +83,7 @@ as int,coffeeWeightG: null == coffeeWeightG ? _self.coffeeWeightG : coffeeWeight
 as double,waterWeightG: null == waterWeightG ? _self.waterWeightG : waterWeightG // ignore: cast_nullable_to_non_nullable
 as double,quickScore: freezed == quickScore ? _self.quickScore : quickScore // ignore: cast_nullable_to_non_nullable
 as int?,emoji: freezed == emoji ? _self.emoji : emoji // ignore: cast_nullable_to_non_nullable
-as String?,isQuickMode: null == isQuickMode ? _self.isQuickMode : isQuickMode // ignore: cast_nullable_to_non_nullable
-as bool,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as String?,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -171,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  DateTime brewDate,  String beanName,  String? roaster,  int brewDurationS,  double coffeeWeightG,  double waterWeightG,  int? quickScore,  String? emoji,  bool isQuickMode,  String? notes)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  DateTime brewDate,  String beanName,  String? roaster,  int brewDurationS,  double coffeeWeightG,  double waterWeightG,  int? quickScore,  String? emoji,  String? notes)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BrewSummary() when $default != null:
-return $default(_that.id,_that.brewDate,_that.beanName,_that.roaster,_that.brewDurationS,_that.coffeeWeightG,_that.waterWeightG,_that.quickScore,_that.emoji,_that.isQuickMode,_that.notes);case _:
+return $default(_that.id,_that.brewDate,_that.beanName,_that.roaster,_that.brewDurationS,_that.coffeeWeightG,_that.waterWeightG,_that.quickScore,_that.emoji,_that.notes);case _:
   return orElse();
 
 }
@@ -192,10 +190,10 @@ return $default(_that.id,_that.brewDate,_that.beanName,_that.roaster,_that.brewD
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  DateTime brewDate,  String beanName,  String? roaster,  int brewDurationS,  double coffeeWeightG,  double waterWeightG,  int? quickScore,  String? emoji,  bool isQuickMode,  String? notes)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  DateTime brewDate,  String beanName,  String? roaster,  int brewDurationS,  double coffeeWeightG,  double waterWeightG,  int? quickScore,  String? emoji,  String? notes)  $default,) {final _that = this;
 switch (_that) {
 case _BrewSummary():
-return $default(_that.id,_that.brewDate,_that.beanName,_that.roaster,_that.brewDurationS,_that.coffeeWeightG,_that.waterWeightG,_that.quickScore,_that.emoji,_that.isQuickMode,_that.notes);case _:
+return $default(_that.id,_that.brewDate,_that.beanName,_that.roaster,_that.brewDurationS,_that.coffeeWeightG,_that.waterWeightG,_that.quickScore,_that.emoji,_that.notes);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -212,10 +210,10 @@ return $default(_that.id,_that.brewDate,_that.beanName,_that.roaster,_that.brewD
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  DateTime brewDate,  String beanName,  String? roaster,  int brewDurationS,  double coffeeWeightG,  double waterWeightG,  int? quickScore,  String? emoji,  bool isQuickMode,  String? notes)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  DateTime brewDate,  String beanName,  String? roaster,  int brewDurationS,  double coffeeWeightG,  double waterWeightG,  int? quickScore,  String? emoji,  String? notes)?  $default,) {final _that = this;
 switch (_that) {
 case _BrewSummary() when $default != null:
-return $default(_that.id,_that.brewDate,_that.beanName,_that.roaster,_that.brewDurationS,_that.coffeeWeightG,_that.waterWeightG,_that.quickScore,_that.emoji,_that.isQuickMode,_that.notes);case _:
+return $default(_that.id,_that.brewDate,_that.beanName,_that.roaster,_that.brewDurationS,_that.coffeeWeightG,_that.waterWeightG,_that.quickScore,_that.emoji,_that.notes);case _:
   return null;
 
 }
@@ -227,7 +225,7 @@ return $default(_that.id,_that.brewDate,_that.beanName,_that.roaster,_that.brewD
 
 
 class _BrewSummary implements BrewSummary {
-  const _BrewSummary({required this.id, required this.brewDate, required this.beanName, this.roaster, required this.brewDurationS, required this.coffeeWeightG, required this.waterWeightG, this.quickScore, this.emoji, required this.isQuickMode, this.notes});
+  const _BrewSummary({required this.id, required this.brewDate, required this.beanName, this.roaster, required this.brewDurationS, required this.coffeeWeightG, required this.waterWeightG, this.quickScore, this.emoji, this.notes});
   
 
 /// The brew record's unique identifier.
@@ -248,8 +246,6 @@ class _BrewSummary implements BrewSummary {
 @override final  int? quickScore;
 /// Emoji label from the associated rating, if any.
 @override final  String? emoji;
-/// Whether the brew was created in quick mode.
-@override final  bool isQuickMode;
 /// Free-text notes, if any.
 @override final  String? notes;
 
@@ -263,16 +259,16 @@ _$BrewSummaryCopyWith<_BrewSummary> get copyWith => __$BrewSummaryCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrewSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.brewDate, brewDate) || other.brewDate == brewDate)&&(identical(other.beanName, beanName) || other.beanName == beanName)&&(identical(other.roaster, roaster) || other.roaster == roaster)&&(identical(other.brewDurationS, brewDurationS) || other.brewDurationS == brewDurationS)&&(identical(other.coffeeWeightG, coffeeWeightG) || other.coffeeWeightG == coffeeWeightG)&&(identical(other.waterWeightG, waterWeightG) || other.waterWeightG == waterWeightG)&&(identical(other.quickScore, quickScore) || other.quickScore == quickScore)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.isQuickMode, isQuickMode) || other.isQuickMode == isQuickMode)&&(identical(other.notes, notes) || other.notes == notes));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrewSummary&&(identical(other.id, id) || other.id == id)&&(identical(other.brewDate, brewDate) || other.brewDate == brewDate)&&(identical(other.beanName, beanName) || other.beanName == beanName)&&(identical(other.roaster, roaster) || other.roaster == roaster)&&(identical(other.brewDurationS, brewDurationS) || other.brewDurationS == brewDurationS)&&(identical(other.coffeeWeightG, coffeeWeightG) || other.coffeeWeightG == coffeeWeightG)&&(identical(other.waterWeightG, waterWeightG) || other.waterWeightG == waterWeightG)&&(identical(other.quickScore, quickScore) || other.quickScore == quickScore)&&(identical(other.emoji, emoji) || other.emoji == emoji)&&(identical(other.notes, notes) || other.notes == notes));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,brewDate,beanName,roaster,brewDurationS,coffeeWeightG,waterWeightG,quickScore,emoji,isQuickMode,notes);
+int get hashCode => Object.hash(runtimeType,id,brewDate,beanName,roaster,brewDurationS,coffeeWeightG,waterWeightG,quickScore,emoji,notes);
 
 @override
 String toString() {
-  return 'BrewSummary(id: $id, brewDate: $brewDate, beanName: $beanName, roaster: $roaster, brewDurationS: $brewDurationS, coffeeWeightG: $coffeeWeightG, waterWeightG: $waterWeightG, quickScore: $quickScore, emoji: $emoji, isQuickMode: $isQuickMode, notes: $notes)';
+  return 'BrewSummary(id: $id, brewDate: $brewDate, beanName: $beanName, roaster: $roaster, brewDurationS: $brewDurationS, coffeeWeightG: $coffeeWeightG, waterWeightG: $waterWeightG, quickScore: $quickScore, emoji: $emoji, notes: $notes)';
 }
 
 
@@ -283,7 +279,7 @@ abstract mixin class _$BrewSummaryCopyWith<$Res> implements $BrewSummaryCopyWith
   factory _$BrewSummaryCopyWith(_BrewSummary value, $Res Function(_BrewSummary) _then) = __$BrewSummaryCopyWithImpl;
 @override @useResult
 $Res call({
- int id, DateTime brewDate, String beanName, String? roaster, int brewDurationS, double coffeeWeightG, double waterWeightG, int? quickScore, String? emoji, bool isQuickMode, String? notes
+ int id, DateTime brewDate, String beanName, String? roaster, int brewDurationS, double coffeeWeightG, double waterWeightG, int? quickScore, String? emoji, String? notes
 });
 
 
@@ -300,7 +296,7 @@ class __$BrewSummaryCopyWithImpl<$Res>
 
 /// Create a copy of BrewSummary
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? brewDate = null,Object? beanName = null,Object? roaster = freezed,Object? brewDurationS = null,Object? coffeeWeightG = null,Object? waterWeightG = null,Object? quickScore = freezed,Object? emoji = freezed,Object? isQuickMode = null,Object? notes = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? brewDate = null,Object? beanName = null,Object? roaster = freezed,Object? brewDurationS = null,Object? coffeeWeightG = null,Object? waterWeightG = null,Object? quickScore = freezed,Object? emoji = freezed,Object? notes = freezed,}) {
   return _then(_BrewSummary(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,brewDate: null == brewDate ? _self.brewDate : brewDate // ignore: cast_nullable_to_non_nullable
@@ -311,8 +307,7 @@ as int,coffeeWeightG: null == coffeeWeightG ? _self.coffeeWeightG : coffeeWeight
 as double,waterWeightG: null == waterWeightG ? _self.waterWeightG : waterWeightG // ignore: cast_nullable_to_non_nullable
 as double,quickScore: freezed == quickScore ? _self.quickScore : quickScore // ignore: cast_nullable_to_non_nullable
 as int?,emoji: freezed == emoji ? _self.emoji : emoji // ignore: cast_nullable_to_non_nullable
-as String?,isQuickMode: null == isQuickMode ? _self.isQuickMode : isQuickMode // ignore: cast_nullable_to_non_nullable
-as bool,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as String?,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

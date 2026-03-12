@@ -1370,21 +1370,6 @@ class $BrewRecordsTable extends BrewRecords
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _isQuickModeMeta = const VerificationMeta(
-    'isQuickMode',
-  );
-  @override
-  late final GeneratedColumn<bool> isQuickMode = GeneratedColumn<bool>(
-    'is_quick_mode',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_quick_mode" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1429,7 +1414,6 @@ class $BrewRecordsTable extends BrewRecords
     waterType,
     roomTempC,
     notes,
-    isQuickMode,
     createdAt,
     updatedAt,
   ];
@@ -1587,15 +1571,6 @@ class $BrewRecordsTable extends BrewRecords
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
-    if (data.containsKey('is_quick_mode')) {
-      context.handle(
-        _isQuickModeMeta,
-        isQuickMode.isAcceptableOrUnknown(
-          data['is_quick_mode']!,
-          _isQuickModeMeta,
-        ),
-      );
-    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1689,10 +1664,6 @@ class $BrewRecordsTable extends BrewRecords
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
-      isQuickMode: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_quick_mode'],
-      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1770,9 +1741,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
   /// Freeform notes about this brew.
   final String? notes;
 
-  /// Whether this record was created in quick (minimal) mode.
-  final bool isQuickMode;
-
   /// When this record row was created.
   final DateTime createdAt;
 
@@ -1797,7 +1765,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     this.waterType,
     this.roomTempC,
     this.notes,
-    required this.isQuickMode,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -1842,7 +1809,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
-    map['is_quick_mode'] = Variable<bool>(isQuickMode);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -1888,7 +1854,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
-      isQuickMode: Value(isQuickMode),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -1918,7 +1883,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       waterType: serializer.fromJson<String?>(json['waterType']),
       roomTempC: serializer.fromJson<double?>(json['roomTempC']),
       notes: serializer.fromJson<String?>(json['notes']),
-      isQuickMode: serializer.fromJson<bool>(json['isQuickMode']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -1945,7 +1909,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       'waterType': serializer.toJson<String?>(waterType),
       'roomTempC': serializer.toJson<double?>(roomTempC),
       'notes': serializer.toJson<String?>(notes),
-      'isQuickMode': serializer.toJson<bool>(isQuickMode),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -1970,7 +1933,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     Value<String?> waterType = const Value.absent(),
     Value<double?> roomTempC = const Value.absent(),
     Value<String?> notes = const Value.absent(),
-    bool? isQuickMode,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => BrewRecord(
@@ -1996,7 +1958,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     waterType: waterType.present ? waterType.value : this.waterType,
     roomTempC: roomTempC.present ? roomTempC.value : this.roomTempC,
     notes: notes.present ? notes.value : this.notes,
-    isQuickMode: isQuickMode ?? this.isQuickMode,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2042,9 +2003,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       waterType: data.waterType.present ? data.waterType.value : this.waterType,
       roomTempC: data.roomTempC.present ? data.roomTempC.value : this.roomTempC,
       notes: data.notes.present ? data.notes.value : this.notes,
-      isQuickMode: data.isQuickMode.present
-          ? data.isQuickMode.value
-          : this.isQuickMode,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2071,7 +2029,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
           ..write('waterType: $waterType, ')
           ..write('roomTempC: $roomTempC, ')
           ..write('notes: $notes, ')
-          ..write('isQuickMode: $isQuickMode, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2079,7 +2036,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
   }
 
   @override
-  int get hashCode => Object.hashAll([
+  int get hashCode => Object.hash(
     id,
     brewDate,
     beanName,
@@ -2098,10 +2055,9 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     waterType,
     roomTempC,
     notes,
-    isQuickMode,
     createdAt,
     updatedAt,
-  ]);
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2124,7 +2080,6 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
           other.waterType == this.waterType &&
           other.roomTempC == this.roomTempC &&
           other.notes == this.notes &&
-          other.isQuickMode == this.isQuickMode &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2148,7 +2103,6 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
   final Value<String?> waterType;
   final Value<double?> roomTempC;
   final Value<String?> notes;
-  final Value<bool> isQuickMode;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const BrewRecordsCompanion({
@@ -2170,7 +2124,6 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     this.waterType = const Value.absent(),
     this.roomTempC = const Value.absent(),
     this.notes = const Value.absent(),
-    this.isQuickMode = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -2193,7 +2146,6 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     this.waterType = const Value.absent(),
     this.roomTempC = const Value.absent(),
     this.notes = const Value.absent(),
-    this.isQuickMode = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : brewDate = Value(brewDate),
@@ -2220,7 +2172,6 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     Expression<String>? waterType,
     Expression<double>? roomTempC,
     Expression<String>? notes,
-    Expression<bool>? isQuickMode,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -2243,7 +2194,6 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
       if (waterType != null) 'water_type': waterType,
       if (roomTempC != null) 'room_temp_c': roomTempC,
       if (notes != null) 'notes': notes,
-      if (isQuickMode != null) 'is_quick_mode': isQuickMode,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -2268,7 +2218,6 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     Value<String?>? waterType,
     Value<double?>? roomTempC,
     Value<String?>? notes,
-    Value<bool>? isQuickMode,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -2291,7 +2240,6 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
       waterType: waterType ?? this.waterType,
       roomTempC: roomTempC ?? this.roomTempC,
       notes: notes ?? this.notes,
-      isQuickMode: isQuickMode ?? this.isQuickMode,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -2354,9 +2302,6 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
-    if (isQuickMode.present) {
-      map['is_quick_mode'] = Variable<bool>(isQuickMode.value);
-    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2387,7 +2332,6 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
           ..write('waterType: $waterType, ')
           ..write('roomTempC: $roomTempC, ')
           ..write('notes: $notes, ')
-          ..write('isQuickMode: $isQuickMode, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -3022,18 +2966,6 @@ class $BrewMethodConfigsTable extends BrewMethodConfigs
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _defaultRecordModeMeta = const VerificationMeta(
-    'defaultRecordMode',
-  );
-  @override
-  late final GeneratedColumn<String> defaultRecordMode =
-      GeneratedColumn<String>(
-        'default_record_mode',
-        aliasedName,
-        false,
-        type: DriftSqlType.string,
-        requiredDuringInsert: true,
-      );
   static const VerificationMeta _isEnabledMeta = const VerificationMeta(
     'isEnabled',
   );
@@ -3050,13 +2982,7 @@ class $BrewMethodConfigsTable extends BrewMethodConfigs
     defaultValue: const Constant(true),
   );
   @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    method,
-    displayName,
-    defaultRecordMode,
-    isEnabled,
-  ];
+  List<GeneratedColumn> get $columns => [id, method, displayName, isEnabled];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3091,17 +3017,6 @@ class $BrewMethodConfigsTable extends BrewMethodConfigs
     } else if (isInserting) {
       context.missing(_displayNameMeta);
     }
-    if (data.containsKey('default_record_mode')) {
-      context.handle(
-        _defaultRecordModeMeta,
-        defaultRecordMode.isAcceptableOrUnknown(
-          data['default_record_mode']!,
-          _defaultRecordModeMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_defaultRecordModeMeta);
-    }
     if (data.containsKey('is_enabled')) {
       context.handle(
         _isEnabledMeta,
@@ -3129,10 +3044,6 @@ class $BrewMethodConfigsTable extends BrewMethodConfigs
         DriftSqlType.string,
         data['${effectivePrefix}display_name'],
       )!,
-      defaultRecordMode: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}default_record_mode'],
-      )!,
       isEnabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_enabled'],
@@ -3156,16 +3067,12 @@ class BrewMethodConfig extends DataClass
   /// Display name shown in UI (e.g. "Pour Over").
   final String displayName;
 
-  /// Default record mode: 'quick' | 'detail' | 'pro'.
-  final String defaultRecordMode;
-
   /// Whether this brew method is enabled for the user.
   final bool isEnabled;
   const BrewMethodConfig({
     required this.id,
     required this.method,
     required this.displayName,
-    required this.defaultRecordMode,
     required this.isEnabled,
   });
   @override
@@ -3174,7 +3081,6 @@ class BrewMethodConfig extends DataClass
     map['id'] = Variable<int>(id);
     map['method'] = Variable<String>(method);
     map['display_name'] = Variable<String>(displayName);
-    map['default_record_mode'] = Variable<String>(defaultRecordMode);
     map['is_enabled'] = Variable<bool>(isEnabled);
     return map;
   }
@@ -3184,7 +3090,6 @@ class BrewMethodConfig extends DataClass
       id: Value(id),
       method: Value(method),
       displayName: Value(displayName),
-      defaultRecordMode: Value(defaultRecordMode),
       isEnabled: Value(isEnabled),
     );
   }
@@ -3198,7 +3103,6 @@ class BrewMethodConfig extends DataClass
       id: serializer.fromJson<int>(json['id']),
       method: serializer.fromJson<String>(json['method']),
       displayName: serializer.fromJson<String>(json['displayName']),
-      defaultRecordMode: serializer.fromJson<String>(json['defaultRecordMode']),
       isEnabled: serializer.fromJson<bool>(json['isEnabled']),
     );
   }
@@ -3209,7 +3113,6 @@ class BrewMethodConfig extends DataClass
       'id': serializer.toJson<int>(id),
       'method': serializer.toJson<String>(method),
       'displayName': serializer.toJson<String>(displayName),
-      'defaultRecordMode': serializer.toJson<String>(defaultRecordMode),
       'isEnabled': serializer.toJson<bool>(isEnabled),
     };
   }
@@ -3218,13 +3121,11 @@ class BrewMethodConfig extends DataClass
     int? id,
     String? method,
     String? displayName,
-    String? defaultRecordMode,
     bool? isEnabled,
   }) => BrewMethodConfig(
     id: id ?? this.id,
     method: method ?? this.method,
     displayName: displayName ?? this.displayName,
-    defaultRecordMode: defaultRecordMode ?? this.defaultRecordMode,
     isEnabled: isEnabled ?? this.isEnabled,
   );
   BrewMethodConfig copyWithCompanion(BrewMethodConfigsCompanion data) {
@@ -3234,9 +3135,6 @@ class BrewMethodConfig extends DataClass
       displayName: data.displayName.present
           ? data.displayName.value
           : this.displayName,
-      defaultRecordMode: data.defaultRecordMode.present
-          ? data.defaultRecordMode.value
-          : this.defaultRecordMode,
       isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
     );
   }
@@ -3247,15 +3145,13 @@ class BrewMethodConfig extends DataClass
           ..write('id: $id, ')
           ..write('method: $method, ')
           ..write('displayName: $displayName, ')
-          ..write('defaultRecordMode: $defaultRecordMode, ')
           ..write('isEnabled: $isEnabled')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, method, displayName, defaultRecordMode, isEnabled);
+  int get hashCode => Object.hash(id, method, displayName, isEnabled);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3263,7 +3159,6 @@ class BrewMethodConfig extends DataClass
           other.id == this.id &&
           other.method == this.method &&
           other.displayName == this.displayName &&
-          other.defaultRecordMode == this.defaultRecordMode &&
           other.isEnabled == this.isEnabled);
 }
 
@@ -3271,36 +3166,30 @@ class BrewMethodConfigsCompanion extends UpdateCompanion<BrewMethodConfig> {
   final Value<int> id;
   final Value<String> method;
   final Value<String> displayName;
-  final Value<String> defaultRecordMode;
   final Value<bool> isEnabled;
   const BrewMethodConfigsCompanion({
     this.id = const Value.absent(),
     this.method = const Value.absent(),
     this.displayName = const Value.absent(),
-    this.defaultRecordMode = const Value.absent(),
     this.isEnabled = const Value.absent(),
   });
   BrewMethodConfigsCompanion.insert({
     this.id = const Value.absent(),
     required String method,
     required String displayName,
-    required String defaultRecordMode,
     this.isEnabled = const Value.absent(),
   }) : method = Value(method),
-       displayName = Value(displayName),
-       defaultRecordMode = Value(defaultRecordMode);
+       displayName = Value(displayName);
   static Insertable<BrewMethodConfig> custom({
     Expression<int>? id,
     Expression<String>? method,
     Expression<String>? displayName,
-    Expression<String>? defaultRecordMode,
     Expression<bool>? isEnabled,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (method != null) 'method': method,
       if (displayName != null) 'display_name': displayName,
-      if (defaultRecordMode != null) 'default_record_mode': defaultRecordMode,
       if (isEnabled != null) 'is_enabled': isEnabled,
     });
   }
@@ -3309,14 +3198,12 @@ class BrewMethodConfigsCompanion extends UpdateCompanion<BrewMethodConfig> {
     Value<int>? id,
     Value<String>? method,
     Value<String>? displayName,
-    Value<String>? defaultRecordMode,
     Value<bool>? isEnabled,
   }) {
     return BrewMethodConfigsCompanion(
       id: id ?? this.id,
       method: method ?? this.method,
       displayName: displayName ?? this.displayName,
-      defaultRecordMode: defaultRecordMode ?? this.defaultRecordMode,
       isEnabled: isEnabled ?? this.isEnabled,
     );
   }
@@ -3333,9 +3220,6 @@ class BrewMethodConfigsCompanion extends UpdateCompanion<BrewMethodConfig> {
     if (displayName.present) {
       map['display_name'] = Variable<String>(displayName.value);
     }
-    if (defaultRecordMode.present) {
-      map['default_record_mode'] = Variable<String>(defaultRecordMode.value);
-    }
     if (isEnabled.present) {
       map['is_enabled'] = Variable<bool>(isEnabled.value);
     }
@@ -3348,7 +3232,6 @@ class BrewMethodConfigsCompanion extends UpdateCompanion<BrewMethodConfig> {
           ..write('id: $id, ')
           ..write('method: $method, ')
           ..write('displayName: $displayName, ')
-          ..write('defaultRecordMode: $defaultRecordMode, ')
           ..write('isEnabled: $isEnabled')
           ..write(')'))
         .toString();
@@ -5210,7 +5093,6 @@ typedef $$BrewRecordsTableCreateCompanionBuilder =
       Value<String?> waterType,
       Value<double?> roomTempC,
       Value<String?> notes,
-      Value<bool> isQuickMode,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -5234,7 +5116,6 @@ typedef $$BrewRecordsTableUpdateCompanionBuilder =
       Value<String?> waterType,
       Value<double?> roomTempC,
       Value<String?> notes,
-      Value<bool> isQuickMode,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -5400,11 +5281,6 @@ class $$BrewRecordsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isQuickMode => $composableBuilder(
-    column: $table.isQuickMode,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5586,11 +5462,6 @@ class $$BrewRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get isQuickMode => $composableBuilder(
-    column: $table.isQuickMode,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5704,11 +5575,6 @@ class $$BrewRecordsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<bool> get isQuickMode => $composableBuilder(
-    column: $table.isQuickMode,
-    builder: (column) => column,
-  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -5842,7 +5708,6 @@ class $$BrewRecordsTableTableManager
                 Value<String?> waterType = const Value.absent(),
                 Value<double?> roomTempC = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
-                Value<bool> isQuickMode = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => BrewRecordsCompanion(
@@ -5864,7 +5729,6 @@ class $$BrewRecordsTableTableManager
                 waterType: waterType,
                 roomTempC: roomTempC,
                 notes: notes,
-                isQuickMode: isQuickMode,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -5888,7 +5752,6 @@ class $$BrewRecordsTableTableManager
                 Value<String?> waterType = const Value.absent(),
                 Value<double?> roomTempC = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
-                Value<bool> isQuickMode = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => BrewRecordsCompanion.insert(
@@ -5910,7 +5773,6 @@ class $$BrewRecordsTableTableManager
                 waterType: waterType,
                 roomTempC: roomTempC,
                 notes: notes,
-                isQuickMode: isQuickMode,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -6440,7 +6302,6 @@ typedef $$BrewMethodConfigsTableCreateCompanionBuilder =
       Value<int> id,
       required String method,
       required String displayName,
-      required String defaultRecordMode,
       Value<bool> isEnabled,
     });
 typedef $$BrewMethodConfigsTableUpdateCompanionBuilder =
@@ -6448,7 +6309,6 @@ typedef $$BrewMethodConfigsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<String> method,
       Value<String> displayName,
-      Value<String> defaultRecordMode,
       Value<bool> isEnabled,
     });
 
@@ -6473,11 +6333,6 @@ class $$BrewMethodConfigsTableFilterComposer
 
   ColumnFilters<String> get displayName => $composableBuilder(
     column: $table.displayName,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get defaultRecordMode => $composableBuilder(
-    column: $table.defaultRecordMode,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6511,11 +6366,6 @@ class $$BrewMethodConfigsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get defaultRecordMode => $composableBuilder(
-    column: $table.defaultRecordMode,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<bool> get isEnabled => $composableBuilder(
     column: $table.isEnabled,
     builder: (column) => ColumnOrderings(column),
@@ -6539,11 +6389,6 @@ class $$BrewMethodConfigsTableAnnotationComposer
 
   GeneratedColumn<String> get displayName => $composableBuilder(
     column: $table.displayName,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get defaultRecordMode => $composableBuilder(
-    column: $table.defaultRecordMode,
     builder: (column) => column,
   );
 
@@ -6594,13 +6439,11 @@ class $$BrewMethodConfigsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> method = const Value.absent(),
                 Value<String> displayName = const Value.absent(),
-                Value<String> defaultRecordMode = const Value.absent(),
                 Value<bool> isEnabled = const Value.absent(),
               }) => BrewMethodConfigsCompanion(
                 id: id,
                 method: method,
                 displayName: displayName,
-                defaultRecordMode: defaultRecordMode,
                 isEnabled: isEnabled,
               ),
           createCompanionCallback:
@@ -6608,13 +6451,11 @@ class $$BrewMethodConfigsTableTableManager
                 Value<int> id = const Value.absent(),
                 required String method,
                 required String displayName,
-                required String defaultRecordMode,
                 Value<bool> isEnabled = const Value.absent(),
               }) => BrewMethodConfigsCompanion.insert(
                 id: id,
                 method: method,
                 displayName: displayName,
-                defaultRecordMode: defaultRecordMode,
                 isEnabled: isEnabled,
               ),
           withReferenceMapper: (p0) => p0

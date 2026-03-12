@@ -73,7 +73,6 @@ Future<void> _seedBrewRecord(OneCoffeeDatabase db) async {
       coffeeWeightG: 15,
       waterWeightG: 240,
       brewDurationS: 180,
-      isQuickMode: const drift.Value(true),
       createdAt: drift.Value(now),
       updatedAt: drift.Value(now),
     ),

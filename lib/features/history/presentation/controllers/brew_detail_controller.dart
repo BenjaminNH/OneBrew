@@ -1,28 +1,49 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../brew_logger/brew_logger_providers.dart';
+import '../../../brew_logger/domain/entities/brew_method.dart';
+import '../../../brew_logger/domain/entities/brew_param_definition.dart';
+import '../../../brew_logger/domain/entities/brew_param_value.dart';
+import '../../../brew_logger/domain/repositories/brew_param_repository.dart';
 import '../../domain/entities/brew_detail.dart';
 import '../../domain/usecases/get_brew_detail.dart';
 import '../../history_providers.dart';
+
+class BrewParamEntry {
+  const BrewParamEntry({
+    required this.name,
+    required this.value,
+    required this.sortOrder,
+  });
+
+  final String name;
+  final String value;
+  final int sortOrder;
+}
 
 class BrewDetailState {
   const BrewDetailState({
     this.isLoading = false,
     this.detail,
+    this.paramEntries = const <BrewParamEntry>[],
     this.errorMessage,
   });
 
   final bool isLoading;
   final BrewDetail? detail;
+  final List<BrewParamEntry> paramEntries;
   final String? errorMessage;
 
   BrewDetailState copyWith({
     bool? isLoading,
     Object? detail = _sentinel,
+    List<BrewParamEntry>? paramEntries,
     Object? errorMessage = _sentinel,
   }) {
     return BrewDetailState(
       isLoading: isLoading ?? this.isLoading,
       detail: detail == _sentinel ? this.detail : detail as BrewDetail?,
+      paramEntries: paramEntries ?? this.paramEntries,
       errorMessage: errorMessage == _sentinel
           ? this.errorMessage
           : errorMessage as String?,
@@ -37,10 +58,12 @@ class BrewDetailController extends Notifier<BrewDetailState> {
 
   final int brewId;
   late GetBrewDetail _getBrewDetail;
+  late BrewParamRepository _paramRepository;
 
   @override
   BrewDetailState build() {
     final repository = ref.watch(historyRepositoryProvider);
+    _paramRepository = ref.watch(brewParamRepositoryProvider);
     _getBrewDetail = GetBrewDetail(repository);
     Future.microtask(load);
     return const BrewDetailState(isLoading: true);
@@ -58,13 +81,60 @@ class BrewDetailController extends Notifier<BrewDetailState> {
         );
         return;
       }
+      final entries = await _loadParamEntries(brewId);
       state = state.copyWith(isLoading: false, detail: detail);
+      state = state.copyWith(paramEntries: entries);
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         detail: null,
         errorMessage: 'Failed to load brew detail: $e',
       );
+    }
+  }
+
+  Future<List<BrewParamEntry>> _loadParamEntries(int brewId) async {
+    final values = await _paramRepository.getParamValuesForBrew(brewId);
+    if (values.isEmpty) return const <BrewParamEntry>[];
+
+    final entries = <BrewParamEntry>[];
+    for (final value in values) {
+      final definition = await _paramRepository.getParamDefinitionById(
+        value.paramId,
+      );
+      if (definition == null) continue;
+      final formatted = _formatParamValue(definition, value);
+      if (formatted == null) continue;
+      entries.add(
+        BrewParamEntry(
+          name: definition.name,
+          value: formatted,
+          sortOrder: definition.sortOrder,
+        ),
+      );
+    }
+
+    entries.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return entries;
+  }
+
+  String? _formatParamValue(
+    BrewParamDefinition definition,
+    BrewParamValue value,
+  ) {
+    switch (definition.type) {
+      case ParamType.number:
+        final number = value.valueNumber;
+        if (number == null) return null;
+        final formatted = number % 1 == 0
+            ? number.toStringAsFixed(0)
+            : number.toStringAsFixed(1);
+        final unit = definition.unit?.trim();
+        return unit == null || unit.isEmpty ? formatted : '$formatted $unit';
+      case ParamType.text:
+        final text = value.valueText?.trim();
+        if (text == null || text.isEmpty) return null;
+        return text;
     }
   }
 }

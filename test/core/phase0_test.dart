@@ -370,10 +370,6 @@ void main() {
       expect(BrewParamDefaults.grindSimpleLabels.length, equals(7));
     });
 
-    test('default isQuickMode is true', () {
-      expect(BrewParamDefaults.isQuickMode, isTrue);
-    });
-
     test('waterTemp default is 93°C', () {
       expect(BrewParamDefaults.waterTempC, equals(93.0));
     });

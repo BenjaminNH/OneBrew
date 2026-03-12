@@ -39,27 +39,6 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
     }
   }
 
-  RecordMode _recordModeFromDb(String raw) {
-    switch (raw) {
-      case 'detail':
-        return RecordMode.detail;
-      case 'pro':
-        return RecordMode.pro;
-      default:
-        return RecordMode.quick;
-    }
-  }
-
-  String _recordModeToDb(RecordMode mode) {
-    switch (mode) {
-      case RecordMode.detail:
-        return 'detail';
-      case RecordMode.pro:
-        return 'pro';
-      case RecordMode.quick:
-        return 'quick';
-    }
-  }
 
   ParamType _paramTypeFromDb(String raw) {
     switch (raw) {
@@ -84,7 +63,6 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
         id: row.id,
         method: _methodFromDb(row.method),
         displayName: row.displayName,
-        defaultRecordMode: _recordModeFromDb(row.defaultRecordMode),
         isEnabled: row.isEnabled,
       );
 
@@ -94,7 +72,6 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
     id: drift.Value(config.id),
     method: drift.Value(_methodToDb(config.method)),
     displayName: drift.Value(config.displayName),
-    defaultRecordMode: drift.Value(_recordModeToDb(config.defaultRecordMode)),
     isEnabled: drift.Value(config.isEnabled),
   );
 
@@ -103,7 +80,6 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
   ) => db.BrewMethodConfigsCompanion.insert(
     method: _methodToDb(config.method),
     displayName: config.displayName,
-    defaultRecordMode: _recordModeToDb(config.defaultRecordMode),
     isEnabled: drift.Value(config.isEnabled),
   );
 
@@ -256,8 +232,11 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
   }
 
   @override
-  Future<int> deleteParamDefinition(int id) =>
-      _datasource.deleteParamDefinition(id);
+  Future<int> deleteParamDefinition(int id) async {
+    await _datasource.deleteParamVisibilitiesByParamId(id);
+    await _datasource.deleteParamValuesByParamId(id);
+    return _datasource.deleteParamDefinition(id);
+  }
 
   @override
   Future<bool> hasAnyParamDefinitions() async {
