@@ -7,7 +7,10 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_slider.dart';
 import '../../../../features/inventory/presentation/widgets/smart_tag_field.dart';
 import '../../domain/entities/brew_record.dart';
+import '../../brew_logger_providers.dart';
 import '../controllers/brew_logger_controller.dart';
+import '../models/brew_param_names.dart';
+import 'brew_param_extra_inputs.dart';
 
 /// Advanced parameters panel — revealed after tapping "Show more".
 ///
@@ -24,24 +27,18 @@ class AdvancedParamsPanel extends ConsumerStatefulWidget {
 }
 
 class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
-  late TextEditingController _notesCtrl;
   late TextEditingController _pourMethodCtrl;
-  late TextEditingController _waterTypeCtrl;
 
   @override
   void initState() {
     super.initState();
     final state = ref.read(brewLoggerControllerProvider);
-    _notesCtrl = TextEditingController(text: state.notes ?? '');
     _pourMethodCtrl = TextEditingController(text: state.pourMethod ?? '');
-    _waterTypeCtrl = TextEditingController(text: state.waterType ?? '');
   }
 
   @override
   void dispose() {
-    _notesCtrl.dispose();
     _pourMethodCtrl.dispose();
-    _waterTypeCtrl.dispose();
     super.dispose();
   }
 
@@ -51,20 +48,25 @@ class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
   /// controllers are only initialised once in [initState] and would otherwise
   /// still display the old text.
   void _syncControllersFromState(BrewLoggerState state) {
-    final notes = state.notes ?? '';
-    if (_notesCtrl.text != notes) _notesCtrl.text = notes;
-
     final pourMethod = state.pourMethod ?? '';
     if (_pourMethodCtrl.text != pourMethod) _pourMethodCtrl.text = pourMethod;
-
-    final waterType = state.waterType ?? '';
-    if (_waterTypeCtrl.text != waterType) _waterTypeCtrl.text = waterType;
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(brewLoggerControllerProvider);
     final ctrl = ref.read(brewLoggerControllerProvider.notifier);
+    final catalogAsync = ref.watch(brewParamCatalogProvider(state.brewMethod));
+    final catalog = catalogAsync.asData?.value;
+    final showWaterTemp =
+        catalog?.isVisibleByName(BrewParamNames.waterTemp) ?? true;
+    final showBloomTime =
+        catalog?.isVisibleByName(BrewParamNames.bloomTime) ?? true;
+    final showGrindSize =
+        catalog?.isVisibleByName(BrewParamNames.grindSize) ?? true;
+    final showPourMethod =
+        catalog?.isVisibleByName(BrewParamNames.pourMethod) ?? true;
+    final visibleDefinitions = catalog?.visibleDefinitions ?? const [];
 
     // Keep text controllers in sync with state (handles resets).
     _syncControllersFromState(state);
@@ -75,46 +77,52 @@ class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
         const _SectionDivider(),
 
         // ── Water Temperature ─────────────────────────────────────────
-        _ParamRow(
-          label: 'Temp',
-          valueText: state.waterTempC != null
-              ? '${state.waterTempC!.round()}°C'
-              : 'off',
-          child: AppSlider(
-            value: state.waterTempC ?? 93.0,
-            min: 60.0,
-            max: 100.0,
-            divisions: 40,
-            unit: '°C',
-            onChanged: ctrl.setWaterTemp,
-            semanticLabel: 'Water temperature',
+        if (showWaterTemp) ...[
+          _ParamRow(
+            label: 'Temp',
+            valueText: state.waterTempC != null
+                ? '${state.waterTempC!.round()}°C'
+                : 'off',
+            child: AppSlider(
+              value: state.waterTempC ?? 93.0,
+              min: 60.0,
+              max: 100.0,
+              divisions: 40,
+              unit: '°C',
+              onChanged: ctrl.setWaterTemp,
+              semanticLabel: 'Water temperature',
+            ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.md),
+        ],
 
         // ── Bloom Time ────────────────────────────────────────────────
-        _ParamRow(
-          label: 'Bloom',
-          valueText: state.bloomTimeS != null ? '${state.bloomTimeS}s' : 'off',
-          child: AppSlider(
-            value: (state.bloomTimeS ?? 0).toDouble(),
-            min: 0,
-            max: 90,
-            divisions: 18,
-            unit: 's',
-            onChanged: (v) =>
-                ctrl.setBloomTime(v.round() == 0 ? null : v.round()),
-            semanticLabel: 'Bloom time in seconds',
+        if (showBloomTime) ...[
+          _ParamRow(
+            label: 'Bloom',
+            valueText: state.bloomTimeS != null ? '${state.bloomTimeS}s' : 'off',
+            child: AppSlider(
+              value: (state.bloomTimeS ?? 0).toDouble(),
+              min: 0,
+              max: 90,
+              divisions: 18,
+              unit: 's',
+              onChanged: (v) =>
+                  ctrl.setBloomTime(v.round() == 0 ? null : v.round()),
+              semanticLabel: 'Bloom time in seconds',
+            ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.md),
+        ],
 
         // ── Grind Mode ────────────────────────────────────────────────
-        _GrindModeSection(state: state, ctrl: ctrl),
-        const SizedBox(height: AppSpacing.md),
+        if (showGrindSize) ...[
+          _GrindModeSection(state: state, ctrl: ctrl),
+          const SizedBox(height: AppSpacing.md),
+        ],
 
         // ── Equipment selector (only when grind mode = equipment) ────
-        if (state.grindMode == GrindMode.equipment) ...[
+        if (showGrindSize && state.grindMode == GrindMode.equipment) ...[
           SmartTagField(
             type: TagFieldType.equipment,
             // Show the currently selected equipment name as a tag.
@@ -151,49 +159,17 @@ class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
         ],
 
         // ── Pour Method ───────────────────────────────────────────────
-        _LabeledTextField(
-          controller: _pourMethodCtrl,
-          label: 'Pour Method',
-          hint: 'e.g. Spiral, Pulse, Centre',
-          onChanged: ctrl.setPourMethod,
-        ),
-        const SizedBox(height: AppSpacing.md),
-
-        // ── Water Type ────────────────────────────────────────────────
-        _LabeledTextField(
-          controller: _waterTypeCtrl,
-          label: 'Water Type',
-          hint: 'e.g. Filtered, Mineral',
-          onChanged: ctrl.setWaterType,
-        ),
-        const SizedBox(height: AppSpacing.md),
-
-        // ── Room Temperature ──────────────────────────────────────────
-        _ParamRow(
-          label: 'Room Temp',
-          valueText: state.roomTempC != null
-              ? '${state.roomTempC!.round()}°C'
-              : 'off',
-          child: AppSlider(
-            value: state.roomTempC ?? 22.0,
-            min: 10.0,
-            max: 40.0,
-            divisions: 30,
-            unit: '°C',
-            onChanged: ctrl.setRoomTemp,
-            semanticLabel: 'Room temperature',
+        if (showPourMethod) ...[
+          _LabeledTextField(
+            controller: _pourMethodCtrl,
+            label: 'Pour Method',
+            hint: 'e.g. Spiral, Pulse, Centre',
+            onChanged: ctrl.setPourMethod,
           ),
-        ),
-        const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.md),
+        ],
 
-        // ── Notes ─────────────────────────────────────────────────────
-        _LabeledTextField(
-          controller: _notesCtrl,
-          label: 'Notes',
-          hint: 'Any observations...',
-          maxLines: 3,
-          onChanged: ctrl.setNotes,
-        ),
+        BrewParamExtraInputs(definitions: visibleDefinitions),
         const SizedBox(height: AppSpacing.sm),
       ],
     );

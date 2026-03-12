@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../widgets/bean_manage_list.dart';
 import '../widgets/grinder_manage_list.dart';
 
@@ -37,6 +39,43 @@ class InventoryManagePage extends StatelessWidget {
                     style: AppTextStyles.displayMedium.copyWith(
                       color: AppColors.textPrimary,
                     ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.pageHorizontal,
+                ),
+                child: AppCard(
+                  onTap: () => context.push('/manage/preferences'),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.tune_rounded, color: AppColors.primary),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Record Preferences',
+                              style: AppTextStyles.titleMedium,
+                            ),
+                            const SizedBox(height: AppSpacing.xxs),
+                            Text(
+                              'Configure brew methods and parameter list.',
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                    ],
                   ),
                 ),
               ),

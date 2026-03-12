@@ -221,7 +221,6 @@ void main() {
       expect(all.length, 1);
       expect(all.first.beanName, 'Ethiopia Yirgacheffe');
       expect(all.first.coffeeWeightG, 15.0);
-      expect(all.first.isQuickMode, true); // default
     });
 
     test('getBrewRecordById returns null for missing id', () async {

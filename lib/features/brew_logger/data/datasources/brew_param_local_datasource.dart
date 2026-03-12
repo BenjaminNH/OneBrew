@@ -40,6 +40,12 @@ class BrewParamLocalDatasource {
 
   Future<int> deleteParamDefinition(int id) => _db.deleteBrewParamDefinition(id);
 
+  Future<int> deleteParamVisibilitiesByParamId(int paramId) =>
+      _db.deleteBrewParamVisibilitiesByParamId(paramId);
+
+  Future<int> deleteParamValuesByParamId(int paramId) =>
+      _db.deleteBrewParamValuesByParamId(paramId);
+
   Future<int> countParamDefinitions() => _db.countBrewParamDefinitions();
 
   Future<List<BrewParamVisibility>> getParamVisibilitiesByMethod(String method) =>

@@ -38,9 +38,6 @@ abstract class BrewSummary with _$BrewSummary {
     /// Emoji label from the associated rating, if any.
     String? emoji,
 
-    /// Whether the brew was created in quick mode.
-    required bool isQuickMode,
-
     /// Free-text notes, if any.
     String? notes,
   }) = _BrewSummary;

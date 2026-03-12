@@ -13,7 +13,6 @@ abstract class BrewMethodConfig with _$BrewMethodConfig {
     required int id,
     required BrewMethod method,
     required String displayName,
-    required RecordMode defaultRecordMode,
     required bool isEnabled,
   }) = _BrewMethodConfig;
 }

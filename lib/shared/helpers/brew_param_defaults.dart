@@ -11,13 +11,11 @@ class BrewMethodConfigSeed {
   const BrewMethodConfigSeed({
     required this.method,
     required this.displayName,
-    required this.defaultRecordMode,
     required this.isEnabled,
   });
 
   final BrewMethod method;
   final String displayName;
-  final RecordMode defaultRecordMode;
   final bool isEnabled;
 }
 
@@ -50,19 +48,16 @@ abstract final class BrewParamDefaults {
     BrewMethodConfigSeed(
       method: BrewMethod.pourOver,
       displayName: 'Pour Over',
-      defaultRecordMode: RecordMode.quick,
       isEnabled: true,
     ),
     BrewMethodConfigSeed(
       method: BrewMethod.espresso,
       displayName: 'Espresso',
-      defaultRecordMode: RecordMode.quick,
       isEnabled: true,
     ),
     BrewMethodConfigSeed(
       method: BrewMethod.custom,
       displayName: 'Custom',
-      defaultRecordMode: RecordMode.quick,
       isEnabled: false,
     ),
   ];
@@ -200,6 +195,26 @@ abstract final class BrewParamDefaults {
       type: ParamType.text,
       sortOrder: 9,
     ),
+    BrewParamTemplate(
+      method: BrewMethod.custom,
+      name: 'Coffee Weight',
+      type: ParamType.number,
+      unit: 'g',
+      sortOrder: 1,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.custom,
+      name: 'Water Weight',
+      type: ParamType.number,
+      unit: 'g',
+      sortOrder: 2,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.custom,
+      name: 'Brew Ratio',
+      type: ParamType.number,
+      sortOrder: 3,
+    ),
   ];
   // ─────────────────────────────────────────
   // Essential Parameters (always shown)
@@ -279,13 +294,6 @@ abstract final class BrewParamDefaults {
 
   /// Default room temperature in Celsius
   static const double roomTempC = 22.0;
-
-  // ─────────────────────────────────────────
-  // Quick Mode Flag
-  // ─────────────────────────────────────────
-
-  /// Whether the app defaults to quick (minimal) mode
-  static const bool isQuickMode = true;
 
   // ─────────────────────────────────────────
   // Equipment Defaults

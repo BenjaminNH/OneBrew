@@ -122,7 +122,6 @@ void main() {
           coffeeWeightG: 15,
           waterWeightG: 225,
           brewDurationS: 180,
-          isQuickMode: const Value(true),
           createdAt: Value(DateTime(2026, 3, 10, 8, 0)),
           updatedAt: Value(DateTime(2026, 3, 10, 8, 0)),
         ),

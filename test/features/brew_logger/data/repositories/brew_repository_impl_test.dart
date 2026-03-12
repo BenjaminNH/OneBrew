@@ -87,7 +87,6 @@ void main() {
       waterType: null,
       roomTempC: null,
       notes: null,
-      isQuickMode: true,
       createdAt: now,
       updatedAt: now,
     );
@@ -111,7 +110,6 @@ void main() {
       waterType: null,
       roomTempC: null,
       notes: null,
-      isQuickMode: true,
       createdAt: now,
       updatedAt: now,
     );

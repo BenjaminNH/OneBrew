@@ -18,6 +18,7 @@ import 'package:one_coffee/features/inventory/domain/entities/equipment.dart';
 import 'package:one_coffee/features/inventory/inventory_providers.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
+import '../../../../helpers/fake_brew_param_repository.dart';
 
 // ---------------------------------------------------------------------------
 // A minimal fake BrewRepository that records the companion passed to update.
@@ -102,13 +103,16 @@ class _FakeInventoryRepo extends MockInventoryRepository {
 ProviderContainer _makeContainer({
   _FakeBrewRepo? brewRepo,
   _FakeInventoryRepo? inventoryRepo,
+  FakeBrewParamRepository? brewParamRepo,
 }) {
   final brew = brewRepo ?? _FakeBrewRepo();
   final inventory = inventoryRepo ?? _FakeInventoryRepo();
+  final brewParam = brewParamRepo ?? FakeBrewParamRepository();
   return ProviderContainer(
     overrides: [
       brewRepositoryProvider.overrideWithValue(brew),
       inventoryRepositoryProvider.overrideWithValue(inventory),
+      brewParamRepositoryProvider.overrideWithValue(brewParam),
     ],
   );
 }
@@ -417,7 +421,6 @@ void main() {
             waterType: 'Filtered',
             roomTempC: 24.0,
             notes: 'Sweet finish',
-            isQuickMode: false,
             createdAt: DateTime(2026, 3, 7, 8, 31),
             updatedAt: DateTime(2026, 3, 7, 8, 31),
           );
@@ -481,7 +484,6 @@ void main() {
             waterType: 'Filtered',
             roomTempC: 24.0,
             notes: 'Sweet finish',
-            isQuickMode: false,
             createdAt: DateTime(2026, 3, 7, 8, 31),
             updatedAt: DateTime(2026, 3, 7, 8, 31),
           );
@@ -519,7 +521,6 @@ void main() {
           waterType: 'Filtered',
           roomTempC: 23.0,
           notes: 'Balanced cup',
-          isQuickMode: true,
           createdAt: DateTime(2026, 3, 8, 7, 1),
           updatedAt: DateTime(2026, 3, 8, 7, 1),
         );

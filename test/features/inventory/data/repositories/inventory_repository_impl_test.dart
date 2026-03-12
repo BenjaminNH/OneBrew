@@ -42,7 +42,6 @@ void main() {
         coffeeWeightG: 15,
         waterWeightG: 225,
         brewDurationS: 180,
-        isQuickMode: const drift.Value(true),
         createdAt: drift.Value(now),
         updatedAt: drift.Value(now),
       ),

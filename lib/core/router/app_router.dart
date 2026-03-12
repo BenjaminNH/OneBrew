@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:one_coffee/features/brew_logger/presentation/pages/brew_logger_page.dart';
+import 'package:one_coffee/features/brew_logger/presentation/pages/brew_param_preferences_page.dart';
+import 'package:one_coffee/features/brew_logger/presentation/pages/onboarding_page.dart';
 import 'package:one_coffee/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_coffee/features/history/presentation/pages/history_page.dart';
 import 'package:one_coffee/features/inventory/presentation/pages/inventory_manage_page.dart';
@@ -11,12 +13,18 @@ abstract final class AppRoutePaths {
   static const brew = '/brew';
   static const manage = '/manage';
   static const history = '/history';
+  static const onboarding = '/onboarding';
+  static const managePreferences = '/manage/preferences';
 }
 
 /// Global app router used by [MaterialApp.router].
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutePaths.brew,
   routes: [
+    GoRoute(
+      path: AppRoutePaths.onboarding,
+      builder: (_, __) => const BrewOnboardingPage(),
+    ),
     ShellRoute(
       builder: (context, state, child) =>
           AppShell(location: state.uri.path, child: child),
@@ -33,6 +41,12 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: AppRoutePaths.manage,
           builder: (_, _) => const InventoryManagePage(),
+          routes: [
+            GoRoute(
+              path: 'preferences',
+              builder: (_, __) => const BrewParamPreferencesPage(),
+            ),
+          ],
         ),
         GoRoute(
           path: AppRoutePaths.history,

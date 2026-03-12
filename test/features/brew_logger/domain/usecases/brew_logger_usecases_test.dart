@@ -39,7 +39,6 @@ void main() {
         beanName: 'Colombia Huila',
         grindMode: GrindMode.simple,
         grindClickValue: null,
-        isQuickMode: false,
       );
       when(mockRepo.createBrewRecord(record)).thenAnswer((_) async => 7);
 
@@ -50,7 +49,6 @@ void main() {
               as BrewRecord;
       expect(captured.beanName, 'Colombia Huila');
       expect(captured.grindMode, GrindMode.simple);
-      expect(captured.isQuickMode, isFalse);
     });
   });
 

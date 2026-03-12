@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BrewMethodConfig {
 
- int get id; BrewMethod get method; String get displayName; RecordMode get defaultRecordMode; bool get isEnabled;
+ int get id; BrewMethod get method; String get displayName; bool get isEnabled;
 /// Create a copy of BrewMethodConfig
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $BrewMethodConfigCopyWith<BrewMethodConfig> get copyWith => _$BrewMethodConfigCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrewMethodConfig&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.defaultRecordMode, defaultRecordMode) || other.defaultRecordMode == defaultRecordMode)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrewMethodConfig&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,method,displayName,defaultRecordMode,isEnabled);
+int get hashCode => Object.hash(runtimeType,id,method,displayName,isEnabled);
 
 @override
 String toString() {
-  return 'BrewMethodConfig(id: $id, method: $method, displayName: $displayName, defaultRecordMode: $defaultRecordMode, isEnabled: $isEnabled)';
+  return 'BrewMethodConfig(id: $id, method: $method, displayName: $displayName, isEnabled: $isEnabled)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $BrewMethodConfigCopyWith<$Res>  {
   factory $BrewMethodConfigCopyWith(BrewMethodConfig value, $Res Function(BrewMethodConfig) _then) = _$BrewMethodConfigCopyWithImpl;
 @useResult
 $Res call({
- int id, BrewMethod method, String displayName, RecordMode defaultRecordMode, bool isEnabled
+ int id, BrewMethod method, String displayName, bool isEnabled
 });
 
 
@@ -62,13 +62,12 @@ class _$BrewMethodConfigCopyWithImpl<$Res>
 
 /// Create a copy of BrewMethodConfig
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? method = null,Object? displayName = null,Object? defaultRecordMode = null,Object? isEnabled = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? method = null,Object? displayName = null,Object? isEnabled = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
 as BrewMethod,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
-as String,defaultRecordMode: null == defaultRecordMode ? _self.defaultRecordMode : defaultRecordMode // ignore: cast_nullable_to_non_nullable
-as RecordMode,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
+as String,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -154,10 +153,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  BrewMethod method,  String displayName,  RecordMode defaultRecordMode,  bool isEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  BrewMethod method,  String displayName,  bool isEnabled)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BrewMethodConfig() when $default != null:
-return $default(_that.id,_that.method,_that.displayName,_that.defaultRecordMode,_that.isEnabled);case _:
+return $default(_that.id,_that.method,_that.displayName,_that.isEnabled);case _:
   return orElse();
 
 }
@@ -175,10 +174,10 @@ return $default(_that.id,_that.method,_that.displayName,_that.defaultRecordMode,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  BrewMethod method,  String displayName,  RecordMode defaultRecordMode,  bool isEnabled)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  BrewMethod method,  String displayName,  bool isEnabled)  $default,) {final _that = this;
 switch (_that) {
 case _BrewMethodConfig():
-return $default(_that.id,_that.method,_that.displayName,_that.defaultRecordMode,_that.isEnabled);case _:
+return $default(_that.id,_that.method,_that.displayName,_that.isEnabled);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +194,10 @@ return $default(_that.id,_that.method,_that.displayName,_that.defaultRecordMode,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  BrewMethod method,  String displayName,  RecordMode defaultRecordMode,  bool isEnabled)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  BrewMethod method,  String displayName,  bool isEnabled)?  $default,) {final _that = this;
 switch (_that) {
 case _BrewMethodConfig() when $default != null:
-return $default(_that.id,_that.method,_that.displayName,_that.defaultRecordMode,_that.isEnabled);case _:
+return $default(_that.id,_that.method,_that.displayName,_that.isEnabled);case _:
   return null;
 
 }
@@ -210,13 +209,12 @@ return $default(_that.id,_that.method,_that.displayName,_that.defaultRecordMode,
 
 
 class _BrewMethodConfig implements BrewMethodConfig {
-  const _BrewMethodConfig({required this.id, required this.method, required this.displayName, required this.defaultRecordMode, required this.isEnabled});
+  const _BrewMethodConfig({required this.id, required this.method, required this.displayName, required this.isEnabled});
   
 
 @override final  int id;
 @override final  BrewMethod method;
 @override final  String displayName;
-@override final  RecordMode defaultRecordMode;
 @override final  bool isEnabled;
 
 /// Create a copy of BrewMethodConfig
@@ -229,16 +227,16 @@ _$BrewMethodConfigCopyWith<_BrewMethodConfig> get copyWith => __$BrewMethodConfi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrewMethodConfig&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.defaultRecordMode, defaultRecordMode) || other.defaultRecordMode == defaultRecordMode)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrewMethodConfig&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.isEnabled, isEnabled) || other.isEnabled == isEnabled));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,method,displayName,defaultRecordMode,isEnabled);
+int get hashCode => Object.hash(runtimeType,id,method,displayName,isEnabled);
 
 @override
 String toString() {
-  return 'BrewMethodConfig(id: $id, method: $method, displayName: $displayName, defaultRecordMode: $defaultRecordMode, isEnabled: $isEnabled)';
+  return 'BrewMethodConfig(id: $id, method: $method, displayName: $displayName, isEnabled: $isEnabled)';
 }
 
 
@@ -249,7 +247,7 @@ abstract mixin class _$BrewMethodConfigCopyWith<$Res> implements $BrewMethodConf
   factory _$BrewMethodConfigCopyWith(_BrewMethodConfig value, $Res Function(_BrewMethodConfig) _then) = __$BrewMethodConfigCopyWithImpl;
 @override @useResult
 $Res call({
- int id, BrewMethod method, String displayName, RecordMode defaultRecordMode, bool isEnabled
+ int id, BrewMethod method, String displayName, bool isEnabled
 });
 
 
@@ -266,13 +264,12 @@ class __$BrewMethodConfigCopyWithImpl<$Res>
 
 /// Create a copy of BrewMethodConfig
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? method = null,Object? displayName = null,Object? defaultRecordMode = null,Object? isEnabled = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? method = null,Object? displayName = null,Object? isEnabled = null,}) {
   return _then(_BrewMethodConfig(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
 as BrewMethod,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
-as String,defaultRecordMode: null == defaultRecordMode ? _self.defaultRecordMode : defaultRecordMode // ignore: cast_nullable_to_non_nullable
-as RecordMode,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
+as String,isEnabled: null == isEnabled ? _self.isEnabled : isEnabled // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

@@ -79,9 +79,6 @@ abstract class BrewRecord with _$BrewRecord {
     /// Free-text notes (optional).
     String? notes,
 
-    /// Whether this record was created in quick (minimal) mode.
-    required bool isQuickMode,
-
     /// Record creation timestamp.
     required DateTime createdAt,
 

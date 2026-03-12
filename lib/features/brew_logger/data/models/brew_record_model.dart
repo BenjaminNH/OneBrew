@@ -81,9 +81,6 @@ class BrewRecords extends Table {
   /// Freeform notes about this brew.
   TextColumn get notes => text().nullable()();
 
-  /// Whether this record was created in quick (minimal) mode.
-  BoolColumn get isQuickMode => boolean().withDefault(const Constant(true))();
-
   /// When this record row was created.
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 

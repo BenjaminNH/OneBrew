@@ -80,7 +80,7 @@ class TestFixtures {
 
   // ─── BrewRecord ──────────────────────────────────────────────────────────
 
-  /// Returns a [BrewRecord] in quick mode using equipment grind.
+  /// Returns a [BrewRecord] using equipment grind.
   static BrewRecord brewRecord({
     int id = 1,
     String beanName = 'Ethiopia Yirgacheffe',
@@ -91,7 +91,6 @@ class TestFixtures {
     double coffeeWeightG = 15.0,
     double waterWeightG = 250.0,
     int brewDurationS = 180,
-    bool isQuickMode = true,
   }) {
     final now = _baseDate;
     return BrewRecord(
@@ -105,7 +104,6 @@ class TestFixtures {
       coffeeWeightG: coffeeWeightG,
       waterWeightG: waterWeightG,
       brewDurationS: brewDurationS,
-      isQuickMode: isQuickMode,
       createdAt: now,
       updatedAt: now,
     );
@@ -157,7 +155,6 @@ class TestFixtures {
     double waterWeightG = 250.0,
     int? quickScore = 4,
     String? emoji = '😊',
-    bool isQuickMode = true,
   }) => BrewSummary(
     id: id,
     brewDate: _baseDate,
@@ -168,7 +165,6 @@ class TestFixtures {
     waterWeightG: waterWeightG,
     quickScore: quickScore,
     emoji: emoji,
-    isQuickMode: isQuickMode,
   );
 
   // ─── BrewDetail ──────────────────────────────────────────────────────────
@@ -219,7 +215,6 @@ class TestFixtures {
     body: 3.0,
     flavorNotes: 'jasmine,citrus',
     notes: 'Clean cup',
-    isQuickMode: true,
     createdAt: _baseDate,
     updatedAt: _baseDate,
   );

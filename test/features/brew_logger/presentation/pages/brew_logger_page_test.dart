@@ -11,6 +11,7 @@ import 'package:one_coffee/features/inventory/domain/entities/equipment.dart';
 import 'package:one_coffee/features/inventory/inventory_providers.dart';
 import 'package:one_coffee/features/rating/rating_providers.dart';
 
+import '../../../../helpers/fake_brew_param_repository.dart';
 import '../../../../helpers/mock_repositories.mocks.dart';
 
 void main() {
@@ -18,6 +19,7 @@ void main() {
     late MockBrewRepository mockBrewRepo;
     late MockInventoryRepository mockInventoryRepo;
     late MockRatingRepository mockRatingRepo;
+    late FakeBrewParamRepository fakeBrewParamRepo;
 
     setUp(() {
       mockBrewRepo = MockBrewRepository();
@@ -37,6 +39,8 @@ void main() {
       when(mockRatingRepo.getRatingForBrew(any)).thenAnswer((_) async => null);
       when(mockRatingRepo.createRating(any)).thenAnswer((_) async => 1);
       when(mockRatingRepo.updateRating(any)).thenAnswer((_) async => true);
+
+      fakeBrewParamRepo = FakeBrewParamRepository();
     });
 
     Widget createWidget({int? templateRecordId}) {
@@ -45,6 +49,8 @@ void main() {
           brewRepositoryProvider.overrideWithValue(mockBrewRepo),
           inventoryRepositoryProvider.overrideWithValue(mockInventoryRepo),
           ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
+          brewParamRepositoryProvider.overrideWithValue(fakeBrewParamRepo),
+          brewParamBootstrapProvider.overrideWith((ref) async => false),
         ],
         child: MaterialApp(
           home: BrewLoggerPage(templateRecordId: templateRecordId),
@@ -95,7 +101,7 @@ void main() {
       expect(saveBtnFinder, findsOneWidget);
     });
 
-    testWidgets('Toggling advanced params expands correctly', (
+    testWidgets('Advanced parameters are visible by default', (
       WidgetTester tester,
     ) async {
       tester.view.physicalSize = const Size(1080, 3000);
@@ -106,14 +112,7 @@ void main() {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-      final showMoreFinder = find.text('Show more parameters');
-      expect(showMoreFinder, findsOneWidget);
-
-      await tester.tap(showMoreFinder);
-      await tester.pumpAndSettle();
-
-      final hideFinder = find.text('Hide parameters');
-      expect(hideFinder, findsOneWidget);
+      expect(find.text('Grind Mode'), findsOneWidget);
     });
 
     testWidgets('After saving brew, rating bottom sheet is reachable', (
@@ -178,9 +177,6 @@ void main() {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Show more parameters'));
-      await tester.pumpAndSettle();
-
       final container = ProviderScope.containerOf(
         tester.element(find.byType(BrewLoggerPage)),
       );
@@ -222,7 +218,6 @@ void main() {
         waterType: 'Filtered',
         roomTempC: 23.0,
         notes: 'Template note',
-        isQuickMode: true,
         createdAt: DateTime(2026, 3, 7, 8, 1),
         updatedAt: DateTime(2026, 3, 7, 8, 1),
       );
