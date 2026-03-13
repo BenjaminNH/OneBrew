@@ -34,8 +34,14 @@ class TemplatePicker extends StatelessWidget {
 
   final bool isLoading;
 
+  static const int _maxVisibleTemplates = 3;
+
   @override
   Widget build(BuildContext context) {
+    final visibleTemplates = templates
+        .take(_maxVisibleTemplates)
+        .toList(growable: false);
+
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,22 +58,35 @@ class TemplatePicker extends StatelessWidget {
               style: AppTextStyles.bodySmall,
             ),
           ],
-          if (templates.isNotEmpty) ...[
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: templates.map((template) {
-                return ActionChip(
-                  avatar: const Icon(Icons.history_rounded, size: 16),
-                  tooltip: template.subtitle,
-                  label: Text(template.title, overflow: TextOverflow.ellipsis),
-                  onPressed: () => onTemplateSelected(template),
-                );
-              }).toList(),
+          if (visibleTemplates.isNotEmpty) ...[
+            SizedBox(
+              height: AppSpacing.buttonSmallHeight,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: visibleTemplates.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(width: AppSpacing.sm),
+                itemBuilder: (_, index) {
+                  final template = visibleTemplates[index];
+                  return ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 180),
+                    child: ActionChip(
+                      avatar: const Icon(Icons.history_rounded, size: 16),
+                      tooltip: template.subtitle,
+                      label: Text(
+                        template.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onPressed: () => onTemplateSelected(template),
+                    ),
+                  );
+                },
+              ),
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Long-press a chip to preview dose/time details.',
+              'Showing latest 3 brews only. Tap a chip to reuse.',
               style: AppTextStyles.labelSmall,
             ),
           ],

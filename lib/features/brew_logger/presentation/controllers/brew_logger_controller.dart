@@ -25,10 +25,7 @@ class BrewParamValueDraft {
   final double? valueNumber;
   final String? valueText;
 
-  BrewParamValueDraft copyWith({
-    double? valueNumber,
-    String? valueText,
-  }) {
+  BrewParamValueDraft copyWith({double? valueNumber, String? valueText}) {
     return BrewParamValueDraft(
       paramId: paramId,
       type: type,
@@ -412,12 +409,9 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     } else {
       final existing = updated[paramId];
       final type = existing?.type ?? ParamType.number;
-      updated[paramId] = (existing ??
-              BrewParamValueDraft(
-                paramId: paramId,
-                type: type,
-              ))
-          .copyWith(valueNumber: value, valueText: null);
+      updated[paramId] =
+          (existing ?? BrewParamValueDraft(paramId: paramId, type: type))
+              .copyWith(valueNumber: value, valueText: null);
     }
     state = state.copyWith(paramValues: updated);
   }
@@ -430,15 +424,13 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     } else {
       final existing = updated[paramId];
       final type = existing?.type ?? ParamType.text;
-      updated[paramId] = (existing ??
-              BrewParamValueDraft(
-                paramId: paramId,
-                type: type,
-              ))
-          .copyWith(valueText: trimmed, valueNumber: null);
+      updated[paramId] =
+          (existing ?? BrewParamValueDraft(paramId: paramId, type: type))
+              .copyWith(valueText: trimmed, valueNumber: null);
     }
     state = state.copyWith(paramValues: updated);
   }
+
   void toggleAdvancedExpanded() =>
       state = state.copyWith(isAdvancedExpanded: !state.isAdvancedExpanded);
 
@@ -540,8 +532,11 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       }
       final updated = <int, BrewParamValueDraft>{};
       for (final value in values) {
-        final def = await _paramRepository.getParamDefinitionById(value.paramId);
-        final type = def?.type ??
+        final def = await _paramRepository.getParamDefinitionById(
+          value.paramId,
+        );
+        final type =
+            def?.type ??
             (value.valueNumber != null ? ParamType.number : ParamType.text);
         updated[value.paramId] = BrewParamValueDraft(
           paramId: value.paramId,
@@ -707,8 +702,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     };
 
     for (final definition in definitions) {
-      final isVisible =
-          visibilityById[definition.id]?.isVisible ?? true;
+      final isVisible = visibilityById[definition.id]?.isVisible ?? true;
       if (!isVisible) continue;
 
       final value = _buildParamValue(
@@ -826,8 +820,9 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
         if (clickValue == null) return null;
         final name = state.selectedEquipmentName ?? 'Grinder';
         final unit = state.grindSliderUnit;
-        final formatted =
-            clickValue.toStringAsFixed(state.grindValueFractionDigits);
+        final formatted = clickValue.toStringAsFixed(
+          state.grindValueFractionDigits,
+        );
         return '$name · $formatted $unit';
       case GrindMode.simple:
         return state.grindSimpleLabel;
@@ -871,7 +866,7 @@ final brewLoggerControllerProvider =
       BrewLoggerController.new,
     );
 
-const _recentTemplateLimit = 5;
+const _recentTemplateLimit = 3;
 
 /// Latest brew records used as "brew again" templates.
 final recentBrewTemplatesProvider = StreamProvider<List<BrewRecord>>((ref) {

@@ -28,6 +28,16 @@ class BrewMethodSelector extends ConsumerWidget {
       );
     }
 
+    if (enabled.length == 1) {
+      final onlyEnabled = enabled.first;
+      if (state.brewMethod != onlyEnabled.method) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          controller.setBrewMethod(onlyEnabled.method);
+        });
+      }
+      return const SizedBox.shrink();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

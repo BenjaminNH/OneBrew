@@ -73,6 +73,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Ready to Brew'), findsOneWidget);
+      expect(find.text('OneBrew'), findsOneWidget);
+      expect(
+        find.text('OneBrew logger is ready for your next cup.'),
+        findsOneWidget,
+      );
 
       final saveFinder = find.text('Start timer to save');
       expect(saveFinder, findsOneWidget);
@@ -357,6 +362,37 @@ void main() {
         findsNothing,
       );
       expect(find.textContaining('1 : '), findsNothing);
+    });
+
+    testWidgets('hides method selector when only one method is enabled', (
+      WidgetTester tester,
+    ) async {
+      fakeBrewParamRepo = FakeBrewParamRepository(
+        methodConfigs: const [
+          BrewMethodConfig(
+            id: 9,
+            method: BrewMethod.espresso,
+            displayName: 'Espresso',
+            isEnabled: true,
+          ),
+        ],
+      );
+
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Brew Method'), findsNothing);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BrewLoggerPage)),
+      );
+      final state = container.read(brewLoggerControllerProvider);
+      expect(state.brewMethod, BrewMethod.espresso);
     });
   });
 }
