@@ -13,6 +13,39 @@ const _defaultGrinderSetup = _GrinderSetupValues(
   clickUnit: 'clicks',
 );
 
+_GrinderSetupValues? _resolveGrinderSetup({
+  required String minRaw,
+  required String maxRaw,
+  required String stepRaw,
+  required String unitRaw,
+}) {
+  final minText = minRaw.trim();
+  final maxText = maxRaw.trim();
+  final stepText = stepRaw.trim();
+  final unitText = unitRaw.trim();
+
+  final min = minText.isEmpty
+      ? _defaultGrinderSetup.minClick
+      : double.tryParse(minText);
+  final max = maxText.isEmpty
+      ? _defaultGrinderSetup.maxClick
+      : double.tryParse(maxText);
+  final step = stepText.isEmpty
+      ? _defaultGrinderSetup.clickStep
+      : double.tryParse(stepText);
+  final unit = unitText.isEmpty ? _defaultGrinderSetup.clickUnit : unitText;
+
+  if (min == null || max == null || step == null) return null;
+  if (step <= 0 || max <= min) return null;
+
+  return _GrinderSetupValues(
+    minClick: double.parse(min.toStringAsFixed(4)),
+    maxClick: double.parse(max.toStringAsFixed(4)),
+    clickStep: double.parse(step.toStringAsFixed(4)),
+    clickUnit: unit,
+  );
+}
+
 class SmartTagField extends ConsumerStatefulWidget {
   const SmartTagField({
     super.key,
@@ -60,174 +93,12 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
     return false;
   }
 
-  _GrinderSetupValues? _resolveGrinderSetup({
-    required String minRaw,
-    required String maxRaw,
-    required String stepRaw,
-    required String unitRaw,
-  }) {
-    final minText = minRaw.trim();
-    final maxText = maxRaw.trim();
-    final stepText = stepRaw.trim();
-    final unitText = unitRaw.trim();
-
-    final min = minText.isEmpty
-        ? _defaultGrinderSetup.minClick
-        : double.tryParse(minText);
-    final max = maxText.isEmpty
-        ? _defaultGrinderSetup.maxClick
-        : double.tryParse(maxText);
-    final step = stepText.isEmpty
-        ? _defaultGrinderSetup.clickStep
-        : double.tryParse(stepText);
-    final unit = unitText.isEmpty ? _defaultGrinderSetup.clickUnit : unitText;
-
-    if (min == null || max == null || step == null) return null;
-    if (step <= 0 || max <= min) return null;
-
-    return _GrinderSetupValues(
-      minClick: double.parse(min.toStringAsFixed(4)),
-      maxClick: double.parse(max.toStringAsFixed(4)),
-      clickStep: double.parse(step.toStringAsFixed(4)),
-      clickUnit: unit,
-    );
-  }
-
   Future<_GrinderSetupValues?> _showQuickGrinderSetupSheet(String tag) async {
-    final minCtrl = TextEditingController();
-    final maxCtrl = TextEditingController();
-    final stepCtrl = TextEditingController();
-    final unitCtrl = TextEditingController();
-
-    final result = await showModalBottomSheet<_GrinderSetupValues>(
+    return showModalBottomSheet<_GrinderSetupValues>(
       context: context,
       isScrollControlled: true,
-      builder: (sheetContext) {
-        String? validationError;
-
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            void submit() {
-              final resolved = _resolveGrinderSetup(
-                minRaw: minCtrl.text,
-                maxRaw: maxCtrl.text,
-                stepRaw: stepCtrl.text,
-                unitRaw: unitCtrl.text,
-              );
-              if (resolved == null) {
-                setSheetState(() {
-                  validationError = 'Please enter a valid range and step.';
-                });
-                return;
-              }
-              Navigator.of(sheetContext).pop(resolved);
-            }
-
-            return SafeArea(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  16,
-                  16,
-                  MediaQuery.of(context).viewInsets.bottom + 16,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Quick Grinder Setup',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Configure "$tag". Leave blank to use defaults.',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _GrinderSetupField(
-                            controller: minCtrl,
-                            label: 'Min',
-                            hint: '${_defaultGrinderSetup.minClick}',
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _GrinderSetupField(
-                            controller: maxCtrl,
-                            label: 'Max',
-                            hint: '${_defaultGrinderSetup.maxClick}',
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _GrinderSetupField(
-                            controller: stepCtrl,
-                            label: 'Step',
-                            hint: '${_defaultGrinderSetup.clickStep}',
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _GrinderSetupField(
-                            controller: unitCtrl,
-                            label: 'Unit',
-                            hint: _defaultGrinderSetup.clickUnit,
-                            isNumber: false,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (validationError != null) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        validationError!,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () => Navigator.of(
-                              sheetContext,
-                            ).pop(_defaultGrinderSetup),
-                            child: const Text('Use Defaults'),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: FilledButton(
-                            onPressed: submit,
-                            child: const Text('Save Grinder'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+      builder: (_) => _QuickGrinderSetupSheet(tag: tag),
     );
-
-    minCtrl.dispose();
-    maxCtrl.dispose();
-    stepCtrl.dispose();
-    unitCtrl.dispose();
-    return result;
   }
 
   Future<void> _loadSuggestions() async {
@@ -315,6 +186,146 @@ class _GrinderSetupValues {
   final double maxClick;
   final double clickStep;
   final String clickUnit;
+}
+
+class _QuickGrinderSetupSheet extends StatefulWidget {
+  const _QuickGrinderSetupSheet({required this.tag});
+
+  final String tag;
+
+  @override
+  State<_QuickGrinderSetupSheet> createState() =>
+      _QuickGrinderSetupSheetState();
+}
+
+class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
+  final TextEditingController _minCtrl = TextEditingController();
+  final TextEditingController _maxCtrl = TextEditingController();
+  final TextEditingController _stepCtrl = TextEditingController();
+  final TextEditingController _unitCtrl = TextEditingController();
+
+  String? _validationError;
+
+  @override
+  void dispose() {
+    _minCtrl.dispose();
+    _maxCtrl.dispose();
+    _stepCtrl.dispose();
+    _unitCtrl.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final resolved = _resolveGrinderSetup(
+      minRaw: _minCtrl.text,
+      maxRaw: _maxCtrl.text,
+      stepRaw: _stepCtrl.text,
+      unitRaw: _unitCtrl.text,
+    );
+    if (resolved == null) {
+      setState(() {
+        _validationError = 'Please enter a valid range and step.';
+      });
+      return;
+    }
+    Navigator.of(context).pop(resolved);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          16,
+          16,
+          MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Quick Grinder Setup',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Configure "${widget.tag}". Leave blank to use defaults.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _GrinderSetupField(
+                    controller: _minCtrl,
+                    label: 'Min',
+                    hint: '${_defaultGrinderSetup.minClick}',
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _GrinderSetupField(
+                    controller: _maxCtrl,
+                    label: 'Max',
+                    hint: '${_defaultGrinderSetup.maxClick}',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _GrinderSetupField(
+                    controller: _stepCtrl,
+                    label: 'Step',
+                    hint: '${_defaultGrinderSetup.clickStep}',
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _GrinderSetupField(
+                    controller: _unitCtrl,
+                    label: 'Unit',
+                    hint: _defaultGrinderSetup.clickUnit,
+                    isNumber: false,
+                  ),
+                ),
+              ],
+            ),
+            if (_validationError != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _validationError!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () =>
+                        Navigator.of(context).pop(_defaultGrinderSetup),
+                    child: const Text('Use Defaults'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _submit,
+                    child: const Text('Save Grinder'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _GrinderSetupField extends StatelessWidget {
