@@ -63,7 +63,7 @@ void main() {
       final captured = verify(
         mockRepo.createRating(captureAny),
       ).captured.single;
-      expect((captured as dynamic).acidity, 7.0);
+      expect((captured as dynamic).acidity, 4.0);
     });
   });
 }

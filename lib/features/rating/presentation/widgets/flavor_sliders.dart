@@ -79,6 +79,10 @@ class _FlavorSliderRow extends StatelessWidget {
   final ValueChanged<double> onChanged;
   final String semanticLabel;
 
+  static const double _minScore = 0.0;
+  static const double _maxScore = 5.0;
+  static const int _scoreDivisions = 10;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -89,7 +93,7 @@ class _FlavorSliderRow extends StatelessWidget {
           children: [
             Text(label, style: AppTextStyles.titleMedium),
             Text(
-              value.toStringAsFixed(1),
+              '${value.clamp(_minScore, _maxScore).toStringAsFixed(1)}/5',
               style: AppTextStyles.numericValue.copyWith(
                 color: AppColors.primaryDark,
                 fontSize: 16,
@@ -99,10 +103,10 @@ class _FlavorSliderRow extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xs),
         AppSlider(
-          value: value.clamp(0.0, 10.0),
-          min: 0.0,
-          max: 10.0,
-          divisions: 20,
+          value: value.clamp(_minScore, _maxScore),
+          min: _minScore,
+          max: _maxScore,
+          divisions: _scoreDivisions,
           showValueLabel: false,
           onChanged: onChanged,
           semanticLabel: semanticLabel,

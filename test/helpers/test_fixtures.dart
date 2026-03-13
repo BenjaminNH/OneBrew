@@ -128,10 +128,10 @@ class TestFixtures {
   static BrewRating proRating({
     int id = 2,
     int brewRecordId = 1,
-    double acidity = 7.0,
-    double sweetness = 6.5,
+    double acidity = 4.0,
+    double sweetness = 3.5,
     double bitterness = 3.0,
-    double body = 5.0,
+    double body = 4.5,
     String flavorNotes = 'jasmine,citrus',
   }) => BrewRating(
     id: id,

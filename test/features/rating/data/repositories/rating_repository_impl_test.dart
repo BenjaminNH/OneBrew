@@ -80,10 +80,10 @@ void main() {
         domain.BrewRating(
           id: 0,
           brewRecordId: brewRecordId,
-          acidity: 7.5,
-          sweetness: 6.5,
+          acidity: 4.5,
+          sweetness: 3.5,
           bitterness: 3.0,
-          body: 5.5,
+          body: 5.0,
           flavorNotes: 'Citrus,Floral',
         ),
       );
@@ -91,12 +91,35 @@ void main() {
 
       final rating = await repository.getRatingForBrew(brewRecordId);
       expect(rating, isNotNull);
-      expect(rating!.acidity, 7.5);
-      expect(rating.sweetness, 6.5);
+      expect(rating!.acidity, 4.5);
+      expect(rating.sweetness, 3.5);
       expect(rating.bitterness, 3.0);
-      expect(rating.body, 5.5);
+      expect(rating.body, 5.0);
       expect(rating.flavorNotes, 'Citrus,Floral');
     });
+
+    test(
+      'converts legacy 0-10 stored professional values to 0-5 on read',
+      () async {
+        final brewRecordId = await seedBrewRecord();
+        await db.insertRating(
+          BrewRatingsCompanion.insert(
+            brewRecordId: brewRecordId,
+            acidity: const drift.Value(9.0),
+            sweetness: const drift.Value(8.0),
+            bitterness: const drift.Value(4.0),
+            body: const drift.Value(10.0),
+          ),
+        );
+
+        final rating = await repository.getRatingForBrew(brewRecordId);
+        expect(rating, isNotNull);
+        expect(rating!.acidity, 4.5);
+        expect(rating.sweetness, 4.0);
+        expect(rating.bitterness, 4.0);
+        expect(rating.body, 5.0);
+      },
+    );
   });
 
   group('RatingRepositoryImpl validation', () {
@@ -125,6 +148,16 @@ void main() {
             quickScore: 6,
             emoji: '😐',
           ),
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('rejects professional score above 5', () async {
+      final brewRecordId = await seedBrewRecord();
+      await expectLater(
+        () => repository.createRating(
+          domain.BrewRating(id: 0, brewRecordId: brewRecordId, acidity: 5.1),
         ),
         throwsArgumentError,
       );

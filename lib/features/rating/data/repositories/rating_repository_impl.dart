@@ -8,6 +8,10 @@ import '../datasources/rating_local_datasource.dart';
 class RatingRepositoryImpl implements RatingRepository {
   const RatingRepositoryImpl(this._datasource);
 
+  static const double _minProfessionalScore = 0.0;
+  static const double _maxProfessionalScore = 5.0;
+  static const double _legacyProfessionalMax = 10.0;
+
   final RatingLocalDatasource _datasource;
 
   domain.BrewRating _toDomain(db.BrewRating row) {
@@ -16,10 +20,10 @@ class RatingRepositoryImpl implements RatingRepository {
       brewRecordId: row.brewRecordId,
       quickScore: row.quickScore,
       emoji: row.emoji,
-      acidity: row.acidity,
-      sweetness: row.sweetness,
-      bitterness: row.bitterness,
-      body: row.body,
+      acidity: _normalizeStoredProfessionalScore(row.acidity),
+      sweetness: _normalizeStoredProfessionalScore(row.sweetness),
+      bitterness: _normalizeStoredProfessionalScore(row.bitterness),
+      body: _normalizeStoredProfessionalScore(row.body),
       flavorNotes: row.flavorNotes,
     );
   }
@@ -70,12 +74,49 @@ class RatingRepositoryImpl implements RatingRepository {
     if (quickScore != null && (quickScore < 1 || quickScore > 5)) {
       throw ArgumentError.value(quickScore, 'quickScore', 'must be 1-5');
     }
+
+    _validateProfessionalScore('acidity', rating.acidity);
+    _validateProfessionalScore('sweetness', rating.sweetness);
+    _validateProfessionalScore('bitterness', rating.bitterness);
+    _validateProfessionalScore('body', rating.body);
+  }
+
+  void _validateProfessionalScore(String field, double? value) {
+    if (value == null) return;
+    if (value < _minProfessionalScore || value > _maxProfessionalScore) {
+      throw ArgumentError.value(value, field, 'must be in range 0-5');
+    }
+  }
+
+  bool _needsLegacyNormalization(db.BrewRating row) =>
+      _isLegacyScale(row.acidity) ||
+      _isLegacyScale(row.sweetness) ||
+      _isLegacyScale(row.bitterness) ||
+      _isLegacyScale(row.body);
+
+  bool _isLegacyScale(double? value) =>
+      value != null &&
+      value > _maxProfessionalScore &&
+      value <= _legacyProfessionalMax;
+
+  double? _normalizeStoredProfessionalScore(double? value) {
+    if (value == null) return null;
+    if (value > _maxProfessionalScore && value <= _legacyProfessionalMax) {
+      return value / 2;
+    }
+    return value.clamp(_minProfessionalScore, _maxProfessionalScore).toDouble();
   }
 
   @override
   Future<domain.BrewRating?> getRatingForBrew(int brewRecordId) async {
     final row = await _datasource.getRatingForBrew(brewRecordId);
-    return row == null ? null : _toDomain(row);
+    if (row == null) return null;
+
+    final normalized = _toDomain(row);
+    if (_needsLegacyNormalization(row)) {
+      await _datasource.updateRating(_toCompanion(normalized));
+    }
+    return normalized;
   }
 
   @override
