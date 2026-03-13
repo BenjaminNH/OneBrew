@@ -107,10 +107,30 @@ void main() {
       final state = container.read(ratingControllerProvider);
       expect(state.brewRecordId, 303);
       expect(state.ratingId, 0);
-      expect(state.quickScore, isNull);
+      expect(state.quickScore, 3);
       expect(state.emoji, isNull);
       expect(state.flavorNotes, isEmpty);
       expect(state.isQuickMode, isTrue);
+    },
+  );
+
+  test(
+    'save persists default 3-star score when user does not change quick rating',
+    () async {
+      when(mockRepo.getRatingForBrew(505)).thenAnswer((_) async => null);
+      when(mockRepo.createRating(any)).thenAnswer((_) async => 12);
+
+      final notifier = container.read(ratingControllerProvider.notifier);
+      await notifier.initializeForBrew(505);
+
+      final id = await notifier.save();
+
+      expect(id, 12);
+      final created =
+          verify(mockRepo.createRating(captureAny)).captured.single
+              as BrewRating;
+      expect(created.brewRecordId, 505);
+      expect(created.quickScore, 3);
     },
   );
 

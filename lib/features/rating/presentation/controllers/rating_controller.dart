@@ -84,6 +84,7 @@ final saveRatingProvider = Provider<SaveRating>((ref) {
 });
 
 class RatingController extends Notifier<RatingState> {
+  static const int _defaultQuickScore = 3;
   static const double _minProfessionalScore = 0.0;
   static const double _maxProfessionalScore = 5.0;
   static const double _legacyProfessionalMax = 10.0;
@@ -100,7 +101,11 @@ class RatingController extends Notifier<RatingState> {
           .getRatingForBrew(brewRecordId);
 
       if (existing == null) {
-        state = RatingState(brewRecordId: brewRecordId, isLoading: false);
+        state = RatingState(
+          brewRecordId: brewRecordId,
+          quickScore: _defaultQuickScore,
+          isLoading: false,
+        );
         return;
       }
 
@@ -195,10 +200,13 @@ class RatingController extends Notifier<RatingState> {
     state = state.copyWith(isSaving: true, errorMessage: null);
 
     try {
+      final quickScore = state.isQuickMode
+          ? (state.quickScore ?? _defaultQuickScore)
+          : state.quickScore;
       final rating = BrewRating(
         id: state.ratingId,
         brewRecordId: brewRecordId,
-        quickScore: state.quickScore,
+        quickScore: quickScore,
         emoji: state.emoji,
         acidity: state.isQuickMode ? null : state.acidity,
         sweetness: state.isQuickMode ? null : state.sweetness,
