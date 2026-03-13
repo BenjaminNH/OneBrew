@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/router/app_route_paths.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../widgets/bean_manage_list.dart';
 import '../widgets/grinder_manage_list.dart';
@@ -47,7 +48,7 @@ class InventoryManagePage extends StatelessWidget {
                   horizontal: AppSpacing.pageHorizontal,
                 ),
                 child: AppCard(
-                  onTap: () => context.push('/manage/preferences'),
+                  onTap: () => context.push(AppRoutePaths.managePreferences),
                   child: Row(
                     children: [
                       const Icon(Icons.tune_rounded, color: AppColors.primary),

@@ -7,15 +7,9 @@ import 'package:one_brew/features/brew_logger/presentation/pages/onboarding_page
 import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_brew/features/history/presentation/pages/history_page.dart';
 import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_page.dart';
+import 'app_route_paths.dart';
 
-/// Canonical route paths used by the app shell.
-abstract final class AppRoutePaths {
-  static const brew = '/brew';
-  static const manage = '/manage';
-  static const history = '/history';
-  static const onboarding = '/onboarding';
-  static const managePreferences = '/manage/preferences';
-}
+export 'app_route_paths.dart';
 
 /// Global app router used by [MaterialApp.router].
 final GoRouter appRouter = GoRouter(
@@ -59,6 +53,7 @@ final GoRouter appRouter = GoRouter(
                 if (id == null) {
                   return const _RouteErrorPage(
                     message: 'Invalid history detail id.',
+                    fallbackPath: AppRoutePaths.history,
                   );
                 }
                 return BrewDetailPage(brewId: id);
@@ -130,9 +125,10 @@ class AppShell extends StatelessWidget {
 }
 
 class _RouteErrorPage extends StatelessWidget {
-  const _RouteErrorPage({required this.message});
+  const _RouteErrorPage({required this.message, required this.fallbackPath});
 
   final String message;
+  final String fallbackPath;
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +137,18 @@ class _RouteErrorPage extends StatelessWidget {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Text(message, textAlign: TextAlign.center),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(message, textAlign: TextAlign.center),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => context.go(fallbackPath),
+                  icon: const Icon(Icons.arrow_back_rounded),
+                  label: const Text('Go Back'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

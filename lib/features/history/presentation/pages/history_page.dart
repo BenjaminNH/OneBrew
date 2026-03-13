@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/router/app_route_paths.dart';
 import '../controllers/history_controller.dart';
 import '../widgets/brew_record_card.dart';
 import '../widgets/brew_stats_header.dart';
@@ -133,7 +134,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                             widget.onOpenDetail!(summary.id);
                             return;
                           }
-                          context.go('/history/${summary.id}');
+                          context.push(AppRoutePaths.historyDetail(summary.id));
                         },
                       );
                     },

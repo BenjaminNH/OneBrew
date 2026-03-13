@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/router/app_route_paths.dart';
 import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_method_config.dart';
 import '../controllers/brew_preferences_controller.dart';
@@ -54,7 +55,7 @@ class _BrewParamPreferencesPageState
                     Row(
                       children: [
                         IconButton(
-                          onPressed: () => context.pop(),
+                          onPressed: () => _handleBackToManage(context),
                           icon: const Icon(Icons.arrow_back_rounded),
                         ),
                         const SizedBox(width: AppSpacing.xs),
@@ -375,6 +376,14 @@ class _BrewParamPreferencesPageState
         );
       },
     );
+  }
+
+  void _handleBackToManage(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(AppRoutePaths.manage);
   }
 }
 
