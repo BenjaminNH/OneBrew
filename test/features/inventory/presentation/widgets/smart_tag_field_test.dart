@@ -112,6 +112,8 @@ void main() {
 
       expect(find.text('Quick Grinder Setup'), findsOneWidget);
       await tester.tap(find.text('Use Defaults'));
+      await tester.pump();
+      expect(tester.takeException(), isNull);
       await tester.pumpAndSettle();
 
       final container = ProviderScope.containerOf(
@@ -133,8 +135,48 @@ void main() {
     },
   );
 
+  testWidgets('Quick grinder setup Save works with empty fields', (
+    WidgetTester tester,
+  ) async {
+    final db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(
+          home: Scaffold(body: _EquipmentSelectionHarness()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'K-Ultra');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Quick Grinder Setup'), findsOneWidget);
+    await tester.tap(find.text('Save Grinder'));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Quick Grinder Setup'), findsNothing);
+
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(_EquipmentSelectionHarness)),
+    );
+    final inventoryRepo = container.read(inventoryRepositoryProvider);
+    final equipments = await inventoryRepo.searchEquipments('K-Ultra');
+    expect(equipments, hasLength(1));
+    expect(equipments.first.grindMinClick, 0);
+    expect(equipments.first.grindMaxClick, 40);
+    expect(equipments.first.grindClickStep, 1);
+    expect(equipments.first.grindClickUnit, 'clicks');
+  });
+
   testWidgets(
-    'Quick grinder setup Save works with empty fields',
+    'Quick grinder setup Save persists custom values without controller errors',
     (WidgetTester tester) async {
       final db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
       addTearDown(db.close);
@@ -149,26 +191,31 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextField), 'K-Ultra');
+      await tester.enterText(find.byType(TextField), 'ZP6');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
 
-      expect(find.text('Quick Grinder Setup'), findsOneWidget);
-      await tester.tap(find.text('Save Grinder'));
-      await tester.pumpAndSettle();
+      final fields = find.byType(TextField);
+      await tester.enterText(fields.at(1), '8');
+      await tester.enterText(fields.at(2), '68');
+      await tester.enterText(fields.at(3), '0.5');
+      await tester.enterText(fields.at(4), 'steps');
 
-      expect(find.text('Quick Grinder Setup'), findsNothing);
+      await tester.tap(find.text('Save Grinder'));
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      await tester.pumpAndSettle();
 
       final container = ProviderScope.containerOf(
         tester.element(find.byType(_EquipmentSelectionHarness)),
       );
       final inventoryRepo = container.read(inventoryRepositoryProvider);
-      final equipments = await inventoryRepo.searchEquipments('K-Ultra');
+      final equipments = await inventoryRepo.searchEquipments('ZP6');
       expect(equipments, hasLength(1));
-      expect(equipments.first.grindMinClick, 0);
-      expect(equipments.first.grindMaxClick, 40);
-      expect(equipments.first.grindClickStep, 1);
-      expect(equipments.first.grindClickUnit, 'clicks');
+      expect(equipments.first.grindMinClick, 8);
+      expect(equipments.first.grindMaxClick, 68);
+      expect(equipments.first.grindClickStep, 0.5);
+      expect(equipments.first.grindClickUnit, 'steps');
     },
   );
 }
