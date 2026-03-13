@@ -71,7 +71,7 @@ class _HistoryFilterBarState extends State<HistoryFilterBar> {
                   decoration: InputDecoration(
                     hintText: 'Bean name',
                     hintStyle: AppTextStyles.bodySmall,
-                    prefixIcon: const Icon(Icons.search_rounded),
+                    prefixIcon: const Icon(Icons.coffee_outlined),
                     filled: true,
                     fillColor: AppColors.background,
                     border: OutlineInputBorder(
@@ -140,8 +140,9 @@ class _HistoryFilterBarState extends State<HistoryFilterBar> {
               const SizedBox(width: AppSpacing.sm),
               IconButton.filled(
                 key: const Key('history-filter-apply'),
+                tooltip: 'Search history',
                 onPressed: _applyFilter,
-                icon: const Icon(Icons.tune_rounded),
+                icon: const Icon(Icons.search_rounded),
               ),
               const SizedBox(width: AppSpacing.xs),
               IconButton(
