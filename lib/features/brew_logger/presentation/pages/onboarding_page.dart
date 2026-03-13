@@ -33,11 +33,14 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
     final state = ref.watch(brewPreferencesControllerProvider);
     final controller = ref.read(brewPreferencesControllerProvider.notifier);
 
-    ref.listen<BrewPreferencesState>(brewPreferencesControllerProvider, (_, next) {
+    ref.listen<BrewPreferencesState>(brewPreferencesControllerProvider, (
+      _,
+      next,
+    ) {
       if (next.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
         controller.clearError();
       }
     });
@@ -105,19 +108,19 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                             methodConfigs: _visibleMethodConfigs(
                               state.methodConfigs,
                             ),
-                            onToggle: (method, enabled) =>
-                                _handleMethodToggle(
-                                  context,
-                                  controller,
-                                  method,
-                                  enabled,
-                                  state.methodConfigs,
-                                ),
+                            onToggle: (method, enabled) => _handleMethodToggle(
+                              context,
+                              controller,
+                              method,
+                              enabled,
+                              state.methodConfigs,
+                            ),
                           ),
                         ),
                         _StepContainer(
                           title: 'Parameter list',
-                          subtitle: 'Hide defaults or add custom parameters.',
+                          subtitle:
+                              'Hide defaults or add custom parameters. Later, open preferences from the Manage page top-right icon.',
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -128,7 +131,9 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                               ),
                               const SizedBox(height: AppSpacing.sm),
                               BrewParamListEditor(
-                                items: state.paramItemsFor(state.selectedMethod),
+                                items: state.paramItemsFor(
+                                  state.selectedMethod,
+                                ),
                                 onVisibilityChanged: (item, visible) =>
                                     controller.setParamVisibility(
                                       state.selectedMethod,
@@ -169,16 +174,16 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                     ),
                     child: SizedBox(
                       width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _canProceed(state)
-                          ? () => _advance(state)
-                          : null,
-                      child: Text(_pageIndex == 1 ? 'Finish' : 'Next'),
+                      child: ElevatedButton(
+                        onPressed: _canProceed(state)
+                            ? () => _advance(state)
+                            : null,
+                        child: Text(_pageIndex == 1 ? 'Finish' : 'Next'),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
       ),
     );
   }
@@ -211,9 +216,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
     context.go('/brew');
   }
 
-  List<BrewMethodConfig> _visibleMethodConfigs(
-    List<BrewMethodConfig> configs,
-  ) {
+  List<BrewMethodConfig> _visibleMethodConfigs(List<BrewMethodConfig> configs) {
     return configs
         .where(
           (config) =>
@@ -244,10 +247,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
       await controller.toggleMethodEnabled(method, true);
       return;
     }
-    final name = await _promptCustomMethodName(
-      context,
-      current.displayName,
-    );
+    final name = await _promptCustomMethodName(context, current.displayName);
     if (name == null) return;
     await controller.toggleMethodEnabled(method, true, displayName: name);
   }
@@ -266,10 +266,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
         isEnabled: false,
       ),
     );
-    final name = await _promptCustomMethodName(
-      context,
-      current.displayName,
-    );
+    final name = await _promptCustomMethodName(context, current.displayName);
     if (name == null) return;
     await controller.toggleMethodEnabled(
       BrewMethod.custom,
@@ -282,8 +279,9 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
     BuildContext context,
     String currentName,
   ) async {
-    final resolvedName =
-        currentName.trim().toLowerCase() == 'custom' ? '' : currentName;
+    final resolvedName = currentName.trim().toLowerCase() == 'custom'
+        ? ''
+        : currentName;
     final controller = TextEditingController(text: resolvedName);
     String draft = resolvedName;
 
@@ -295,7 +293,8 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
           padding: EdgeInsets.only(
             left: AppSpacing.pageHorizontal,
             right: AppSpacing.pageHorizontal,
-            bottom: MediaQuery.of(context).viewInsets.bottom +
+            bottom:
+                MediaQuery.of(context).viewInsets.bottom +
                 AppSpacing.pageBottom,
             top: AppSpacing.pageTop,
           ),
@@ -306,7 +305,10 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Custom Brew Method', style: AppTextStyles.headlineSmall),
+                  Text(
+                    'Custom Brew Method',
+                    style: AppTextStyles.headlineSmall,
+                  ),
                   const SizedBox(height: AppSpacing.md),
                   TextField(
                     controller: controller,
@@ -360,7 +362,8 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
           padding: EdgeInsets.only(
             left: AppSpacing.pageHorizontal,
             right: AppSpacing.pageHorizontal,
-            bottom: MediaQuery.of(context).viewInsets.bottom +
+            bottom:
+                MediaQuery.of(context).viewInsets.bottom +
                 AppSpacing.pageBottom,
             top: AppSpacing.pageTop,
           ),
@@ -387,15 +390,21 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                     children: ParamType.values.map((type) {
                       final selected = selectedType == type;
                       return ChoiceChip(
-                        label: Text(type == ParamType.number ? 'Number' : 'Text'),
+                        label: Text(
+                          type == ParamType.number ? 'Number' : 'Text',
+                        ),
                         selected: selected,
                         onSelected: (_) => setState(() => selectedType = type),
                         selectedColor: AppColors.primary,
                         labelStyle: AppTextStyles.labelSmall.copyWith(
-                          color: selected ? Colors.white : AppColors.textSecondary,
+                          color: selected
+                              ? Colors.white
+                              : AppColors.textSecondary,
                         ),
                         side: BorderSide(
-                          color: selected ? AppColors.primary : AppColors.shadowDark,
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.shadowDark,
                         ),
                         backgroundColor: AppColors.background,
                       );

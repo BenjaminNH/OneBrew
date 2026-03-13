@@ -7,7 +7,7 @@ import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_
 import 'package:one_brew/shared/providers/database_providers.dart';
 
 void main() {
-  testWidgets('InventoryManagePage switches between Beans and Grinders tabs', (
+  testWidgets('InventoryManagePage shows manage controls and tab switching', (
     WidgetTester tester,
   ) async {
     final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
@@ -21,9 +21,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Inventory Manage'), findsOneWidget);
+    expect(find.text('Manage'), findsOneWidget);
     expect(find.text('Beans'), findsOneWidget);
     expect(find.text('Grinders'), findsOneWidget);
+    expect(
+      find.byKey(const Key('manage-preferences-icon-button')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('manage-add-fab')), findsOneWidget);
     expect(find.byKey(const Key('bean-manage-search-field')), findsOneWidget);
 
     await tester.tap(find.text('Grinders'));

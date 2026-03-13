@@ -29,6 +29,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Parameter list'), findsOneWidget);
+    expect(find.textContaining('Manage page top-right icon'), findsOneWidget);
     expect(find.text('Finish'), findsOneWidget);
   });
 }
