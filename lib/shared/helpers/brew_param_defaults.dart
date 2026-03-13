@@ -8,6 +8,7 @@ library;
 /// to pre-fill parameters, reducing friction for new records.
 /// Ref: docs/01_Architecture.md § 3.3 — 参数默认值
 import 'package:one_brew/features/brew_logger/domain/entities/brew_method.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
 
 class BrewMethodConfigSeed {
   const BrewMethodConfigSeed({
@@ -27,6 +28,10 @@ class BrewParamTemplate {
     required this.name,
     required this.type,
     this.unit,
+    this.numberMin,
+    this.numberMax,
+    this.numberStep,
+    this.numberDefault,
     this.isSystem = true,
     this.isVisible = true,
     required this.sortOrder,
@@ -36,9 +41,26 @@ class BrewParamTemplate {
   final String name;
   final ParamType type;
   final String? unit;
+  final double? numberMin;
+  final double? numberMax;
+  final double? numberStep;
+  final double? numberDefault;
   final bool isSystem;
   final bool isVisible;
   final int sortOrder;
+
+  BrewParamNumberRange? get numberRange {
+    if (type != ParamType.number) return null;
+    final min = numberMin;
+    final max = numberMax;
+    if (min == null || max == null || max <= min) return null;
+    return BrewParamNumberRange(
+      min: min,
+      max: max,
+      step: numberStep,
+      defaultValue: numberDefault,
+    );
+  }
 }
 
 class BrewTimerTargetProfile {
@@ -83,6 +105,10 @@ abstract final class BrewParamDefaults {
       name: 'Coffee Weight',
       type: ParamType.number,
       unit: 'g',
+      numberMin: 8.0,
+      numberMax: 40.0,
+      numberStep: 0.1,
+      numberDefault: 15.0,
       sortOrder: 1,
     ),
     BrewParamTemplate(
@@ -90,12 +116,20 @@ abstract final class BrewParamDefaults {
       name: 'Water Weight',
       type: ParamType.number,
       unit: 'g',
+      numberMin: 120.0,
+      numberMax: 700.0,
+      numberStep: 1.0,
+      numberDefault: 225.0,
       sortOrder: 2,
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
       name: 'Brew Ratio',
       type: ParamType.number,
+      numberMin: 10.0,
+      numberMax: 22.0,
+      numberStep: 0.1,
+      numberDefault: 15.0,
       sortOrder: 3,
     ),
     BrewParamTemplate(
@@ -103,6 +137,10 @@ abstract final class BrewParamDefaults {
       name: 'Water Temp',
       type: ParamType.number,
       unit: 'C',
+      numberMin: 80.0,
+      numberMax: 100.0,
+      numberStep: 1.0,
+      numberDefault: 93.0,
       sortOrder: 4,
     ),
     BrewParamTemplate(
@@ -116,6 +154,10 @@ abstract final class BrewParamDefaults {
       name: 'Brew Time',
       type: ParamType.number,
       unit: 's',
+      numberMin: 30.0,
+      numberMax: 480.0,
+      numberStep: 1.0,
+      numberDefault: 180.0,
       sortOrder: 6,
     ),
     BrewParamTemplate(
@@ -123,6 +165,10 @@ abstract final class BrewParamDefaults {
       name: 'Bloom Time',
       type: ParamType.number,
       unit: 's',
+      numberMin: 0.0,
+      numberMax: 90.0,
+      numberStep: 1.0,
+      numberDefault: 30.0,
       sortOrder: 7,
     ),
     BrewParamTemplate(
@@ -130,6 +176,10 @@ abstract final class BrewParamDefaults {
       name: 'Bloom Water',
       type: ParamType.number,
       unit: 'g',
+      numberMin: 0.0,
+      numberMax: 200.0,
+      numberStep: 1.0,
+      numberDefault: 30.0,
       sortOrder: 8,
     ),
     BrewParamTemplate(
@@ -155,6 +205,10 @@ abstract final class BrewParamDefaults {
       name: 'Coffee Dose',
       type: ParamType.number,
       unit: 'g',
+      numberMin: 12.0,
+      numberMax: 24.0,
+      numberStep: 0.1,
+      numberDefault: 18.0,
       sortOrder: 1,
     ),
     BrewParamTemplate(
@@ -162,12 +216,20 @@ abstract final class BrewParamDefaults {
       name: 'Yield',
       type: ParamType.number,
       unit: 'g',
+      numberMin: 18.0,
+      numberMax: 60.0,
+      numberStep: 0.5,
+      numberDefault: 36.0,
       sortOrder: 2,
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
       name: 'Brew Ratio',
       type: ParamType.number,
+      numberMin: 1.0,
+      numberMax: 4.0,
+      numberStep: 0.1,
+      numberDefault: 2.0,
       sortOrder: 3,
     ),
     BrewParamTemplate(
@@ -175,6 +237,10 @@ abstract final class BrewParamDefaults {
       name: 'Extraction Time',
       type: ParamType.number,
       unit: 's',
+      numberMin: 15.0,
+      numberMax: 45.0,
+      numberStep: 1.0,
+      numberDefault: 30.0,
       sortOrder: 4,
     ),
     BrewParamTemplate(
@@ -182,6 +248,10 @@ abstract final class BrewParamDefaults {
       name: 'Pressure',
       type: ParamType.number,
       unit: 'bar',
+      numberMin: 6.0,
+      numberMax: 11.0,
+      numberStep: 0.1,
+      numberDefault: 9.0,
       sortOrder: 5,
     ),
     BrewParamTemplate(
@@ -189,6 +259,10 @@ abstract final class BrewParamDefaults {
       name: 'Water Temp',
       type: ParamType.number,
       unit: 'C',
+      numberMin: 85.0,
+      numberMax: 98.0,
+      numberStep: 1.0,
+      numberDefault: 93.0,
       sortOrder: 6,
     ),
     BrewParamTemplate(
@@ -196,6 +270,10 @@ abstract final class BrewParamDefaults {
       name: 'Pre-infusion Time',
       type: ParamType.number,
       unit: 's',
+      numberMin: 0.0,
+      numberMax: 20.0,
+      numberStep: 1.0,
+      numberDefault: 8.0,
       sortOrder: 7,
     ),
     BrewParamTemplate(
@@ -215,6 +293,10 @@ abstract final class BrewParamDefaults {
       name: 'Coffee Weight',
       type: ParamType.number,
       unit: 'g',
+      numberMin: 8.0,
+      numberMax: 40.0,
+      numberStep: 0.1,
+      numberDefault: 15.0,
       sortOrder: 1,
     ),
     BrewParamTemplate(
@@ -222,15 +304,40 @@ abstract final class BrewParamDefaults {
       name: 'Water Weight',
       type: ParamType.number,
       unit: 'g',
+      numberMin: 120.0,
+      numberMax: 700.0,
+      numberStep: 1.0,
+      numberDefault: 225.0,
       sortOrder: 2,
     ),
     BrewParamTemplate(
       method: BrewMethod.custom,
       name: 'Brew Ratio',
       type: ParamType.number,
+      numberMin: 8.0,
+      numberMax: 24.0,
+      numberStep: 0.1,
+      numberDefault: 15.0,
       sortOrder: 3,
     ),
   ];
+
+  static BrewParamTemplate? templateFor({
+    required BrewMethod method,
+    required String name,
+  }) {
+    for (final template in paramTemplates) {
+      if (template.method == method && template.name == name) return template;
+    }
+    return null;
+  }
+
+  static BrewParamNumberRange? numberRangeFor({
+    required BrewMethod method,
+    required String name,
+  }) {
+    return templateFor(method: method, name: name)?.numberRange;
+  }
   // ─────────────────────────────────────────
   // Essential Parameters (always shown)
   // ─────────────────────────────────────────
@@ -398,19 +505,19 @@ abstract final class BrewParamDefaults {
   // ─────────────────────────────────────────
 
   /// Minimum coffee weight (grams)
-  static const double minCoffeeWeight = 5.0;
+  static const double minCoffeeWeight = 8.0;
 
   /// Maximum coffee weight (grams)
-  static const double maxCoffeeWeight = 50.0;
+  static const double maxCoffeeWeight = 40.0;
 
   /// Minimum water weight (grams)
-  static const double minWaterWeight = 50.0;
+  static const double minWaterWeight = 120.0;
 
   /// Maximum water weight (grams)
-  static const double maxWaterWeight = 1000.0;
+  static const double maxWaterWeight = 700.0;
 
   /// Minimum water temperature (degrees Celsius)
-  static const double minWaterTemp = 60.0;
+  static const double minWaterTemp = 80.0;
 
   /// Maximum water temperature (degrees Celsius)
   static const double maxWaterTemp = 100.0;

@@ -39,7 +39,6 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
     }
   }
 
-
   ParamType _paramTypeFromDb(String raw) {
     switch (raw) {
       case 'text':
@@ -90,6 +89,10 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
         name: row.name,
         type: _paramTypeFromDb(row.type),
         unit: row.unit,
+        numberMin: row.numberMin,
+        numberMax: row.numberMax,
+        numberStep: row.numberStep,
+        numberDefault: row.numberDefault,
         isSystem: row.isSystem,
         sortOrder: row.sortOrder,
       );
@@ -102,6 +105,10 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
     name: drift.Value(def.name),
     type: drift.Value(_paramTypeToDb(def.type)),
     unit: drift.Value(def.unit),
+    numberMin: drift.Value(def.numberMin),
+    numberMax: drift.Value(def.numberMax),
+    numberStep: drift.Value(def.numberStep),
+    numberDefault: drift.Value(def.numberDefault),
     isSystem: drift.Value(def.isSystem),
     sortOrder: drift.Value(def.sortOrder),
   );
@@ -113,6 +120,10 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
     name: def.name,
     type: _paramTypeToDb(def.type),
     unit: drift.Value(def.unit),
+    numberMin: drift.Value(def.numberMin),
+    numberMax: drift.Value(def.numberMax),
+    numberStep: drift.Value(def.numberStep),
+    numberDefault: drift.Value(def.numberDefault),
     isSystem: drift.Value(def.isSystem),
     sortOrder: def.sortOrder,
   );
@@ -205,7 +216,9 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
   // ── Param definitions ────────────────────────────────────────────────
 
   @override
-  Future<List<BrewParamDefinition>> getParamDefinitions(BrewMethod method) async {
+  Future<List<BrewParamDefinition>> getParamDefinitions(
+    BrewMethod method,
+  ) async {
     final rows = await _datasource.getParamDefinitionsByMethod(
       _methodToDb(method),
     );

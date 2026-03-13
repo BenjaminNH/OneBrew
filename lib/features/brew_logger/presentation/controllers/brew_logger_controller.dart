@@ -11,6 +11,7 @@ import '../../domain/usecases/create_brew_record.dart';
 import '../../domain/usecases/delete_brew_record.dart';
 import '../../domain/usecases/update_brew_record.dart';
 import '../models/brew_param_names.dart';
+import '../../../../shared/helpers/brew_param_defaults.dart';
 
 class BrewParamValueDraft {
   const BrewParamValueDraft({
@@ -386,16 +387,56 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       state = state.copyWith(grindSimpleLabel: label);
   void setGrindMicrons(int? microns) =>
       state = state.copyWith(grindMicrons: microns);
-  void setCoffeeWeight(double grams) =>
-      state = state.copyWith(coffeeWeightG: grams);
-  void setWaterWeight(double grams) =>
-      state = state.copyWith(waterWeightG: grams);
-  void setWaterTemp(double celsius) =>
-      state = state.copyWith(waterTempC: celsius);
-  void setBrewDuration(int seconds) =>
-      state = state.copyWith(brewDurationS: seconds);
-  void setBloomTime(int? seconds) =>
-      state = state.copyWith(bloomTimeS: seconds);
+  void setCoffeeWeight(double grams) {
+    final name = state.brewMethod == BrewMethod.espresso
+        ? BrewParamNames.coffeeDose
+        : BrewParamNames.coffeeWeight;
+    state = state.copyWith(
+      coffeeWeightG: _normalizeTemplateNumber(name: name, value: grams),
+    );
+  }
+
+  void setWaterWeight(double grams) {
+    final name = state.brewMethod == BrewMethod.espresso
+        ? BrewParamNames.yieldAmount
+        : BrewParamNames.waterWeight;
+    state = state.copyWith(
+      waterWeightG: _normalizeTemplateNumber(name: name, value: grams),
+    );
+  }
+
+  void setWaterTemp(double celsius) {
+    state = state.copyWith(
+      waterTempC: _normalizeTemplateNumber(
+        name: BrewParamNames.waterTemp,
+        value: celsius,
+      ),
+    );
+  }
+
+  void setBrewDuration(int seconds) {
+    final name = state.brewMethod == BrewMethod.espresso
+        ? BrewParamNames.extractionTime
+        : BrewParamNames.brewTime;
+    final normalized = _normalizeTemplateNumber(
+      name: name,
+      value: seconds.toDouble(),
+    ).round();
+    state = state.copyWith(brewDurationS: normalized);
+  }
+
+  void setBloomTime(int? seconds) {
+    if (seconds == null) {
+      state = state.copyWith(bloomTimeS: null);
+      return;
+    }
+    final normalized = _normalizeTemplateNumber(
+      name: BrewParamNames.bloomTime,
+      value: seconds.toDouble(),
+    ).round();
+    state = state.copyWith(bloomTimeS: normalized <= 0 ? null : normalized);
+  }
+
   void setPourMethod(String? method) =>
       state = state.copyWith(pourMethod: method);
   void setWaterType(String? type) => state = state.copyWith(waterType: type);
@@ -414,6 +455,21 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
               .copyWith(valueNumber: value, valueText: null);
     }
     state = state.copyWith(paramValues: updated);
+  }
+
+  void setParamNumberValueByDefinition(
+    BrewParamDefinition definition,
+    double? value,
+  ) {
+    if (value == null) {
+      setParamNumberValue(definition.id, null);
+      return;
+    }
+    final normalized = _normalizeNumberByDefinition(
+      definition: definition,
+      value: value,
+    );
+    setParamNumberValue(definition.id, normalized);
   }
 
   void setParamTextValue(int paramId, String? value) {
@@ -493,11 +549,31 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       grindClickUnit: hasGrindConfig
           ? _normalizeGrindClickUnit(selectedEquipment.grindClickUnit)
           : null,
-      coffeeWeightG: template.coffeeWeightG,
-      waterWeightG: template.waterWeightG,
-      waterTempC: template.waterTempC,
+      coffeeWeightG: _normalizeTemplateNumber(
+        name: template.brewMethod == BrewMethod.espresso
+            ? BrewParamNames.coffeeDose
+            : BrewParamNames.coffeeWeight,
+        value: template.coffeeWeightG,
+      ),
+      waterWeightG: _normalizeTemplateNumber(
+        name: template.brewMethod == BrewMethod.espresso
+            ? BrewParamNames.yieldAmount
+            : BrewParamNames.waterWeight,
+        value: template.waterWeightG,
+      ),
+      waterTempC: template.waterTempC == null
+          ? null
+          : _normalizeTemplateNumber(
+              name: BrewParamNames.waterTemp,
+              value: template.waterTempC!,
+            ),
       brewDurationS: template.brewDurationS,
-      bloomTimeS: template.bloomTimeS,
+      bloomTimeS: template.bloomTimeS == null
+          ? null
+          : _normalizeTemplateNumber(
+              name: BrewParamNames.bloomTime,
+              value: template.bloomTimeS!.toDouble(),
+            ).round(),
       pourMethod: template.pourMethod,
       waterType: template.waterType,
       roomTempC: template.roomTempC,
@@ -723,52 +799,76 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     switch (definition.name) {
       case BrewParamNames.coffeeWeight:
       case BrewParamNames.coffeeDose:
+        final normalizedCoffee = _normalizeNumberByDefinition(
+          definition: definition,
+          value: state.coffeeWeightG,
+        );
         return BrewParamValue(
           id: 0,
           brewRecordId: brewRecordId,
           paramId: definition.id,
-          valueNumber: state.coffeeWeightG,
+          valueNumber: normalizedCoffee,
         );
       case BrewParamNames.waterWeight:
-      case BrewParamNames.yield:
+      case BrewParamNames.yieldAmount:
+        final normalizedWater = _normalizeNumberByDefinition(
+          definition: definition,
+          value: state.waterWeightG,
+        );
         return BrewParamValue(
           id: 0,
           brewRecordId: brewRecordId,
           paramId: definition.id,
-          valueNumber: state.waterWeightG,
+          valueNumber: normalizedWater,
         );
       case BrewParamNames.brewRatio:
         if (state.coffeeWeightG <= 0) return null;
+        final normalizedRatio = _normalizeNumberByDefinition(
+          definition: definition,
+          value: state.ratio,
+        );
         return BrewParamValue(
           id: 0,
           brewRecordId: brewRecordId,
           paramId: definition.id,
-          valueNumber: state.ratio,
+          valueNumber: normalizedRatio,
         );
       case BrewParamNames.waterTemp:
         if (state.waterTempC == null) return null;
+        final normalizedTemp = _normalizeNumberByDefinition(
+          definition: definition,
+          value: state.waterTempC!,
+        );
         return BrewParamValue(
           id: 0,
           brewRecordId: brewRecordId,
           paramId: definition.id,
-          valueNumber: state.waterTempC,
+          valueNumber: normalizedTemp,
         );
       case BrewParamNames.brewTime:
       case BrewParamNames.extractionTime:
         if (elapsedSeconds <= 0) return null;
+        final normalizedBrewTime = _normalizeNumberByDefinition(
+          definition: definition,
+          value: elapsedSeconds.toDouble(),
+        );
         return BrewParamValue(
           id: 0,
           brewRecordId: brewRecordId,
           paramId: definition.id,
-          valueNumber: elapsedSeconds.toDouble(),
+          valueNumber: normalizedBrewTime,
         );
       case BrewParamNames.bloomTime:
         if (state.bloomTimeS == null) return null;
+        final normalizedBloomTime = _normalizeNumberByDefinition(
+          definition: definition,
+          value: state.bloomTimeS!.toDouble(),
+        );
         return BrewParamValue(
           id: 0,
           brewRecordId: brewRecordId,
           paramId: definition.id,
-          valueNumber: state.bloomTimeS!.toDouble(),
+          valueNumber: normalizedBloomTime,
         );
       case BrewParamNames.pourMethod:
         final method = state.pourMethod?.trim();
@@ -795,11 +895,15 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     if (definition.type == ParamType.number) {
       final valueNumber = draft.valueNumber;
       if (valueNumber == null) return null;
+      final normalized = _normalizeNumberByDefinition(
+        definition: definition,
+        value: valueNumber,
+      );
       return BrewParamValue(
         id: 0,
         brewRecordId: brewRecordId,
         paramId: definition.id,
-        valueNumber: valueNumber,
+        valueNumber: normalized,
       );
     }
 
@@ -811,6 +915,27 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       paramId: definition.id,
       valueText: valueText,
     );
+  }
+
+  double _normalizeTemplateNumber({
+    required String name,
+    required double value,
+  }) {
+    final range = BrewParamDefaults.numberRangeFor(
+      method: state.brewMethod,
+      name: name,
+    );
+    if (range == null) return value;
+    return range.normalize(value);
+  }
+
+  double _normalizeNumberByDefinition({
+    required BrewParamDefinition definition,
+    required double value,
+  }) {
+    final range = definition.numberRange;
+    if (range == null) return value;
+    return range.normalize(value);
   }
 
   String? _formatGrindValueForParam() {
