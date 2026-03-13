@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_chip_input.dart';
+import '../../../inventory/presentation/controllers/inventory_controller.dart';
 import '../../domain/repositories/history_repository.dart';
 
-class HistoryFilterBar extends StatefulWidget {
+class HistoryFilterBar extends ConsumerStatefulWidget {
   const HistoryFilterBar({
     super.key,
     required this.filter,
@@ -20,11 +23,13 @@ class HistoryFilterBar extends StatefulWidget {
   final VoidCallback onClear;
 
   @override
-  State<HistoryFilterBar> createState() => _HistoryFilterBarState();
+  ConsumerState<HistoryFilterBar> createState() => _HistoryFilterBarState();
 }
 
-class _HistoryFilterBarState extends State<HistoryFilterBar> {
-  late final TextEditingController _beanController;
+class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
+  List<String> _beanSuggestions = [];
+  List<String> _beanTags = [];
+  String _beanQuery = '';
   int? _minScore;
   DateTime? _from;
   DateTime? _to;
@@ -32,27 +37,36 @@ class _HistoryFilterBarState extends State<HistoryFilterBar> {
   @override
   void initState() {
     super.initState();
-    _beanController = TextEditingController(text: widget.filter.beanName ?? '');
+    final initialBean = widget.filter.beanName?.trim() ?? '';
+    _beanQuery = initialBean;
+    _beanTags = initialBean.isEmpty ? const [] : [initialBean];
     _minScore = widget.filter.minScore;
     _from = widget.filter.from;
     _to = widget.filter.to;
+    _loadBeanSuggestions();
   }
 
   @override
   void didUpdateWidget(covariant HistoryFilterBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.filter != oldWidget.filter) {
-      _beanController.text = widget.filter.beanName ?? '';
+      final nextBean = widget.filter.beanName?.trim() ?? '';
+      _beanQuery = nextBean;
+      _beanTags = nextBean.isEmpty ? const [] : [nextBean];
       _minScore = widget.filter.minScore;
       _from = widget.filter.from;
       _to = widget.filter.to;
     }
   }
 
-  @override
-  void dispose() {
-    _beanController.dispose();
-    super.dispose();
+  Future<void> _loadBeanSuggestions() async {
+    final suggestions = await ref
+        .read(inventoryControllerProvider.notifier)
+        .getBeanSuggestions('');
+    if (!mounted) return;
+    setState(() {
+      _beanSuggestions = suggestions.map((bean) => bean.name).toList();
+    });
   }
 
   @override
@@ -65,24 +79,21 @@ class _HistoryFilterBarState extends State<HistoryFilterBar> {
             children: [
               Expanded(
                 flex: 2,
-                child: TextField(
+                child: AppChipInput(
                   key: const Key('history-filter-bean-input'),
-                  controller: _beanController,
-                  decoration: InputDecoration(
-                    hintText: 'Bean name',
-                    hintStyle: AppTextStyles.bodySmall,
-                    prefixIcon: const Icon(Icons.coffee_outlined),
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: AppSpacing.sm,
-                    ),
-                  ),
+                  tags: _beanTags,
+                  suggestions: _beanSuggestions,
+                  singleSelection: true,
+                  hintText: 'Bean name',
+                  onTagsChanged: (tags) {
+                    setState(() {
+                      _beanTags = tags;
+                      _beanQuery = tags.isEmpty ? '' : tags.first;
+                    });
+                  },
+                  onInputChanged: (value) {
+                    _beanQuery = value;
+                  },
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -188,7 +199,9 @@ class _HistoryFilterBarState extends State<HistoryFilterBar> {
   }
 
   void _applyFilter() {
-    final beanName = _beanController.text.trim();
+    final beanName = _beanQuery.trim().isNotEmpty
+        ? _beanQuery.trim()
+        : (_beanTags.isEmpty ? '' : _beanTags.first.trim());
     final minScore = _minScore;
     final maxScore = (minScore == 5) ? 5 : null;
     final from = _from;
@@ -207,7 +220,8 @@ class _HistoryFilterBarState extends State<HistoryFilterBar> {
 
   void _clear() {
     setState(() {
-      _beanController.clear();
+      _beanTags = [];
+      _beanQuery = '';
       _minScore = null;
       _from = null;
       _to = null;

@@ -3,6 +3,44 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:one_brew/core/widgets/app_chip_input.dart';
 
 void main() {
+  testWidgets('shows top-5 suggestions immediately when input gains focus', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, setState) {
+              final tags = <String>[];
+              return AppChipInput(
+                tags: tags,
+                onTagsChanged: (_) {},
+                suggestions: const [
+                  'Focus Bean 06',
+                  'Focus Bean 05',
+                  'Focus Bean 04',
+                  'Focus Bean 03',
+                  'Focus Bean 02',
+                  'Focus Bean 01',
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(TextField));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Focus Bean 06'), findsOneWidget);
+    expect(find.text('Focus Bean 05'), findsOneWidget);
+    expect(find.text('Focus Bean 04'), findsOneWidget);
+    expect(find.text('Focus Bean 03'), findsOneWidget);
+    expect(find.text('Focus Bean 02'), findsOneWidget);
+    expect(find.text('Focus Bean 01'), findsNothing);
+  });
+
   testWidgets('input field stays responsive on narrow widths', (tester) async {
     tester.view.physicalSize = const Size(280, 640);
     tester.view.devicePixelRatio = 1.0;
