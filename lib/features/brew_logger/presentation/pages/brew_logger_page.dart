@@ -10,8 +10,6 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../inventory/presentation/widgets/template_picker.dart';
 import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
 import '../../brew_logger_providers.dart';
-import '../../domain/entities/brew_method.dart';
-import '../../domain/entities/brew_method_config.dart';
 import '../../domain/entities/brew_record.dart';
 import '../controllers/brew_logger_controller.dart';
 import '../controllers/brew_timer_controller.dart';
@@ -113,7 +111,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
                   loading: () => const LinearProgressIndicator(
                     color: AppColors.primary,
                   ),
-                  error: (_, __) => AppCard(
+                  error: (_, _) => AppCard(
                     child: Text(
                       'Brew methods unavailable.',
                       style: AppTextStyles.bodySmall,

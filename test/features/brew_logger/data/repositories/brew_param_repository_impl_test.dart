@@ -6,7 +6,6 @@ import 'package:one_coffee/core/database/drift_database.dart'
 import 'package:one_coffee/features/brew_logger/data/datasources/brew_param_local_datasource.dart';
 import 'package:one_coffee/features/brew_logger/data/repositories/brew_param_repository_impl.dart';
 import 'package:one_coffee/features/brew_logger/domain/entities/brew_method.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_method_config.dart';
 import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_definition.dart';
 import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_value.dart';
 import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_visibility.dart';

@@ -343,20 +343,18 @@ class _LabeledTextField extends StatelessWidget {
     required this.label,
     required this.hint,
     required this.onChanged,
-    this.maxLines = 1,
   });
 
   final TextEditingController controller;
   final String label;
   final String hint;
   final ValueChanged<String> onChanged;
-  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      maxLines: maxLines,
+      maxLines: 1,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,

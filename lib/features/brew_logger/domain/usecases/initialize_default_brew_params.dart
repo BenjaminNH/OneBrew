@@ -1,5 +1,4 @@
 import '../../../../shared/helpers/brew_param_defaults.dart';
-import '../entities/brew_method.dart';
 import '../entities/brew_method_config.dart';
 import '../entities/brew_param_definition.dart';
 import '../entities/brew_param_visibility.dart';

@@ -84,19 +84,6 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                         _StepContainer(
                           title: 'Choose brew methods',
                           subtitle: 'Select at least one method to start.',
-                          child: BrewMethodToggleList(
-                            methodConfigs: _visibleMethodConfigs(
-                              state.methodConfigs,
-                            ),
-                            onToggle: (method, enabled) =>
-                                _handleMethodToggle(
-                                  context,
-                                  controller,
-                                  method,
-                                  enabled,
-                                  state.methodConfigs,
-                                ),
-                          ),
                           footer: Align(
                             alignment: Alignment.centerLeft,
                             child: GestureDetector(
@@ -113,6 +100,19 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                                 ),
                               ),
                             ),
+                          ),
+                          child: BrewMethodToggleList(
+                            methodConfigs: _visibleMethodConfigs(
+                              state.methodConfigs,
+                            ),
+                            onToggle: (method, enabled) =>
+                                _handleMethodToggle(
+                                  context,
+                                  controller,
+                                  method,
+                                  enabled,
+                                  state.methodConfigs,
+                                ),
                           ),
                         ),
                         _StepContainer(

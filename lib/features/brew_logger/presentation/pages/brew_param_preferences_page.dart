@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_method_config.dart';
 import '../controllers/brew_preferences_controller.dart';

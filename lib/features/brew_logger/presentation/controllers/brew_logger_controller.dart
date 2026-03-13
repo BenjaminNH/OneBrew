@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../inventory/inventory_providers.dart';
 import '../../../inventory/domain/entities/equipment.dart';
 import '../../brew_logger_providers.dart';
-import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_param_definition.dart';
 import '../../domain/entities/brew_param_value.dart';
 import '../../domain/entities/brew_record.dart';

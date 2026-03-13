@@ -23,7 +23,7 @@ final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(
       path: AppRoutePaths.onboarding,
-      builder: (_, __) => const BrewOnboardingPage(),
+      builder: (_, _) => const BrewOnboardingPage(),
     ),
     ShellRoute(
       builder: (context, state, child) =>
@@ -44,7 +44,7 @@ final GoRouter appRouter = GoRouter(
           routes: [
             GoRoute(
               path: 'preferences',
-              builder: (_, __) => const BrewParamPreferencesPage(),
+              builder: (_, _) => const BrewParamPreferencesPage(),
             ),
           ],
         ),

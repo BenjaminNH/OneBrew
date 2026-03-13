@@ -1,4 +1,6 @@
 /// Brew Parameter Default Values
+library;
+
 /// Provides sensible starting values for all brew parameters
 /// based on standard pour-over / specialty coffee conventions.
 ///
