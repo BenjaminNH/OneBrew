@@ -30,6 +30,21 @@ void main() {
     expect(state.errorMessage, contains('1-5'));
   });
 
+  test('professional scores clamp to 0-5 range', () {
+    final notifier = container.read(ratingControllerProvider.notifier);
+
+    notifier.setAcidity(7.2);
+    notifier.setSweetness(-1.0);
+    notifier.setBitterness(5.8);
+    notifier.setBody(2.3);
+
+    final state = container.read(ratingControllerProvider);
+    expect(state.acidity, 5.0);
+    expect(state.sweetness, 0.0);
+    expect(state.bitterness, 5.0);
+    expect(state.body, 2.3);
+  });
+
   test('emoji selection accepts supported emoji and rejects unsupported', () {
     final notifier = container.read(ratingControllerProvider.notifier);
 
@@ -96,6 +111,32 @@ void main() {
       expect(state.emoji, isNull);
       expect(state.flavorNotes, isEmpty);
       expect(state.isQuickMode, isTrue);
+    },
+  );
+
+  test(
+    'initializeForBrew converts legacy 0-10 professional values to 0-5',
+    () async {
+      when(mockRepo.getRatingForBrew(404)).thenAnswer(
+        (_) async => const BrewRating(
+          id: 8,
+          brewRecordId: 404,
+          acidity: 8.0,
+          sweetness: 6.0,
+          bitterness: 4.0,
+          body: 10.0,
+        ),
+      );
+
+      final notifier = container.read(ratingControllerProvider.notifier);
+      await notifier.initializeForBrew(404);
+
+      final state = container.read(ratingControllerProvider);
+      expect(state.isQuickMode, isFalse);
+      expect(state.acidity, 4.0);
+      expect(state.sweetness, 3.0);
+      expect(state.bitterness, 4.0);
+      expect(state.body, 5.0);
     },
   );
 }

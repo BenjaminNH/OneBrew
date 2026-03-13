@@ -84,6 +84,10 @@ final saveRatingProvider = Provider<SaveRating>((ref) {
 });
 
 class RatingController extends Notifier<RatingState> {
+  static const double _minProfessionalScore = 0.0;
+  static const double _maxProfessionalScore = 5.0;
+  static const double _legacyProfessionalMax = 10.0;
+
   @override
   RatingState build() => const RatingState();
 
@@ -115,10 +119,12 @@ class RatingController extends Notifier<RatingState> {
         isQuickMode: !hasProfessionalScores,
         quickScore: existing.quickScore,
         emoji: existing.emoji,
-        acidity: existing.acidity ?? 5.0,
-        sweetness: existing.sweetness ?? 5.0,
-        bitterness: existing.bitterness ?? 5.0,
-        body: existing.body ?? 5.0,
+        acidity: _normalizeLoadedProfessionalScore(existing.acidity ?? 5.0),
+        sweetness: _normalizeLoadedProfessionalScore(existing.sweetness ?? 5.0),
+        bitterness: _normalizeLoadedProfessionalScore(
+          existing.bitterness ?? 5.0,
+        ),
+        body: _normalizeLoadedProfessionalScore(existing.body ?? 5.0),
         flavorNotes: notes,
       );
     } catch (e) {
@@ -150,16 +156,16 @@ class RatingController extends Notifier<RatingState> {
   }
 
   void setAcidity(double value) =>
-      state = state.copyWith(acidity: value.clamp(0.0, 10.0));
+      state = state.copyWith(acidity: _clampProfessionalScore(value));
 
   void setSweetness(double value) =>
-      state = state.copyWith(sweetness: value.clamp(0.0, 10.0));
+      state = state.copyWith(sweetness: _clampProfessionalScore(value));
 
   void setBitterness(double value) =>
-      state = state.copyWith(bitterness: value.clamp(0.0, 10.0));
+      state = state.copyWith(bitterness: _clampProfessionalScore(value));
 
   void setBody(double value) =>
-      state = state.copyWith(body: value.clamp(0.0, 10.0));
+      state = state.copyWith(body: _clampProfessionalScore(value));
 
   void toggleFlavorNote(String note) {
     final updated = {...state.flavorNotes};
@@ -240,6 +246,17 @@ class RatingController extends Notifier<RatingState> {
         .map((item) => item.trim())
         .where((item) => item.isNotEmpty)
         .toSet();
+  }
+
+  double _normalizeLoadedProfessionalScore(double value) {
+    if (value > _maxProfessionalScore && value <= _legacyProfessionalMax) {
+      return value / 2;
+    }
+    return _clampProfessionalScore(value);
+  }
+
+  double _clampProfessionalScore(double value) {
+    return value.clamp(_minProfessionalScore, _maxProfessionalScore).toDouble();
   }
 }
 

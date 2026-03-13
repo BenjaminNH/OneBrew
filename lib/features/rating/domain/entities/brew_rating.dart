@@ -7,7 +7,7 @@ part 'brew_rating.freezed.dart';
 /// Supports two modes:
 /// - **Quick mode**: [quickScore] (1–5) and/or an [emoji] label.
 /// - **Professional mode**: individual sliders for [acidity], [sweetness],
-///   [bitterness], [body] (each 0–10), plus [flavorNotes] tag text.
+///   [bitterness], [body] (each 0–5), plus [flavorNotes] tag text.
 ///
 /// Both modes can coexist on the same record; the UI decides which fields
 /// to surface based on user preference.
@@ -28,16 +28,16 @@ abstract class BrewRating with _$BrewRating {
     /// Emoji label for quick feedback (optional, e.g. "😍").
     String? emoji,
 
-    /// Acidity score 0–10 (professional mode, optional).
+    /// Acidity score 0–5 (professional mode, optional).
     double? acidity,
 
-    /// Sweetness score 0–10 (professional mode, optional).
+    /// Sweetness score 0–5 (professional mode, optional).
     double? sweetness,
 
-    /// Bitterness score 0–10 (professional mode, optional).
+    /// Bitterness score 0–5 (professional mode, optional).
     double? bitterness,
 
-    /// Body / mouthfeel score 0–10 (professional mode, optional).
+    /// Body / mouthfeel score 0–5 (professional mode, optional).
     double? body,
 
     /// Comma-separated (or JSON) flavor tag notes (optional).
