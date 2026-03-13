@@ -7,10 +7,7 @@ import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../domain/entities/equipment.dart';
 import '../../domain/inventory_exceptions.dart';
-import '../../domain/repositories/inventory_repository.dart';
-import '../../domain/usecases/delete_grinder_with_guard.dart';
-import '../../domain/usecases/update_grinder.dart';
-import '../../inventory_providers.dart';
+import '../controllers/inventory_controller.dart';
 import 'grinder_form_sheet.dart';
 
 /// Grinders management list for Phase 7B.
@@ -46,11 +43,9 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
 
   Future<void> _reload() async {
     setState(() => _isLoading = true);
-    final repository = ref.read(inventoryRepositoryProvider);
+    final controller = ref.read(inventoryControllerProvider.notifier);
     final query = _queryController.text.trim();
-    final data = query.isEmpty
-        ? await repository.getAllGrinders()
-        : await repository.searchGrinders(query);
+    final data = await controller.queryGrinders(query);
     if (!mounted) return;
     setState(() {
       _grinders = data;
@@ -66,42 +61,16 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
     );
     if (result == null) return;
 
-    final repository = ref.read(inventoryRepositoryProvider);
+    final controller = ref.read(inventoryControllerProvider.notifier);
     try {
-      await _ensureNameNotConflict(
-        repository: repository,
+      await controller.saveGrinder(
+        initial: initial,
         name: result.name,
-        editingId: initial?.id,
+        minClick: result.minClick,
+        maxClick: result.maxClick,
+        clickStep: result.clickStep,
+        clickUnit: result.clickUnit,
       );
-
-      if (initial == null) {
-        await repository.createEquipment(
-          Equipment(
-            id: 0,
-            name: result.name,
-            category: 'grinder',
-            isGrinder: true,
-            grindMinClick: result.minClick,
-            grindMaxClick: result.maxClick,
-            grindClickStep: result.clickStep,
-            grindClickUnit: result.clickUnit,
-            addedAt: DateTime.now(),
-            useCount: 0,
-          ),
-        );
-      } else {
-        await UpdateGrinder(repository)(
-          initial.copyWith(
-            name: result.name,
-            category: 'grinder',
-            isGrinder: true,
-            grindMinClick: result.minClick,
-            grindMaxClick: result.maxClick,
-            grindClickStep: result.clickStep,
-            grindClickUnit: result.clickUnit,
-          ),
-        );
-      }
 
       await _reload();
       if (!mounted) return;
@@ -154,9 +123,9 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
     );
     if (confirmed != true) return;
 
-    final repository = ref.read(inventoryRepositoryProvider);
+    final controller = ref.read(inventoryControllerProvider.notifier);
     try {
-      await DeleteGrinderWithGuard(repository)(grinder.id);
+      await controller.deleteGrinder(grinder.id);
       await _reload();
     } on InventoryException catch (error) {
       if (!mounted) return;
@@ -173,22 +142,6 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
           content: Text('Failed to delete grinder: $error'),
           backgroundColor: AppColors.error,
         ),
-      );
-    }
-  }
-
-  Future<void> _ensureNameNotConflict({
-    required InventoryRepository repository,
-    required String name,
-    int? editingId,
-  }) async {
-    final candidates = await repository.searchGrinders(name);
-    final normalized = name.trim().toLowerCase();
-    for (final candidate in candidates) {
-      if (candidate.name.trim().toLowerCase() != normalized) continue;
-      if (editingId != null && candidate.id == editingId) continue;
-      throw const InventoryConflictException(
-        'A grinder with the same name already exists.',
       );
     }
   }
