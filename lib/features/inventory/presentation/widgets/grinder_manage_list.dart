@@ -16,8 +16,26 @@ import 'grinder_form_sheet.dart';
 /// - list/search
 /// - create/edit with validation
 /// - delete with historical-reference guard
+class GrinderManageListController {
+  VoidCallback? _openCreateForm;
+
+  void bindOpenCreateForm(VoidCallback callback) {
+    _openCreateForm = callback;
+  }
+
+  void unbindOpenCreateForm() {
+    _openCreateForm = null;
+  }
+
+  void openCreateForm() {
+    _openCreateForm?.call();
+  }
+}
+
 class GrinderManageList extends ConsumerStatefulWidget {
-  const GrinderManageList({super.key});
+  const GrinderManageList({super.key, this.controller});
+
+  final GrinderManageListController? controller;
 
   @override
   ConsumerState<GrinderManageList> createState() => _GrinderManageListState();
@@ -32,11 +50,22 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
   @override
   void initState() {
     super.initState();
+    widget.controller?.bindOpenCreateForm(() => _openGrinderForm());
     _reload();
   }
 
   @override
+  void didUpdateWidget(covariant GrinderManageList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?.unbindOpenCreateForm();
+      widget.controller?.bindOpenCreateForm(() => _openGrinderForm());
+    }
+  }
+
+  @override
   void dispose() {
+    widget.controller?.unbindOpenCreateForm();
     _queryController.dispose();
     super.dispose();
   }
@@ -153,31 +182,18 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
         AppSpacing.pageHorizontal,
         0,
         AppSpacing.pageHorizontal,
-        AppSpacing.pageBottom,
+        AppSpacing.pageBottom + AppSpacing.huge,
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  key: const Key('grinder-manage-search-field'),
-                  controller: _queryController,
-                  onChanged: (_) => _reload(),
-                  decoration: const InputDecoration(
-                    labelText: 'Search grinders',
-                    prefixIcon: Icon(Icons.search),
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              FilledButton.icon(
-                key: const Key('grinder-manage-add-button'),
-                onPressed: () => _openGrinderForm(),
-                icon: const Icon(Icons.add),
-                label: const Text('Add'),
-              ),
-            ],
+          TextField(
+            key: const Key('grinder-manage-search-field'),
+            controller: _queryController,
+            onChanged: (_) => _reload(),
+            decoration: const InputDecoration(
+              labelText: 'Search grinders',
+              prefixIcon: Icon(Icons.search),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Expanded(

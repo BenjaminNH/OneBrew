@@ -85,8 +85,8 @@ class AppShell extends StatelessWidget {
         onDestinationSelected: (index) {
           final target = switch (index) {
             0 => AppRoutePaths.brew,
-            1 => AppRoutePaths.manage,
-            _ => AppRoutePaths.history,
+            1 => AppRoutePaths.history,
+            _ => AppRoutePaths.manage,
           };
           if (location != target) {
             context.go(target);
@@ -99,14 +99,14 @@ class AppShell extends StatelessWidget {
             label: 'Brew',
           ),
           NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2),
-            label: 'Manage',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.history_outlined),
             selectedIcon: Icon(Icons.history),
             label: 'History',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_outlined),
+            selectedIcon: Icon(Icons.inventory_2),
+            label: 'Manage',
           ),
         ],
       ),
@@ -114,10 +114,10 @@ class AppShell extends StatelessWidget {
   }
 
   int _locationToIndex(String currentLocation) {
-    if (currentLocation.startsWith(AppRoutePaths.manage)) {
+    if (currentLocation.startsWith(AppRoutePaths.history)) {
       return 1;
     }
-    if (currentLocation.startsWith(AppRoutePaths.history)) {
+    if (currentLocation.startsWith(AppRoutePaths.manage)) {
       return 2;
     }
     return 0;
