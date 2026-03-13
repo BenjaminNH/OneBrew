@@ -39,6 +39,7 @@ class AppChipInput extends StatefulWidget {
     this.labelText,
     this.singleSelection = false,
     this.onSubmit,
+    this.onInputChanged,
   });
 
   /// Currently selected tags (controlled)
@@ -68,11 +69,16 @@ class AppChipInput extends StatefulWidget {
   /// Called when the user submits a value (tag added)
   final Future<void> Function(String)? onSubmit;
 
+  /// Called when the raw input text changes.
+  final ValueChanged<String>? onInputChanged;
+
   @override
   State<AppChipInput> createState() => _AppChipInputState();
 }
 
 class _AppChipInputState extends State<AppChipInput> {
+  static const int _maxVisibleSuggestions = 5;
+
   late final TextEditingController _textController;
   late final FocusNode _focusNode;
   List<String> _filteredSuggestions = [];
@@ -99,23 +105,36 @@ class _AppChipInputState extends State<AppChipInput> {
   void _onFocusChanged() {
     if (!_focusNode.hasFocus) {
       setState(() => _showSuggestions = false);
+      return;
     }
+    _updateSuggestions();
   }
 
   void _onTextChanged() {
-    final query = _textController.text.trim().toLowerCase();
-    if (query.isEmpty) {
-      setState(() {
-        _filteredSuggestions = [];
-        _showSuggestions = false;
-      });
-      return;
+    widget.onInputChanged?.call(_textController.text);
+    _updateSuggestions();
+  }
+
+  @override
+  void didUpdateWidget(covariant AppChipInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.suggestions != widget.suggestions ||
+        oldWidget.tags != widget.tags) {
+      _updateSuggestions();
     }
+  }
+
+  void _updateSuggestions() {
+    if (!_focusNode.hasFocus) return;
+
+    final query = _textController.text.trim().toLowerCase();
     final filtered = widget.suggestions
         .where(
-          (s) => s.toLowerCase().contains(query) && !widget.tags.contains(s),
+          (s) =>
+              !widget.tags.contains(s) &&
+              (query.isEmpty || s.toLowerCase().contains(query)),
         )
-        .take(6)
+        .take(_maxVisibleSuggestions)
         .toList();
     setState(() {
       _filteredSuggestions = filtered;
@@ -128,6 +147,7 @@ class _AppChipInputState extends State<AppChipInput> {
     if (trimmed.isEmpty) return;
     if (widget.tags.contains(trimmed)) {
       _textController.clear();
+      widget.onInputChanged?.call('');
       return;
     }
     if (widget.maxTags != null && widget.tags.length >= widget.maxTags!) return;
@@ -153,6 +173,7 @@ class _AppChipInputState extends State<AppChipInput> {
     }
 
     _textController.clear();
+    widget.onInputChanged?.call('');
     setState(() {
       _filteredSuggestions = [];
       _showSuggestions = false;
@@ -289,40 +310,48 @@ class _AppChipInputState extends State<AppChipInput> {
         borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
         boxShadow: AppColors.softShadow,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: _filteredSuggestions.map((suggestion) {
-          return InkWell(
-            onTap: () {
-              unawaited(_addTag(suggestion));
-            },
-            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                minHeight: kMinInteractiveDimension,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: AppSpacing.sm,
-                ),
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.coffee,
-                      size: AppSpacing.iconSmall,
-                      color: AppColors.textSecondary,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 160),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _filteredSuggestions.map((suggestion) {
+              return InkWell(
+                onTap: () {
+                  unawaited(_addTag(suggestion));
+                },
+                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: kMinInteractiveDimension,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.sm,
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(suggestion, style: AppTextStyles.bodyMedium),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.coffee,
+                          size: AppSpacing.iconSmall,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: Text(
+                            suggestion,
+                            style: AppTextStyles.bodyMedium,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }

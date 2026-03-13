@@ -92,6 +92,97 @@ void main() {
   });
 
   testWidgets(
+    'bean suggestions open on focus and keep only top 5 by useCount',
+    (WidgetTester tester) async {
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      for (var i = 1; i <= 6; i++) {
+        await db.insertBean(
+          BeansCompanion.insert(
+            name: 'Focus Bean 0$i',
+            useCount: drift.Value(i),
+          ),
+        );
+      }
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [databaseProvider.overrideWithValue(db)],
+          child: MaterialApp(
+            home: Scaffold(
+              body: StatefulBuilder(
+                builder: (context, setState) {
+                  List<String> selectedTags = [];
+                  return SmartTagField(
+                    type: TagFieldType.bean,
+                    tags: selectedTags,
+                    singleSelection: true,
+                    onTagsChanged: (tags) {
+                      setState(() {
+                        selectedTags = tags;
+                      });
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(TextField));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Focus Bean 06'), findsOneWidget);
+      expect(find.text('Focus Bean 05'), findsOneWidget);
+      expect(find.text('Focus Bean 04'), findsOneWidget);
+      expect(find.text('Focus Bean 03'), findsOneWidget);
+      expect(find.text('Focus Bean 02'), findsOneWidget);
+      expect(find.text('Focus Bean 01'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'equipment suggestions open on focus and keep only top 5 by useCount',
+    (WidgetTester tester) async {
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      for (var i = 1; i <= 6; i++) {
+        await db.insertEquipment(
+          EquipmentsCompanion.insert(
+            name: 'Focus Grinder 0$i',
+            isGrinder: const drift.Value(true),
+            useCount: drift.Value(i),
+          ),
+        );
+      }
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [databaseProvider.overrideWithValue(db)],
+          child: const MaterialApp(
+            home: Scaffold(body: _EquipmentSelectionHarness()),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(TextField).first);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Focus Grinder 06'), findsOneWidget);
+      expect(find.text('Focus Grinder 05'), findsOneWidget);
+      expect(find.text('Focus Grinder 04'), findsOneWidget);
+      expect(find.text('Focus Grinder 03'), findsOneWidget);
+      expect(find.text('Focus Grinder 02'), findsOneWidget);
+      expect(find.text('Focus Grinder 01'), findsNothing);
+    },
+  );
+
+  testWidgets(
     'SmartTagField equipment submit resolves equipmentId and grinder flag',
     (WidgetTester tester) async {
       final db = OneBrewDatabase.forTesting(NativeDatabase.memory());

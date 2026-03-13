@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:drift/drift.dart' as drift;
+import 'package:drift/native.dart';
 import 'package:mockito/mockito.dart';
+import 'package:one_brew/core/database/drift_database.dart';
 import 'package:one_brew/features/history/domain/entities/brew_summary.dart';
 import 'package:one_brew/features/history/domain/repositories/history_repository.dart';
 import 'package:one_brew/features/history/presentation/pages/history_page.dart';
 import 'package:one_brew/features/history/history_providers.dart';
+import 'package:one_brew/shared/providers/database_providers.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
 
@@ -55,9 +59,19 @@ void main() {
     });
   });
 
-  Widget createWidget({ValueChanged<int>? onOpenDetail}) {
+  Widget createWidget({
+    ValueChanged<int>? onOpenDetail,
+    OneBrewDatabase? database,
+  }) {
+    final overrides = [
+      historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
+    ];
+    if (database != null) {
+      overrides.add(databaseProvider.overrideWithValue(database));
+    }
+
     return ProviderScope(
-      overrides: [historyRepositoryProvider.overrideWithValue(mockHistoryRepo)],
+      overrides: overrides,
       child: MaterialApp(home: HistoryPage(onOpenDetail: onOpenDetail)),
     );
   }
@@ -86,21 +100,23 @@ void main() {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-      final inputField = tester.widget<TextField>(
-        find.byKey(const Key('history-filter-bean-input')),
+      final beanInputFinder = find.byKey(
+        const Key('history-filter-bean-input'),
       );
-      final prefixIcon = inputField.decoration?.prefixIcon as Icon?;
-      expect(prefixIcon?.icon, Icons.coffee_outlined);
+      expect(beanInputFinder, findsOneWidget);
+
+      final beanTextFieldFinder = find.descendant(
+        of: beanInputFinder,
+        matching: find.byType(TextField),
+      );
+      expect(beanTextFieldFinder, findsOneWidget);
 
       final applyButton = tester.widget<IconButton>(
         find.byKey(const Key('history-filter-apply')),
       );
       expect((applyButton.icon as Icon).icon, Icons.search_rounded);
 
-      await tester.enterText(
-        find.byKey(const Key('history-filter-bean-input')),
-        'Colombia',
-      );
+      await tester.enterText(beanTextFieldFinder, 'Colombia');
       await tester.tap(find.byKey(const Key('history-filter-apply')));
       await tester.pumpAndSettle();
 
@@ -109,6 +125,38 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(const ValueKey('history-record-card-1')), findsNothing);
+    });
+
+    testWidgets('bean input opens top-5 suggestions on tap', (tester) async {
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      for (var i = 1; i <= 6; i++) {
+        await db.insertBean(
+          BeansCompanion.insert(
+            name: 'History Focus Bean 0$i',
+            useCount: drift.Value(i),
+          ),
+        );
+      }
+
+      await tester.pumpWidget(createWidget(database: db));
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const Key('history-filter-bean-input')),
+          matching: find.byType(TextField),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('History Focus Bean 06'), findsOneWidget);
+      expect(find.text('History Focus Bean 05'), findsOneWidget);
+      expect(find.text('History Focus Bean 04'), findsOneWidget);
+      expect(find.text('History Focus Bean 03'), findsOneWidget);
+      expect(find.text('History Focus Bean 02'), findsOneWidget);
+      expect(find.text('History Focus Bean 01'), findsNothing);
     });
 
     testWidgets('taps card and requests detail navigation', (tester) async {

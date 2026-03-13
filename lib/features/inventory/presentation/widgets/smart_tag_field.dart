@@ -71,6 +71,19 @@ class SmartTagField extends ConsumerStatefulWidget {
 class _SmartTagFieldState extends ConsumerState<SmartTagField> {
   List<String> _suggestions = [];
 
+  List<String> _normalizeSuggestionNames(Iterable<String> names) {
+    final normalized = <String>[];
+    final seen = <String>{};
+    for (final name in names) {
+      final trimmed = name.trim();
+      if (trimmed.isEmpty) continue;
+      final key = trimmed.toLowerCase();
+      if (!seen.add(key)) continue;
+      normalized.add(trimmed);
+    }
+    return normalized;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -107,14 +120,14 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
       final beans = await controller.getBeanSuggestions('');
       if (mounted) {
         setState(() {
-          _suggestions = beans.map((b) => b.name).toList();
+          _suggestions = _normalizeSuggestionNames(beans.map((b) => b.name));
         });
       }
     } else {
       final equips = await controller.getEquipmentSuggestions('');
       if (mounted) {
         setState(() {
-          _suggestions = equips.map((e) => e.name).toList();
+          _suggestions = _normalizeSuggestionNames(equips.map((e) => e.name));
         });
       }
     }
