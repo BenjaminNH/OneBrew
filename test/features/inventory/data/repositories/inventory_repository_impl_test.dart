@@ -239,6 +239,7 @@ void main() {
         isGrinder: true,
         grindMinClick: 0,
         grindMaxClick: 40,
+        grindClickStep: 1,
         addedAt: DateTime.now(),
         useCount: 0,
       );
@@ -344,6 +345,24 @@ void main() {
       );
     });
 
+    test('createEquipment validates click range config for grinder', () async {
+      final invalid = domain.Equipment(
+        id: 0,
+        name: 'Invalid Grinder',
+        isGrinder: true,
+        grindMinClick: 40,
+        grindMaxClick: 20,
+        grindClickStep: 1,
+        addedAt: DateTime.now(),
+        useCount: 0,
+      );
+
+      expect(
+        () => repository.createEquipment(invalid),
+        throwsA(isA<InventoryValidationException>()),
+      );
+    });
+
     test(
       'deleteGrinderWithGuard soft-deletes grinder when referenced',
       () async {
@@ -376,28 +395,31 @@ void main() {
       },
     );
 
-    test('deleteGrinderWithGuard hard-deletes grinder when unreferenced', () async {
-      final grinderId = await repository.createEquipment(
-        domain.Equipment(
-          id: 0,
-          name: 'Unused Grinder',
-          isGrinder: true,
-          grindMinClick: 0,
-          grindMaxClick: 40,
-          grindClickStep: 1,
-          addedAt: DateTime.now(),
-          useCount: 0,
-        ),
-      );
+    test(
+      'deleteGrinderWithGuard hard-deletes grinder when unreferenced',
+      () async {
+        final grinderId = await repository.createEquipment(
+          domain.Equipment(
+            id: 0,
+            name: 'Unused Grinder',
+            isGrinder: true,
+            grindMinClick: 0,
+            grindMaxClick: 40,
+            grindClickStep: 1,
+            addedAt: DateTime.now(),
+            useCount: 0,
+          ),
+        );
 
-      final deleted = await repository.deleteGrinderWithGuard(grinderId);
-      expect(deleted, 1);
+        final deleted = await repository.deleteGrinderWithGuard(grinderId);
+        expect(deleted, 1);
 
-      final allEquipments = await repository.getAllEquipments();
-      expect(allEquipments.where((e) => e.id == grinderId), isEmpty);
+        final allEquipments = await repository.getAllEquipments();
+        expect(allEquipments.where((e) => e.id == grinderId), isEmpty);
 
-      final stored = await db.getEquipmentById(grinderId);
-      expect(stored, isNull);
-    });
+        final stored = await db.getEquipmentById(grinderId);
+        expect(stored, isNull);
+      },
+    );
   });
 }
