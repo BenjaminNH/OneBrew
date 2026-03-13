@@ -52,3 +52,6 @@ devtools_options.yaml
 
 # Git worktrees local directories
 .worktrees/
+
+# Local temporary files
+temp/
