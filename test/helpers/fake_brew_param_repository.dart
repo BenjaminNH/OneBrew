@@ -1,9 +1,9 @@
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_method.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_method_config.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_definition.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_value.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_visibility.dart';
-import 'package:one_coffee/features/brew_logger/domain/repositories/brew_param_repository.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_method.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_method_config.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_value.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_visibility.dart';
+import 'package:one_brew/features/brew_logger/domain/repositories/brew_param_repository.dart';
 
 class FakeBrewParamRepository implements BrewParamRepository {
   FakeBrewParamRepository({

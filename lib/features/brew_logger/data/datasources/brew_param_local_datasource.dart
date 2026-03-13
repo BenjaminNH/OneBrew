@@ -5,11 +5,11 @@ import '../../../../shared/providers/database_providers.dart';
 
 /// Local datasource for brew parameter configuration.
 ///
-/// Delegates all database operations to [OneCoffeeDatabase].
+/// Delegates all database operations to [OneBrewDatabase].
 class BrewParamLocalDatasource {
   const BrewParamLocalDatasource(this._db);
 
-  final OneCoffeeDatabase _db;
+  final OneBrewDatabase _db;
 
   Future<List<BrewMethodConfig>> getMethodConfigs() => _db.getBrewMethodConfigs();
 

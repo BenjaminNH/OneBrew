@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/core/database/drift_database.dart' as db;
-import 'package:one_coffee/features/brew_logger/data/datasources/brew_local_datasource.dart';
-import 'package:one_coffee/features/brew_logger/data/repositories/brew_repository_impl.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart'
+import 'package:one_brew/core/database/drift_database.dart' as db;
+import 'package:one_brew/features/brew_logger/data/datasources/brew_local_datasource.dart';
+import 'package:one_brew/features/brew_logger/data/repositories/brew_repository_impl.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart'
     as domain;
 
 class FakeBrewLocalDatasource implements BrewLocalDatasource {

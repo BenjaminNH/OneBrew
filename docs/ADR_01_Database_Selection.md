@@ -1,4 +1,4 @@
-# OneCoffee — 数据库选型：Drift vs sqlite3
+# OneBrew — 数据库选型：Drift vs sqlite3
 
 > **调研日期**: 2026-03-06 · **数据来源**: Web 搜索 (pub.dev, Medium, Reddit, 官方文档)
 > **结论**: ✅ 选择 **Drift** · 相关架构文档: [01_Architecture.md](./01_Architecture.md)
@@ -41,7 +41,7 @@
 | **SQL 注入防护** | ✅ 内建 | ❌ 需自行参数化 |
 | **重构安全** | 改字段名 → 编译器报所有用到的地方 | 改字段名 → 只能搜字符串，容易漏 |
 
-**结论**：对于 OneCoffee 这种多实体关联（BrewRecord ↔ Bean ↔ Equipment ↔ Rating）的项目，Drift 的类型安全优势极其显著。
+**结论**：对于 OneBrew 这种多实体关联（BrewRecord ↔ Bean ↔ Equipment ↔ Rating）的项目，Drift 的类型安全优势极其显著。
 
 ### 3.2 性能
 
@@ -49,9 +49,9 @@
 |---|---|---|
 | **读性能** | 好 — 有内置缓存机制 | 极好 — 最接近原生 SQLite，零抽象开销 |
 | **写性能** | 好 — 事务和批量操作支持完善 | 极好 — 直接 FFI 调用 |
-| **实际差异** | 对 OneCoffee 的数据量级（几百~几千条记录），**差异不可感知** | 同上 |
+| **实际差异** | 对 OneBrew 的数据量级（几百~几千条记录），**差异不可感知** | 同上 |
 
-**结论**：在 OneCoffee 的数据量级下，两者性能差异完全可以忽略。
+**结论**：在 OneBrew 的数据量级下，两者性能差异完全可以忽略。
 
 ### 3.3 开发体验
 
@@ -67,7 +67,7 @@
 
 两者相当：移动端 ✅ / 桌面端 ✅ / Web (Wasm) ✅ / 纯 Dart Server ✅
 
-### 3.5 与 OneCoffee 项目适配度
+### 3.5 与 OneBrew 项目适配度
 
 | 项目需求 | Drift | sqlite3 |
 |---|---|---|

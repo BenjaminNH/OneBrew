@@ -36,8 +36,8 @@ OneBrew is a **Local-First** pour-over and espresso coffee brewing logger design
 
 #### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/your-username/OneCoffee.git
-cd OneCoffee
+git clone https://github.com/your-username/OneBrew.git
+cd OneBrew
 flutter pub get
 ```
 

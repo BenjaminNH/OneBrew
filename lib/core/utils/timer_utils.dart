@@ -1,4 +1,4 @@
-/// OneCoffee Timer Utilities
+/// OneBrew Timer Utilities
 /// Provides helper functions for brew timer display and calculations.
 /// Used by BrewTimerController and AppTimerDisplay widget.
 abstract final class TimerUtils {

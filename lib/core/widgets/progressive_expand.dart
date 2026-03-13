@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_durations.dart';
 import '../constants/app_spacing.dart';
 
-/// OneCoffee Progressive Expand Container
+/// OneBrew Progressive Expand Container
 /// Implements "Default Minimalism" UX — shows a collapsed summary row
 /// with a silky AnimatedCrossFade to reveal detailed content on expand.
 ///

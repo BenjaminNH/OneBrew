@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/features/inventory/presentation/widgets/template_picker.dart';
+import 'package:one_brew/features/inventory/presentation/widgets/template_picker.dart';
 
 void main() {
   group('TemplatePicker', () {

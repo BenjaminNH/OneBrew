@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/features/inventory/presentation/widgets/grinder_form_sheet.dart';
+import 'package:one_brew/features/inventory/presentation/widgets/grinder_form_sheet.dart';
 
 class _GrinderSheetHarness extends StatefulWidget {
   const _GrinderSheetHarness();

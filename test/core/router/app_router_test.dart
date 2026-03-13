@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:one_coffee/app.dart';
-import 'package:one_coffee/core/database/drift_database.dart' hide BrewRecord;
-import 'package:one_coffee/core/router/app_router.dart';
-import 'package:one_coffee/features/brew_logger/brew_logger_providers.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
-import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
-import 'package:one_coffee/features/brew_logger/presentation/pages/brew_logger_page.dart';
-import 'package:one_coffee/features/history/presentation/pages/history_page.dart';
-import 'package:one_coffee/features/inventory/presentation/pages/inventory_manage_page.dart';
-import 'package:one_coffee/shared/providers/database_providers.dart';
+import 'package:one_brew/app.dart';
+import 'package:one_brew/core/database/drift_database.dart' hide BrewRecord;
+import 'package:one_brew/core/router/app_router.dart';
+import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
+import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
+import 'package:one_brew/features/brew_logger/presentation/pages/brew_logger_page.dart';
+import 'package:one_brew/features/history/presentation/pages/history_page.dart';
+import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_page.dart';
+import 'package:one_brew/shared/providers/database_providers.dart';
 
 void main() {
   group('Phase 7 router and app shell', () {
@@ -64,7 +64,7 @@ Future<void> _pumpApp(WidgetTester tester) async {
 
   appRouter.go(AppRoutePaths.brew);
 
-  final testDb = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+  final testDb = OneBrewDatabase.forTesting(NativeDatabase.memory());
   addTearDown(() async {
     // Unmount first so provider disposal completes before DB close.
     await tester.pumpWidget(const SizedBox.shrink());
@@ -82,7 +82,7 @@ Future<void> _pumpApp(WidgetTester tester) async {
           (_) => Stream<List<BrewRecord>>.value(const <BrewRecord>[]),
         ),
       ],
-      child: const OneCoffeeApp(),
+      child: const OneBrewApp(),
     ),
   );
   await tester.pump();

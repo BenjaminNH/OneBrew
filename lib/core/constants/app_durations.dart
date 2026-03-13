@@ -1,4 +1,4 @@
-/// OneCoffee Animation Duration Constants
+/// OneBrew Animation Duration Constants
 /// Ref: docs/03_UI_Specification.md § 4.3 — Animation Timing
 /// All animations: 150ms–250ms with Spring Physics
 abstract final class AppDurations {

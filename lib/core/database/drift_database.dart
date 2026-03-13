@@ -23,12 +23,12 @@ part 'drift_database.g.dart';
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'one_coffee.db'));
+    final file = File(p.join(dbFolder.path, 'one_brew.db'));
     return NativeDatabase.createInBackground(file);
   });
 }
 
-/// Main Drift database for OneCoffee.
+/// Main Drift database for OneBrew.
 ///
 /// Contains all domain tables:
 ///   - [Beans]                — coffee bean inventory
@@ -40,7 +40,7 @@ LazyDatabase _openConnection() {
 ///   - [BrewParamVisibilities]— per-method visibility rules
 ///   - [BrewParamValues]      — recorded parameter values per brew
 ///
-/// Use [OneCoffeeDatabase.instance] (or the Riverpod provider from
+/// Use [OneBrewDatabase.instance] (or the Riverpod provider from
 /// `shared/providers/database_providers.dart`) to get a singleton.
 ///
 /// Foreign-key enforcement is enabled via a pragma on connection open.
@@ -58,14 +58,14 @@ LazyDatabase _openConnection() {
     BrewParamValues,
   ],
 )
-class OneCoffeeDatabase extends _$OneCoffeeDatabase {
+class OneBrewDatabase extends _$OneBrewDatabase {
   /// Creates a database backed by the given [QueryExecutor].
-  /// Use the named constructor [OneCoffeeDatabase.forTesting] for in-memory
+  /// Use the named constructor [OneBrewDatabase.forTesting] for in-memory
   /// test databases.
-  OneCoffeeDatabase() : super(_openConnection());
+  OneBrewDatabase() : super(_openConnection());
 
   /// Creates an in-memory database for widget and unit tests.
-  OneCoffeeDatabase.forTesting(super.executor);
+  OneBrewDatabase.forTesting(super.executor);
 
   @override
   int get schemaVersion => 4;

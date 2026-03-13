@@ -14,7 +14,7 @@ abstract interface class RatingLocalDatasource {
 class RatingLocalDatasourceImpl implements RatingLocalDatasource {
   const RatingLocalDatasourceImpl(this._db);
 
-  final OneCoffeeDatabase _db;
+  final OneBrewDatabase _db;
 
   @override
   Future<BrewRating?> getRatingForBrew(int brewRecordId) =>

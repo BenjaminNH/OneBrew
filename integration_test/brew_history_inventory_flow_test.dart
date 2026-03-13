@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:one_coffee/app.dart';
-import 'package:one_coffee/core/database/drift_database.dart' hide BrewRecord;
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
-import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
-import 'package:one_coffee/features/brew_logger/presentation/pages/brew_logger_page.dart';
-import 'package:one_coffee/features/history/presentation/pages/brew_detail_page.dart';
-import 'package:one_coffee/features/inventory/presentation/pages/inventory_manage_page.dart';
-import 'package:one_coffee/shared/providers/database_providers.dart';
+import 'package:one_brew/app.dart';
+import 'package:one_brew/core/database/drift_database.dart' hide BrewRecord;
+import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
+import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
+import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
+import 'package:one_brew/features/brew_logger/presentation/pages/brew_logger_page.dart';
+import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
+import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_page.dart';
+import 'package:one_brew/shared/providers/database_providers.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +20,7 @@ void main() {
   testWidgets('phase7C critical flow is reachable from main paths', (
     WidgetTester tester,
   ) async {
-    final db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
     await _seedBrewRecord(db);
 
     addTearDown(() async {
@@ -33,11 +34,12 @@ void main() {
       ProviderScope(
         overrides: [
           databaseProvider.overrideWithValue(db),
+          brewParamBootstrapProvider.overrideWith((_) async => false),
           recentBrewTemplatesProvider.overrideWith(
             (_) => Stream<List<BrewRecord>>.value(const <BrewRecord>[]),
           ),
         ],
-        child: const OneCoffeeApp(),
+        child: const OneBrewApp(),
       ),
     );
     await tester.pumpAndSettle();
@@ -62,7 +64,7 @@ void main() {
   });
 }
 
-Future<void> _seedBrewRecord(OneCoffeeDatabase db) async {
+Future<void> _seedBrewRecord(OneBrewDatabase db) async {
   final now = DateTime(2026, 3, 9, 9, 30);
   await db.insertBrewRecord(
     BrewRecordsCompanion.insert(

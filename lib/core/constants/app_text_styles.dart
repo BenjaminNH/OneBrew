@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// OneCoffee Typography System
+/// OneBrew Typography System
 /// Headers/Numbers: serif/elegant fonts (Playfair Display or Bodoni Moda equivalents via Google Fonts)
 /// Body: system native sans-serif (SF Pro / Roboto / system-ui)
 /// Ref: docs/03_UI_Specification.md § 2.3

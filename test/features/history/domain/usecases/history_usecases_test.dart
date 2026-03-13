@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:one_coffee/features/history/domain/repositories/history_repository.dart';
-import 'package:one_coffee/features/history/domain/usecases/filter_brews.dart';
-import 'package:one_coffee/features/history/domain/usecases/get_brew_detail.dart';
-import 'package:one_coffee/features/history/domain/usecases/get_brew_history.dart';
-import 'package:one_coffee/features/history/domain/usecases/get_top_brews.dart';
+import 'package:one_brew/features/history/domain/repositories/history_repository.dart';
+import 'package:one_brew/features/history/domain/usecases/filter_brews.dart';
+import 'package:one_brew/features/history/domain/usecases/get_brew_detail.dart';
+import 'package:one_brew/features/history/domain/usecases/get_brew_history.dart';
+import 'package:one_brew/features/history/domain/usecases/get_top_brews.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
 import '../../../../helpers/test_fixtures.dart';

@@ -1,4 +1,4 @@
-# OneCoffee — 项目架构设计文档
+# OneBrew — 项目架构设计文档
 
 > **版本**: v1.1 · **日期**: 2026-03-06 · **状态**: MVP 架构方案 · **变更**: 数据库选型由 Isar 改为 Drift ([ADR_01](./ADR_01_Database_Selection.md))
 

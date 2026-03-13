@@ -1,19 +1,19 @@
 import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/core/database/drift_database.dart';
-import 'package:one_coffee/features/rating/data/datasources/rating_local_datasource.dart';
-import 'package:one_coffee/features/rating/data/repositories/rating_repository_impl.dart';
-import 'package:one_coffee/features/rating/domain/entities/brew_rating.dart'
+import 'package:one_brew/core/database/drift_database.dart';
+import 'package:one_brew/features/rating/data/datasources/rating_local_datasource.dart';
+import 'package:one_brew/features/rating/data/repositories/rating_repository_impl.dart';
+import 'package:one_brew/features/rating/domain/entities/brew_rating.dart'
     as domain;
 
 void main() {
-  late OneCoffeeDatabase db;
+  late OneBrewDatabase db;
   late RatingLocalDatasourceImpl datasource;
   late RatingRepositoryImpl repository;
 
   setUp(() {
-    db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    db = OneBrewDatabase.forTesting(NativeDatabase.memory());
     datasource = RatingLocalDatasourceImpl(db);
     repository = RatingRepositoryImpl(datasource);
   });

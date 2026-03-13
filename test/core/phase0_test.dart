@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:one_coffee/core/constants/app_colors.dart';
-import 'package:one_coffee/core/constants/app_durations.dart';
-import 'package:one_coffee/core/constants/app_spacing.dart';
-import 'package:one_coffee/core/constants/app_text_styles.dart';
-import 'package:one_coffee/core/theme/app_theme.dart';
-import 'package:one_coffee/core/theme/dark_theme.dart';
-import 'package:one_coffee/core/utils/date_utils.dart';
-import 'package:one_coffee/core/utils/extensions.dart';
-import 'package:one_coffee/core/utils/timer_utils.dart';
-import 'package:one_coffee/core/widgets/app_card.dart';
-import 'package:one_coffee/core/widgets/app_timer_display.dart';
-import 'package:one_coffee/core/widgets/progressive_expand.dart';
-import 'package:one_coffee/shared/helpers/brew_param_defaults.dart';
+import 'package:one_brew/core/constants/app_colors.dart';
+import 'package:one_brew/core/constants/app_durations.dart';
+import 'package:one_brew/core/constants/app_spacing.dart';
+import 'package:one_brew/core/constants/app_text_styles.dart';
+import 'package:one_brew/core/theme/app_theme.dart';
+import 'package:one_brew/core/theme/dark_theme.dart';
+import 'package:one_brew/core/utils/date_utils.dart';
+import 'package:one_brew/core/utils/extensions.dart';
+import 'package:one_brew/core/utils/timer_utils.dart';
+import 'package:one_brew/core/widgets/app_card.dart';
+import 'package:one_brew/core/widgets/app_timer_display.dart';
+import 'package:one_brew/core/widgets/progressive_expand.dart';
+import 'package:one_brew/shared/helpers/brew_param_defaults.dart';
 
 void main() {
   // ─────────────────────────────────────────────────────────────

@@ -1,22 +1,22 @@
 import 'package:drift/native.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/core/database/drift_database.dart';
-import 'package:one_coffee/features/inventory/data/datasources/inventory_local_datasource.dart';
-import 'package:one_coffee/features/inventory/data/repositories/inventory_repository_impl.dart';
-import 'package:one_coffee/features/inventory/domain/entities/bean.dart'
+import 'package:one_brew/core/database/drift_database.dart';
+import 'package:one_brew/features/inventory/data/datasources/inventory_local_datasource.dart';
+import 'package:one_brew/features/inventory/data/repositories/inventory_repository_impl.dart';
+import 'package:one_brew/features/inventory/domain/entities/bean.dart'
     as domain;
-import 'package:one_coffee/features/inventory/domain/entities/equipment.dart'
+import 'package:one_brew/features/inventory/domain/entities/equipment.dart'
     as domain;
-import 'package:one_coffee/features/inventory/domain/inventory_exceptions.dart';
+import 'package:one_brew/features/inventory/domain/inventory_exceptions.dart';
 
 void main() {
-  late OneCoffeeDatabase db;
+  late OneBrewDatabase db;
   late InventoryLocalDatasourceImpl datasource;
   late InventoryRepositoryImpl repository;
 
   setUp(() {
-    db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    db = OneBrewDatabase.forTesting(NativeDatabase.memory());
     datasource = InventoryLocalDatasourceImpl(db);
     repository = InventoryRepositoryImpl(datasource);
   });

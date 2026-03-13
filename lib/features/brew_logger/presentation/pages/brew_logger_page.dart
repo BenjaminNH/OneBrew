@@ -333,7 +333,7 @@ class _PageHeader extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xxs),
         Text(
-          'OneCoffee',
+          'OneBrew',
           style: AppTextStyles.labelSmall.copyWith(
             color: AppColors.primary.withValues(alpha: 0.7),
             letterSpacing: 3.0,

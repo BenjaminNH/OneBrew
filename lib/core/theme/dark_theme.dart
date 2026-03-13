@@ -5,7 +5,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../constants/app_text_styles.dart';
 
-/// OneCoffee Dark Theme (Minimal implementation — reserved for Phase 8)
+/// OneBrew Dark Theme (Minimal implementation — reserved for Phase 8)
 /// Dark variant of the Neumorphism style — deep espresso tones.
 abstract final class DarkTheme {
   // Dark palette constants

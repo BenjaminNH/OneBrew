@@ -5,7 +5,7 @@ import '../../../../shared/providers/database_providers.dart';
 
 /// Local data source for BrewRecord persistence using Drift.
 ///
-/// All database-level operations are delegated to [OneCoffeeDatabase].
+/// All database-level operations are delegated to [OneBrewDatabase].
 /// Repository implementations call this class; they never access the DB
 /// directly.
 ///
@@ -13,7 +13,7 @@ import '../../../../shared/providers/database_providers.dart';
 class BrewLocalDatasource {
   const BrewLocalDatasource(this._db);
 
-  final OneCoffeeDatabase _db;
+  final OneBrewDatabase _db;
 
   /// Returns all brew records sorted newest-first.
   Future<List<BrewRecord>> getAllBrewRecords() => _db.getAllBrewRecords();

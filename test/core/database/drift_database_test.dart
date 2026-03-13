@@ -1,9 +1,9 @@
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/core/database/drift_database.dart';
+import 'package:one_brew/core/database/drift_database.dart';
 
-/// Integration tests for [OneCoffeeDatabase] using an in-memory SQLite instance.
+/// Integration tests for [OneBrewDatabase] using an in-memory SQLite instance.
 ///
 /// Covers:
 ///   - Beans CRUD + useCount increment + search
@@ -15,10 +15,10 @@ import 'package:one_coffee/core/database/drift_database.dart';
 /// Run with:
 ///   flutter test test/core/database/drift_database_test.dart
 void main() {
-  late OneCoffeeDatabase db;
+  late OneBrewDatabase db;
 
   setUp(() {
-    db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    db = OneBrewDatabase.forTesting(NativeDatabase.memory());
   });
 
   tearDown(() async {

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:one_coffee/features/rating/domain/usecases/save_rating.dart';
+import 'package:one_brew/features/rating/domain/usecases/save_rating.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
 import '../../../../helpers/test_fixtures.dart';

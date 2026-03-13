@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
-import 'package:one_coffee/core/database/drift_database.dart';
-import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
-import 'package:one_coffee/features/inventory/inventory_providers.dart';
-import 'package:one_coffee/shared/providers/database_providers.dart';
-import 'package:one_coffee/core/widgets/app_chip_input.dart';
-import 'package:one_coffee/features/inventory/presentation/widgets/smart_tag_field.dart';
+import 'package:one_brew/core/database/drift_database.dart';
+import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
+import 'package:one_brew/features/inventory/inventory_providers.dart';
+import 'package:one_brew/shared/providers/database_providers.dart';
+import 'package:one_brew/core/widgets/app_chip_input.dart';
+import 'package:one_brew/features/inventory/presentation/widgets/smart_tag_field.dart';
 
 class _EquipmentSelectionHarness extends ConsumerStatefulWidget {
   const _EquipmentSelectionHarness();
@@ -48,7 +48,7 @@ void main() {
   testWidgets('SmartTagField renders and handles input', (
     WidgetTester tester,
   ) async {
-    final db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
 
     List<String> selectedTags = [];
@@ -93,7 +93,7 @@ void main() {
   testWidgets(
     'SmartTagField equipment submit resolves equipmentId and grinder flag',
     (WidgetTester tester) async {
-      final db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
       addTearDown(db.close);
 
       await tester.pumpWidget(
@@ -138,7 +138,7 @@ void main() {
   testWidgets('Quick grinder setup Save works with empty fields', (
     WidgetTester tester,
   ) async {
-    final db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
 
     await tester.pumpWidget(
@@ -178,7 +178,7 @@ void main() {
   testWidgets(
     'Quick grinder setup Save persists custom values without controller errors',
     (WidgetTester tester) async {
-      final db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
       addTearDown(db.close);
 
       await tester.pumpWidget(

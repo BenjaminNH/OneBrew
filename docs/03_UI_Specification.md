@@ -1,9 +1,9 @@
-# UI/UX 设计规范 (UI/UX Specification): OneCoffee
+# UI/UX 设计规范 (UI/UX Specification): OneBrew
 
 > **版本 (Version)**: v1.0 · **日期 (Date)**: 2026-03-07 · **状态 (Status)**: 草案 (Draft)
 
 ## 1. 需求理解总结 (Understanding Summary)
-*   **目标产品 (Target Product)**: OneCoffee（一款本地优先的手冲咖啡记录 Flutter App）。
+*   **目标产品 (Target Product)**: OneBrew（一款本地优先的手冲咖啡记录 Flutter App）。
 *   **目标用户 (Target Users)**: 从追求快速冲泡的入门者，到死磕参数的极客玩家；使用场景多为吧台前冲煮，单手或双手操作设备。
 *   **核心价值主张 (Key Value Proposition)**: 解决现有咖啡记录 App 臃肿、表单堆砌、使用门槛高的问题，提供“优雅、丝滑、无压迫感”的极简记录体验。
 *   **物理交互约束 (Physical Constraints)**: 优化大屏手机/平板的持握体验设计，遵循拇指热区 (Thumb Zone) 法则。主要交互和导航必须下沉到底部或中下部；避免频繁点击顶部/左上角返回按钮；表单输入应提供肌肉记忆般的顺滑感。

@@ -5,7 +5,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../constants/app_text_styles.dart';
 
-/// OneCoffee Light Theme
+/// OneBrew Light Theme
 /// Assembles Flutter ThemeData using the AppColors / AppTextStyles / AppSpacing systems.
 /// Style: Neumorphism / Soft UI — cream background with coffee-brown accents.
 /// Ref: docs/03_UI_Specification.md § 2.x

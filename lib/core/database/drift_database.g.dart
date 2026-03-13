@@ -4380,9 +4380,9 @@ class BrewParamValuesCompanion extends UpdateCompanion<BrewParamValue> {
   }
 }
 
-abstract class _$OneCoffeeDatabase extends GeneratedDatabase {
-  _$OneCoffeeDatabase(QueryExecutor e) : super(e);
-  $OneCoffeeDatabaseManager get managers => $OneCoffeeDatabaseManager(this);
+abstract class _$OneBrewDatabase extends GeneratedDatabase {
+  _$OneBrewDatabase(QueryExecutor e) : super(e);
+  $OneBrewDatabaseManager get managers => $OneBrewDatabaseManager(this);
   late final $BeansTable beans = $BeansTable(this);
   late final $EquipmentsTable equipments = $EquipmentsTable(this);
   late final $BrewRecordsTable brewRecords = $BrewRecordsTable(this);
@@ -4444,7 +4444,7 @@ typedef $$BeansTableUpdateCompanionBuilder =
     });
 
 class $$BeansTableFilterComposer
-    extends Composer<_$OneCoffeeDatabase, $BeansTable> {
+    extends Composer<_$OneBrewDatabase, $BeansTable> {
   $$BeansTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4489,7 +4489,7 @@ class $$BeansTableFilterComposer
 }
 
 class $$BeansTableOrderingComposer
-    extends Composer<_$OneCoffeeDatabase, $BeansTable> {
+    extends Composer<_$OneBrewDatabase, $BeansTable> {
   $$BeansTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4534,7 +4534,7 @@ class $$BeansTableOrderingComposer
 }
 
 class $$BeansTableAnnotationComposer
-    extends Composer<_$OneCoffeeDatabase, $BeansTable> {
+    extends Composer<_$OneBrewDatabase, $BeansTable> {
   $$BeansTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4569,7 +4569,7 @@ class $$BeansTableAnnotationComposer
 class $$BeansTableTableManager
     extends
         RootTableManager<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BeansTable,
           Bean,
           $$BeansTableFilterComposer,
@@ -4577,11 +4577,11 @@ class $$BeansTableTableManager
           $$BeansTableAnnotationComposer,
           $$BeansTableCreateCompanionBuilder,
           $$BeansTableUpdateCompanionBuilder,
-          (Bean, BaseReferences<_$OneCoffeeDatabase, $BeansTable, Bean>),
+          (Bean, BaseReferences<_$OneBrewDatabase, $BeansTable, Bean>),
           Bean,
           PrefetchHooks Function()
         > {
-  $$BeansTableTableManager(_$OneCoffeeDatabase db, $BeansTable table)
+  $$BeansTableTableManager(_$OneBrewDatabase db, $BeansTable table)
     : super(
         TableManagerState(
           db: db,
@@ -4638,7 +4638,7 @@ class $$BeansTableTableManager
 
 typedef $$BeansTableProcessedTableManager =
     ProcessedTableManager<
-      _$OneCoffeeDatabase,
+      _$OneBrewDatabase,
       $BeansTable,
       Bean,
       $$BeansTableFilterComposer,
@@ -4646,7 +4646,7 @@ typedef $$BeansTableProcessedTableManager =
       $$BeansTableAnnotationComposer,
       $$BeansTableCreateCompanionBuilder,
       $$BeansTableUpdateCompanionBuilder,
-      (Bean, BaseReferences<_$OneCoffeeDatabase, $BeansTable, Bean>),
+      (Bean, BaseReferences<_$OneBrewDatabase, $BeansTable, Bean>),
       Bean,
       PrefetchHooks Function()
     >;
@@ -4680,18 +4680,17 @@ typedef $$EquipmentsTableUpdateCompanionBuilder =
     });
 
 final class $$EquipmentsTableReferences
-    extends BaseReferences<_$OneCoffeeDatabase, $EquipmentsTable, Equipment> {
+    extends BaseReferences<_$OneBrewDatabase, $EquipmentsTable, Equipment> {
   $$EquipmentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$BrewRecordsTable, List<BrewRecord>>
-  _brewRecordsRefsTable(_$OneCoffeeDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.brewRecords,
-        aliasName: $_aliasNameGenerator(
-          db.equipments.id,
-          db.brewRecords.equipmentId,
-        ),
-      );
+  _brewRecordsRefsTable(_$OneBrewDatabase db) => MultiTypedResultKey.fromTable(
+    db.brewRecords,
+    aliasName: $_aliasNameGenerator(
+      db.equipments.id,
+      db.brewRecords.equipmentId,
+    ),
+  );
 
   $$BrewRecordsTableProcessedTableManager get brewRecordsRefs {
     final manager = $$BrewRecordsTableTableManager(
@@ -4707,7 +4706,7 @@ final class $$EquipmentsTableReferences
 }
 
 class $$EquipmentsTableFilterComposer
-    extends Composer<_$OneCoffeeDatabase, $EquipmentsTable> {
+    extends Composer<_$OneBrewDatabase, $EquipmentsTable> {
   $$EquipmentsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -4797,7 +4796,7 @@ class $$EquipmentsTableFilterComposer
 }
 
 class $$EquipmentsTableOrderingComposer
-    extends Composer<_$OneCoffeeDatabase, $EquipmentsTable> {
+    extends Composer<_$OneBrewDatabase, $EquipmentsTable> {
   $$EquipmentsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -4862,7 +4861,7 @@ class $$EquipmentsTableOrderingComposer
 }
 
 class $$EquipmentsTableAnnotationComposer
-    extends Composer<_$OneCoffeeDatabase, $EquipmentsTable> {
+    extends Composer<_$OneBrewDatabase, $EquipmentsTable> {
   $$EquipmentsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -4940,7 +4939,7 @@ class $$EquipmentsTableAnnotationComposer
 class $$EquipmentsTableTableManager
     extends
         RootTableManager<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $EquipmentsTable,
           Equipment,
           $$EquipmentsTableFilterComposer,
@@ -4952,7 +4951,7 @@ class $$EquipmentsTableTableManager
           Equipment,
           PrefetchHooks Function({bool brewRecordsRefs})
         > {
-  $$EquipmentsTableTableManager(_$OneCoffeeDatabase db, $EquipmentsTable table)
+  $$EquipmentsTableTableManager(_$OneBrewDatabase db, $EquipmentsTable table)
     : super(
         TableManagerState(
           db: db,
@@ -5061,7 +5060,7 @@ class $$EquipmentsTableTableManager
 
 typedef $$EquipmentsTableProcessedTableManager =
     ProcessedTableManager<
-      _$OneCoffeeDatabase,
+      _$OneBrewDatabase,
       $EquipmentsTable,
       Equipment,
       $$EquipmentsTableFilterComposer,
@@ -5121,10 +5120,10 @@ typedef $$BrewRecordsTableUpdateCompanionBuilder =
     });
 
 final class $$BrewRecordsTableReferences
-    extends BaseReferences<_$OneCoffeeDatabase, $BrewRecordsTable, BrewRecord> {
+    extends BaseReferences<_$OneBrewDatabase, $BrewRecordsTable, BrewRecord> {
   $$BrewRecordsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $EquipmentsTable _equipmentIdTable(_$OneCoffeeDatabase db) =>
+  static $EquipmentsTable _equipmentIdTable(_$OneBrewDatabase db) =>
       db.equipments.createAlias(
         $_aliasNameGenerator(db.brewRecords.equipmentId, db.equipments.id),
       );
@@ -5144,14 +5143,13 @@ final class $$BrewRecordsTableReferences
   }
 
   static MultiTypedResultKey<$BrewRatingsTable, List<BrewRating>>
-  _brewRatingsRefsTable(_$OneCoffeeDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.brewRatings,
-        aliasName: $_aliasNameGenerator(
-          db.brewRecords.id,
-          db.brewRatings.brewRecordId,
-        ),
-      );
+  _brewRatingsRefsTable(_$OneBrewDatabase db) => MultiTypedResultKey.fromTable(
+    db.brewRatings,
+    aliasName: $_aliasNameGenerator(
+      db.brewRecords.id,
+      db.brewRatings.brewRecordId,
+    ),
+  );
 
   $$BrewRatingsTableProcessedTableManager get brewRatingsRefs {
     final manager = $$BrewRatingsTableTableManager(
@@ -5166,7 +5164,7 @@ final class $$BrewRecordsTableReferences
   }
 
   static MultiTypedResultKey<$BrewParamValuesTable, List<BrewParamValue>>
-  _brewParamValuesRefsTable(_$OneCoffeeDatabase db) =>
+  _brewParamValuesRefsTable(_$OneBrewDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.brewParamValues,
         aliasName: $_aliasNameGenerator(
@@ -5191,7 +5189,7 @@ final class $$BrewRecordsTableReferences
 }
 
 class $$BrewRecordsTableFilterComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewRecordsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewRecordsTable> {
   $$BrewRecordsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -5369,7 +5367,7 @@ class $$BrewRecordsTableFilterComposer
 }
 
 class $$BrewRecordsTableOrderingComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewRecordsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewRecordsTable> {
   $$BrewRecordsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -5497,7 +5495,7 @@ class $$BrewRecordsTableOrderingComposer
 }
 
 class $$BrewRecordsTableAnnotationComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewRecordsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewRecordsTable> {
   $$BrewRecordsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -5659,7 +5657,7 @@ class $$BrewRecordsTableAnnotationComposer
 class $$BrewRecordsTableTableManager
     extends
         RootTableManager<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewRecordsTable,
           BrewRecord,
           $$BrewRecordsTableFilterComposer,
@@ -5675,10 +5673,8 @@ class $$BrewRecordsTableTableManager
             bool brewParamValuesRefs,
           })
         > {
-  $$BrewRecordsTableTableManager(
-    _$OneCoffeeDatabase db,
-    $BrewRecordsTable table,
-  ) : super(
+  $$BrewRecordsTableTableManager(_$OneBrewDatabase db, $BrewRecordsTable table)
+    : super(
         TableManagerState(
           db: db,
           table: table,
@@ -5884,7 +5880,7 @@ class $$BrewRecordsTableTableManager
 
 typedef $$BrewRecordsTableProcessedTableManager =
     ProcessedTableManager<
-      _$OneCoffeeDatabase,
+      _$OneBrewDatabase,
       $BrewRecordsTable,
       BrewRecord,
       $$BrewRecordsTableFilterComposer,
@@ -5926,10 +5922,10 @@ typedef $$BrewRatingsTableUpdateCompanionBuilder =
     });
 
 final class $$BrewRatingsTableReferences
-    extends BaseReferences<_$OneCoffeeDatabase, $BrewRatingsTable, BrewRating> {
+    extends BaseReferences<_$OneBrewDatabase, $BrewRatingsTable, BrewRating> {
   $$BrewRatingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $BrewRecordsTable _brewRecordIdTable(_$OneCoffeeDatabase db) =>
+  static $BrewRecordsTable _brewRecordIdTable(_$OneBrewDatabase db) =>
       db.brewRecords.createAlias(
         $_aliasNameGenerator(db.brewRatings.brewRecordId, db.brewRecords.id),
       );
@@ -5950,7 +5946,7 @@ final class $$BrewRatingsTableReferences
 }
 
 class $$BrewRatingsTableFilterComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewRatingsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewRatingsTable> {
   $$BrewRatingsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -6023,7 +6019,7 @@ class $$BrewRatingsTableFilterComposer
 }
 
 class $$BrewRatingsTableOrderingComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewRatingsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewRatingsTable> {
   $$BrewRatingsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -6096,7 +6092,7 @@ class $$BrewRatingsTableOrderingComposer
 }
 
 class $$BrewRatingsTableAnnotationComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewRatingsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewRatingsTable> {
   $$BrewRatingsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -6161,7 +6157,7 @@ class $$BrewRatingsTableAnnotationComposer
 class $$BrewRatingsTableTableManager
     extends
         RootTableManager<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewRatingsTable,
           BrewRating,
           $$BrewRatingsTableFilterComposer,
@@ -6173,10 +6169,8 @@ class $$BrewRatingsTableTableManager
           BrewRating,
           PrefetchHooks Function({bool brewRecordId})
         > {
-  $$BrewRatingsTableTableManager(
-    _$OneCoffeeDatabase db,
-    $BrewRatingsTable table,
-  ) : super(
+  $$BrewRatingsTableTableManager(_$OneBrewDatabase db, $BrewRatingsTable table)
+    : super(
         TableManagerState(
           db: db,
           table: table,
@@ -6285,7 +6279,7 @@ class $$BrewRatingsTableTableManager
 
 typedef $$BrewRatingsTableProcessedTableManager =
     ProcessedTableManager<
-      _$OneCoffeeDatabase,
+      _$OneBrewDatabase,
       $BrewRatingsTable,
       BrewRating,
       $$BrewRatingsTableFilterComposer,
@@ -6313,7 +6307,7 @@ typedef $$BrewMethodConfigsTableUpdateCompanionBuilder =
     });
 
 class $$BrewMethodConfigsTableFilterComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewMethodConfigsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewMethodConfigsTable> {
   $$BrewMethodConfigsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -6343,7 +6337,7 @@ class $$BrewMethodConfigsTableFilterComposer
 }
 
 class $$BrewMethodConfigsTableOrderingComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewMethodConfigsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewMethodConfigsTable> {
   $$BrewMethodConfigsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -6373,7 +6367,7 @@ class $$BrewMethodConfigsTableOrderingComposer
 }
 
 class $$BrewMethodConfigsTableAnnotationComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewMethodConfigsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewMethodConfigsTable> {
   $$BrewMethodConfigsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -6399,7 +6393,7 @@ class $$BrewMethodConfigsTableAnnotationComposer
 class $$BrewMethodConfigsTableTableManager
     extends
         RootTableManager<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewMethodConfigsTable,
           BrewMethodConfig,
           $$BrewMethodConfigsTableFilterComposer,
@@ -6410,7 +6404,7 @@ class $$BrewMethodConfigsTableTableManager
           (
             BrewMethodConfig,
             BaseReferences<
-              _$OneCoffeeDatabase,
+              _$OneBrewDatabase,
               $BrewMethodConfigsTable,
               BrewMethodConfig
             >,
@@ -6419,7 +6413,7 @@ class $$BrewMethodConfigsTableTableManager
           PrefetchHooks Function()
         > {
   $$BrewMethodConfigsTableTableManager(
-    _$OneCoffeeDatabase db,
+    _$OneBrewDatabase db,
     $BrewMethodConfigsTable table,
   ) : super(
         TableManagerState(
@@ -6468,7 +6462,7 @@ class $$BrewMethodConfigsTableTableManager
 
 typedef $$BrewMethodConfigsTableProcessedTableManager =
     ProcessedTableManager<
-      _$OneCoffeeDatabase,
+      _$OneBrewDatabase,
       $BrewMethodConfigsTable,
       BrewMethodConfig,
       $$BrewMethodConfigsTableFilterComposer,
@@ -6479,7 +6473,7 @@ typedef $$BrewMethodConfigsTableProcessedTableManager =
       (
         BrewMethodConfig,
         BaseReferences<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewMethodConfigsTable,
           BrewMethodConfig
         >,
@@ -6511,7 +6505,7 @@ typedef $$BrewParamDefinitionsTableUpdateCompanionBuilder =
 final class $$BrewParamDefinitionsTableReferences
     extends
         BaseReferences<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewParamDefinitionsTable,
           BrewParamDefinition
         > {
@@ -6525,7 +6519,7 @@ final class $$BrewParamDefinitionsTableReferences
     $BrewParamVisibilitiesTable,
     List<BrewParamVisibility>
   >
-  _brewParamVisibilitiesRefsTable(_$OneCoffeeDatabase db) =>
+  _brewParamVisibilitiesRefsTable(_$OneBrewDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.brewParamVisibilities,
         aliasName: $_aliasNameGenerator(
@@ -6550,7 +6544,7 @@ final class $$BrewParamDefinitionsTableReferences
   }
 
   static MultiTypedResultKey<$BrewParamValuesTable, List<BrewParamValue>>
-  _brewParamValuesRefsTable(_$OneCoffeeDatabase db) =>
+  _brewParamValuesRefsTable(_$OneBrewDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.brewParamValues,
         aliasName: $_aliasNameGenerator(
@@ -6575,7 +6569,7 @@ final class $$BrewParamDefinitionsTableReferences
 }
 
 class $$BrewParamDefinitionsTableFilterComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewParamDefinitionsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewParamDefinitionsTable> {
   $$BrewParamDefinitionsTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -6671,7 +6665,7 @@ class $$BrewParamDefinitionsTableFilterComposer
 }
 
 class $$BrewParamDefinitionsTableOrderingComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewParamDefinitionsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewParamDefinitionsTable> {
   $$BrewParamDefinitionsTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -6716,7 +6710,7 @@ class $$BrewParamDefinitionsTableOrderingComposer
 }
 
 class $$BrewParamDefinitionsTableAnnotationComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewParamDefinitionsTable> {
+    extends Composer<_$OneBrewDatabase, $BrewParamDefinitionsTable> {
   $$BrewParamDefinitionsTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -6800,7 +6794,7 @@ class $$BrewParamDefinitionsTableAnnotationComposer
 class $$BrewParamDefinitionsTableTableManager
     extends
         RootTableManager<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewParamDefinitionsTable,
           BrewParamDefinition,
           $$BrewParamDefinitionsTableFilterComposer,
@@ -6816,7 +6810,7 @@ class $$BrewParamDefinitionsTableTableManager
           })
         > {
   $$BrewParamDefinitionsTableTableManager(
-    _$OneCoffeeDatabase db,
+    _$OneBrewDatabase db,
     $BrewParamDefinitionsTable table,
   ) : super(
         TableManagerState(
@@ -6944,7 +6938,7 @@ class $$BrewParamDefinitionsTableTableManager
 
 typedef $$BrewParamDefinitionsTableProcessedTableManager =
     ProcessedTableManager<
-      _$OneCoffeeDatabase,
+      _$OneBrewDatabase,
       $BrewParamDefinitionsTable,
       BrewParamDefinition,
       $$BrewParamDefinitionsTableFilterComposer,
@@ -6977,7 +6971,7 @@ typedef $$BrewParamVisibilitiesTableUpdateCompanionBuilder =
 final class $$BrewParamVisibilitiesTableReferences
     extends
         BaseReferences<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewParamVisibilitiesTable,
           BrewParamVisibility
         > {
@@ -6987,7 +6981,7 @@ final class $$BrewParamVisibilitiesTableReferences
     super.$_typedResult,
   );
 
-  static $BrewParamDefinitionsTable _paramIdTable(_$OneCoffeeDatabase db) =>
+  static $BrewParamDefinitionsTable _paramIdTable(_$OneBrewDatabase db) =>
       db.brewParamDefinitions.createAlias(
         $_aliasNameGenerator(
           db.brewParamVisibilities.paramId,
@@ -7011,7 +7005,7 @@ final class $$BrewParamVisibilitiesTableReferences
 }
 
 class $$BrewParamVisibilitiesTableFilterComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewParamVisibilitiesTable> {
+    extends Composer<_$OneBrewDatabase, $BrewParamVisibilitiesTable> {
   $$BrewParamVisibilitiesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -7059,7 +7053,7 @@ class $$BrewParamVisibilitiesTableFilterComposer
 }
 
 class $$BrewParamVisibilitiesTableOrderingComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewParamVisibilitiesTable> {
+    extends Composer<_$OneBrewDatabase, $BrewParamVisibilitiesTable> {
   $$BrewParamVisibilitiesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -7108,7 +7102,7 @@ class $$BrewParamVisibilitiesTableOrderingComposer
 }
 
 class $$BrewParamVisibilitiesTableAnnotationComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewParamVisibilitiesTable> {
+    extends Composer<_$OneBrewDatabase, $BrewParamVisibilitiesTable> {
   $$BrewParamVisibilitiesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -7153,7 +7147,7 @@ class $$BrewParamVisibilitiesTableAnnotationComposer
 class $$BrewParamVisibilitiesTableTableManager
     extends
         RootTableManager<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewParamVisibilitiesTable,
           BrewParamVisibility,
           $$BrewParamVisibilitiesTableFilterComposer,
@@ -7166,7 +7160,7 @@ class $$BrewParamVisibilitiesTableTableManager
           PrefetchHooks Function({bool paramId})
         > {
   $$BrewParamVisibilitiesTableTableManager(
-    _$OneCoffeeDatabase db,
+    _$OneBrewDatabase db,
     $BrewParamVisibilitiesTable table,
   ) : super(
         TableManagerState(
@@ -7268,7 +7262,7 @@ class $$BrewParamVisibilitiesTableTableManager
 
 typedef $$BrewParamVisibilitiesTableProcessedTableManager =
     ProcessedTableManager<
-      _$OneCoffeeDatabase,
+      _$OneBrewDatabase,
       $BrewParamVisibilitiesTable,
       BrewParamVisibility,
       $$BrewParamVisibilitiesTableFilterComposer,
@@ -7300,7 +7294,7 @@ typedef $$BrewParamValuesTableUpdateCompanionBuilder =
 final class $$BrewParamValuesTableReferences
     extends
         BaseReferences<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewParamValuesTable,
           BrewParamValue
         > {
@@ -7310,7 +7304,7 @@ final class $$BrewParamValuesTableReferences
     super.$_typedResult,
   );
 
-  static $BrewRecordsTable _brewRecordIdTable(_$OneCoffeeDatabase db) =>
+  static $BrewRecordsTable _brewRecordIdTable(_$OneBrewDatabase db) =>
       db.brewRecords.createAlias(
         $_aliasNameGenerator(
           db.brewParamValues.brewRecordId,
@@ -7332,7 +7326,7 @@ final class $$BrewParamValuesTableReferences
     );
   }
 
-  static $BrewParamDefinitionsTable _paramIdTable(_$OneCoffeeDatabase db) =>
+  static $BrewParamDefinitionsTable _paramIdTable(_$OneBrewDatabase db) =>
       db.brewParamDefinitions.createAlias(
         $_aliasNameGenerator(
           db.brewParamValues.paramId,
@@ -7356,7 +7350,7 @@ final class $$BrewParamValuesTableReferences
 }
 
 class $$BrewParamValuesTableFilterComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewParamValuesTable> {
+    extends Composer<_$OneBrewDatabase, $BrewParamValuesTable> {
   $$BrewParamValuesTableFilterComposer({
     required super.$db,
     required super.$table,
@@ -7427,7 +7421,7 @@ class $$BrewParamValuesTableFilterComposer
 }
 
 class $$BrewParamValuesTableOrderingComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewParamValuesTable> {
+    extends Composer<_$OneBrewDatabase, $BrewParamValuesTable> {
   $$BrewParamValuesTableOrderingComposer({
     required super.$db,
     required super.$table,
@@ -7499,7 +7493,7 @@ class $$BrewParamValuesTableOrderingComposer
 }
 
 class $$BrewParamValuesTableAnnotationComposer
-    extends Composer<_$OneCoffeeDatabase, $BrewParamValuesTable> {
+    extends Composer<_$OneBrewDatabase, $BrewParamValuesTable> {
   $$BrewParamValuesTableAnnotationComposer({
     required super.$db,
     required super.$table,
@@ -7569,7 +7563,7 @@ class $$BrewParamValuesTableAnnotationComposer
 class $$BrewParamValuesTableTableManager
     extends
         RootTableManager<
-          _$OneCoffeeDatabase,
+          _$OneBrewDatabase,
           $BrewParamValuesTable,
           BrewParamValue,
           $$BrewParamValuesTableFilterComposer,
@@ -7582,7 +7576,7 @@ class $$BrewParamValuesTableTableManager
           PrefetchHooks Function({bool brewRecordId, bool paramId})
         > {
   $$BrewParamValuesTableTableManager(
-    _$OneCoffeeDatabase db,
+    _$OneBrewDatabase db,
     $BrewParamValuesTable table,
   ) : super(
         TableManagerState(
@@ -7694,7 +7688,7 @@ class $$BrewParamValuesTableTableManager
 
 typedef $$BrewParamValuesTableProcessedTableManager =
     ProcessedTableManager<
-      _$OneCoffeeDatabase,
+      _$OneBrewDatabase,
       $BrewParamValuesTable,
       BrewParamValue,
       $$BrewParamValuesTableFilterComposer,
@@ -7707,9 +7701,9 @@ typedef $$BrewParamValuesTableProcessedTableManager =
       PrefetchHooks Function({bool brewRecordId, bool paramId})
     >;
 
-class $OneCoffeeDatabaseManager {
-  final _$OneCoffeeDatabase _db;
-  $OneCoffeeDatabaseManager(this._db);
+class $OneBrewDatabaseManager {
+  final _$OneBrewDatabase _db;
+  $OneBrewDatabaseManager(this._db);
   $$BeansTableTableManager get beans =>
       $$BeansTableTableManager(_db, _db.beans);
   $$EquipmentsTableTableManager get equipments =>

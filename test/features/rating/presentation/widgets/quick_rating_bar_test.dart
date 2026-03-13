@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/features/rating/presentation/widgets/quick_rating_bar.dart';
+import 'package:one_brew/features/rating/presentation/widgets/quick_rating_bar.dart';
 
 void main() {
   group('QuickRatingBar', () {

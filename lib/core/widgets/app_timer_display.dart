@@ -4,7 +4,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../constants/app_text_styles.dart';
 
-/// OneCoffee Timer Display Widget
+/// OneBrew Timer Display Widget
 /// Renders the large-format brew timer numerals with tabular alignment.
 /// Optionally shows bloom-phase indicator and a progress arc.
 ///

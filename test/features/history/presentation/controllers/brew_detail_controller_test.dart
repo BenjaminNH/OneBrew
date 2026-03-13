@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:one_coffee/features/brew_logger/brew_logger_providers.dart';
-import 'package:one_coffee/features/history/history_providers.dart';
-import 'package:one_coffee/features/history/presentation/controllers/brew_detail_controller.dart';
+import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
+import 'package:one_brew/features/history/history_providers.dart';
+import 'package:one_brew/features/history/presentation/controllers/brew_detail_controller.dart';
 
 import '../../../../helpers/fake_brew_param_repository.dart';
 import '../../../../helpers/mock_repositories.mocks.dart';

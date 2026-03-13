@@ -7,7 +7,7 @@ library;
 /// Used by BrewLoggerController and form initialization
 /// to pre-fill parameters, reducing friction for new records.
 /// Ref: docs/01_Architecture.md § 3.3 — 参数默认值
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_method.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_method.dart';
 
 class BrewMethodConfigSeed {
   const BrewMethodConfigSeed({

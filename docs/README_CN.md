@@ -32,8 +32,8 @@
 
 #### 1. 拉取代码与安装依赖
 ```bash
-git clone https://github.com/your-username/OneCoffee.git
-cd OneCoffee
+git clone https://github.com/your-username/OneBrew.git
+cd OneBrew
 flutter pub get
 ```
 

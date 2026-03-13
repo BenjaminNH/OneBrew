@@ -107,7 +107,7 @@ class HistoryBrewDetailRow {
 class HistoryLocalDatasource {
   const HistoryLocalDatasource(this._db);
 
-  final OneCoffeeDatabase _db;
+  final OneBrewDatabase _db;
 
   Future<List<HistoryBrewRow>> getAllBrewSummaries() async {
     final query = _db.select(_db.brewRecords).join([

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// OneCoffee Color System
+/// OneBrew Color System
 /// Based on Neumorphism / Soft UI design with Coffee & Cream palette
 /// Ref: docs/03_UI_Specification.md § 2.2
 abstract final class AppColors {

@@ -1,4 +1,4 @@
-# OneCoffee 功能澄清文档（History 详情 + Inventory 管理）
+# OneBrew 功能澄清文档（History 详情 + Inventory 管理）
 
 - 文档版本: v1.0
 - 日期: 2026-03-09

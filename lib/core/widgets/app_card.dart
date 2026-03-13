@@ -4,7 +4,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_durations.dart';
 import '../constants/app_spacing.dart';
 
-/// OneCoffee Neumorphism Card
+/// OneBrew Neumorphism Card
 /// A unified card component implementing the "embossed" soft-UI shadow effect.
 /// The card lifts above the cream-white background via dual BoxShadow.
 /// Pressing the card transitions to a "debossed" / press-in state.

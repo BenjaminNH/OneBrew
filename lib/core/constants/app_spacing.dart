@@ -1,4 +1,4 @@
-/// OneCoffee Spacing & Size Token System
+/// OneBrew Spacing & Size Token System
 /// Provides consistent spatial rhythm throughout the app.
 /// Based on a 4dp base unit grid (4, 8, 12, 16, 24, 32, 48, 64).
 /// Ref: docs/03_UI_Specification.md — Neumorphism sizing guidelines

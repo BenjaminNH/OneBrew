@@ -8,7 +8,7 @@ import '../constants/app_durations.dart';
 import '../constants/app_spacing.dart';
 import '../constants/app_text_styles.dart';
 
-/// OneCoffee Tag/Chip Input with Autocomplete
+/// OneBrew Tag/Chip Input with Autocomplete
 /// A text field that converts typed input into removable Chip tags.
 /// Used for bean names, equipment identifiers, and flavor notes.
 ///

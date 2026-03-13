@@ -1,4 +1,4 @@
-# OneCoffee 分阶段开发计划 (Phased Development Plan)
+# OneBrew 分阶段开发计划 (Phased Development Plan)
 
 > **基于**: `01_Architecture.md` v1.1 · `00_Product_Brief.md` · `03_UI_Specification.md`
 > **产出日期**: 2026-03-07 · **状态**: 待审阅

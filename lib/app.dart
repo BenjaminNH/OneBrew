@@ -5,13 +5,13 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/dark_theme.dart';
 
 /// Root app widget configured with GoRouter.
-class OneCoffeeApp extends StatelessWidget {
-  const OneCoffeeApp({super.key});
+class OneBrewApp extends StatelessWidget {
+  const OneBrewApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'OneCoffee',
+      title: 'OneBrew',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: DarkTheme.dark,

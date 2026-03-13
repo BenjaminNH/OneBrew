@@ -1,11 +1,11 @@
-﻿flutter : Flutter assets will be downloaded from https://storage.flutter-io.cn. Make sure you trust this source!
+flutter : Flutter assets will be downloaded from https://storage.flutter-io.cn. Make sure you trust this source!
 所在位置 行:1 字符: 1
 + flutter analyze 2>&1 | Out-File -FilePath "analyze_output.txt" -Encod ...
 + ~~~~~~~~~~~~~~~~~~~~
     + CategoryInfo          : NotSpecified: (Flutter assets ...st this source!:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
-Analyzing OneCoffee...                                          
+Analyzing OneBrew...                                          
 
   error - Target of URI doesn't exist: '../../../helpers/mock_repositories.mocks.dart' - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:8:8 - uri_does_not_exist
   error - Target of URI doesn't exist: '../../../helpers/test_fixtures.dart' - test\features\brew_logger\domain\usecases\create_brew_record_test.dart:9:8 - uri_does_not_exist

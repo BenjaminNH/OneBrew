@@ -2,15 +2,15 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/core/database/drift_database.dart';
-import 'package:one_coffee/features/inventory/presentation/pages/inventory_manage_page.dart';
-import 'package:one_coffee/shared/providers/database_providers.dart';
+import 'package:one_brew/core/database/drift_database.dart';
+import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_page.dart';
+import 'package:one_brew/shared/providers/database_providers.dart';
 
 void main() {
   testWidgets('InventoryManagePage switches between Beans and Grinders tabs', (
     WidgetTester tester,
   ) async {
-    final db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
 
     await tester.pumpWidget(

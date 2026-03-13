@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:one_coffee/features/inventory/domain/entities/equipment.dart';
-import 'package:one_coffee/features/inventory/domain/usecases/create_bean.dart';
-import 'package:one_coffee/features/inventory/domain/usecases/create_equipment.dart';
-import 'package:one_coffee/features/inventory/domain/usecases/delete_grinder_with_guard.dart';
-import 'package:one_coffee/features/inventory/domain/usecases/get_suggestions.dart';
-import 'package:one_coffee/features/inventory/domain/usecases/rename_bean_and_propagate.dart';
-import 'package:one_coffee/features/inventory/domain/usecases/update_grinder.dart';
+import 'package:one_brew/features/inventory/domain/entities/equipment.dart';
+import 'package:one_brew/features/inventory/domain/usecases/create_bean.dart';
+import 'package:one_brew/features/inventory/domain/usecases/create_equipment.dart';
+import 'package:one_brew/features/inventory/domain/usecases/delete_grinder_with_guard.dart';
+import 'package:one_brew/features/inventory/domain/usecases/get_suggestions.dart';
+import 'package:one_brew/features/inventory/domain/usecases/rename_bean_and_propagate.dart';
+import 'package:one_brew/features/inventory/domain/usecases/update_grinder.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
 import '../../../../helpers/test_fixtures.dart';

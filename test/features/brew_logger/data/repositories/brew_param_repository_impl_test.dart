@@ -1,23 +1,23 @@
 import 'package:drift/native.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/core/database/drift_database.dart'
-    show BrewRecordsCompanion, OneCoffeeDatabase;
-import 'package:one_coffee/features/brew_logger/data/datasources/brew_param_local_datasource.dart';
-import 'package:one_coffee/features/brew_logger/data/repositories/brew_param_repository_impl.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_method.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_definition.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_value.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_visibility.dart';
-import 'package:one_coffee/features/brew_logger/domain/usecases/initialize_default_brew_params.dart';
+import 'package:one_brew/core/database/drift_database.dart'
+    show BrewRecordsCompanion, OneBrewDatabase;
+import 'package:one_brew/features/brew_logger/data/datasources/brew_param_local_datasource.dart';
+import 'package:one_brew/features/brew_logger/data/repositories/brew_param_repository_impl.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_method.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_value.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_visibility.dart';
+import 'package:one_brew/features/brew_logger/domain/usecases/initialize_default_brew_params.dart';
 
 void main() {
-  late OneCoffeeDatabase db;
+  late OneBrewDatabase db;
   late BrewParamLocalDatasource datasource;
   late BrewParamRepositoryImpl repository;
 
   setUp(() {
-    db = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    db = OneBrewDatabase.forTesting(NativeDatabase.memory());
     datasource = BrewParamLocalDatasource(db);
     repository = BrewParamRepositoryImpl(datasource);
   });

@@ -5,7 +5,7 @@ import '../constants/app_durations.dart';
 import '../constants/app_spacing.dart';
 import '../constants/app_text_styles.dart';
 
-/// OneCoffee Custom Slider (AppSlider)
+/// OneBrew Custom Slider (AppSlider)
 /// A Neumorphism-styled slider for brew parameters (water weight, temperature, grind).
 ///
 /// Features:

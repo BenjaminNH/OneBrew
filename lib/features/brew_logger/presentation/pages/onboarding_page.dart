@@ -62,7 +62,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Welcome to OneCoffee',
+                            'Welcome to OneBrew',
                             style: AppTextStyles.displayMedium,
                           ),
                         ),

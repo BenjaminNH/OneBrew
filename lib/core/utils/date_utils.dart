@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-/// OneCoffee Date & Time Formatting Utilities
+/// OneBrew Date & Time Formatting Utilities
 /// Provides consistent date/time display across the app.
 /// Uses the `intl` package for locale-aware formatting.
 abstract final class AppDateUtils {

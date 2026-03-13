@@ -1,4 +1,4 @@
-# Product Brief: OneCoffee
+# Product Brief: OneBrew
 
 ## 1. Core Problem
 目前市面上的手冲咖啡评价与记录应用存在明显的两极分化与体验痛点：

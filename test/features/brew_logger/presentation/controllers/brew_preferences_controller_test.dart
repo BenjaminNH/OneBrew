@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/features/brew_logger/brew_logger_providers.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_method.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_method_config.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_definition.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_visibility.dart';
-import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_preferences_controller.dart';
+import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_method.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_method_config.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_visibility.dart';
+import 'package:one_brew/features/brew_logger/presentation/controllers/brew_preferences_controller.dart';
 
 import '../../../../helpers/fake_brew_param_repository.dart';
 

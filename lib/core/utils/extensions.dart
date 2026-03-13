@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// OneCoffee Dart Extension Methods
+/// OneBrew Dart Extension Methods
 /// Provides syntactic sugar and utility extensions across common types.
 /// Import this file to unlock convenient methods on String, num, DateTime, etc.
 

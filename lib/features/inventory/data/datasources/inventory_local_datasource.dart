@@ -38,7 +38,7 @@ abstract interface class InventoryLocalDatasource {
 
 /// Implementation wrapping the Drift database.
 class InventoryLocalDatasourceImpl implements InventoryLocalDatasource {
-  final OneCoffeeDatabase _db;
+  final OneBrewDatabase _db;
 
   InventoryLocalDatasourceImpl(this._db);
 

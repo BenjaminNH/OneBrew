@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_method.dart';
-import 'package:one_coffee/features/brew_logger/presentation/models/brew_param_names.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_method.dart';
+import 'package:one_brew/features/brew_logger/presentation/models/brew_param_names.dart';
 
 void main() {
   group('brew_param_names rules', () {

@@ -10,18 +10,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
 import 'package:drift/native.dart';
 
-import 'package:one_coffee/app.dart';
-import 'package:one_coffee/core/database/drift_database.dart' hide BrewRecord;
-import 'package:one_coffee/features/brew_logger/brew_logger_providers.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
-import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
-import 'package:one_coffee/shared/providers/database_providers.dart';
+import 'package:one_brew/app.dart';
+import 'package:one_brew/core/database/drift_database.dart' hide BrewRecord;
+import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
+import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
+import 'package:one_brew/shared/providers/database_providers.dart';
 
 void main() {
-  testWidgets('OneCoffeeApp renders without crashing', (
+  testWidgets('OneBrewApp renders without crashing', (
     WidgetTester tester,
   ) async {
-    final testDb = OneCoffeeDatabase.forTesting(NativeDatabase.memory());
+    final testDb = OneBrewDatabase.forTesting(NativeDatabase.memory());
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
@@ -38,13 +38,13 @@ void main() {
             (_) => Stream<List<BrewRecord>>.value(const <BrewRecord>[]),
           ),
         ],
-        child: const OneCoffeeApp(),
+        child: const OneBrewApp(),
       ),
     );
     // Avoid pumpAndSettle here: loading indicators can keep animations alive.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
     // Phase 7 initial route should land on the brew logger page.
-    expect(find.text('OneCoffee'), findsOneWidget);
+    expect(find.text('OneBrew'), findsOneWidget);
   });
 }

@@ -1,9 +1,9 @@
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
-import 'package:one_coffee/features/history/domain/entities/brew_summary.dart';
-import 'package:one_coffee/features/history/domain/entities/brew_detail.dart';
-import 'package:one_coffee/features/inventory/domain/entities/bean.dart';
-import 'package:one_coffee/features/inventory/domain/entities/equipment.dart';
-import 'package:one_coffee/features/rating/domain/entities/brew_rating.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
+import 'package:one_brew/features/history/domain/entities/brew_summary.dart';
+import 'package:one_brew/features/history/domain/entities/brew_detail.dart';
+import 'package:one_brew/features/inventory/domain/entities/bean.dart';
+import 'package:one_brew/features/inventory/domain/entities/equipment.dart';
+import 'package:one_brew/features/rating/domain/entities/brew_rating.dart';
 
 /// Factory helpers that produce canonical test data for Domain layer tests.
 ///

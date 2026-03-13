@@ -1,8 +1,8 @@
 import 'package:mockito/annotations.dart';
-import 'package:one_coffee/features/brew_logger/domain/repositories/brew_repository.dart';
-import 'package:one_coffee/features/history/domain/repositories/history_repository.dart';
-import 'package:one_coffee/features/inventory/domain/repositories/inventory_repository.dart';
-import 'package:one_coffee/features/rating/domain/repositories/rating_repository.dart';
+import 'package:one_brew/features/brew_logger/domain/repositories/brew_repository.dart';
+import 'package:one_brew/features/history/domain/repositories/history_repository.dart';
+import 'package:one_brew/features/inventory/domain/repositories/inventory_repository.dart';
+import 'package:one_brew/features/rating/domain/repositories/rating_repository.dart';
 
 // Generated mocks — run `dart run build_runner build` to regenerate.
 // ignore: unused_import

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:one_coffee/features/brew_logger/presentation/pages/brew_logger_page.dart';
-import 'package:one_coffee/features/brew_logger/presentation/pages/brew_param_preferences_page.dart';
-import 'package:one_coffee/features/brew_logger/presentation/pages/onboarding_page.dart';
-import 'package:one_coffee/features/history/presentation/pages/brew_detail_page.dart';
-import 'package:one_coffee/features/history/presentation/pages/history_page.dart';
-import 'package:one_coffee/features/inventory/presentation/pages/inventory_manage_page.dart';
+import 'package:one_brew/features/brew_logger/presentation/pages/brew_logger_page.dart';
+import 'package:one_brew/features/brew_logger/presentation/pages/brew_param_preferences_page.dart';
+import 'package:one_brew/features/brew_logger/presentation/pages/onboarding_page.dart';
+import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
+import 'package:one_brew/features/history/presentation/pages/history_page.dart';
+import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_page.dart';
 
 /// Canonical route paths used by the app shell.
 abstract final class AppRoutePaths {

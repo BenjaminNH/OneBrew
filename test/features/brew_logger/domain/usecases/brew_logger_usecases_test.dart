@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
-import 'package:one_coffee/features/brew_logger/domain/usecases/create_brew_record.dart';
-import 'package:one_coffee/features/brew_logger/domain/usecases/delete_brew_record.dart';
-import 'package:one_coffee/features/brew_logger/domain/usecases/update_brew_record.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
+import 'package:one_brew/features/brew_logger/domain/usecases/create_brew_record.dart';
+import 'package:one_brew/features/brew_logger/domain/usecases/delete_brew_record.dart';
+import 'package:one_brew/features/brew_logger/domain/usecases/update_brew_record.dart';
 
 import '../../../../helpers/mock_repositories.mocks.dart';
 import '../../../../helpers/test_fixtures.dart';

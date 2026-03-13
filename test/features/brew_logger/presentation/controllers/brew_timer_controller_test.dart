@@ -8,7 +8,7 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_timer_controller.dart';
+import 'package:one_brew/features/brew_logger/presentation/controllers/brew_timer_controller.dart';
 
 void main() {
   group('BrewTimerController', () {
