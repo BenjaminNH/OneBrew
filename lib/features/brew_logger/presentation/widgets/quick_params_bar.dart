@@ -6,15 +6,17 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_slider.dart';
 import '../../../../features/inventory/presentation/widgets/smart_tag_field.dart';
+import '../../brew_logger_providers.dart';
 import '../../domain/entities/brew_method.dart';
 import '../controllers/brew_logger_controller.dart';
+import '../models/brew_param_names.dart';
 
-/// The essential "quick" parameter bar — always visible.
+/// Top-level parameter bar that follows current visibility settings.
 ///
-/// Shows: Bean selection, Coffee weight, Water weight (and ratio badge).
-/// In quick mode these three are all that's needed to log a brew.
+/// Bean selector stays visible; Coffee/Water/Ratio are method-aware and
+/// hidden when the user disables them in preferences.
 ///
-/// Ref: docs/03_UI_Specification.md § 4.2 — Default Minimalism
+/// Ref: docs/03_UI_Specification.md § 4.2 — Default Focus
 class QuickParamsBar extends ConsumerWidget {
   const QuickParamsBar({super.key});
 
@@ -25,6 +27,18 @@ class QuickParamsBar extends ConsumerWidget {
     final isEspresso = state.brewMethod == BrewMethod.espresso;
     final coffeeLabel = isEspresso ? 'Dose' : 'Coffee';
     final waterLabel = isEspresso ? 'Yield' : 'Water';
+    final coffeeParamName = isEspresso
+        ? BrewParamNames.coffeeDose
+        : BrewParamNames.coffeeWeight;
+    final waterParamName = isEspresso
+        ? BrewParamNames.yield
+        : BrewParamNames.waterWeight;
+    final catalogAsync = ref.watch(brewParamCatalogProvider(state.brewMethod));
+    final catalog = catalogAsync.asData?.value;
+    final showCoffee = catalog?.isVisibleByName(coffeeParamName) ?? true;
+    final showWater = catalog?.isVisibleByName(waterParamName) ?? true;
+    final showRatio =
+        catalog?.isVisibleByName(BrewParamNames.brewRatio) ?? true;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,48 +56,53 @@ class QuickParamsBar extends ConsumerWidget {
         const SizedBox(height: AppSpacing.md),
 
         // ── Coffee & Water weights side by side ─────────────────────────
-        Row(
-          children: [
-            Expanded(
-              child: _ParamColumn(
-                label: coffeeLabel,
-                value: '${state.coffeeWeightG.toStringAsFixed(1)} g',
-                child: AppSlider(
-                  value: state.coffeeWeightG,
-                  min: 5.0,
-                  max: 100.0,
-                  divisions: 190,
-                  unit: 'g',
-                  onChanged: ctrl.setCoffeeWeight,
-                  semanticLabel: '${coffeeLabel.toLowerCase()} weight',
+        if (showCoffee || showWater) ...[
+          Row(
+            children: [
+              if (showCoffee)
+                Expanded(
+                  child: _ParamColumn(
+                    label: coffeeLabel,
+                    value: '${state.coffeeWeightG.toStringAsFixed(1)} g',
+                    child: AppSlider(
+                      value: state.coffeeWeightG,
+                      min: 5.0,
+                      max: 100.0,
+                      divisions: 190,
+                      unit: 'g',
+                      onChanged: ctrl.setCoffeeWeight,
+                      semanticLabel: '${coffeeLabel.toLowerCase()} weight',
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: _ParamColumn(
-                label: waterLabel,
-                value: '${state.waterWeightG.toStringAsFixed(0)} g',
-                child: AppSlider(
-                  value: state.waterWeightG,
-                  min: 50.0,
-                  max: 600.0,
-                  divisions: 110,
-                  unit: 'g',
-                  onChanged: ctrl.setWaterWeight,
-                  semanticLabel: '${waterLabel.toLowerCase()} weight',
+              if (showCoffee && showWater) const SizedBox(width: AppSpacing.md),
+              if (showWater)
+                Expanded(
+                  child: _ParamColumn(
+                    label: waterLabel,
+                    value: '${state.waterWeightG.toStringAsFixed(0)} g',
+                    child: AppSlider(
+                      value: state.waterWeightG,
+                      min: 50.0,
+                      max: 600.0,
+                      divisions: 110,
+                      unit: 'g',
+                      onChanged: ctrl.setWaterWeight,
+                      semanticLabel: '${waterLabel.toLowerCase()} weight',
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.xs),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+        ],
 
         // ── Ratio badge ──────────────────────────────────────────────────
-        Align(
-          alignment: Alignment.centerRight,
-          child: _RatioBadge(ratio: state.ratio),
-        ),
+        if (showRatio)
+          Align(
+            alignment: Alignment.centerRight,
+            child: _RatioBadge(ratio: state.ratio),
+          ),
       ],
     );
   }

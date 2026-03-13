@@ -4,6 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:one_coffee/core/widgets/app_slider.dart';
 import 'package:one_coffee/features/brew_logger/brew_logger_providers.dart';
+import 'package:one_coffee/features/brew_logger/domain/entities/brew_method_config.dart';
+import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_definition.dart';
+import 'package:one_coffee/features/brew_logger/domain/entities/brew_param_visibility.dart';
 import 'package:one_coffee/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_coffee/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_coffee/features/brew_logger/presentation/pages/brew_logger_page.dart';
@@ -241,6 +244,111 @@ void main() {
       expect(state.coffeeWeightG, 17.0);
       expect(state.waterWeightG, 272.0);
       expect(find.text('Template loaded from history'), findsOneWidget);
+    });
+
+    testWidgets('quick params respect hidden visibility in custom method', (
+      WidgetTester tester,
+    ) async {
+      fakeBrewParamRepo = FakeBrewParamRepository(
+        methodConfigs: const [
+          BrewMethodConfig(
+            id: 1,
+            method: BrewMethod.pourOver,
+            displayName: 'Pour Over',
+            isEnabled: true,
+          ),
+          BrewMethodConfig(
+            id: 2,
+            method: BrewMethod.custom,
+            displayName: 'Custom',
+            isEnabled: true,
+          ),
+        ],
+        definitions: {
+          BrewMethod.custom: const [
+            BrewParamDefinition(
+              id: 1001,
+              method: BrewMethod.custom,
+              name: 'Coffee Weight',
+              type: ParamType.number,
+              unit: 'g',
+              isSystem: true,
+              sortOrder: 1,
+            ),
+            BrewParamDefinition(
+              id: 1002,
+              method: BrewMethod.custom,
+              name: 'Water Weight',
+              type: ParamType.number,
+              unit: 'g',
+              isSystem: true,
+              sortOrder: 2,
+            ),
+            BrewParamDefinition(
+              id: 1003,
+              method: BrewMethod.custom,
+              name: 'Brew Ratio',
+              type: ParamType.number,
+              isSystem: true,
+              sortOrder: 3,
+            ),
+          ],
+        },
+        visibilities: {
+          BrewMethod.custom: const [
+            BrewParamVisibility(
+              id: 2001,
+              method: BrewMethod.custom,
+              paramId: 1001,
+              isVisible: false,
+            ),
+            BrewParamVisibility(
+              id: 2002,
+              method: BrewMethod.custom,
+              paramId: 1002,
+              isVisible: false,
+            ),
+            BrewParamVisibility(
+              id: 2003,
+              method: BrewMethod.custom,
+              paramId: 1003,
+              isVisible: false,
+            ),
+          ],
+        },
+      );
+
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BrewLoggerPage)),
+      );
+      container
+          .read(brewLoggerControllerProvider.notifier)
+          .setBrewMethod(BrewMethod.custom);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppSlider && widget.semanticLabel == 'coffee weight',
+        ),
+        findsNothing,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppSlider && widget.semanticLabel == 'water weight',
+        ),
+        findsNothing,
+      );
+      expect(find.textContaining('1 : '), findsNothing);
     });
   });
 }

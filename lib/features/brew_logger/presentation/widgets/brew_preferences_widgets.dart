@@ -118,13 +118,19 @@ class BrewParamListEditor extends StatelessWidget {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.xs),
+      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.xs),
       itemBuilder: (context, index) {
         final item = items[index];
         final label = item.definition.name;
-        final type = item.definition.type == ParamType.number ? 'Number' : 'Text';
+        final type = item.definition.type == ParamType.number
+            ? 'Number'
+            : 'Text';
         final unit = item.definition.unit;
-        final canToggle = !essentialParamNames.contains(label);
+        final canToggle = canToggleParam(
+          method: item.definition.method,
+          name: label,
+        );
+        final canDelete = !item.isSystem;
 
         return AppCard(
           child: Row(
@@ -149,7 +155,7 @@ class BrewParamListEditor extends StatelessWidget {
                   value: item.isVisible,
                   onChanged: (value) => onVisibilityChanged(item, value),
                 ),
-              if (!item.isSystem)
+              if (canDelete)
                 IconButton(
                   icon: const Icon(Icons.delete_outline),
                   color: AppColors.error,

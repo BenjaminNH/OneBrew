@@ -1,3 +1,5 @@
+import '../../domain/entities/brew_method.dart';
+
 abstract final class BrewParamNames {
   static const coffeeWeight = 'Coffee Weight';
   static const coffeeDose = 'Coffee Dose';
@@ -39,3 +41,17 @@ const Set<String> systemBoundParamNames = {
   BrewParamNames.pourMethod,
   BrewParamNames.grindSize,
 };
+
+const Set<String> customFlexibleDefaultParamNames = {
+  BrewParamNames.coffeeWeight,
+  BrewParamNames.waterWeight,
+  BrewParamNames.brewRatio,
+};
+
+bool canToggleParam({required BrewMethod method, required String name}) {
+  if (method == BrewMethod.custom &&
+      customFlexibleDefaultParamNames.contains(name)) {
+    return true;
+  }
+  return !essentialParamNames.contains(name);
+}

@@ -37,8 +37,7 @@ class BrewPreferencesState {
   final Map<BrewMethod, List<BrewParamVisibility>> paramVisibilities;
   final String? errorMessage;
 
-  bool get hasEnabledMethod =>
-      methodConfigs.any((config) => config.isEnabled);
+  bool get hasEnabledMethod => methodConfigs.any((config) => config.isEnabled);
 
   BrewPreferencesState copyWith({
     bool? isLoading,
@@ -69,19 +68,20 @@ class BrewPreferencesState {
       for (final visibility in vis) visibility.paramId: visibility,
     };
 
-    final items = defs
-        .map((def) {
-          final visibility = visibilityByParamId[def.id] ??
-              BrewParamVisibility(
-                id: 0,
-                method: method,
-                paramId: def.id,
-                isVisible: true,
-              );
-          return BrewParamItem(definition: def, visibility: visibility);
-        })
-        .toList();
-    items.sort((a, b) => a.definition.sortOrder.compareTo(b.definition.sortOrder));
+    final items = defs.map((def) {
+      final visibility =
+          visibilityByParamId[def.id] ??
+          BrewParamVisibility(
+            id: 0,
+            method: method,
+            paramId: def.id,
+            isVisible: true,
+          );
+      return BrewParamItem(definition: def, visibility: visibility);
+    }).toList();
+    items.sort(
+      (a, b) => a.definition.sortOrder.compareTo(b.definition.sortOrder),
+    );
     return items;
   }
 }
@@ -211,9 +211,13 @@ class BrewPreferencesController extends Notifier<BrewPreferencesState> {
     );
     try {
       if (existing.id == 0) {
-        await ref.read(brewParamRepositoryProvider).createParamVisibility(updated);
+        await ref
+            .read(brewParamRepositoryProvider)
+            .createParamVisibility(updated);
       } else {
-        await ref.read(brewParamRepositoryProvider).updateParamVisibility(updated);
+        await ref
+            .read(brewParamRepositoryProvider)
+            .updateParamVisibility(updated);
       }
       ref.invalidate(brewParamCatalogProvider);
       await load();
@@ -235,7 +239,9 @@ class BrewPreferencesController extends Notifier<BrewPreferencesState> {
     }
 
     final defs = state.paramDefinitions[method] ?? const [];
-    final exists = defs.any((def) => def.name.toLowerCase() == trimmed.toLowerCase());
+    final exists = defs.any(
+      (def) => def.name.toLowerCase() == trimmed.toLowerCase(),
+    );
     if (exists) {
       state = state.copyWith(errorMessage: 'Parameter already exists.');
       return;
@@ -287,12 +293,16 @@ class BrewPreferencesController extends Notifier<BrewPreferencesState> {
       return;
     }
     if (def.isSystem) {
-      state = state.copyWith(errorMessage: 'System parameters cannot be deleted.');
+      state = state.copyWith(
+        errorMessage: 'System parameters cannot be deleted.',
+      );
       return;
     }
 
     try {
-      await ref.read(brewParamRepositoryProvider).deleteParamDefinition(paramId);
+      await ref
+          .read(brewParamRepositoryProvider)
+          .deleteParamDefinition(paramId);
       ref.invalidate(brewParamCatalogProvider);
       await load();
     } catch (e) {
