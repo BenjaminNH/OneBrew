@@ -193,7 +193,7 @@ abstract final class AppTextStyles {
   static const TextStyle inputHint = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    color: AppColors.textDisabled,
+    color: AppColors.textSecondary,
     height: 1.5,
   );
 
