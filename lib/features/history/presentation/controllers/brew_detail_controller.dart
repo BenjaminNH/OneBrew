@@ -59,6 +59,7 @@ class BrewDetailController extends Notifier<BrewDetailState> {
   final int brewId;
   late GetBrewDetail _getBrewDetail;
   late BrewParamRepository _paramRepository;
+  Map<int, BrewParamDefinition>? _definitionCacheById;
 
   @override
   BrewDetailState build() {
@@ -97,11 +98,19 @@ class BrewDetailController extends Notifier<BrewDetailState> {
     final values = await _paramRepository.getParamValuesForBrew(brewId);
     if (values.isEmpty) return const <BrewParamEntry>[];
 
+    final definitionMap = await _loadDefinitionMapById();
     final entries = <BrewParamEntry>[];
     for (final value in values) {
-      final definition = await _paramRepository.getParamDefinitionById(
-        value.paramId,
-      );
+      var definition = definitionMap[value.paramId];
+      if (definition == null) {
+        definition = await _paramRepository.getParamDefinitionById(
+          value.paramId,
+        );
+        if (definition != null) {
+          definitionMap[value.paramId] = definition;
+          _definitionCacheById = definitionMap;
+        }
+      }
       if (definition == null) continue;
       final formatted = _formatParamValue(definition, value);
       if (formatted == null) continue;
@@ -116,6 +125,25 @@ class BrewDetailController extends Notifier<BrewDetailState> {
 
     entries.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
     return entries;
+  }
+
+  Future<Map<int, BrewParamDefinition>> _loadDefinitionMapById() async {
+    final cached = _definitionCacheById;
+    if (cached != null) {
+      return cached;
+    }
+
+    final definitionsByMethod = await Future.wait(
+      BrewMethod.values.map(_paramRepository.getParamDefinitions),
+    );
+    final map = <int, BrewParamDefinition>{};
+    for (final definitions in definitionsByMethod) {
+      for (final definition in definitions) {
+        map[definition.id] = definition;
+      }
+    }
+    _definitionCacheById = map;
+    return map;
   }
 
   String? _formatParamValue(
