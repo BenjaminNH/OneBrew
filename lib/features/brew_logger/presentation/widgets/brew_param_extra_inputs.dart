@@ -37,7 +37,7 @@ class BrewParamExtraInputs extends ConsumerWidget {
               definition: def,
               value: draft,
               onNumberChanged: (value) =>
-                  controller.setParamNumberValue(def.id, value),
+                  controller.setParamNumberValueByDefinition(def, value),
               onTextChanged: (value) =>
                   controller.setParamTextValue(def.id, value),
             ),

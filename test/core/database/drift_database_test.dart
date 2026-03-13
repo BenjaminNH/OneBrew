@@ -344,6 +344,31 @@ void main() {
     });
   });
 
+  group('BrewParamDefinition ranges', () {
+    test('stores and reads number range metadata', () async {
+      final id = await db.insertBrewParamDefinition(
+        BrewParamDefinitionsCompanion.insert(
+          method: 'pour_over',
+          name: 'Water Temp',
+          type: 'number',
+          unit: const Value('C'),
+          numberMin: const Value(80.0),
+          numberMax: const Value(100.0),
+          numberStep: const Value(1.0),
+          numberDefault: const Value(93.0),
+          sortOrder: 1,
+        ),
+      );
+
+      final definition = await db.getBrewParamDefinitionById(id);
+      expect(definition, isNotNull);
+      expect(definition?.numberMin, 80.0);
+      expect(definition?.numberMax, 100.0);
+      expect(definition?.numberStep, 1.0);
+      expect(definition?.numberDefault, 93.0);
+    });
+  });
+
   // ─────────────────────────────────────────────────────────────────────────
   // BrewRating CRUD
   // ─────────────────────────────────────────────────────────────────────────

@@ -4,12 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/widgets/app_slider.dart';
 import '../../../../features/inventory/presentation/widgets/smart_tag_field.dart';
+import '../../../../shared/helpers/brew_param_defaults.dart';
 import '../../brew_logger_providers.dart';
 import '../../domain/entities/brew_method.dart';
+import '../../domain/entities/brew_param_definition.dart';
 import '../controllers/brew_logger_controller.dart';
 import '../models/brew_param_names.dart';
+import 'number_param_control.dart';
 
 /// Top-level parameter bar that follows current visibility settings.
 ///
@@ -31,7 +33,7 @@ class QuickParamsBar extends ConsumerWidget {
         ? BrewParamNames.coffeeDose
         : BrewParamNames.coffeeWeight;
     final waterParamName = isEspresso
-        ? BrewParamNames.yield
+        ? BrewParamNames.yieldAmount
         : BrewParamNames.waterWeight;
     final catalogAsync = ref.watch(brewParamCatalogProvider(state.brewMethod));
     final catalog = catalogAsync.asData?.value;
@@ -39,6 +41,30 @@ class QuickParamsBar extends ConsumerWidget {
     final showWater = catalog?.isVisibleByName(waterParamName) ?? true;
     final showRatio =
         catalog?.isVisibleByName(BrewParamNames.brewRatio) ?? true;
+    final coffeeDefinition = catalog?.definitionByName(coffeeParamName);
+    final waterDefinition = catalog?.definitionByName(waterParamName);
+    final coffeeRange = _resolveNumberRange(
+      method: state.brewMethod,
+      name: coffeeParamName,
+      definition: coffeeDefinition,
+      fallback: const BrewParamNumberRange(
+        min: 8.0,
+        max: 40.0,
+        step: 0.1,
+        defaultValue: 15.0,
+      ),
+    );
+    final waterRange = _resolveNumberRange(
+      method: state.brewMethod,
+      name: waterParamName,
+      definition: waterDefinition,
+      fallback: const BrewParamNumberRange(
+        min: 120.0,
+        max: 700.0,
+        step: 1.0,
+        defaultValue: 225.0,
+      ),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,35 +87,31 @@ class QuickParamsBar extends ConsumerWidget {
             children: [
               if (showCoffee)
                 Expanded(
-                  child: _ParamColumn(
+                  child: NumberParamControl(
                     label: coffeeLabel,
-                    value: '${state.coffeeWeightG.toStringAsFixed(1)} g',
-                    child: AppSlider(
-                      value: state.coffeeWeightG,
-                      min: 5.0,
-                      max: 100.0,
-                      divisions: 190,
-                      unit: 'g',
-                      onChanged: ctrl.setCoffeeWeight,
-                      semanticLabel: '${coffeeLabel.toLowerCase()} weight',
-                    ),
+                    value: state.coffeeWeightG,
+                    unit: 'g',
+                    range: coffeeRange,
+                    onChanged: (value) {
+                      if (value == null) return;
+                      ctrl.setCoffeeWeight(value);
+                    },
+                    semanticLabel: '${coffeeLabel.toLowerCase()} weight',
                   ),
                 ),
               if (showCoffee && showWater) const SizedBox(width: AppSpacing.md),
               if (showWater)
                 Expanded(
-                  child: _ParamColumn(
+                  child: NumberParamControl(
                     label: waterLabel,
-                    value: '${state.waterWeightG.toStringAsFixed(0)} g',
-                    child: AppSlider(
-                      value: state.waterWeightG,
-                      min: 50.0,
-                      max: 600.0,
-                      divisions: 110,
-                      unit: 'g',
-                      onChanged: ctrl.setWaterWeight,
-                      semanticLabel: '${waterLabel.toLowerCase()} weight',
-                    ),
+                    value: state.waterWeightG,
+                    unit: 'g',
+                    range: waterRange,
+                    onChanged: (value) {
+                      if (value == null) return;
+                      ctrl.setWaterWeight(value);
+                    },
+                    semanticLabel: '${waterLabel.toLowerCase()} weight',
                   ),
                 ),
             ],
@@ -103,42 +125,6 @@ class QuickParamsBar extends ConsumerWidget {
             alignment: Alignment.centerRight,
             child: _RatioBadge(ratio: state.ratio),
           ),
-      ],
-    );
-  }
-}
-
-/// A labelled column containing a value display + a control widget.
-class _ParamColumn extends StatelessWidget {
-  const _ParamColumn({
-    required this.label,
-    required this.value,
-    required this.child,
-  });
-
-  final String label;
-  final String value;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: AppTextStyles.labelMedium),
-            Text(
-              value,
-              style: AppTextStyles.numericValue.copyWith(
-                color: AppColors.primary,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        child,
       ],
     );
   }
@@ -170,4 +156,19 @@ class _RatioBadge extends StatelessWidget {
       ),
     );
   }
+}
+
+BrewParamNumberRange _resolveNumberRange({
+  required BrewMethod method,
+  required String name,
+  required BrewParamDefinition? definition,
+  required BrewParamNumberRange fallback,
+}) {
+  final fromDefinition = definition?.numberRange;
+  if (fromDefinition != null) return fromDefinition;
+  final fromTemplate = BrewParamDefaults.numberRangeFor(
+    method: method,
+    name: name,
+  );
+  return fromTemplate ?? fallback;
 }

@@ -35,6 +35,10 @@ void main() {
           name: 'Coffee Weight',
           type: ParamType.number,
           unit: 'g',
+          numberMin: 8,
+          numberMax: 40,
+          numberStep: 0.1,
+          numberDefault: 15,
           isSystem: true,
           sortOrder: 1,
         ),
@@ -44,6 +48,10 @@ void main() {
       expect(defs, hasLength(1));
       expect(defs.first.id, defId);
       expect(defs.first.name, 'Coffee Weight');
+      expect(defs.first.numberMin, 8);
+      expect(defs.first.numberMax, 40);
+      expect(defs.first.numberStep, 0.1);
+      expect(defs.first.numberDefault, 15);
 
       final updated = await repository.updateParamDefinition(
         BrewParamDefinition(
@@ -52,6 +60,10 @@ void main() {
           name: 'Coffee Dose',
           type: ParamType.number,
           unit: 'g',
+          numberMin: 10,
+          numberMax: 42,
+          numberStep: 0.5,
+          numberDefault: 18,
           isSystem: true,
           sortOrder: 1,
         ),
@@ -60,10 +72,16 @@ void main() {
 
       final updatedDef = await repository.getParamDefinitionById(defId);
       expect(updatedDef?.name, 'Coffee Dose');
+      expect(updatedDef?.numberMin, 10);
+      expect(updatedDef?.numberMax, 42);
+      expect(updatedDef?.numberStep, 0.5);
+      expect(updatedDef?.numberDefault, 18);
 
       final deleted = await repository.deleteParamDefinition(defId);
       expect(deleted, 1);
-      final remaining = await repository.getParamDefinitions(BrewMethod.pourOver);
+      final remaining = await repository.getParamDefinitions(
+        BrewMethod.pourOver,
+      );
       expect(remaining, isEmpty);
     });
 
@@ -75,6 +93,10 @@ void main() {
           name: 'Water Temp',
           type: ParamType.number,
           unit: 'C',
+          numberMin: 80,
+          numberMax: 100,
+          numberStep: 1,
+          numberDefault: 93,
           isSystem: true,
           sortOrder: 2,
         ),

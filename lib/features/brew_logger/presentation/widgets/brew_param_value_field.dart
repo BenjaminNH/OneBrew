@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../shared/helpers/brew_param_defaults.dart';
 import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_param_definition.dart';
 import '../controllers/brew_logger_controller.dart';
+import 'number_param_control.dart';
 
 class BrewParamValueField extends StatefulWidget {
   const BrewParamValueField({
@@ -49,12 +51,27 @@ class _BrewParamValueFieldState extends State<BrewParamValueField> {
   }
 
   String _initialText() {
-    if (widget.definition.type == ParamType.number) {
-      final number = widget.value?.valueNumber;
-      if (number == null) return '';
-      return number % 1 == 0 ? number.toStringAsFixed(0) : number.toString();
-    }
     return widget.value?.valueText ?? '';
+  }
+
+  BrewParamNumberRange _resolveNumberRange() {
+    final definitionRange = widget.definition.numberRange;
+    if (definitionRange != null) return definitionRange;
+
+    final templateRange = BrewParamDefaults.numberRangeFor(
+      method: widget.definition.method,
+      name: widget.definition.name,
+    );
+    if (templateRange != null) return templateRange;
+
+    final current = widget.value?.valueNumber;
+    final fallbackMax = current == null || current <= 0 ? 100.0 : current * 2;
+    return BrewParamNumberRange(
+      min: 0.0,
+      max: fallbackMax,
+      step: 0.1,
+      defaultValue: current,
+    );
   }
 
   @override
@@ -66,23 +83,29 @@ class _BrewParamValueFieldState extends State<BrewParamValueField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.labelMedium),
-        const SizedBox(height: AppSpacing.xxs),
-        TextField(
-          controller: _controller,
-          keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-          decoration: InputDecoration(
-            hintText: isNumber ? 'Enter value' : 'Enter text',
-            suffixText: unit,
+        if (isNumber)
+          NumberParamControl(
+            label: label,
+            value: widget.value?.valueNumber,
+            unit: unit,
+            range: _resolveNumberRange(),
+            onChanged: widget.onNumberChanged,
+            semanticLabel: '${label.toLowerCase()} value',
+            allowClear: true,
+          )
+        else ...[
+          Text(label, style: AppTextStyles.labelMedium),
+          const SizedBox(height: AppSpacing.xxs),
+          TextField(
+            controller: _controller,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+              hintText: 'Enter text',
+              suffixText: unit,
+            ),
+            onChanged: (value) => widget.onTextChanged(value),
           ),
-          onChanged: (value) {
-            if (isNumber) {
-              widget.onNumberChanged(double.tryParse(value));
-            } else {
-              widget.onTextChanged(value);
-            }
-          },
-        ),
+        ],
       ],
     );
   }

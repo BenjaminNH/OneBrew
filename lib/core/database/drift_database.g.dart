@@ -3293,6 +3293,50 @@ class $BrewParamDefinitionsTable extends BrewParamDefinitions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _numberMinMeta = const VerificationMeta(
+    'numberMin',
+  );
+  @override
+  late final GeneratedColumn<double> numberMin = GeneratedColumn<double>(
+    'number_min',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _numberMaxMeta = const VerificationMeta(
+    'numberMax',
+  );
+  @override
+  late final GeneratedColumn<double> numberMax = GeneratedColumn<double>(
+    'number_max',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _numberStepMeta = const VerificationMeta(
+    'numberStep',
+  );
+  @override
+  late final GeneratedColumn<double> numberStep = GeneratedColumn<double>(
+    'number_step',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _numberDefaultMeta = const VerificationMeta(
+    'numberDefault',
+  );
+  @override
+  late final GeneratedColumn<double> numberDefault = GeneratedColumn<double>(
+    'number_default',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isSystemMeta = const VerificationMeta(
     'isSystem',
   );
@@ -3326,6 +3370,10 @@ class $BrewParamDefinitionsTable extends BrewParamDefinitions
     name,
     type,
     unit,
+    numberMin,
+    numberMax,
+    numberStep,
+    numberDefault,
     isSystem,
     sortOrder,
   ];
@@ -3374,6 +3422,33 @@ class $BrewParamDefinitionsTable extends BrewParamDefinitions
         unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
       );
     }
+    if (data.containsKey('number_min')) {
+      context.handle(
+        _numberMinMeta,
+        numberMin.isAcceptableOrUnknown(data['number_min']!, _numberMinMeta),
+      );
+    }
+    if (data.containsKey('number_max')) {
+      context.handle(
+        _numberMaxMeta,
+        numberMax.isAcceptableOrUnknown(data['number_max']!, _numberMaxMeta),
+      );
+    }
+    if (data.containsKey('number_step')) {
+      context.handle(
+        _numberStepMeta,
+        numberStep.isAcceptableOrUnknown(data['number_step']!, _numberStepMeta),
+      );
+    }
+    if (data.containsKey('number_default')) {
+      context.handle(
+        _numberDefaultMeta,
+        numberDefault.isAcceptableOrUnknown(
+          data['number_default']!,
+          _numberDefaultMeta,
+        ),
+      );
+    }
     if (data.containsKey('is_system')) {
       context.handle(
         _isSystemMeta,
@@ -3417,6 +3492,22 @@ class $BrewParamDefinitionsTable extends BrewParamDefinitions
         DriftSqlType.string,
         data['${effectivePrefix}unit'],
       ),
+      numberMin: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}number_min'],
+      ),
+      numberMax: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}number_max'],
+      ),
+      numberStep: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}number_step'],
+      ),
+      numberDefault: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}number_default'],
+      ),
       isSystem: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_system'],
@@ -3450,6 +3541,18 @@ class BrewParamDefinition extends DataClass
   /// Optional unit label provided by user (e.g. "g", "C").
   final String? unit;
 
+  /// Optional minimum value for number-type parameters.
+  final double? numberMin;
+
+  /// Optional maximum value for number-type parameters.
+  final double? numberMax;
+
+  /// Optional step used by slider/input snapping.
+  final double? numberStep;
+
+  /// Optional default value for number-type parameters.
+  final double? numberDefault;
+
   /// Whether this is a system preset parameter.
   final bool isSystem;
 
@@ -3461,6 +3564,10 @@ class BrewParamDefinition extends DataClass
     required this.name,
     required this.type,
     this.unit,
+    this.numberMin,
+    this.numberMax,
+    this.numberStep,
+    this.numberDefault,
     required this.isSystem,
     required this.sortOrder,
   });
@@ -3474,6 +3581,18 @@ class BrewParamDefinition extends DataClass
     if (!nullToAbsent || unit != null) {
       map['unit'] = Variable<String>(unit);
     }
+    if (!nullToAbsent || numberMin != null) {
+      map['number_min'] = Variable<double>(numberMin);
+    }
+    if (!nullToAbsent || numberMax != null) {
+      map['number_max'] = Variable<double>(numberMax);
+    }
+    if (!nullToAbsent || numberStep != null) {
+      map['number_step'] = Variable<double>(numberStep);
+    }
+    if (!nullToAbsent || numberDefault != null) {
+      map['number_default'] = Variable<double>(numberDefault);
+    }
     map['is_system'] = Variable<bool>(isSystem);
     map['sort_order'] = Variable<int>(sortOrder);
     return map;
@@ -3486,6 +3605,18 @@ class BrewParamDefinition extends DataClass
       name: Value(name),
       type: Value(type),
       unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
+      numberMin: numberMin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(numberMin),
+      numberMax: numberMax == null && nullToAbsent
+          ? const Value.absent()
+          : Value(numberMax),
+      numberStep: numberStep == null && nullToAbsent
+          ? const Value.absent()
+          : Value(numberStep),
+      numberDefault: numberDefault == null && nullToAbsent
+          ? const Value.absent()
+          : Value(numberDefault),
       isSystem: Value(isSystem),
       sortOrder: Value(sortOrder),
     );
@@ -3502,6 +3633,10 @@ class BrewParamDefinition extends DataClass
       name: serializer.fromJson<String>(json['name']),
       type: serializer.fromJson<String>(json['type']),
       unit: serializer.fromJson<String?>(json['unit']),
+      numberMin: serializer.fromJson<double?>(json['numberMin']),
+      numberMax: serializer.fromJson<double?>(json['numberMax']),
+      numberStep: serializer.fromJson<double?>(json['numberStep']),
+      numberDefault: serializer.fromJson<double?>(json['numberDefault']),
       isSystem: serializer.fromJson<bool>(json['isSystem']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
     );
@@ -3515,6 +3650,10 @@ class BrewParamDefinition extends DataClass
       'name': serializer.toJson<String>(name),
       'type': serializer.toJson<String>(type),
       'unit': serializer.toJson<String?>(unit),
+      'numberMin': serializer.toJson<double?>(numberMin),
+      'numberMax': serializer.toJson<double?>(numberMax),
+      'numberStep': serializer.toJson<double?>(numberStep),
+      'numberDefault': serializer.toJson<double?>(numberDefault),
       'isSystem': serializer.toJson<bool>(isSystem),
       'sortOrder': serializer.toJson<int>(sortOrder),
     };
@@ -3526,6 +3665,10 @@ class BrewParamDefinition extends DataClass
     String? name,
     String? type,
     Value<String?> unit = const Value.absent(),
+    Value<double?> numberMin = const Value.absent(),
+    Value<double?> numberMax = const Value.absent(),
+    Value<double?> numberStep = const Value.absent(),
+    Value<double?> numberDefault = const Value.absent(),
     bool? isSystem,
     int? sortOrder,
   }) => BrewParamDefinition(
@@ -3534,6 +3677,12 @@ class BrewParamDefinition extends DataClass
     name: name ?? this.name,
     type: type ?? this.type,
     unit: unit.present ? unit.value : this.unit,
+    numberMin: numberMin.present ? numberMin.value : this.numberMin,
+    numberMax: numberMax.present ? numberMax.value : this.numberMax,
+    numberStep: numberStep.present ? numberStep.value : this.numberStep,
+    numberDefault: numberDefault.present
+        ? numberDefault.value
+        : this.numberDefault,
     isSystem: isSystem ?? this.isSystem,
     sortOrder: sortOrder ?? this.sortOrder,
   );
@@ -3544,6 +3693,14 @@ class BrewParamDefinition extends DataClass
       name: data.name.present ? data.name.value : this.name,
       type: data.type.present ? data.type.value : this.type,
       unit: data.unit.present ? data.unit.value : this.unit,
+      numberMin: data.numberMin.present ? data.numberMin.value : this.numberMin,
+      numberMax: data.numberMax.present ? data.numberMax.value : this.numberMax,
+      numberStep: data.numberStep.present
+          ? data.numberStep.value
+          : this.numberStep,
+      numberDefault: data.numberDefault.present
+          ? data.numberDefault.value
+          : this.numberDefault,
       isSystem: data.isSystem.present ? data.isSystem.value : this.isSystem,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
     );
@@ -3557,6 +3714,10 @@ class BrewParamDefinition extends DataClass
           ..write('name: $name, ')
           ..write('type: $type, ')
           ..write('unit: $unit, ')
+          ..write('numberMin: $numberMin, ')
+          ..write('numberMax: $numberMax, ')
+          ..write('numberStep: $numberStep, ')
+          ..write('numberDefault: $numberDefault, ')
           ..write('isSystem: $isSystem, ')
           ..write('sortOrder: $sortOrder')
           ..write(')'))
@@ -3564,8 +3725,19 @@ class BrewParamDefinition extends DataClass
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, method, name, type, unit, isSystem, sortOrder);
+  int get hashCode => Object.hash(
+    id,
+    method,
+    name,
+    type,
+    unit,
+    numberMin,
+    numberMax,
+    numberStep,
+    numberDefault,
+    isSystem,
+    sortOrder,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3575,6 +3747,10 @@ class BrewParamDefinition extends DataClass
           other.name == this.name &&
           other.type == this.type &&
           other.unit == this.unit &&
+          other.numberMin == this.numberMin &&
+          other.numberMax == this.numberMax &&
+          other.numberStep == this.numberStep &&
+          other.numberDefault == this.numberDefault &&
           other.isSystem == this.isSystem &&
           other.sortOrder == this.sortOrder);
 }
@@ -3586,6 +3762,10 @@ class BrewParamDefinitionsCompanion
   final Value<String> name;
   final Value<String> type;
   final Value<String?> unit;
+  final Value<double?> numberMin;
+  final Value<double?> numberMax;
+  final Value<double?> numberStep;
+  final Value<double?> numberDefault;
   final Value<bool> isSystem;
   final Value<int> sortOrder;
   const BrewParamDefinitionsCompanion({
@@ -3594,6 +3774,10 @@ class BrewParamDefinitionsCompanion
     this.name = const Value.absent(),
     this.type = const Value.absent(),
     this.unit = const Value.absent(),
+    this.numberMin = const Value.absent(),
+    this.numberMax = const Value.absent(),
+    this.numberStep = const Value.absent(),
+    this.numberDefault = const Value.absent(),
     this.isSystem = const Value.absent(),
     this.sortOrder = const Value.absent(),
   });
@@ -3603,6 +3787,10 @@ class BrewParamDefinitionsCompanion
     required String name,
     required String type,
     this.unit = const Value.absent(),
+    this.numberMin = const Value.absent(),
+    this.numberMax = const Value.absent(),
+    this.numberStep = const Value.absent(),
+    this.numberDefault = const Value.absent(),
     this.isSystem = const Value.absent(),
     required int sortOrder,
   }) : method = Value(method),
@@ -3615,6 +3803,10 @@ class BrewParamDefinitionsCompanion
     Expression<String>? name,
     Expression<String>? type,
     Expression<String>? unit,
+    Expression<double>? numberMin,
+    Expression<double>? numberMax,
+    Expression<double>? numberStep,
+    Expression<double>? numberDefault,
     Expression<bool>? isSystem,
     Expression<int>? sortOrder,
   }) {
@@ -3624,6 +3816,10 @@ class BrewParamDefinitionsCompanion
       if (name != null) 'name': name,
       if (type != null) 'type': type,
       if (unit != null) 'unit': unit,
+      if (numberMin != null) 'number_min': numberMin,
+      if (numberMax != null) 'number_max': numberMax,
+      if (numberStep != null) 'number_step': numberStep,
+      if (numberDefault != null) 'number_default': numberDefault,
       if (isSystem != null) 'is_system': isSystem,
       if (sortOrder != null) 'sort_order': sortOrder,
     });
@@ -3635,6 +3831,10 @@ class BrewParamDefinitionsCompanion
     Value<String>? name,
     Value<String>? type,
     Value<String?>? unit,
+    Value<double?>? numberMin,
+    Value<double?>? numberMax,
+    Value<double?>? numberStep,
+    Value<double?>? numberDefault,
     Value<bool>? isSystem,
     Value<int>? sortOrder,
   }) {
@@ -3644,6 +3844,10 @@ class BrewParamDefinitionsCompanion
       name: name ?? this.name,
       type: type ?? this.type,
       unit: unit ?? this.unit,
+      numberMin: numberMin ?? this.numberMin,
+      numberMax: numberMax ?? this.numberMax,
+      numberStep: numberStep ?? this.numberStep,
+      numberDefault: numberDefault ?? this.numberDefault,
       isSystem: isSystem ?? this.isSystem,
       sortOrder: sortOrder ?? this.sortOrder,
     );
@@ -3667,6 +3871,18 @@ class BrewParamDefinitionsCompanion
     if (unit.present) {
       map['unit'] = Variable<String>(unit.value);
     }
+    if (numberMin.present) {
+      map['number_min'] = Variable<double>(numberMin.value);
+    }
+    if (numberMax.present) {
+      map['number_max'] = Variable<double>(numberMax.value);
+    }
+    if (numberStep.present) {
+      map['number_step'] = Variable<double>(numberStep.value);
+    }
+    if (numberDefault.present) {
+      map['number_default'] = Variable<double>(numberDefault.value);
+    }
     if (isSystem.present) {
       map['is_system'] = Variable<bool>(isSystem.value);
     }
@@ -3684,6 +3900,10 @@ class BrewParamDefinitionsCompanion
           ..write('name: $name, ')
           ..write('type: $type, ')
           ..write('unit: $unit, ')
+          ..write('numberMin: $numberMin, ')
+          ..write('numberMax: $numberMax, ')
+          ..write('numberStep: $numberStep, ')
+          ..write('numberDefault: $numberDefault, ')
           ..write('isSystem: $isSystem, ')
           ..write('sortOrder: $sortOrder')
           ..write(')'))
@@ -6488,6 +6708,10 @@ typedef $$BrewParamDefinitionsTableCreateCompanionBuilder =
       required String name,
       required String type,
       Value<String?> unit,
+      Value<double?> numberMin,
+      Value<double?> numberMax,
+      Value<double?> numberStep,
+      Value<double?> numberDefault,
       Value<bool> isSystem,
       required int sortOrder,
     });
@@ -6498,6 +6722,10 @@ typedef $$BrewParamDefinitionsTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String> type,
       Value<String?> unit,
+      Value<double?> numberMin,
+      Value<double?> numberMax,
+      Value<double?> numberStep,
+      Value<double?> numberDefault,
       Value<bool> isSystem,
       Value<int> sortOrder,
     });
@@ -6602,6 +6830,26 @@ class $$BrewParamDefinitionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<double> get numberMin => $composableBuilder(
+    column: $table.numberMin,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get numberMax => $composableBuilder(
+    column: $table.numberMax,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get numberStep => $composableBuilder(
+    column: $table.numberStep,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get numberDefault => $composableBuilder(
+    column: $table.numberDefault,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<bool> get isSystem => $composableBuilder(
     column: $table.isSystem,
     builder: (column) => ColumnFilters(column),
@@ -6698,6 +6946,26 @@ class $$BrewParamDefinitionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get numberMin => $composableBuilder(
+    column: $table.numberMin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get numberMax => $composableBuilder(
+    column: $table.numberMax,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get numberStep => $composableBuilder(
+    column: $table.numberStep,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get numberDefault => $composableBuilder(
+    column: $table.numberDefault,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isSystem => $composableBuilder(
     column: $table.isSystem,
     builder: (column) => ColumnOrderings(column),
@@ -6732,6 +7000,22 @@ class $$BrewParamDefinitionsTableAnnotationComposer
 
   GeneratedColumn<String> get unit =>
       $composableBuilder(column: $table.unit, builder: (column) => column);
+
+  GeneratedColumn<double> get numberMin =>
+      $composableBuilder(column: $table.numberMin, builder: (column) => column);
+
+  GeneratedColumn<double> get numberMax =>
+      $composableBuilder(column: $table.numberMax, builder: (column) => column);
+
+  GeneratedColumn<double> get numberStep => $composableBuilder(
+    column: $table.numberStep,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get numberDefault => $composableBuilder(
+    column: $table.numberDefault,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get isSystem =>
       $composableBuilder(column: $table.isSystem, builder: (column) => column);
@@ -6835,6 +7119,10 @@ class $$BrewParamDefinitionsTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<String?> unit = const Value.absent(),
+                Value<double?> numberMin = const Value.absent(),
+                Value<double?> numberMax = const Value.absent(),
+                Value<double?> numberStep = const Value.absent(),
+                Value<double?> numberDefault = const Value.absent(),
                 Value<bool> isSystem = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
               }) => BrewParamDefinitionsCompanion(
@@ -6843,6 +7131,10 @@ class $$BrewParamDefinitionsTableTableManager
                 name: name,
                 type: type,
                 unit: unit,
+                numberMin: numberMin,
+                numberMax: numberMax,
+                numberStep: numberStep,
+                numberDefault: numberDefault,
                 isSystem: isSystem,
                 sortOrder: sortOrder,
               ),
@@ -6853,6 +7145,10 @@ class $$BrewParamDefinitionsTableTableManager
                 required String name,
                 required String type,
                 Value<String?> unit = const Value.absent(),
+                Value<double?> numberMin = const Value.absent(),
+                Value<double?> numberMax = const Value.absent(),
+                Value<double?> numberStep = const Value.absent(),
+                Value<double?> numberDefault = const Value.absent(),
                 Value<bool> isSystem = const Value.absent(),
                 required int sortOrder,
               }) => BrewParamDefinitionsCompanion.insert(
@@ -6861,6 +7157,10 @@ class $$BrewParamDefinitionsTableTableManager
                 name: name,
                 type: type,
                 unit: unit,
+                numberMin: numberMin,
+                numberMax: numberMax,
+                numberStep: numberStep,
+                numberDefault: numberDefault,
                 isSystem: isSystem,
                 sortOrder: sortOrder,
               ),

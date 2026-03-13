@@ -18,6 +18,18 @@ class BrewParamDefinitions extends Table {
   /// Optional unit label provided by user (e.g. "g", "C").
   TextColumn get unit => text().nullable()();
 
+  /// Optional minimum value for number-type parameters.
+  RealColumn get numberMin => real().nullable()();
+
+  /// Optional maximum value for number-type parameters.
+  RealColumn get numberMax => real().nullable()();
+
+  /// Optional step used by slider/input snapping.
+  RealColumn get numberStep => real().nullable()();
+
+  /// Optional default value for number-type parameters.
+  RealColumn get numberDefault => real().nullable()();
+
   /// Whether this is a system preset parameter.
   BoolColumn get isSystem => boolean().withDefault(const Constant(true))();
 

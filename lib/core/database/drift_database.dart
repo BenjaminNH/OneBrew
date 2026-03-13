@@ -28,6 +28,163 @@ LazyDatabase _openConnection() {
   });
 }
 
+class _SystemParamRangeSeed {
+  const _SystemParamRangeSeed({
+    required this.method,
+    required this.name,
+    required this.min,
+    required this.max,
+    required this.step,
+    required this.defaultValue,
+  });
+
+  final String method;
+  final String name;
+  final double min;
+  final double max;
+  final double step;
+  final double defaultValue;
+}
+
+const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
+  _SystemParamRangeSeed(
+    method: 'pour_over',
+    name: 'Coffee Weight',
+    min: 8.0,
+    max: 40.0,
+    step: 0.1,
+    defaultValue: 15.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'pour_over',
+    name: 'Water Weight',
+    min: 120.0,
+    max: 700.0,
+    step: 1.0,
+    defaultValue: 225.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'pour_over',
+    name: 'Brew Ratio',
+    min: 10.0,
+    max: 22.0,
+    step: 0.1,
+    defaultValue: 15.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'pour_over',
+    name: 'Water Temp',
+    min: 80.0,
+    max: 100.0,
+    step: 1.0,
+    defaultValue: 93.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'pour_over',
+    name: 'Brew Time',
+    min: 30.0,
+    max: 480.0,
+    step: 1.0,
+    defaultValue: 180.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'pour_over',
+    name: 'Bloom Time',
+    min: 0.0,
+    max: 90.0,
+    step: 1.0,
+    defaultValue: 30.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'pour_over',
+    name: 'Bloom Water',
+    min: 0.0,
+    max: 200.0,
+    step: 1.0,
+    defaultValue: 30.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'espresso',
+    name: 'Coffee Dose',
+    min: 12.0,
+    max: 24.0,
+    step: 0.1,
+    defaultValue: 18.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'espresso',
+    name: 'Yield',
+    min: 18.0,
+    max: 60.0,
+    step: 0.5,
+    defaultValue: 36.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'espresso',
+    name: 'Brew Ratio',
+    min: 1.0,
+    max: 4.0,
+    step: 0.1,
+    defaultValue: 2.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'espresso',
+    name: 'Extraction Time',
+    min: 15.0,
+    max: 45.0,
+    step: 1.0,
+    defaultValue: 30.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'espresso',
+    name: 'Pressure',
+    min: 6.0,
+    max: 11.0,
+    step: 0.1,
+    defaultValue: 9.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'espresso',
+    name: 'Water Temp',
+    min: 85.0,
+    max: 98.0,
+    step: 1.0,
+    defaultValue: 93.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'espresso',
+    name: 'Pre-infusion Time',
+    min: 0.0,
+    max: 20.0,
+    step: 1.0,
+    defaultValue: 8.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'custom',
+    name: 'Coffee Weight',
+    min: 8.0,
+    max: 40.0,
+    step: 0.1,
+    defaultValue: 15.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'custom',
+    name: 'Water Weight',
+    min: 120.0,
+    max: 700.0,
+    step: 1.0,
+    defaultValue: 225.0,
+  ),
+  _SystemParamRangeSeed(
+    method: 'custom',
+    name: 'Brew Ratio',
+    min: 8.0,
+    max: 24.0,
+    step: 0.1,
+    defaultValue: 15.0,
+  ),
+];
+
 /// Main Drift database for OneBrew.
 ///
 /// Contains all domain tables:
@@ -68,7 +225,7 @@ class OneBrewDatabase extends _$OneBrewDatabase {
   OneBrewDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -96,12 +253,44 @@ class OneBrewDatabase extends _$OneBrewDatabase {
         await m.createTable(brewRatings);
         await m.createTable(brewParamValues);
       }
+      if (from >= 3 && from < 5) {
+        await m.addColumn(brewParamDefinitions, brewParamDefinitions.numberMin);
+        await m.addColumn(brewParamDefinitions, brewParamDefinitions.numberMax);
+        await m.addColumn(
+          brewParamDefinitions,
+          brewParamDefinitions.numberStep,
+        );
+        await m.addColumn(
+          brewParamDefinitions,
+          brewParamDefinitions.numberDefault,
+        );
+        await _backfillSystemParamRanges();
+      }
     },
     beforeOpen: (details) async {
       // Enable foreign-key constraints on every connection.
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
+
+  Future<void> _backfillSystemParamRanges() async {
+    for (final seed in _systemParamRangeSeeds) {
+      await customStatement(
+        'UPDATE brew_param_definitions '
+        'SET number_min = ?, number_max = ?, number_step = ?, number_default = ? '
+        'WHERE method = ? AND name = ? AND type = ?',
+        [
+          seed.min,
+          seed.max,
+          seed.step,
+          seed.defaultValue,
+          seed.method,
+          seed.name,
+          'number',
+        ],
+      );
+    }
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // Bean queries
@@ -250,9 +439,10 @@ class OneBrewDatabase extends _$OneBrewDatabase {
       (delete(equipments)..where((e) => e.id.equals(id))).go();
 
   /// Soft-deletes equipment by [id] (kept for history joins).
-  Future<int> softDeleteEquipment(int id) => (update(equipments)
-        ..where((e) => e.id.equals(id)))
-      .write(const EquipmentsCompanion(isDeleted: Value(true)));
+  Future<int> softDeleteEquipment(int id) =>
+      (update(equipments)..where((e) => e.id.equals(id))).write(
+        const EquipmentsCompanion(isDeleted: Value(true)),
+      );
 
   /// Increments [Equipments.useCount] for the equipment with [id].
   Future<void> incrementEquipmentUseCount(int id) async {
@@ -342,9 +532,9 @@ class OneBrewDatabase extends _$OneBrewDatabase {
       select(brewMethodConfigs).get();
 
   Future<BrewMethodConfig?> getBrewMethodConfigByMethod(String method) =>
-      (select(brewMethodConfigs)
-            ..where((m) => m.method.equals(method)))
-          .getSingleOrNull();
+      (select(
+        brewMethodConfigs,
+      )..where((m) => m.method.equals(method))).getSingleOrNull();
 
   Future<int> insertBrewMethodConfig(BrewMethodConfigsCompanion config) =>
       into(brewMethodConfigs).insert(config);
@@ -375,9 +565,9 @@ class OneBrewDatabase extends _$OneBrewDatabase {
             ..orderBy([(p) => OrderingTerm.asc(p.sortOrder)]))
           .get();
 
-  Future<BrewParamDefinition?> getBrewParamDefinitionById(int id) =>
-      (select(brewParamDefinitions)..where((p) => p.id.equals(id)))
-          .getSingleOrNull();
+  Future<BrewParamDefinition?> getBrewParamDefinitionById(int id) => (select(
+    brewParamDefinitions,
+  )..where((p) => p.id.equals(id))).getSingleOrNull();
 
   Future<int> insertBrewParamDefinition(BrewParamDefinitionsCompanion def) =>
       into(brewParamDefinitions).insert(def);
@@ -388,9 +578,9 @@ class OneBrewDatabase extends _$OneBrewDatabase {
   Future<int> deleteBrewParamDefinition(int id) =>
       (delete(brewParamDefinitions)..where((p) => p.id.equals(id))).go();
 
-  Future<int> deleteBrewParamVisibilitiesByParamId(int paramId) =>
-      (delete(brewParamVisibilities)..where((v) => v.paramId.equals(paramId)))
-          .go();
+  Future<int> deleteBrewParamVisibilitiesByParamId(int paramId) => (delete(
+    brewParamVisibilities,
+  )..where((v) => v.paramId.equals(paramId))).go();
 
   Future<int> deleteBrewParamValuesByParamId(int paramId) =>
       (delete(brewParamValues)..where((v) => v.paramId.equals(paramId))).go();
@@ -429,9 +619,9 @@ class OneBrewDatabase extends _$OneBrewDatabase {
   // ─────────────────────────────────────────────────────────────────────────
 
   Future<List<BrewParamValue>> getBrewParamValuesForBrew(int brewRecordId) =>
-      (select(brewParamValues)
-            ..where((v) => v.brewRecordId.equals(brewRecordId)))
-          .get();
+      (select(
+        brewParamValues,
+      )..where((v) => v.brewRecordId.equals(brewRecordId))).get();
 
   Future<int> insertBrewParamValue(BrewParamValuesCompanion value) =>
       into(brewParamValues).insert(value);

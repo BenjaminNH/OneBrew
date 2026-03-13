@@ -37,7 +37,10 @@ void main() {
         isFalse,
       );
       expect(
-        canToggleParam(method: BrewMethod.espresso, name: BrewParamNames.yield),
+        canToggleParam(
+          method: BrewMethod.espresso,
+          name: BrewParamNames.yieldAmount,
+        ),
         isFalse,
       );
     });

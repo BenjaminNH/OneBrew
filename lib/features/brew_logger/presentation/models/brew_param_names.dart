@@ -4,7 +4,7 @@ abstract final class BrewParamNames {
   static const coffeeWeight = 'Coffee Weight';
   static const coffeeDose = 'Coffee Dose';
   static const waterWeight = 'Water Weight';
-  static const yield = 'Yield';
+  static const yieldAmount = 'Yield';
   static const brewRatio = 'Brew Ratio';
   static const waterTemp = 'Water Temp';
   static const grindSize = 'Grind Size';
@@ -24,7 +24,7 @@ const Set<String> essentialParamNames = {
   BrewParamNames.coffeeWeight,
   BrewParamNames.coffeeDose,
   BrewParamNames.waterWeight,
-  BrewParamNames.yield,
+  BrewParamNames.yieldAmount,
   BrewParamNames.brewRatio,
 };
 
@@ -32,7 +32,7 @@ const Set<String> systemBoundParamNames = {
   BrewParamNames.coffeeWeight,
   BrewParamNames.coffeeDose,
   BrewParamNames.waterWeight,
-  BrewParamNames.yield,
+  BrewParamNames.yieldAmount,
   BrewParamNames.brewRatio,
   BrewParamNames.waterTemp,
   BrewParamNames.brewTime,

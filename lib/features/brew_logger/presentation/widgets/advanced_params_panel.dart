@@ -4,13 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/widgets/app_slider.dart';
 import '../../../../features/inventory/presentation/widgets/smart_tag_field.dart';
+import '../../../../shared/helpers/brew_param_defaults.dart';
 import '../../domain/entities/brew_record.dart';
 import '../../brew_logger_providers.dart';
+import '../../domain/entities/brew_param_definition.dart';
 import '../controllers/brew_logger_controller.dart';
 import '../models/brew_param_names.dart';
 import 'brew_param_extra_inputs.dart';
+import 'number_param_control.dart';
 
 /// Advanced parameters panel — revealed after tapping "Show more".
 ///
@@ -67,6 +69,30 @@ class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
     final showPourMethod =
         catalog?.isVisibleByName(BrewParamNames.pourMethod) ?? true;
     final visibleDefinitions = catalog?.visibleDefinitions ?? const [];
+    final waterTempDef = catalog?.definitionByName(BrewParamNames.waterTemp);
+    final bloomDef = catalog?.definitionByName(BrewParamNames.bloomTime);
+    final waterTempRange = _resolveNumberRange(
+      method: state.brewMethod,
+      name: BrewParamNames.waterTemp,
+      definition: waterTempDef,
+      fallback: const BrewParamNumberRange(
+        min: 80.0,
+        max: 100.0,
+        step: 1.0,
+        defaultValue: 93.0,
+      ),
+    );
+    final bloomRange = _resolveNumberRange(
+      method: state.brewMethod,
+      name: BrewParamNames.bloomTime,
+      definition: bloomDef,
+      fallback: const BrewParamNumberRange(
+        min: 0.0,
+        max: 90.0,
+        step: 1.0,
+        defaultValue: 30.0,
+      ),
+    );
 
     // Keep text controllers in sync with state (handles resets).
     _syncControllersFromState(state);
@@ -78,39 +104,39 @@ class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
 
         // ── Water Temperature ─────────────────────────────────────────
         if (showWaterTemp) ...[
-          _ParamRow(
+          NumberParamControl(
             label: 'Temp',
-            valueText: state.waterTempC != null
-                ? '${state.waterTempC!.round()}°C'
-                : 'off',
-            child: AppSlider(
-              value: state.waterTempC ?? 93.0,
-              min: 60.0,
-              max: 100.0,
-              divisions: 40,
-              unit: '°C',
-              onChanged: ctrl.setWaterTemp,
-              semanticLabel: 'Water temperature',
-            ),
+            value: state.waterTempC,
+            unit: '°C',
+            range: waterTempRange,
+            onChanged: (value) {
+              if (value == null) return;
+              ctrl.setWaterTemp(value);
+            },
+            semanticLabel: 'Water temperature',
+            valueColor: AppColors.textSecondary,
           ),
           const SizedBox(height: AppSpacing.md),
         ],
 
         // ── Bloom Time ────────────────────────────────────────────────
         if (showBloomTime) ...[
-          _ParamRow(
+          NumberParamControl(
             label: 'Bloom',
-            valueText: state.bloomTimeS != null ? '${state.bloomTimeS}s' : 'off',
-            child: AppSlider(
-              value: (state.bloomTimeS ?? 0).toDouble(),
-              min: 0,
-              max: 90,
-              divisions: 18,
-              unit: 's',
-              onChanged: (v) =>
-                  ctrl.setBloomTime(v.round() == 0 ? null : v.round()),
-              semanticLabel: 'Bloom time in seconds',
-            ),
+            value: state.bloomTimeS?.toDouble(),
+            unit: 's',
+            range: bloomRange,
+            onChanged: (value) {
+              if (value == null) {
+                ctrl.setBloomTime(null);
+                return;
+              }
+              final normalized = value.round();
+              ctrl.setBloomTime(normalized <= 0 ? null : normalized);
+            },
+            semanticLabel: 'Bloom time in seconds',
+            valueColor: AppColors.textSecondary,
+            allowClear: true,
           ),
           const SizedBox(height: AppSpacing.md),
         ],
@@ -141,18 +167,20 @@ class _AdvancedParamsPanelState extends ConsumerState<AdvancedParamsPanel> {
 
           // ── Grind click value (visible once an equipment is linked) ─
           if (state.equipmentId != null && state.hasValidGrindClickConfig) ...[
-            _ParamRow(
+            NumberParamControl(
               label: 'Grind Clicks',
-              valueText: _formatGrindClickValue(state),
-              child: AppSlider(
-                value: state.grindClickValue ?? state.grindSliderMin,
+              value: state.grindClickValue,
+              unit: state.grindSliderUnit,
+              range: BrewParamNumberRange(
                 min: state.grindSliderMin,
                 max: state.grindSliderMax,
-                divisions: state.grindSliderDivisions,
-                unit: state.grindSliderUnit,
-                onChanged: ctrl.setGrindClickValue,
-                semanticLabel: 'Grind click value',
+                step: state.grindSliderStep,
+                defaultValue: state.grindClickValue,
               ),
+              onChanged: ctrl.setGrindClickValue,
+              semanticLabel: 'Grind click value',
+              valueColor: AppColors.textSecondary,
+              allowClear: true,
             ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -189,13 +217,6 @@ const _grindSimpleLabels = [
   'Coarse',
   'Extra Coarse',
 ];
-
-String _formatGrindClickValue(BrewLoggerState state) {
-  final clickValue = state.grindClickValue;
-  if (clickValue == null) return '—';
-  return '${clickValue.toStringAsFixed(state.grindValueFractionDigits)} '
-      '${state.grindSliderUnit}';
-}
 
 class _GrindModeSection extends StatelessWidget {
   const _GrindModeSection({required this.state, required this.ctrl});
@@ -301,42 +322,6 @@ class _SectionDivider extends StatelessWidget {
   }
 }
 
-class _ParamRow extends StatelessWidget {
-  const _ParamRow({
-    required this.label,
-    required this.valueText,
-    required this.child,
-  });
-
-  final String label;
-  final String valueText;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: AppTextStyles.labelMedium),
-            Text(
-              valueText,
-              style: AppTextStyles.numericValue.copyWith(
-                color: AppColors.textSecondary,
-                fontSize: 13,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        child,
-      ],
-    );
-  }
-}
-
 class _LabeledTextField extends StatelessWidget {
   const _LabeledTextField({
     required this.controller,
@@ -367,4 +352,19 @@ class _LabeledTextField extends StatelessWidget {
       onChanged: onChanged,
     );
   }
+}
+
+BrewParamNumberRange _resolveNumberRange({
+  required BrewMethod method,
+  required String name,
+  required BrewParamDefinition? definition,
+  required BrewParamNumberRange fallback,
+}) {
+  final fromDefinition = definition?.numberRange;
+  if (fromDefinition != null) return fromDefinition;
+  final fromTemplate = BrewParamDefaults.numberRangeFor(
+    method: method,
+    name: name,
+  );
+  return fromTemplate ?? fallback;
 }
