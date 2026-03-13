@@ -8,6 +8,7 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_route_paths.dart';
 import '../../../../core/utils/timer_utils.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../shared/helpers/brew_param_defaults.dart';
 import '../../../inventory/presentation/widgets/template_picker.dart';
 import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
 import '../../brew_logger_providers.dart';
@@ -70,6 +71,9 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
   Widget build(BuildContext context) {
     final loggerState = ref.watch(brewLoggerControllerProvider);
     final timerState = ref.watch(brewTimerControllerProvider);
+    final timerProfile = BrewParamDefaults.timerProfileForMethod(
+      loggerState.brewMethod,
+    );
     final templatesAsync = ref.watch(recentBrewTemplatesProvider);
     final methodConfigsAsync = ref.watch(brewMethodConfigsProvider);
 
@@ -148,6 +152,8 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
               ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+            const SliverToBoxAdapter(child: ParamInputSection()),
+            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
@@ -155,8 +161,10 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
                 ),
                 child: AppCard(
                   child: BrewTimerWidget(
-                    targetSeconds: loggerState.brewDurationS,
-                    bloomSeconds: loggerState.bloomTimeS ?? 0,
+                    targetSeconds: timerProfile.recommendedTargetSeconds,
+                    bloomSeconds:
+                        loggerState.bloomTimeS ??
+                        timerProfile.recommendedBloomSeconds,
                     onElapsedChanged: (elapsed) {
                       setState(() => _currentElapsed = elapsed);
                     },
@@ -164,8 +172,6 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
                 ),
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
-            const SliverToBoxAdapter(child: ParamInputSection()),
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
             SliverToBoxAdapter(
               child: _SaveActionBar(

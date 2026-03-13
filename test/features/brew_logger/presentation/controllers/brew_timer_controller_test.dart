@@ -103,6 +103,23 @@ void main() {
       expect(state.bloomSeconds, 30);
     });
 
+    test('setTarget() clamps out-of-range target and bloom values', () {
+      getController().setTarget(targetSeconds: 9999, bloomSeconds: 1200);
+
+      final state = getState();
+      expect(state.targetSeconds, 600);
+      expect(state.bloomSeconds, 600);
+    });
+
+    test('setTarget() supports disabling target countdown', () {
+      getController().setTarget(targetSeconds: 120, bloomSeconds: 20);
+      getController().setTarget(targetSeconds: null, bloomSeconds: 40);
+
+      final state = getState();
+      expect(state.targetSeconds, isNull);
+      expect(state.bloomSeconds, 40);
+    });
+
     test('toggleCountingDown() changes countdown boolean', () {
       final initialState = getState().isCountingDown;
 

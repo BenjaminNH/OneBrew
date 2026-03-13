@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/helpers/brew_param_defaults.dart';
+
 /// State held by [BrewTimerController].
 class BrewTimerState {
   const BrewTimerState({
@@ -99,9 +101,17 @@ class BrewTimerController extends Notifier<BrewTimerState> {
   }
 
   void setTarget({int? targetSeconds, int bloomSeconds = 0}) {
-    state = state.copyWith(
-      targetSeconds: targetSeconds,
+    final normalizedTarget = targetSeconds == null
+        ? null
+        : BrewParamDefaults.clampTargetSeconds(targetSeconds);
+    final normalizedBloom = BrewParamDefaults.clampBloomSeconds(
       bloomSeconds: bloomSeconds,
+      targetSeconds: normalizedTarget,
+    );
+
+    state = state.copyWith(
+      targetSeconds: normalizedTarget,
+      bloomSeconds: normalizedBloom,
     );
   }
 
