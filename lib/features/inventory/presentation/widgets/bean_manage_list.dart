@@ -7,8 +7,7 @@ import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../domain/entities/bean.dart';
 import '../../domain/inventory_exceptions.dart';
-import '../../domain/usecases/rename_bean_and_propagate.dart';
-import '../../inventory_providers.dart';
+import '../controllers/inventory_controller.dart';
 
 /// Beans management list for Phase 7B.
 ///
@@ -46,11 +45,9 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
 
   Future<void> _reload() async {
     setState(() => _isLoading = true);
-    final repository = ref.read(inventoryRepositoryProvider);
+    final controller = ref.read(inventoryControllerProvider.notifier);
     final query = _queryController.text.trim();
-    final data = query.isEmpty
-        ? await repository.getAllBeans()
-        : await repository.searchBeans(query);
+    final data = await controller.queryBeans(query);
     if (!mounted) return;
     setState(() {
       _beans = data;
@@ -66,38 +63,15 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
     );
     if (result == null) return;
 
-    final repository = ref.read(inventoryRepositoryProvider);
+    final controller = ref.read(inventoryControllerProvider.notifier);
     try {
-      if (initial == null) {
-        await repository.createBean(
-          Bean(
-            id: 0,
-            name: result.name,
-            roaster: result.roaster,
-            origin: result.origin,
-            roastLevel: result.roastLevel,
-            addedAt: DateTime.now(),
-            useCount: 0,
-          ),
-        );
-      } else {
-        final renamed =
-            initial.name.trim().toLowerCase() != result.name.toLowerCase();
-        if (renamed) {
-          await RenameBeanAndPropagate(repository)(
-            beanId: initial.id,
-            newName: result.name,
-          );
-        }
-        await repository.updateBean(
-          initial.copyWith(
-            name: result.name,
-            roaster: result.roaster,
-            origin: result.origin,
-            roastLevel: result.roastLevel,
-          ),
-        );
-      }
+      await controller.saveBean(
+        initial: initial,
+        name: result.name,
+        roaster: result.roaster,
+        origin: result.origin,
+        roastLevel: result.roastLevel,
+      );
 
       await _reload();
       if (!mounted) return;
@@ -148,9 +122,9 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
     );
     if (confirmed != true) return;
 
-    final repository = ref.read(inventoryRepositoryProvider);
+    final controller = ref.read(inventoryControllerProvider.notifier);
     try {
-      await repository.deleteBean(bean.id);
+      await controller.deleteBean(bean.id);
       await _reload();
     } on InventoryException catch (error) {
       if (!mounted) return;

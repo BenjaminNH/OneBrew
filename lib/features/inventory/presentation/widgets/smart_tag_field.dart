@@ -141,8 +141,10 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
           } else {
             if (isKnown) return;
 
-            final setup =
-                await _showQuickGrinderSetupSheet(tag) ?? _defaultGrinderSetup;
+            final shouldShowFirstTimeSetup = _suggestions.isEmpty;
+            final setup = shouldShowFirstTimeSetup
+                ? await _showQuickGrinderSetupSheet(tag) ?? _defaultGrinderSetup
+                : _defaultGrinderSetup;
             await controller.addEquipment(
               tag,
               isGrinder: true,

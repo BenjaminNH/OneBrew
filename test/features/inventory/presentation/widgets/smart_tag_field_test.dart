@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:one_brew/core/database/drift_database.dart';
 import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
@@ -216,6 +217,58 @@ void main() {
       expect(equipments.first.grindMaxClick, 68);
       expect(equipments.first.grindClickStep, 0.5);
       expect(equipments.first.grindClickUnit, 'steps');
+    },
+  );
+
+  testWidgets(
+    'equipment quick-add skips setup sheet after first setup exists',
+    (WidgetTester tester) async {
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      await db.insertEquipment(
+        EquipmentsCompanion.insert(
+          name: 'Comandante C40',
+          isGrinder: const drift.Value(true),
+          grindMinClick: const drift.Value(0),
+          grindMaxClick: const drift.Value(40),
+          grindClickStep: const drift.Value(1),
+          grindClickUnit: const drift.Value('clicks'),
+          addedAt: drift.Value(DateTime(2026, 1, 1, 9)),
+          useCount: const drift.Value(10),
+        ),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [databaseProvider.overrideWithValue(db)],
+          child: const MaterialApp(
+            home: Scaffold(body: _EquipmentSelectionHarness()),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'Lagom P64');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Quick Grinder Setup'), findsNothing);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(_EquipmentSelectionHarness)),
+      );
+      final inventoryRepo = container.read(inventoryRepositoryProvider);
+      final equipments = await inventoryRepo.searchEquipments('Lagom P64');
+      expect(equipments, hasLength(1));
+      expect(equipments.first.grindMinClick, 0);
+      expect(equipments.first.grindMaxClick, 40);
+      expect(equipments.first.grindClickStep, 1);
+      expect(equipments.first.grindClickUnit, 'clicks');
+
+      final loggerState = container.read(brewLoggerControllerProvider);
+      expect(loggerState.selectedEquipmentName, 'Lagom P64');
+      expect(loggerState.equipmentId, isNotNull);
     },
   );
 }

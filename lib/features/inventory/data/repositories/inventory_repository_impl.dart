@@ -137,6 +137,10 @@ class InventoryRepositoryImpl implements InventoryRepository {
 
   @override
   Future<int> createEquipment(domain.Equipment e) async {
+    if (e.isGrinder) {
+      _validateGrinderConfig(e);
+    }
+
     final existing = await _datasource.getEquipmentByNameIgnoreCase(e.name);
     if (existing != null) {
       if (!existing.isDeleted) return existing.id;
