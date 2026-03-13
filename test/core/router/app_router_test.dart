@@ -21,12 +21,13 @@ void main() {
 
       expect(find.byType(BrewLoggerPage), findsOneWidget);
       expect(find.byKey(const Key('app-shell-navigation-bar')), findsOneWidget);
-      expect(find.text('Brew'), findsOneWidget);
-      expect(find.text('Manage'), findsOneWidget);
-      expect(find.text('History'), findsOneWidget);
       final nav = tester.widget<NavigationBar>(
         find.byKey(const Key('app-shell-navigation-bar')),
       );
+      final destinations = nav.destinations.cast<NavigationDestination>();
+      expect(destinations[0].label, 'Brew');
+      expect(destinations[1].label, 'History');
+      expect(destinations[2].label, 'Manage');
       expect(nav.selectedIndex, 0);
     });
 
@@ -35,19 +36,18 @@ void main() {
     ) async {
       await _pumpApp(tester);
 
-      await tester.tap(find.text('Manage'));
+      await tester.tap(find.text('History'));
       await tester.pumpAndSettle();
-      expect(find.byType(InventoryManagePage), findsOneWidget);
+      expect(find.byType(HistoryPage), findsOneWidget);
       var nav = tester.widget<NavigationBar>(
         find.byKey(const Key('app-shell-navigation-bar')),
       );
       expect(nav.selectedIndex, 1);
 
-      await tester.tap(find.text('History'));
+      await tester.tap(find.text('Manage'));
       await tester.pumpAndSettle();
 
-      expect(find.byType(HistoryPage), findsOneWidget);
-      expect(find.text('Brew History'), findsOneWidget);
+      expect(find.byType(InventoryManagePage), findsOneWidget);
       nav = tester.widget<NavigationBar>(
         find.byKey(const Key('app-shell-navigation-bar')),
       );
@@ -82,7 +82,7 @@ void main() {
       final nav = tester.widget<NavigationBar>(
         find.byKey(const Key('app-shell-navigation-bar')),
       );
-      expect(nav.selectedIndex, 1);
+      expect(nav.selectedIndex, 2);
     });
   });
 }

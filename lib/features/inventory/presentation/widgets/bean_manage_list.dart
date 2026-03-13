@@ -18,8 +18,26 @@ import '../controllers/inventory_controller.dart';
 /// - edit
 /// - rename propagation
 /// - delete guard feedback
+class BeanManageListController {
+  VoidCallback? _openCreateForm;
+
+  void bindOpenCreateForm(VoidCallback callback) {
+    _openCreateForm = callback;
+  }
+
+  void unbindOpenCreateForm() {
+    _openCreateForm = null;
+  }
+
+  void openCreateForm() {
+    _openCreateForm?.call();
+  }
+}
+
 class BeanManageList extends ConsumerStatefulWidget {
-  const BeanManageList({super.key});
+  const BeanManageList({super.key, this.controller});
+
+  final BeanManageListController? controller;
 
   @override
   ConsumerState<BeanManageList> createState() => _BeanManageListState();
@@ -34,11 +52,22 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
   @override
   void initState() {
     super.initState();
+    widget.controller?.bindOpenCreateForm(() => _openBeanForm());
     _reload();
   }
 
   @override
+  void didUpdateWidget(covariant BeanManageList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?.unbindOpenCreateForm();
+      widget.controller?.bindOpenCreateForm(() => _openBeanForm());
+    }
+  }
+
+  @override
   void dispose() {
+    widget.controller?.unbindOpenCreateForm();
     _queryController.dispose();
     super.dispose();
   }
@@ -152,31 +181,18 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
         AppSpacing.pageHorizontal,
         0,
         AppSpacing.pageHorizontal,
-        AppSpacing.pageBottom,
+        AppSpacing.pageBottom + AppSpacing.huge,
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  key: const Key('bean-manage-search-field'),
-                  controller: _queryController,
-                  onChanged: (_) => _reload(),
-                  decoration: const InputDecoration(
-                    labelText: 'Search beans',
-                    prefixIcon: Icon(Icons.search),
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              FilledButton.icon(
-                key: const Key('bean-manage-add-button'),
-                onPressed: () => _openBeanForm(),
-                icon: const Icon(Icons.add),
-                label: const Text('Add'),
-              ),
-            ],
+          TextField(
+            key: const Key('bean-manage-search-field'),
+            controller: _queryController,
+            onChanged: (_) => _reload(),
+            decoration: const InputDecoration(
+              labelText: 'Search beans',
+              prefixIcon: Icon(Icons.search),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Expanded(
