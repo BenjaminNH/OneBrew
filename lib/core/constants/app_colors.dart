@@ -46,10 +46,10 @@ abstract final class AppColors {
 
   /// 辅文本色：暖灰
   /// 用于辅文、占位符等较弱提示
-  static const Color textSecondary = Color(0xFF78716C);
+  static const Color textSecondary = Color(0xFF706862);
 
   /// 禁用/占位文本色（更淡）
-  static const Color textDisabled = Color(0xFFABA5A2);
+  static const Color textDisabled = Color(0xFF807874);
 
   // ─────────────────────────────────────────
   // Neumorphism Shadow System

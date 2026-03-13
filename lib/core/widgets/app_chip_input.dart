@@ -191,42 +191,61 @@ class _AppChipInputState extends State<AppChipInput> {
             horizontal: AppSpacing.md,
             vertical: AppSpacing.sm,
           ),
-          child: Wrap(
-            spacing: AppSpacing.xs,
-            runSpacing: AppSpacing.xs,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              // Existing tags as chips
-              ...widget.tags.map(_buildChip),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final availableWidth = constraints.maxWidth.isFinite
+                  ? constraints.maxWidth
+                  : MediaQuery.sizeOf(context).width;
+              final minInputWidth = availableWidth < 120
+                  ? availableWidth
+                  : 120.0;
+              final maxInputWidth = (availableWidth * 0.55)
+                  .clamp(minInputWidth, availableWidth)
+                  .toDouble();
 
-              // Text input field
-              if (_canAddMore)
-                SizedBox(
-                  width: 180,
-                  child: TextField(
-                    controller: _textController,
-                    focusNode: _focusNode,
-                    enabled: widget.enabled,
-                    style: AppTextStyles.inputText,
-                    decoration: InputDecoration(
-                      hintText: widget.tags.isEmpty
-                          ? widget.hintText
-                          : 'Add more…',
-                      hintStyle: AppTextStyles.inputHint,
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.xs,
+              return Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  // Existing tags as chips
+                  ...widget.tags.map(_buildChip),
+
+                  // Text input field
+                  if (_canAddMore)
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minWidth: minInputWidth,
+                        maxWidth: maxInputWidth,
+                        minHeight: kMinInteractiveDimension,
+                      ),
+                      child: TextField(
+                        controller: _textController,
+                        focusNode: _focusNode,
+                        enabled: widget.enabled,
+                        style: AppTextStyles.inputText,
+                        textAlignVertical: TextAlignVertical.center,
+                        decoration: InputDecoration(
+                          hintText: widget.tags.isEmpty
+                              ? widget.hintText
+                              : 'Add more…',
+                          hintStyle: AppTextStyles.inputHint,
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.md,
+                          ),
+                        ),
+                        onSubmitted: (value) {
+                          unawaited(_addTag(value));
+                        },
+                        textInputAction: TextInputAction.done,
+                        onChanged: (_) {}, // handled by listener
                       ),
                     ),
-                    onSubmitted: (value) {
-                      unawaited(_addTag(value));
-                    },
-                    textInputAction: TextInputAction.done,
-                    onChanged: (_) {}, // handled by listener
-                  ),
-                ),
-            ],
+                ],
+              );
+            },
           ),
         ),
 
@@ -244,18 +263,20 @@ class _AppChipInputState extends State<AppChipInput> {
   Widget _buildChip(String tag) {
     return AnimatedContainer(
       duration: AppDurations.chipAppear,
-      child: Chip(
-        label: Text(tag, style: AppTextStyles.labelMedium),
-        deleteIcon: const Icon(Icons.close, size: 14),
-        onDeleted: widget.enabled ? () => _removeTag(tag) : null,
-        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-        side: BorderSide(
-          color: AppColors.primary.withValues(alpha: 0.3),
-          width: 1,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
+        child: Chip(
+          label: Text(tag, style: AppTextStyles.labelMedium),
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: widget.enabled ? () => _removeTag(tag) : null,
+          backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+          side: BorderSide(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            width: 1,
+          ),
+          labelPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+          materialTapTargetSize: MaterialTapTargetSize.padded,
         ),
-        labelPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-        visualDensity: VisualDensity.compact,
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     );
   }
@@ -276,23 +297,28 @@ class _AppChipInputState extends State<AppChipInput> {
               unawaited(_addTag(suggestion));
             },
             borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.sm,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: kMinInteractiveDimension,
               ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.coffee,
-                    size: AppSpacing.iconSmall,
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(suggestion, style: AppTextStyles.bodyMedium),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.sm,
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.coffee,
+                      size: AppSpacing.iconSmall,
+                      color: AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(suggestion, style: AppTextStyles.bodyMedium),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
