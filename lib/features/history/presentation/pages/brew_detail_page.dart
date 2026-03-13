@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/router/app_route_paths.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../brew_logger/domain/entities/brew_record.dart';
@@ -56,7 +57,7 @@ class BrewDetailPage extends ConsumerWidget {
                   onBrewAgain!.call();
                   return;
                 }
-                context.go('/brew?templateRecordId=${detail.id}');
+                context.go(AppRoutePaths.brewWithTemplate(detail.id));
               },
             );
           },
@@ -94,7 +95,7 @@ class _Content extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                onPressed: () => context.pop(),
+                onPressed: () => _handleBackToHistory(context),
                 icon: const Icon(Icons.arrow_back_rounded),
               ),
               const SizedBox(width: AppSpacing.xs),
@@ -123,7 +124,9 @@ class _Content extends StatelessWidget {
             _SectionCard(
               title: 'Recorded Params',
               children: paramEntries
-                  .map((entry) => _DataRow(label: entry.name, value: entry.value))
+                  .map(
+                    (entry) => _DataRow(label: entry.name, value: entry.value),
+                  )
                   .toList(),
             ),
             if (detail.waterType != null || detail.roomTempC != null) ...[
@@ -223,6 +226,14 @@ class _Content extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _handleBackToHistory(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(AppRoutePaths.history);
   }
 }
 

@@ -53,16 +53,50 @@ void main() {
       );
       expect(nav.selectedIndex, 2);
     });
+
+    testWidgets('invalid history detail id can return to history', (
+      tester,
+    ) async {
+      await _pumpApp(
+        tester,
+        initialLocation: '${AppRoutePaths.history}/bad-id',
+      );
+
+      expect(find.text('Invalid history detail id.'), findsOneWidget);
+      await tester.tap(find.text('Go Back'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HistoryPage), findsOneWidget);
+    });
+
+    testWidgets('preferences back button returns to manage page', (
+      tester,
+    ) async {
+      await _pumpApp(tester, initialLocation: AppRoutePaths.managePreferences);
+
+      expect(find.text('Record Preferences'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(InventoryManagePage), findsOneWidget);
+      final nav = tester.widget<NavigationBar>(
+        find.byKey(const Key('app-shell-navigation-bar')),
+      );
+      expect(nav.selectedIndex, 1);
+    });
   });
 }
 
-Future<void> _pumpApp(WidgetTester tester) async {
+Future<void> _pumpApp(
+  WidgetTester tester, {
+  String initialLocation = AppRoutePaths.brew,
+}) async {
   tester.view.physicalSize = const Size(1080, 3000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
-  appRouter.go(AppRoutePaths.brew);
+  appRouter.go(initialLocation);
 
   final testDb = OneBrewDatabase.forTesting(NativeDatabase.memory());
   addTearDown(() async {

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/router/app_route_paths.dart';
 import '../../../../core/utils/timer_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../inventory/presentation/widgets/template_picker.dart';
@@ -108,9 +109,8 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
                 ),
                 child: methodConfigsAsync.when(
                   data: (configs) => BrewMethodSelector(configs: configs),
-                  loading: () => const LinearProgressIndicator(
-                    color: AppColors.primary,
-                  ),
+                  loading: () =>
+                      const LinearProgressIndicator(color: AppColors.primary),
                   error: (_, _) => AppCard(
                     child: Text(
                       'Brew methods unavailable.',
@@ -218,7 +218,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     final shouldShow = await ref.read(brewParamBootstrapProvider.future);
     if (!mounted || !shouldShow) return;
     if (!mounted) return;
-    context.go('/onboarding');
+    context.go(AppRoutePaths.onboarding);
   }
 
   Future<void> _onTemplateSelected(
@@ -294,7 +294,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
           label: 'View',
           textColor: Colors.white,
           onPressed: () {
-            context.go('/history');
+            context.go(AppRoutePaths.history);
           },
         ),
       ),
