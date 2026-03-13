@@ -8,6 +8,7 @@ import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/history/history_providers.dart';
 import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
+import 'package:one_brew/features/rating/rating_providers.dart';
 
 import '../../../../helpers/fake_brew_param_repository.dart';
 import '../../../../helpers/mock_repositories.mocks.dart';
@@ -16,6 +17,7 @@ import '../../../../helpers/test_fixtures.dart';
 void main() {
   group('BrewDetailPage widget', () {
     late MockHistoryRepository mockHistoryRepo;
+    late MockRatingRepository mockRatingRepo;
     late FakeBrewParamRepository fakeBrewParamRepo;
 
     setUp(() {
@@ -28,6 +30,11 @@ void main() {
         mockHistoryRepo.getTopBrews(limit: anyNamed('limit')),
       ).thenAnswer((_) async => []);
 
+      mockRatingRepo = MockRatingRepository();
+      when(mockRatingRepo.getRatingForBrew(any)).thenAnswer((_) async => null);
+      when(mockRatingRepo.createRating(any)).thenAnswer((_) async => 1);
+      when(mockRatingRepo.updateRating(any)).thenAnswer((_) async => true);
+
       fakeBrewParamRepo = FakeBrewParamRepository();
     });
 
@@ -36,6 +43,7 @@ void main() {
         overrides: [
           historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
           brewParamRepositoryProvider.overrideWithValue(fakeBrewParamRepo),
+          ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
         ],
         child: MaterialApp(
           home: BrewDetailPage(brewId: brewId, onBrewAgain: onBrewAgain),
@@ -80,7 +88,9 @@ void main() {
       expect(brewAgainTapped, isTrue);
     });
 
-    testWidgets('shows placeholders instead of null text', (tester) async {
+    testWidgets('shows recorded-only rows without placeholder noise', (
+      tester,
+    ) async {
       final detail =
           TestFixtures.brewDetail(
             id: 8,
@@ -113,8 +123,9 @@ void main() {
       await tester.pumpWidget(createWidget(brewId: 8));
       await tester.pumpAndSettle();
 
-      expect(find.text('--'), findsWidgets);
-      expect(find.text('Unrated'), findsOneWidget);
+      expect(find.text('--'), findsNothing);
+      expect(find.text('No rating recorded yet.'), findsOneWidget);
+      expect(find.byKey(const Key('brew-detail-edit-rating')), findsOneWidget);
       expect(find.text('null'), findsNothing);
     });
 
@@ -140,70 +151,103 @@ void main() {
       expect(find.text('Ethiopia Guji'), findsOneWidget);
     });
 
-    testWidgets('renders recorded param entries when available', (tester) async {
+    testWidgets(
+      'renders recorded params and keeps grind section when present',
+      (tester) async {
+        final detail = TestFixtures.brewDetail(
+          id: 12,
+          beanName: 'Honduras',
+          grindMode: GrindMode.simple,
+          grindSimpleLabel: 'Medium Fine',
+        );
+        when(
+          mockHistoryRepo.getBrewDetailById(12),
+        ).thenAnswer((_) async => detail);
+
+        final paramRepo = FakeBrewParamRepository(
+          definitions: {
+            BrewMethod.pourOver: [
+              const BrewParamDefinition(
+                id: 10,
+                method: BrewMethod.pourOver,
+                name: 'Water Temp',
+                type: ParamType.number,
+                unit: '°C',
+                isSystem: true,
+                sortOrder: 1,
+              ),
+              const BrewParamDefinition(
+                id: 11,
+                method: BrewMethod.pourOver,
+                name: 'Agitation',
+                type: ParamType.text,
+                unit: null,
+                isSystem: true,
+                sortOrder: 2,
+              ),
+            ],
+          },
+          valuesByBrew: {
+            12: [
+              const BrewParamValue(
+                id: 1,
+                brewRecordId: 12,
+                paramId: 10,
+                valueNumber: 93,
+              ),
+              const BrewParamValue(
+                id: 2,
+                brewRecordId: 12,
+                paramId: 11,
+                valueText: 'Swirl',
+              ),
+            ],
+          },
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
+              brewParamRepositoryProvider.overrideWithValue(paramRepo),
+            ],
+            child: const MaterialApp(home: BrewDetailPage(brewId: 12)),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Recorded Params'), findsOneWidget);
+        expect(find.text('93 °C'), findsOneWidget);
+        expect(find.text('Swirl'), findsOneWidget);
+        expect(find.text('Grind'), findsOneWidget);
+        expect(find.text('Medium Fine'), findsOneWidget);
+      },
+    );
+
+    testWidgets('opens rating sheet from history supplement entry', (
+      tester,
+    ) async {
       final detail = TestFixtures.brewDetail(
-        id: 12,
-        beanName: 'Honduras',
+        id: 15,
+        beanName: 'Colombia',
+        quickScore: null,
+        emoji: null,
       );
       when(
-        mockHistoryRepo.getBrewDetailById(12),
+        mockHistoryRepo.getBrewDetailById(15),
       ).thenAnswer((_) async => detail);
 
-      final paramRepo = FakeBrewParamRepository(
-        definitions: {
-          BrewMethod.pourOver: [
-            const BrewParamDefinition(
-              id: 10,
-              method: BrewMethod.pourOver,
-              name: 'Water Temp',
-              type: ParamType.number,
-              unit: '°C',
-              isSystem: true,
-              sortOrder: 1,
-            ),
-            const BrewParamDefinition(
-              id: 11,
-              method: BrewMethod.pourOver,
-              name: 'Agitation',
-              type: ParamType.text,
-              unit: null,
-              isSystem: true,
-              sortOrder: 2,
-            ),
-          ],
-        },
-        valuesByBrew: {
-          12: [
-            const BrewParamValue(
-              id: 1,
-              brewRecordId: 12,
-              paramId: 10,
-              valueNumber: 93,
-            ),
-            const BrewParamValue(
-              id: 2,
-              brewRecordId: 12,
-              paramId: 11,
-              valueText: 'Swirl',
-            ),
-          ],
-        },
-      );
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
-            brewParamRepositoryProvider.overrideWithValue(paramRepo),
-          ],
-          child: const MaterialApp(home: BrewDetailPage(brewId: 12)),
-        ),
-      );
+      await tester.pumpWidget(createWidget(brewId: 15));
       await tester.pumpAndSettle();
 
-      expect(find.text('Recorded Params'), findsOneWidget);
-      expect(find.text('93 °C'), findsOneWidget);
-      expect(find.text('Swirl'), findsOneWidget);
+      await tester.ensureVisible(
+        find.byKey(const Key('brew-detail-edit-rating')),
+      );
+      await tester.tap(find.byKey(const Key('brew-detail-edit-rating')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rate this brew'), findsOneWidget);
+      expect(find.text('Skip for now'), findsOneWidget);
     });
   });
 }

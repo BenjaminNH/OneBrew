@@ -275,28 +275,40 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _showSaveSuccessFlow(savedId);
+      _showSaveSuccessSnackBar(savedId);
     });
   }
 
-  Future<void> _showSaveSuccessFlow(int savedId) async {
-    final didSaveRating = await _openRatingSheet(savedId);
-
-    if (!mounted) return;
+  void _showSaveSuccessSnackBar(int savedId) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          didSaveRating == true ? 'Brew and rating saved!' : 'Brew saved!',
+        content: const Text(
+          'Brew saved. You can rate now or later in History detail.',
         ),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
-          label: 'View',
+          label: 'Rate now',
           textColor: Colors.white,
           onPressed: () {
-            context.go(AppRoutePaths.history);
+            _openOptionalRatingSheet(savedId);
           },
         ),
+      ),
+    );
+  }
+
+  Future<void> _openOptionalRatingSheet(int brewRecordId) async {
+    final didSaveRating = await _openRatingSheet(brewRecordId);
+    if (!mounted || didSaveRating != true) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Rating saved!'),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
