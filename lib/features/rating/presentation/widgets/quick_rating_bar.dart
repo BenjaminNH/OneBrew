@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/widgets/app_slider.dart';
 import '../constants/rating_presets.dart';
 
 class QuickRatingBar extends StatelessWidget {
@@ -28,16 +27,6 @@ class QuickRatingBar extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Quick Rating', style: AppTextStyles.titleLarge),
-        const SizedBox(height: AppSpacing.sm),
-        AppSlider(
-          value: currentScore.toDouble(),
-          min: 1,
-          max: 5,
-          divisions: 4,
-          showValueLabel: false,
-          onChanged: (value) => onScoreChanged(value.round()),
-          semanticLabel: 'Quick rating slider',
-        ),
         const SizedBox(height: AppSpacing.xs),
         Row(
           children: List.generate(5, (index) {
