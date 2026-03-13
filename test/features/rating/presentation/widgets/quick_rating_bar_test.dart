@@ -20,12 +20,12 @@ void main() {
 
       expect(find.text('Quick Rating'), findsOneWidget);
       expect(find.text('Mood'), findsOneWidget);
-      expect(find.byType(Slider), findsOneWidget);
+      expect(find.byType(Slider), findsNothing);
       expect(find.byKey(const Key('quick-rating-star-1')), findsOneWidget);
       expect(find.byKey(const Key('quick-rating-star-5')), findsOneWidget);
     });
 
-    testWidgets('supports slider and star tap interactions', (tester) async {
+    testWidgets('supports star tap interactions', (tester) async {
       int selectedScore = 3;
       String selectedEmoji = '🙂';
 
@@ -49,10 +49,6 @@ void main() {
           ),
         ),
       );
-
-      await tester.drag(find.byType(Slider), const Offset(300, 0));
-      await tester.pumpAndSettle();
-      expect(selectedScore, inInclusiveRange(4, 5));
 
       await tester.tap(find.byKey(const Key('quick-rating-star-2')));
       await tester.pumpAndSettle();
