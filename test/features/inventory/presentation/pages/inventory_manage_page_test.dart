@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,4 +35,36 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+    'Bean metadata renders roast level independently when origin is empty',
+    (WidgetTester tester) async {
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      await db.insertBean(
+        BeansCompanion.insert(
+          name: 'Ethiopia Yirgacheffe',
+          roaster: const Value('Blue Bottle'),
+          roastLevel: const Value('Light Roast'),
+          useCount: const Value(5),
+          addedAt: Value(DateTime(2026, 3, 1)),
+        ),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [databaseProvider.overrideWithValue(db)],
+          child: const MaterialApp(home: InventoryManagePage()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ethiopia Yirgacheffe'), findsOneWidget);
+      expect(
+        find.textContaining('Blue Bottle • Light Roast • Use 5 • Added 03/01'),
+        findsOneWidget,
+      );
+    },
+  );
 }

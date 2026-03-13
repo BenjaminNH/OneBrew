@@ -198,6 +198,8 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
                           bean.roaster!.trim(),
                         if ((bean.origin ?? '').trim().isNotEmpty)
                           bean.origin!.trim(),
+                        if ((bean.roastLevel ?? '').trim().isNotEmpty)
+                          bean.roastLevel!.trim(),
                         'Use ${bean.useCount}',
                         'Added ${AppDateUtils.formatDateShort(bean.addedAt)}',
                       ].join(' • ');
