@@ -9,6 +9,7 @@ import '../../../../core/router/app_route_paths.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../brew_logger/domain/entities/brew_record.dart';
+import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
 import '../../domain/entities/brew_detail.dart';
 import '../controllers/brew_detail_controller.dart';
 
@@ -59,9 +60,44 @@ class BrewDetailPage extends ConsumerWidget {
                 }
                 context.go(AppRoutePaths.brewWithTemplate(detail.id));
               },
+              onEditRating: () {
+                _openRatingEditor(
+                  context,
+                  brewRecordId: detail.id,
+                  controller: controller,
+                );
+              },
             );
           },
         ),
+      ),
+    );
+  }
+
+  Future<void> _openRatingEditor(
+    BuildContext context, {
+    required int brewRecordId,
+    required BrewDetailController controller,
+  }) async {
+    final didSave = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BrewRatingSheet(brewRecordId: brewRecordId),
+    );
+    if (didSave != true) {
+      return;
+    }
+
+    await controller.load();
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Rating updated.'),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -72,15 +108,48 @@ class _Content extends StatelessWidget {
     required this.detail,
     required this.paramEntries,
     required this.onBrewAgain,
+    required this.onEditRating,
   });
 
   final BrewDetail detail;
   final List<BrewParamEntry> paramEntries;
   final VoidCallback onBrewAgain;
+  final VoidCallback onEditRating;
 
   @override
   Widget build(BuildContext context) {
     final hasParamEntries = paramEntries.isNotEmpty;
+    final basicRows = <Widget>[
+      _DataRow(
+        label: 'Brew Time',
+        value: AppDateUtils.formatDateTimeFull(detail.brewDate),
+      ),
+      _DataRow(label: 'Bean', value: _text(detail.beanName)),
+      if (_hasText(detail.roaster))
+        _DataRow(label: 'Roaster', value: _text(detail.roaster)),
+      if (_hasText(detail.origin))
+        _DataRow(label: 'Origin', value: _text(detail.origin)),
+      if (_hasText(detail.roastLevel))
+        _DataRow(label: 'Roast Level', value: _text(detail.roastLevel)),
+      _DataRow(label: 'Duration', value: '${detail.brewDurationS}s'),
+    ];
+    final environmentRows = _buildEnvironmentRows(detail);
+    final fallbackParamRows = _buildFallbackParamRows(detail);
+    final grindRows = _buildGrindRows(detail);
+    final ratingRows = _buildRatingRows(detail);
+    final hasRating = ratingRows.isNotEmpty;
+    final metaRows = <Widget>[
+      if (_hasText(detail.notes))
+        _DataRow(label: 'Notes', value: _text(detail.notes)),
+      _DataRow(
+        label: 'Created At',
+        value: AppDateUtils.formatDateTimeFull(detail.createdAt),
+      ),
+      _DataRow(
+        label: 'Updated At',
+        value: AppDateUtils.formatDateTimeFull(detail.updatedAt),
+      ),
+    ];
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
@@ -105,20 +174,7 @@ class _Content extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          _SectionCard(
-            title: 'Basic',
-            children: [
-              _DataRow(
-                label: 'Brew Time',
-                value: AppDateUtils.formatDateTimeFull(detail.brewDate),
-              ),
-              _DataRow(label: 'Bean', value: _text(detail.beanName)),
-              _DataRow(label: 'Roaster', value: _text(detail.roaster)),
-              _DataRow(label: 'Origin', value: _text(detail.origin)),
-              _DataRow(label: 'Roast Level', value: _text(detail.roastLevel)),
-              _DataRow(label: 'Duration', value: '${detail.brewDurationS}s'),
-            ],
-          ),
+          _SectionCard(title: 'Basic', children: basicRows),
           const SizedBox(height: AppSpacing.md),
           if (hasParamEntries) ...[
             _SectionCard(
@@ -129,90 +185,48 @@ class _Content extends StatelessWidget {
                   )
                   .toList(),
             ),
-            if (detail.waterType != null || detail.roomTempC != null) ...[
+            if (environmentRows.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.md),
-              _SectionCard(
-                title: 'Environment',
-                children: [
-                  _DataRow(label: 'Water Type', value: _text(detail.waterType)),
-                  _DataRow(
-                    label: 'Room Temp',
-                    value: _double(detail.roomTempC, suffix: '°C'),
-                  ),
-                ],
-              ),
+              _SectionCard(title: 'Environment', children: environmentRows),
             ],
           ] else ...[
-            _SectionCard(
-              title: 'Brew Params',
-              children: [
-                _DataRow(
-                  label: 'Coffee',
-                  value: '${detail.coffeeWeightG.toStringAsFixed(1)}g',
-                ),
-                _DataRow(
-                  label: 'Water',
-                  value: '${detail.waterWeightG.toStringAsFixed(0)}g',
-                ),
-                _DataRow(
-                  label: 'Ratio',
-                  value: _ratio(detail.coffeeWeightG, detail.waterWeightG),
-                ),
-                _DataRow(
-                  label: 'Water Temp',
-                  value: _double(detail.waterTempC, suffix: '°C'),
-                ),
-                _DataRow(
-                  label: 'Bloom Time',
-                  value: _int(detail.bloomTimeS, suffix: 's'),
-                ),
-                _DataRow(label: 'Pour Method', value: _text(detail.pourMethod)),
-                _DataRow(label: 'Water Type', value: _text(detail.waterType)),
-                _DataRow(
-                  label: 'Room Temp',
-                  value: _double(detail.roomTempC, suffix: '°C'),
-                ),
-              ],
-            ),
+            _SectionCard(title: 'Brew Params', children: fallbackParamRows),
+            if (environmentRows.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.md),
+              _SectionCard(title: 'Environment', children: environmentRows),
+            ],
+          ],
+          if (grindRows.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.md),
-            _SectionCard(
-              title: 'Grind',
-              children: [
-                _DataRow(label: 'Mode', value: _grindMode(detail.grindMode)),
-                _DataRow(label: 'Value', value: _grindValue(detail)),
-              ],
-            ),
+            _SectionCard(title: 'Grind', children: grindRows),
           ],
           const SizedBox(height: AppSpacing.md),
           _SectionCard(
             title: 'Rating',
             children: [
-              _DataRow(
-                label: 'Quick',
-                value: _quickRating(detail.quickScore, detail.emoji),
+              if (hasRating)
+                ...ratingRows
+              else
+                Text(
+                  'No rating recorded yet.',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              const SizedBox(height: AppSpacing.sm),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  key: const Key('brew-detail-edit-rating'),
+                  onPressed: onEditRating,
+                  icon: const Icon(Icons.edit_note_rounded),
+                  label: Text(hasRating ? 'Edit Rating' : 'Add Rating'),
+                ),
               ),
-              _DataRow(label: 'Acidity', value: _double(detail.acidity)),
-              _DataRow(label: 'Sweetness', value: _double(detail.sweetness)),
-              _DataRow(label: 'Bitterness', value: _double(detail.bitterness)),
-              _DataRow(label: 'Body', value: _double(detail.body)),
-              _DataRow(label: 'Flavor Notes', value: _text(detail.flavorNotes)),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          _SectionCard(
-            title: 'Meta',
-            children: [
-              _DataRow(label: 'Notes', value: _text(detail.notes)),
-              _DataRow(
-                label: 'Created At',
-                value: AppDateUtils.formatDateTimeFull(detail.createdAt),
-              ),
-              _DataRow(
-                label: 'Updated At',
-                value: AppDateUtils.formatDateTimeFull(detail.updatedAt),
-              ),
-            ],
-          ),
+          _SectionCard(title: 'Meta', children: metaRows),
           const SizedBox(height: AppSpacing.xl),
           SizedBox(
             width: double.infinity,
@@ -234,6 +248,122 @@ class _Content extends StatelessWidget {
       return;
     }
     context.go(AppRoutePaths.history);
+  }
+
+  List<Widget> _buildEnvironmentRows(BrewDetail detail) {
+    final rows = <Widget>[];
+    if (_hasText(detail.waterType)) {
+      rows.add(_DataRow(label: 'Water Type', value: _text(detail.waterType)));
+    }
+    final roomTemp = _double(detail.roomTempC, suffix: '°C');
+    if (_isRecorded(roomTemp)) {
+      rows.add(_DataRow(label: 'Room Temp', value: roomTemp));
+    }
+    return rows;
+  }
+
+  List<Widget> _buildFallbackParamRows(BrewDetail detail) {
+    final rows = <Widget>[
+      _DataRow(
+        label: 'Coffee',
+        value: '${detail.coffeeWeightG.toStringAsFixed(1)}g',
+      ),
+      _DataRow(
+        label: 'Water',
+        value: '${detail.waterWeightG.toStringAsFixed(0)}g',
+      ),
+    ];
+    final ratio = _ratio(detail.coffeeWeightG, detail.waterWeightG);
+    if (_isRecorded(ratio)) {
+      rows.add(_DataRow(label: 'Ratio', value: ratio));
+    }
+    final waterTemp = _double(detail.waterTempC, suffix: '°C');
+    if (_isRecorded(waterTemp)) {
+      rows.add(_DataRow(label: 'Water Temp', value: waterTemp));
+    }
+    final bloomTime = _int(detail.bloomTimeS, suffix: 's');
+    if (_isRecorded(bloomTime)) {
+      rows.add(_DataRow(label: 'Bloom Time', value: bloomTime));
+    }
+    if (_hasText(detail.pourMethod)) {
+      rows.add(_DataRow(label: 'Pour Method', value: _text(detail.pourMethod)));
+    }
+    return rows;
+  }
+
+  List<Widget> _buildGrindRows(BrewDetail detail) {
+    switch (detail.grindMode) {
+      case GrindMode.equipment:
+        final equipment = _text(detail.equipmentName);
+        final click = _double(detail.grindClickValue);
+        final unit = _text(detail.grindClickUnit ?? 'clicks');
+        if (!_isRecorded(equipment) && !_isRecorded(click)) {
+          return const <Widget>[];
+        }
+        return <Widget>[
+          _DataRow(label: 'Mode', value: _grindMode(detail.grindMode)),
+          if (_isRecorded(equipment))
+            _DataRow(label: 'Equipment', value: equipment),
+          if (_isRecorded(click))
+            _DataRow(
+              label: 'Click',
+              value: '$click ${_isRecorded(unit) ? unit : 'clicks'}',
+            ),
+        ];
+      case GrindMode.simple:
+        final label = _text(detail.grindSimpleLabel);
+        if (!_isRecorded(label)) {
+          return const <Widget>[];
+        }
+        return <Widget>[
+          _DataRow(label: 'Mode', value: _grindMode(detail.grindMode)),
+          _DataRow(label: 'Label', value: label),
+        ];
+      case GrindMode.pro:
+        final microns = _int(detail.grindMicrons, suffix: ' μm');
+        if (!_isRecorded(microns)) {
+          return const <Widget>[];
+        }
+        return <Widget>[
+          _DataRow(label: 'Mode', value: _grindMode(detail.grindMode)),
+          _DataRow(label: 'Microns', value: microns),
+        ];
+    }
+  }
+
+  List<Widget> _buildRatingRows(BrewDetail detail) {
+    final rows = <Widget>[];
+    final hasQuick = detail.quickScore != null || _hasText(detail.emoji);
+    if (hasQuick) {
+      rows.add(
+        _DataRow(
+          label: 'Quick',
+          value: _quickRating(detail.quickScore, detail.emoji),
+        ),
+      );
+    }
+    final acidity = _double(detail.acidity);
+    if (_isRecorded(acidity)) {
+      rows.add(_DataRow(label: 'Acidity', value: acidity));
+    }
+    final sweetness = _double(detail.sweetness);
+    if (_isRecorded(sweetness)) {
+      rows.add(_DataRow(label: 'Sweetness', value: sweetness));
+    }
+    final bitterness = _double(detail.bitterness);
+    if (_isRecorded(bitterness)) {
+      rows.add(_DataRow(label: 'Bitterness', value: bitterness));
+    }
+    final body = _double(detail.body);
+    if (_isRecorded(body)) {
+      rows.add(_DataRow(label: 'Body', value: body));
+    }
+    if (_hasText(detail.flavorNotes)) {
+      rows.add(
+        _DataRow(label: 'Flavor Notes', value: _text(detail.flavorNotes)),
+      );
+    }
+    return rows;
   }
 }
 
@@ -280,9 +410,7 @@ class _DataRow extends StatelessWidget {
             child: Text(
               value,
               style: AppTextStyles.bodyMedium.copyWith(
-                color: value == '--'
-                    ? AppColors.textSecondary
-                    : AppColors.textPrimary,
+                color: AppColors.textPrimary,
               ),
             ),
           ),
@@ -368,6 +496,13 @@ String _quickRating(int? score, String? emoji) {
   return '$score/5 ${emojiText == '--' ? '' : emojiText}'.trim();
 }
 
+bool _hasText(String? value) {
+  final trimmed = value?.trim();
+  return trimmed != null && trimmed.isNotEmpty;
+}
+
+bool _isRecorded(String value) => value != '--';
+
 String _grindMode(GrindMode mode) {
   switch (mode) {
     case GrindMode.equipment:
@@ -376,22 +511,5 @@ String _grindMode(GrindMode mode) {
       return 'Simple';
     case GrindMode.pro:
       return 'Pro';
-  }
-}
-
-String _grindValue(BrewDetail detail) {
-  switch (detail.grindMode) {
-    case GrindMode.equipment:
-      final equipment = _text(detail.equipmentName);
-      final click = _double(detail.grindClickValue);
-      final unit = _text(detail.grindClickUnit ?? 'clicks');
-      if (click == '--') {
-        return '$equipment · --';
-      }
-      return '$equipment · $click $unit';
-    case GrindMode.simple:
-      return _text(detail.grindSimpleLabel);
-    case GrindMode.pro:
-      return _int(detail.grindMicrons, suffix: ' μm');
   }
 }

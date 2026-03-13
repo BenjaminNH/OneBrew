@@ -118,7 +118,7 @@ void main() {
       expect(find.text('Grind Mode'), findsOneWidget);
     });
 
-    testWidgets('After saving brew, rating bottom sheet is reachable', (
+    testWidgets('After saving brew, rating is optional and can be opened', (
       WidgetTester tester,
     ) async {
       tester.view.physicalSize = const Size(1080, 3000);
@@ -145,13 +145,21 @@ void main() {
       await tester.tap(find.text('Save Brew'));
       await tester.pumpAndSettle();
 
+      expect(find.text('Rate this brew'), findsNothing);
+      expect(
+        find.text('Brew saved. You can rate now or later in History detail.'),
+        findsOneWidget,
+      );
+      expect(find.text('Rate now'), findsOneWidget);
+
+      await tester.tap(find.text('Rate now'));
+      await tester.pumpAndSettle();
+
       expect(find.text('Rate this brew'), findsOneWidget);
       expect(find.text('Skip for now'), findsOneWidget);
 
       await tester.tap(find.text('Skip for now'));
       await tester.pumpAndSettle();
-
-      expect(find.text('Brew saved!'), findsOneWidget);
     });
 
     testWidgets('Equipment grind slider uses dynamic equipment config', (

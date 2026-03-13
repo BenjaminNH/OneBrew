@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_method.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_value.dart';
 import 'package:one_brew/features/history/history_providers.dart';
 import 'package:one_brew/features/history/presentation/controllers/brew_detail_controller.dart';
 
@@ -72,5 +75,82 @@ void main() {
       expect(state.detail, isNull);
       expect(state.errorMessage, 'Brew record not found.');
     });
+
+    test(
+      'batches param-definition loading and reuses cached definitions',
+      () async {
+        final detail = TestFixtures.brewDetail(id: 30, beanName: 'Batch Bean');
+        when(
+          mockHistoryRepo.getBrewDetailById(30),
+        ).thenAnswer((_) async => detail);
+
+        final trackingRepo = _TrackingBrewParamRepository(
+          definitions: {
+            BrewMethod.pourOver: const [
+              BrewParamDefinition(
+                id: 301,
+                method: BrewMethod.pourOver,
+                name: 'Water Temp',
+                type: ParamType.number,
+                unit: '°C',
+                isSystem: true,
+                sortOrder: 1,
+              ),
+            ],
+          },
+          valuesByBrew: {
+            30: const [
+              BrewParamValue(
+                id: 1,
+                brewRecordId: 30,
+                paramId: 301,
+                valueNumber: 92,
+              ),
+            ],
+          },
+        );
+
+        final container = ProviderContainer(
+          overrides: [
+            historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
+            brewParamRepositoryProvider.overrideWithValue(trackingRepo),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        container.read(brewDetailControllerProvider(30));
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+
+        final state = container.read(brewDetailControllerProvider(30));
+        expect(state.paramEntries, hasLength(1));
+        expect(trackingRepo.getParamDefinitionsCalls, BrewMethod.values.length);
+        expect(trackingRepo.getParamDefinitionByIdCalls, 0);
+
+        await container.read(brewDetailControllerProvider(30).notifier).load();
+        expect(trackingRepo.getParamDefinitionsCalls, BrewMethod.values.length);
+        expect(trackingRepo.getParamDefinitionByIdCalls, 0);
+      },
+    );
   });
+}
+
+class _TrackingBrewParamRepository extends FakeBrewParamRepository {
+  _TrackingBrewParamRepository({super.definitions, super.valuesByBrew});
+
+  int getParamDefinitionsCalls = 0;
+  int getParamDefinitionByIdCalls = 0;
+
+  @override
+  Future<List<BrewParamDefinition>> getParamDefinitions(
+    BrewMethod method,
+  ) async {
+    getParamDefinitionsCalls += 1;
+    return super.getParamDefinitions(method);
+  }
+
+  @override
+  Future<BrewParamDefinition?> getParamDefinitionById(int id) async {
+    getParamDefinitionByIdCalls += 1;
+    return super.getParamDefinitionById(id);
+  }
 }
