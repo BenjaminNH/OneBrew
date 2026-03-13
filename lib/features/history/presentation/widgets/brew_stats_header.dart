@@ -55,12 +55,15 @@ class BrewStatsHeader extends StatelessWidget {
           ),
           if (topBrews.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
-            Text('Top Brews', style: AppTextStyles.labelLarge),
+            Text('Top Brews (by rating)', style: AppTextStyles.labelLarge),
             const SizedBox(height: AppSpacing.xs),
             Wrap(
               spacing: AppSpacing.xs,
               runSpacing: AppSpacing.xs,
               children: topBrews.take(3).map((brew) {
+                final ratingLabel = brew.quickScore == null
+                    ? 'Unrated'
+                    : 'Rating ${brew.quickScore}/5';
                 return Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.sm,
@@ -71,7 +74,7 @@ class BrewStatsHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                   ),
                   child: Text(
-                    '${brew.beanName} (${brew.quickScore ?? '-'})',
+                    '${brew.beanName} • $ratingLabel',
                     style: AppTextStyles.labelMedium.copyWith(
                       color: AppColors.primaryDark,
                     ),

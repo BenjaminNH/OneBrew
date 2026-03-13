@@ -69,6 +69,9 @@ void main() {
 
       expect(find.text('Brew History'), findsOneWidget);
       expect(find.byKey(const Key('history-stats-header')), findsOneWidget);
+      expect(find.text('Top Brews (by rating)'), findsOneWidget);
+      expect(find.text('Colombia Huila • Rating 5/5'), findsOneWidget);
+      expect(find.text('Ethiopia Yirgacheffe • Rating 4/5'), findsOneWidget);
       expect(
         find.byKey(const ValueKey('history-record-card-1')),
         findsOneWidget,
@@ -82,6 +85,17 @@ void main() {
     testWidgets('applies bean filter and updates list', (tester) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
+
+      final inputField = tester.widget<TextField>(
+        find.byKey(const Key('history-filter-bean-input')),
+      );
+      final prefixIcon = inputField.decoration?.prefixIcon as Icon?;
+      expect(prefixIcon?.icon, Icons.coffee_outlined);
+
+      final applyButton = tester.widget<IconButton>(
+        find.byKey(const Key('history-filter-apply')),
+      );
+      expect((applyButton.icon as Icon).icon, Icons.search_rounded);
 
       await tester.enterText(
         find.byKey(const Key('history-filter-bean-input')),
