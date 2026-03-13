@@ -10,6 +10,8 @@ import 'package:one_brew/features/brew_logger/domain/entities/brew_param_visibil
 import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/brew_logger_page.dart';
+import 'package:one_brew/features/brew_logger/presentation/widgets/brew_timer_widget.dart';
+import 'package:one_brew/features/brew_logger/presentation/widgets/param_input_section.dart';
 import 'package:one_brew/features/inventory/domain/entities/equipment.dart';
 import 'package:one_brew/features/inventory/inventory_providers.dart';
 import 'package:one_brew/features/rating/rating_providers.dart';
@@ -107,6 +109,70 @@ void main() {
 
       final saveBtnFinder = find.text('Save Brew');
       expect(saveBtnFinder, findsOneWidget);
+    });
+
+    testWidgets('Timer is rendered below parameter input section', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      final paramsFinder = find.byType(ParamInputSection);
+      final timerFinder = find.byType(BrewTimerWidget);
+      expect(paramsFinder, findsOneWidget);
+      expect(timerFinder, findsOneWidget);
+      expect(
+        tester.getTopLeft(timerFinder).dy,
+        greaterThan(tester.getTopLeft(paramsFinder).dy),
+      );
+    });
+
+    testWidgets('Timer target is recommended by brew method', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Target 3:00'), findsOneWidget);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BrewLoggerPage)),
+      );
+      container
+          .read(brewLoggerControllerProvider.notifier)
+          .setBrewMethod(BrewMethod.espresso);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Target 0:30'), findsOneWidget);
+    });
+
+    testWidgets('Timer target can be turned off', (WidgetTester tester) async {
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Target On'), findsOneWidget);
+      expect(find.text('0:00 / 3:00'), findsOneWidget);
+
+      await tester.tap(find.text('Target On'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Target Off'), findsOneWidget);
+      expect(find.text('0:00 / 3:00'), findsNothing);
     });
 
     testWidgets('Advanced parameters are visible by default', (

@@ -41,6 +41,19 @@ class BrewParamTemplate {
   final int sortOrder;
 }
 
+class BrewTimerTargetProfile {
+  const BrewTimerTargetProfile({
+    required this.recommendedTargetSeconds,
+    required this.recommendedBloomSeconds,
+  });
+
+  /// Null means "no countdown target by default" (count-up mode).
+  final int? recommendedTargetSeconds;
+
+  /// Recommended bloom/pre-infusion duration in seconds.
+  final int recommendedBloomSeconds;
+}
+
 abstract final class BrewParamDefaults {
   // ─────────────────────────────────────────
   // Default templates (Phase 7D)
@@ -239,6 +252,54 @@ abstract final class BrewParamDefaults {
 
   /// Default bloom time in seconds
   static const int bloomTimeS = 30;
+
+  /// Method-specific timer target strategy.
+  ///
+  /// - Pour over: classic 3:00 target and 30s bloom.
+  /// - Espresso: short extraction target.
+  /// - Custom: no enforced countdown target.
+  static const BrewTimerTargetProfile pourOverTimerProfile =
+      BrewTimerTargetProfile(
+        recommendedTargetSeconds: 180,
+        recommendedBloomSeconds: 30,
+      );
+  static const BrewTimerTargetProfile espressoTimerProfile =
+      BrewTimerTargetProfile(
+        recommendedTargetSeconds: 30,
+        recommendedBloomSeconds: 8,
+      );
+  static const BrewTimerTargetProfile customTimerProfile =
+      BrewTimerTargetProfile(
+        recommendedTargetSeconds: null,
+        recommendedBloomSeconds: 0,
+      );
+
+  static BrewTimerTargetProfile timerProfileForMethod(BrewMethod method) {
+    switch (method) {
+      case BrewMethod.pourOver:
+        return pourOverTimerProfile;
+      case BrewMethod.espresso:
+        return espressoTimerProfile;
+      case BrewMethod.custom:
+        return customTimerProfile;
+    }
+  }
+
+  /// Clamps target to supported brew duration boundaries.
+  static int clampTargetSeconds(int targetSeconds) {
+    return targetSeconds.clamp(minBrewDuration, maxBrewDuration).toInt();
+  }
+
+  /// Clamps bloom duration and keeps it <= target when target exists.
+  static int clampBloomSeconds({
+    required int bloomSeconds,
+    int? targetSeconds,
+  }) {
+    final lowerBounded = bloomSeconds.clamp(0, maxBrewDuration).toInt();
+    if (targetSeconds == null) return lowerBounded.toInt();
+    final normalizedTarget = clampTargetSeconds(targetSeconds);
+    return lowerBounded.clamp(0, normalizedTarget).toInt();
+  }
 
   // ─────────────────────────────────────────
   // Grind Mode Defaults
