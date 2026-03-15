@@ -10,6 +10,7 @@ import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/brew_logger_page.dart';
+import 'package:one_brew/features/brew_logger/presentation/pages/onboarding_page.dart';
 import 'package:one_brew/features/history/presentation/pages/history_page.dart';
 import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_page.dart';
 import 'package:one_brew/shared/providers/database_providers.dart';
@@ -83,6 +84,19 @@ void main() {
         find.byKey(const Key('app-shell-navigation-bar')),
       );
       expect(nav.selectedIndex, 2);
+    });
+
+    testWidgets('manage debug onboarding button opens onboarding page', (
+      tester,
+    ) async {
+      await _pumpApp(tester, initialLocation: AppRoutePaths.manage);
+
+      expect(find.byType(InventoryManagePage), findsOneWidget);
+      await tester.tap(find.byKey(const Key('manage-debug-onboarding-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BrewOnboardingPage), findsOneWidget);
+      expect(find.byKey(const Key('app-shell-navigation-bar')), findsNothing);
     });
   });
 }

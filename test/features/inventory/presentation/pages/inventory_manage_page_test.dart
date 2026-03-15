@@ -29,6 +29,10 @@ void main() {
       find.byKey(const Key('manage-preferences-icon-button')),
       findsOneWidget,
     );
+    expect(
+      find.byKey(const Key('manage-debug-onboarding-button')),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('manage-add-fab')), findsOneWidget);
     expect(find.byKey(const Key('bean-manage-search-field')), findsOneWidget);
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -77,6 +78,15 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                               ),
                             ),
                           ),
+                          if (kDebugMode)
+                            IconButton(
+                              key: const Key('manage-debug-onboarding-button'),
+                              tooltip: 'Debug: Re-run onboarding',
+                              onPressed: () =>
+                                  context.go(AppRoutePaths.onboarding),
+                              icon: const Icon(Icons.bug_report_rounded),
+                              color: AppColors.primary,
+                            ),
                           IconButton(
                             key: const Key('manage-preferences-icon-button'),
                             tooltip: 'Record Preferences',
