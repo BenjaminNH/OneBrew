@@ -69,24 +69,29 @@ class BrewMethodSegmented extends StatelessWidget {
       );
     }
 
-    return Wrap(
-      spacing: AppSpacing.xs,
-      children: enabled.map((config) {
-        final selected = config.method == selectedMethod;
-        return ChoiceChip(
-          label: Text(config.displayName),
-          selected: selected,
-          onSelected: (_) => onSelected(config.method),
-          selectedColor: AppColors.primary,
-          labelStyle: AppTextStyles.labelSmall.copyWith(
-            color: selected ? Colors.white : AppColors.textSecondary,
-          ),
-          side: BorderSide(
-            color: selected ? AppColors.primary : AppColors.shadowDark,
-          ),
-          backgroundColor: AppColors.background,
-        );
-      }).toList(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: enabled.map((config) {
+          final selected = config.method == selectedMethod;
+          return Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.xs),
+            child: ChoiceChip(
+              label: Text(config.displayName),
+              selected: selected,
+              onSelected: (_) => onSelected(config.method),
+              selectedColor: AppColors.primary,
+              labelStyle: AppTextStyles.labelSmall.copyWith(
+                color: selected ? Colors.white : AppColors.textSecondary,
+              ),
+              side: BorderSide(
+                color: selected ? AppColors.primary : AppColors.shadowDark,
+              ),
+              backgroundColor: AppColors.background,
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
