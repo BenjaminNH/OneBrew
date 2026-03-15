@@ -17,7 +17,6 @@ class NumberParamControl extends StatelessWidget {
     this.semanticLabel,
     this.valueColor = AppColors.primary,
     this.allowClear = false,
-    this.showRangeHint = true,
   });
 
   final String label;
@@ -28,7 +27,6 @@ class NumberParamControl extends StatelessWidget {
   final String? semanticLabel;
   final Color valueColor;
   final bool allowClear;
-  final bool showRangeHint;
 
   @override
   Widget build(BuildContext context) {
@@ -77,19 +75,11 @@ class NumberParamControl extends StatelessWidget {
           min: range.min,
           max: range.max,
           divisions: range.sliderDivisions,
+          showValueLabel: false,
           unit: normalizedUnit,
           onChanged: (next) => onChanged(range.normalize(next)),
           semanticLabel: semanticLabel,
         ),
-        if (showRangeHint) ...[
-          const SizedBox(height: AppSpacing.xxs),
-          Text(
-            range.boundsLabel(unit: normalizedUnit),
-            style: AppTextStyles.labelSmall.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
       ],
     );
   }
