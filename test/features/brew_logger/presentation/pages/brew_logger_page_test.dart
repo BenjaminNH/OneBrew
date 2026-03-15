@@ -74,12 +74,12 @@ void main() {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Ready to Brew'), findsOneWidget);
-      expect(find.text('OneBrew'), findsOneWidget);
+      expect(find.text('Ready to Brew'), findsNothing);
       expect(
         find.text('OneBrew logger is ready for your next cup.'),
-        findsOneWidget,
+        findsNothing,
       );
+      expect(find.text('Brew Method'), findsOneWidget);
 
       final saveFinder = find.text('Start timer to save');
       expect(saveFinder, findsOneWidget);
@@ -428,6 +428,54 @@ void main() {
         findsNothing,
       );
       expect(find.textContaining('1 : '), findsNothing);
+    });
+
+    testWidgets('method selector options use equal-width layout', (
+      WidgetTester tester,
+    ) async {
+      fakeBrewParamRepo = FakeBrewParamRepository(
+        methodConfigs: const [
+          BrewMethodConfig(
+            id: 1,
+            method: BrewMethod.pourOver,
+            displayName: 'Pour Over',
+            isEnabled: true,
+          ),
+          BrewMethodConfig(
+            id: 2,
+            method: BrewMethod.espresso,
+            displayName: 'Espresso',
+            isEnabled: true,
+          ),
+          BrewMethodConfig(
+            id: 3,
+            method: BrewMethod.custom,
+            displayName: 'Custom',
+            isEnabled: true,
+          ),
+        ],
+      );
+
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      final pourOver = find.byKey(const Key('brew-method-option-pourOver'));
+      final espresso = find.byKey(const Key('brew-method-option-espresso'));
+      final custom = find.byKey(const Key('brew-method-option-custom'));
+      expect(pourOver, findsOneWidget);
+      expect(espresso, findsOneWidget);
+      expect(custom, findsOneWidget);
+
+      final pourOverWidth = tester.getSize(pourOver).width;
+      final espressoWidth = tester.getSize(espresso).width;
+      final customWidth = tester.getSize(custom).width;
+      expect(espressoWidth, closeTo(pourOverWidth, 0.1));
+      expect(customWidth, closeTo(pourOverWidth, 0.1));
     });
 
     testWidgets('hides method selector when only one method is enabled', (
