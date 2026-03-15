@@ -131,6 +131,86 @@ void main() {
         expect(trackingRepo.getParamDefinitionByIdCalls, 0);
       },
     );
+
+    test('filters duplicate duration semantics from recorded params', () async {
+      final detail = TestFixtures.brewDetail(id: 31, beanName: 'Dedup Bean');
+      when(
+        mockHistoryRepo.getBrewDetailById(31),
+      ).thenAnswer((_) async => detail);
+
+      final repo = FakeBrewParamRepository(
+        definitions: {
+          BrewMethod.pourOver: const [
+            BrewParamDefinition(
+              id: 401,
+              method: BrewMethod.pourOver,
+              name: 'Brew Time',
+              type: ParamType.number,
+              unit: 's',
+              isSystem: true,
+              sortOrder: 1,
+            ),
+            BrewParamDefinition(
+              id: 402,
+              method: BrewMethod.pourOver,
+              name: 'Extraction-Time',
+              type: ParamType.number,
+              unit: 's',
+              isSystem: true,
+              sortOrder: 2,
+            ),
+            BrewParamDefinition(
+              id: 403,
+              method: BrewMethod.pourOver,
+              name: 'Water Temp',
+              type: ParamType.number,
+              unit: '°C',
+              isSystem: true,
+              sortOrder: 3,
+            ),
+          ],
+        },
+        valuesByBrew: {
+          31: const [
+            BrewParamValue(
+              id: 1,
+              brewRecordId: 31,
+              paramId: 401,
+              valueNumber: 180,
+            ),
+            BrewParamValue(
+              id: 2,
+              brewRecordId: 31,
+              paramId: 402,
+              valueNumber: 28,
+            ),
+            BrewParamValue(
+              id: 3,
+              brewRecordId: 31,
+              paramId: 403,
+              valueNumber: 93,
+            ),
+          ],
+        },
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
+          brewParamRepositoryProvider.overrideWithValue(repo),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      container.read(brewDetailControllerProvider(31));
+      await Future<void>.delayed(const Duration(milliseconds: 1));
+
+      final state = container.read(brewDetailControllerProvider(31));
+      expect(
+        state.paramEntries.map((entry) => entry.name),
+        equals(['Water Temp']),
+      );
+    });
   });
 }
 

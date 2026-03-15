@@ -121,7 +121,7 @@ class _Content extends StatelessWidget {
     final hasParamEntries = paramEntries.isNotEmpty;
     final basicRows = <Widget>[
       _DataRow(
-        label: 'Brew Time',
+        label: 'Brewed At',
         value: AppDateUtils.formatDateTimeFull(detail.brewDate),
       ),
       _DataRow(label: 'Bean', value: _text(detail.beanName)),
