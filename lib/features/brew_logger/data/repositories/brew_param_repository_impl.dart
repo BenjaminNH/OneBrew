@@ -307,4 +307,11 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
 
   @override
   Future<int> deleteParamValue(int id) => _datasource.deleteParamValue(id);
+
+  @override
+  Future<bool> hasCompletedOnboarding() => _datasource.isOnboardingCompleted();
+
+  @override
+  Future<void> setOnboardingCompleted(bool completed) =>
+      _datasource.setOnboardingCompleted(completed);
 }

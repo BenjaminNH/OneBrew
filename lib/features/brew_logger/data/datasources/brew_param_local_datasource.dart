@@ -11,7 +11,8 @@ class BrewParamLocalDatasource {
 
   final OneBrewDatabase _db;
 
-  Future<List<BrewMethodConfig>> getMethodConfigs() => _db.getBrewMethodConfigs();
+  Future<List<BrewMethodConfig>> getMethodConfigs() =>
+      _db.getBrewMethodConfigs();
 
   Future<BrewMethodConfig?> getMethodConfigByMethod(String method) =>
       _db.getBrewMethodConfigByMethod(method);
@@ -26,8 +27,9 @@ class BrewParamLocalDatasource {
 
   Future<int> countMethodConfigs() => _db.countBrewMethodConfigs();
 
-  Future<List<BrewParamDefinition>> getParamDefinitionsByMethod(String method) =>
-      _db.getBrewParamDefinitionsByMethod(method);
+  Future<List<BrewParamDefinition>> getParamDefinitionsByMethod(
+    String method,
+  ) => _db.getBrewParamDefinitionsByMethod(method);
 
   Future<BrewParamDefinition?> getParamDefinitionById(int id) =>
       _db.getBrewParamDefinitionById(id);
@@ -35,10 +37,12 @@ class BrewParamLocalDatasource {
   Future<int> insertParamDefinition(BrewParamDefinitionsCompanion definition) =>
       _db.insertBrewParamDefinition(definition);
 
-  Future<bool> updateParamDefinition(BrewParamDefinitionsCompanion definition) =>
-      _db.updateBrewParamDefinition(definition);
+  Future<bool> updateParamDefinition(
+    BrewParamDefinitionsCompanion definition,
+  ) => _db.updateBrewParamDefinition(definition);
 
-  Future<int> deleteParamDefinition(int id) => _db.deleteBrewParamDefinition(id);
+  Future<int> deleteParamDefinition(int id) =>
+      _db.deleteBrewParamDefinition(id);
 
   Future<int> deleteParamVisibilitiesByParamId(int paramId) =>
       _db.deleteBrewParamVisibilitiesByParamId(paramId);
@@ -48,16 +52,20 @@ class BrewParamLocalDatasource {
 
   Future<int> countParamDefinitions() => _db.countBrewParamDefinitions();
 
-  Future<List<BrewParamVisibility>> getParamVisibilitiesByMethod(String method) =>
-      _db.getBrewParamVisibilitiesByMethod(method);
+  Future<List<BrewParamVisibility>> getParamVisibilitiesByMethod(
+    String method,
+  ) => _db.getBrewParamVisibilitiesByMethod(method);
 
-  Future<int> insertParamVisibility(BrewParamVisibilitiesCompanion visibility) =>
-      _db.insertBrewParamVisibility(visibility);
+  Future<int> insertParamVisibility(
+    BrewParamVisibilitiesCompanion visibility,
+  ) => _db.insertBrewParamVisibility(visibility);
 
-  Future<bool> updateParamVisibility(BrewParamVisibilitiesCompanion visibility) =>
-      _db.updateBrewParamVisibility(visibility);
+  Future<bool> updateParamVisibility(
+    BrewParamVisibilitiesCompanion visibility,
+  ) => _db.updateBrewParamVisibility(visibility);
 
-  Future<int> deleteParamVisibility(int id) => _db.deleteBrewParamVisibility(id);
+  Future<int> deleteParamVisibility(int id) =>
+      _db.deleteBrewParamVisibility(id);
 
   Future<List<BrewParamValue>> getParamValuesForBrew(int brewRecordId) =>
       _db.getBrewParamValuesForBrew(brewRecordId);
@@ -69,8 +77,15 @@ class BrewParamLocalDatasource {
       _db.updateBrewParamValue(value);
 
   Future<int> deleteParamValue(int id) => _db.deleteBrewParamValue(id);
+
+  Future<bool> isOnboardingCompleted() => _db.isOnboardingCompleted();
+
+  Future<void> setOnboardingCompleted(bool completed) =>
+      _db.setOnboardingCompleted(completed);
 }
 
-final brewParamLocalDatasourceProvider = Provider<BrewParamLocalDatasource>((ref) {
+final brewParamLocalDatasourceProvider = Provider<BrewParamLocalDatasource>((
+  ref,
+) {
   return BrewParamLocalDatasource(ref.watch(databaseProvider));
 });

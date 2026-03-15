@@ -27,20 +27,18 @@ final brewParamRepositoryProvider = Provider<BrewParamRepository>((ref) {
 /// Returns `true` when the app should show onboarding (first run).
 final brewParamBootstrapProvider = FutureProvider<bool>((ref) async {
   final repo = ref.watch(brewParamRepositoryProvider);
-  final hasMethods = await repo.hasAnyMethodConfigs();
-  final hasDefinitions = await repo.hasAnyParamDefinitions();
-  final isFirstRun = !(hasMethods && hasDefinitions);
-
   await InitializeDefaultBrewParams(repo).call();
-  return isFirstRun;
+  final hasCompletedOnboarding = await repo.hasCompletedOnboarding();
+  return !hasCompletedOnboarding;
 });
 
 /// Loads all brew method configs (used by onboarding/preferences & brew page).
-final brewMethodConfigsProvider =
-    FutureProvider<List<BrewMethodConfig>>((ref) async {
-      await ref.watch(brewParamBootstrapProvider.future);
-      return ref.watch(brewParamRepositoryProvider).getMethodConfigs();
-    });
+final brewMethodConfigsProvider = FutureProvider<List<BrewMethodConfig>>((
+  ref,
+) async {
+  await ref.watch(brewParamBootstrapProvider.future);
+  return ref.watch(brewParamRepositoryProvider).getMethodConfigs();
+});
 
 class BrewParamCatalog {
   BrewParamCatalog({
@@ -88,5 +86,9 @@ final brewParamCatalogProvider =
       final defs = await repo.getParamDefinitions(method);
       final vis = await repo.getParamVisibilities(method);
       defs.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-      return BrewParamCatalog(method: method, definitions: defs, visibilities: vis);
+      return BrewParamCatalog(
+        method: method,
+        definitions: defs,
+        visibilities: vis,
+      );
     });

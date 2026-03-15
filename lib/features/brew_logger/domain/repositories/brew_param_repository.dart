@@ -35,4 +35,8 @@ abstract interface class BrewParamRepository {
   Future<int> createParamValue(BrewParamValue value);
   Future<bool> updateParamValue(BrewParamValue value);
   Future<int> deleteParamValue(int id);
+
+  // Onboarding completion
+  Future<bool> hasCompletedOnboarding();
+  Future<void> setOnboardingCompleted(bool completed);
 }

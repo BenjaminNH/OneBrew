@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import 'models/app_setting_model.dart';
 import '../../features/brew_logger/data/models/brew_record_model.dart';
 import '../../features/brew_logger/data/models/brew_method_config_model.dart';
 import '../../features/brew_logger/data/models/brew_param_definition_model.dart';
@@ -213,9 +214,12 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
     BrewParamDefinitions,
     BrewParamVisibilities,
     BrewParamValues,
+    AppSettings,
   ],
 )
 class OneBrewDatabase extends _$OneBrewDatabase {
+  static const String onboardingCompletedSettingKey = 'onboarding_completed';
+
   /// Creates a database backed by the given [QueryExecutor].
   /// Use the named constructor [OneBrewDatabase.forTesting] for in-memory
   /// test databases.
@@ -225,7 +229,7 @@ class OneBrewDatabase extends _$OneBrewDatabase {
   OneBrewDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -265,6 +269,9 @@ class OneBrewDatabase extends _$OneBrewDatabase {
           brewParamDefinitions.numberDefault,
         );
         await _backfillSystemParamRanges();
+      }
+      if (from < 6) {
+        await m.createTable(appSettings);
       }
     },
     beforeOpen: (details) async {
@@ -631,4 +638,25 @@ class OneBrewDatabase extends _$OneBrewDatabase {
 
   Future<int> deleteBrewParamValue(int id) =>
       (delete(brewParamValues)..where((v) => v.id.equals(id))).go();
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // App settings queries
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<bool> isOnboardingCompleted() async {
+    final row =
+        await (select(appSettings)
+              ..where((s) => s.key.equals(onboardingCompletedSettingKey)))
+            .getSingleOrNull();
+    return row?.boolValue ?? false;
+  }
+
+  Future<void> setOnboardingCompleted(bool completed) async {
+    await into(appSettings).insertOnConflictUpdate(
+      AppSettingsCompanion(
+        key: const Value(onboardingCompletedSettingKey),
+        boolValue: Value(completed),
+      ),
+    );
+  }
 }

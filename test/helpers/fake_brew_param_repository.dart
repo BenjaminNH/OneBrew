@@ -11,81 +11,87 @@ class FakeBrewParamRepository implements BrewParamRepository {
     Map<BrewMethod, List<BrewParamDefinition>>? definitions,
     Map<BrewMethod, List<BrewParamVisibility>>? visibilities,
     Map<int, List<BrewParamValue>>? valuesByBrew,
-  })  : _methodConfigs = methodConfigs ??
-            [
-              const BrewMethodConfig(
-                id: 1,
-                method: BrewMethod.pourOver,
-                displayName: 'Pour Over',
-                isEnabled: true,
-              ),
-              const BrewMethodConfig(
-                id: 2,
-                method: BrewMethod.espresso,
-                displayName: 'Espresso',
-                isEnabled: true,
-              ),
-            ],
-        _definitions = definitions ??
-            {
-              BrewMethod.pourOver: [
-                const BrewParamDefinition(
-                  id: 1,
-                  method: BrewMethod.pourOver,
-                  name: 'Coffee Weight',
-                  type: ParamType.number,
-                  unit: 'g',
-                  isSystem: true,
-                  sortOrder: 1,
-                ),
-                const BrewParamDefinition(
-                  id: 2,
-                  method: BrewMethod.pourOver,
-                  name: 'Water Weight',
-                  type: ParamType.number,
-                  unit: 'g',
-                  isSystem: true,
-                  sortOrder: 2,
-                ),
-                const BrewParamDefinition(
-                  id: 3,
-                  method: BrewMethod.pourOver,
-                  name: 'Grind Size',
-                  type: ParamType.text,
-                  isSystem: true,
-                  sortOrder: 3,
-                ),
-              ],
-            },
-        _visibilities = visibilities ??
-            {
-              BrewMethod.pourOver: [
-                const BrewParamVisibility(
-                  id: 1,
-                  method: BrewMethod.pourOver,
-                  paramId: 1,
-                  isVisible: true,
-                ),
-                const BrewParamVisibility(
-                  id: 2,
-                  method: BrewMethod.pourOver,
-                  paramId: 2,
-                  isVisible: true,
-                ),
-                const BrewParamVisibility(
-                  id: 3,
-                  method: BrewMethod.pourOver,
-                  paramId: 3,
-                  isVisible: true,
-                ),
-              ],
-            },
-        _valuesByBrew = valuesByBrew ?? {};
+    bool hasCompletedOnboarding = false,
+  }) : _methodConfigs =
+           methodConfigs ??
+           [
+             const BrewMethodConfig(
+               id: 1,
+               method: BrewMethod.pourOver,
+               displayName: 'Pour Over',
+               isEnabled: true,
+             ),
+             const BrewMethodConfig(
+               id: 2,
+               method: BrewMethod.espresso,
+               displayName: 'Espresso',
+               isEnabled: true,
+             ),
+           ],
+       _definitions =
+           definitions ??
+           {
+             BrewMethod.pourOver: [
+               const BrewParamDefinition(
+                 id: 1,
+                 method: BrewMethod.pourOver,
+                 name: 'Coffee Weight',
+                 type: ParamType.number,
+                 unit: 'g',
+                 isSystem: true,
+                 sortOrder: 1,
+               ),
+               const BrewParamDefinition(
+                 id: 2,
+                 method: BrewMethod.pourOver,
+                 name: 'Water Weight',
+                 type: ParamType.number,
+                 unit: 'g',
+                 isSystem: true,
+                 sortOrder: 2,
+               ),
+               const BrewParamDefinition(
+                 id: 3,
+                 method: BrewMethod.pourOver,
+                 name: 'Grind Size',
+                 type: ParamType.text,
+                 isSystem: true,
+                 sortOrder: 3,
+               ),
+             ],
+           },
+       _visibilities =
+           visibilities ??
+           {
+             BrewMethod.pourOver: [
+               const BrewParamVisibility(
+                 id: 1,
+                 method: BrewMethod.pourOver,
+                 paramId: 1,
+                 isVisible: true,
+               ),
+               const BrewParamVisibility(
+                 id: 2,
+                 method: BrewMethod.pourOver,
+                 paramId: 2,
+                 isVisible: true,
+               ),
+               const BrewParamVisibility(
+                 id: 3,
+                 method: BrewMethod.pourOver,
+                 paramId: 3,
+                 isVisible: true,
+               ),
+             ],
+           },
+       _valuesByBrew = valuesByBrew ?? {},
+       _hasCompletedOnboarding = hasCompletedOnboarding;
 
   final List<BrewMethodConfig> _methodConfigs;
   final Map<BrewMethod, List<BrewParamDefinition>> _definitions;
   final Map<BrewMethod, List<BrewParamVisibility>> _visibilities;
   final Map<int, List<BrewParamValue>> _valuesByBrew;
+  bool _hasCompletedOnboarding;
 
   int _nextMethodId = 10;
   int _nextDefId = 100;
@@ -135,8 +141,7 @@ class FakeBrewParamRepository implements BrewParamRepository {
   @override
   Future<List<BrewParamDefinition>> getParamDefinitions(
     BrewMethod method,
-  ) async =>
-      List<BrewParamDefinition>.from(_definitions[method] ?? const []);
+  ) async => List<BrewParamDefinition>.from(_definitions[method] ?? const []);
 
   @override
   Future<BrewParamDefinition?> getParamDefinitionById(int id) async {
@@ -192,8 +197,7 @@ class FakeBrewParamRepository implements BrewParamRepository {
   @override
   Future<List<BrewParamVisibility>> getParamVisibilities(
     BrewMethod method,
-  ) async =>
-      List<BrewParamVisibility>.from(_visibilities[method] ?? const []);
+  ) async => List<BrewParamVisibility>.from(_visibilities[method] ?? const []);
 
   @override
   Future<int> createParamVisibility(BrewParamVisibility visibility) async {
@@ -265,5 +269,13 @@ class FakeBrewParamRepository implements BrewParamRepository {
       entry.value.removeWhere((v) => v.id == id);
     }
     return 1;
+  }
+
+  @override
+  Future<bool> hasCompletedOnboarding() async => _hasCompletedOnboarding;
+
+  @override
+  Future<void> setOnboardingCompleted(bool completed) async {
+    _hasCompletedOnboarding = completed;
   }
 }
