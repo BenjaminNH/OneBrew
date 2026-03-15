@@ -22,7 +22,9 @@ void main() {
       sortOrder: 1,
     );
 
-    testWidgets('uses unified slider control with range hint', (tester) async {
+    testWidgets('uses unified slider control without inline range hint', (
+      tester,
+    ) async {
       double? changed;
 
       await tester.pumpWidget(
@@ -43,9 +45,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AppSlider), findsOneWidget);
-      expect(find.textContaining('Range 80-100 C'), findsOneWidget);
+      expect(find.textContaining('Range 80-100 C'), findsNothing);
 
       final slider = tester.widget<AppSlider>(find.byType(AppSlider));
+      expect(slider.showValueLabel, isFalse);
       slider.onChanged(99.8);
       expect(changed, 100.0);
     });
