@@ -37,6 +37,16 @@ class BrewPreferencesState {
   final Map<BrewMethod, List<BrewParamVisibility>> paramVisibilities;
   final String? errorMessage;
 
+  List<BrewMethodConfig> get enabledMethodConfigs =>
+      methodConfigs.where((config) => config.isEnabled).toList();
+
+  BrewMethodConfig? get customMethodConfig {
+    for (final config in methodConfigs) {
+      if (config.method == BrewMethod.custom) return config;
+    }
+    return null;
+  }
+
   bool get hasEnabledMethod => methodConfigs.any((config) => config.isEnabled);
 
   BrewPreferencesState copyWith({
@@ -156,9 +166,19 @@ class BrewPreferencesController extends Notifier<BrewPreferencesState> {
     String? displayName,
   }) async {
     final configs = state.methodConfigs;
-    final current = configs.firstWhere((c) => c.method == method);
+    BrewMethodConfig? current;
+    for (final config in configs) {
+      if (config.method == method) {
+        current = config;
+        break;
+      }
+    }
+
     final enabledCount = configs.where((c) => c.isEnabled).length;
-    if (!isEnabled && enabledCount <= 1) {
+    if (current != null &&
+        current.isEnabled &&
+        !isEnabled &&
+        enabledCount <= 1) {
       state = state.copyWith(
         errorMessage: 'At least one brew method must stay enabled.',
       );
@@ -171,20 +191,96 @@ class BrewPreferencesController extends Notifier<BrewPreferencesState> {
       );
       return;
     }
-    final updated = current.copyWith(
-      isEnabled: isEnabled,
-      displayName: trimmedName ?? current.displayName,
-    );
+
     try {
       final repo = ref.read(brewParamRepositoryProvider);
       if (method == BrewMethod.custom && isEnabled) {
         await _ensureCustomParamDefaults(repo);
       }
-      await repo.updateMethodConfig(updated);
+      if (current == null) {
+        if (method != BrewMethod.custom) {
+          state = state.copyWith(errorMessage: 'Method config not found.');
+          return;
+        }
+        await repo.createMethodConfig(
+          BrewMethodConfig(
+            id: 0,
+            method: BrewMethod.custom,
+            displayName: trimmedName ?? 'Custom',
+            isEnabled: isEnabled,
+          ),
+        );
+      } else {
+        final updated = current.copyWith(
+          isEnabled: isEnabled,
+          displayName: trimmedName ?? current.displayName,
+        );
+        await repo.updateMethodConfig(updated);
+      }
       ref.invalidate(brewMethodConfigsProvider);
       await load();
     } catch (e) {
       state = state.copyWith(errorMessage: 'Failed to update method: $e');
+    }
+  }
+
+  Future<void> renameCustomMethod(String displayName) async {
+    final custom = state.customMethodConfig;
+    final trimmedName = displayName.trim();
+    if (trimmedName.isEmpty) {
+      state = state.copyWith(
+        errorMessage: 'Please enter a name for the custom method.',
+      );
+      return;
+    }
+
+    if (custom == null) {
+      await toggleMethodEnabled(
+        BrewMethod.custom,
+        true,
+        displayName: trimmedName,
+      );
+      return;
+    }
+
+    try {
+      final repo = ref.read(brewParamRepositoryProvider);
+      await _ensureCustomParamDefaults(repo);
+      await repo.updateMethodConfig(
+        custom.copyWith(isEnabled: true, displayName: trimmedName),
+      );
+      ref.invalidate(brewMethodConfigsProvider);
+      await load();
+    } catch (e) {
+      state = state.copyWith(
+        errorMessage: 'Failed to rename custom method: $e',
+      );
+    }
+  }
+
+  Future<void> deleteCustomMethod() async {
+    final custom = state.customMethodConfig;
+    if (custom == null) return;
+
+    final enabledCount = state.methodConfigs.where((c) => c.isEnabled).length;
+    if (custom.isEnabled && enabledCount <= 1) {
+      state = state.copyWith(
+        errorMessage: 'At least one brew method must stay enabled.',
+      );
+      return;
+    }
+
+    try {
+      final repo = ref.read(brewParamRepositoryProvider);
+      await repo.updateMethodConfig(
+        custom.copyWith(isEnabled: false, displayName: 'Custom'),
+      );
+      ref.invalidate(brewMethodConfigsProvider);
+      await load();
+    } catch (e) {
+      state = state.copyWith(
+        errorMessage: 'Failed to delete custom method: $e',
+      );
     }
   }
 

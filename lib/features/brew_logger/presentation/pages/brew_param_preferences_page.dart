@@ -10,6 +10,7 @@ import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_method_config.dart';
 import '../controllers/brew_preferences_controller.dart';
 import '../widgets/brew_preferences_widgets.dart';
+import '../widgets/custom_method_actions.dart';
 
 class BrewParamPreferencesPage extends ConsumerStatefulWidget {
   const BrewParamPreferencesPage({super.key});
@@ -26,11 +27,14 @@ class _BrewParamPreferencesPageState
     final state = ref.watch(brewPreferencesControllerProvider);
     final controller = ref.read(brewPreferencesControllerProvider.notifier);
 
-    ref.listen<BrewPreferencesState>(brewPreferencesControllerProvider, (_, next) {
+    ref.listen<BrewPreferencesState>(brewPreferencesControllerProvider, (
+      _,
+      next,
+    ) {
       if (next.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
         controller.clearError();
       }
     });
@@ -42,113 +46,175 @@ class _BrewParamPreferencesPageState
             ? const Center(
                 child: CircularProgressIndicator(color: AppColors.primary),
               )
-            : SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.pageTop,
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.pageBottom,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () => _handleBackToManage(context),
-                          icon: const Icon(Icons.arrow_back_rounded),
-                        ),
-                        const SizedBox(width: AppSpacing.xs),
-                        Expanded(
-                          child: Text(
-                            'Record Preferences',
-                            style: AppTextStyles.displayMedium,
-                          ),
-                        ),
-                      ],
+            : CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.pageTop,
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.sm,
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      'Set your default brew methods and parameter list.',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
+                    sliver: SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () => _handleBackToManage(context),
+                                icon: const Icon(Icons.arrow_back_rounded),
+                              ),
+                              const SizedBox(width: AppSpacing.xs),
+                              Expanded(
+                                child: Text(
+                                  'Record Preferences',
+                                  style: AppTextStyles.displayMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            'Set your default brew methods and parameter list.',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _SectionHeader(
-                      title: 'Brew Methods',
-                      subtitle: 'Choose which methods appear in the Brew page.',
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.lg,
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.sm,
                     ),
-                    BrewMethodToggleList(
-                      methodConfigs: _visibleMethodConfigs(
-                        state.methodConfigs,
+                    sliver: SliverToBoxAdapter(
+                      child: _SectionHeader(
+                        title: 'Brew Methods',
+                        subtitle:
+                            'Choose which methods appear in the Brew page.',
                       ),
-                      onToggle: (method, enabled) =>
-                          _handleMethodToggle(
-                            context,
-                            controller,
-                            method,
-                            enabled,
-                            state.methodConfigs,
-                          ),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () => _addCustomMethod(
-                          context,
-                          controller,
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.pageHorizontal,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      child: BrewMethodToggleList(
+                        methodConfigs: _visibleMethodConfigs(
                           state.methodConfigs,
                         ),
-                        child: Text(
-                          'Want another method? click here',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.primary,
-                            decoration: TextDecoration.underline,
-                          ),
+                        onToggle: (method, enabled) => _handleMethodToggle(
+                          context,
+                          controller,
+                          method,
+                          enabled,
+                          state.methodConfigs,
                         ),
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _SectionHeader(
-                      title: 'Parameter List',
-                      subtitle: 'Hide defaults or add custom parameters.',
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.pageHorizontal,
+                      0,
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.md,
                     ),
-                    BrewMethodSegmented(
-                      methodConfigs: state.methodConfigs,
-                      selectedMethod: state.selectedMethod,
-                      onSelected: controller.selectMethod,
+                    sliver: SliverToBoxAdapter(
+                      child: CustomMethodActions(
+                        customConfig: state.customMethodConfig,
+                        onAdd: () => _addCustomMethod(
+                          context,
+                          controller,
+                          state.customMethodConfig,
+                        ),
+                        onRename: () => _renameCustomMethod(
+                          context,
+                          controller,
+                          state.customMethodConfig,
+                        ),
+                        onDelete: controller.deleteCustomMethod,
+                      ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    BrewParamListEditor(
-                      items: state.paramItemsFor(state.selectedMethod),
-                      onVisibilityChanged: (item, visible) =>
-                          controller.setParamVisibility(
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.md,
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.xs,
+                    ),
+                    sliver: SliverToBoxAdapter(
+                      child: _SectionHeader(
+                        title: 'Parameter List',
+                        subtitle:
+                            'Hide defaults or add custom parameters for each brew method.',
+                      ),
+                    ),
+                  ),
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _MethodSelectorHeaderDelegate(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.pageHorizontal,
+                          AppSpacing.xs,
+                          AppSpacing.pageHorizontal,
+                          AppSpacing.sm,
+                        ),
+                        child: BrewMethodSegmented(
+                          methodConfigs: state.methodConfigs,
+                          selectedMethod: state.selectedMethod,
+                          onSelected: controller.selectMethod,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.pageHorizontal,
+                      0,
+                      AppSpacing.pageHorizontal,
+                      AppSpacing.pageBottom,
+                    ),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate.fixed([
+                        BrewParamListEditor(
+                          items: state.paramItemsFor(state.selectedMethod),
+                          onVisibilityChanged: (item, visible) =>
+                              controller.setParamVisibility(
+                                state.selectedMethod,
+                                item.definition.id,
+                                visible,
+                              ),
+                          onDelete: (item) => controller.deleteCustomParam(
                             state.selectedMethod,
                             item.definition.id,
-                            visible,
                           ),
-                      onDelete: (item) => controller.deleteCustomParam(
-                        state.selectedMethod,
-                        item.definition.id,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showAddParamSheet(
-                          context,
-                          state.selectedMethod,
-                          controller,
                         ),
-                        icon: const Icon(Icons.add_rounded),
-                        label: const Text('Add Custom Parameter'),
-                      ),
+                        const SizedBox(height: AppSpacing.md),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _showAddParamSheet(
+                              context,
+                              state.selectedMethod,
+                              controller,
+                            ),
+                            icon: const Icon(Icons.add_rounded),
+                            label: const Text('Add Custom Parameter'),
+                          ),
+                        ),
+                      ]),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
       ),
     );
@@ -171,7 +237,8 @@ class _BrewParamPreferencesPageState
           padding: EdgeInsets.only(
             left: AppSpacing.pageHorizontal,
             right: AppSpacing.pageHorizontal,
-            bottom: MediaQuery.of(context).viewInsets.bottom +
+            bottom:
+                MediaQuery.of(context).viewInsets.bottom +
                 AppSpacing.pageBottom,
             top: AppSpacing.pageTop,
           ),
@@ -198,15 +265,21 @@ class _BrewParamPreferencesPageState
                     children: ParamType.values.map((type) {
                       final selected = selectedType == type;
                       return ChoiceChip(
-                        label: Text(type == ParamType.number ? 'Number' : 'Text'),
+                        label: Text(
+                          type == ParamType.number ? 'Number' : 'Text',
+                        ),
                         selected: selected,
                         onSelected: (_) => setState(() => selectedType = type),
                         selectedColor: AppColors.primary,
                         labelStyle: AppTextStyles.labelSmall.copyWith(
-                          color: selected ? Colors.white : AppColors.textSecondary,
+                          color: selected
+                              ? Colors.white
+                              : AppColors.textSecondary,
                         ),
                         side: BorderSide(
-                          color: selected ? AppColors.primary : AppColors.shadowDark,
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.shadowDark,
                         ),
                         backgroundColor: AppColors.background,
                       );
@@ -258,124 +331,63 @@ class _BrewParamPreferencesPageState
       return;
     }
 
-    final current = configs.firstWhere((c) => c.method == method);
-    if (!_isDefaultCustomName(current.displayName)) {
+    BrewMethodConfig? current;
+    for (final config in configs) {
+      if (config.method == BrewMethod.custom) {
+        current = config;
+        break;
+      }
+    }
+    final currentName = current?.displayName ?? 'Custom';
+    if (!isDefaultCustomMethodName(currentName)) {
       await controller.toggleMethodEnabled(method, true);
       return;
     }
-    final name = await _promptCustomMethodName(
+
+    final name = await showCustomMethodNameSheet(
       context,
-      current.displayName,
+      currentName: currentName,
     );
     if (name == null) return;
-    await controller.toggleMethodEnabled(method, true, displayName: name);
+    await controller.renameCustomMethod(name);
   }
 
-  List<BrewMethodConfig> _visibleMethodConfigs(
-    List<BrewMethodConfig> configs,
-  ) {
+  List<BrewMethodConfig> _visibleMethodConfigs(List<BrewMethodConfig> configs) {
     return configs
         .where(
           (config) =>
               config.method != BrewMethod.custom ||
               config.isEnabled ||
-              !_isDefaultCustomName(config.displayName),
+              !isDefaultCustomMethodName(config.displayName),
         )
         .toList();
   }
 
-  bool _isDefaultCustomName(String name) =>
-      name.trim().toLowerCase() == 'custom';
-
   Future<void> _addCustomMethod(
     BuildContext context,
     BrewPreferencesController controller,
-    List<BrewMethodConfig> configs,
+    BrewMethodConfig? customConfig,
   ) async {
-    final current = configs.firstWhere(
-      (c) => c.method == BrewMethod.custom,
-      orElse: () => const BrewMethodConfig(
-        id: 0,
-        method: BrewMethod.custom,
-        displayName: 'Custom',
-        isEnabled: false,
-      ),
-    );
-    final name = await _promptCustomMethodName(
+    final name = await showCustomMethodNameSheet(
       context,
-      current.displayName,
+      currentName: customConfig?.displayName ?? 'Custom',
     );
     if (name == null) return;
-    await controller.toggleMethodEnabled(
-      BrewMethod.custom,
-      true,
-      displayName: name,
-    );
+    await controller.renameCustomMethod(name);
   }
 
-  Future<String?> _promptCustomMethodName(
+  Future<void> _renameCustomMethod(
     BuildContext context,
-    String currentName,
+    BrewPreferencesController controller,
+    BrewMethodConfig? customConfig,
   ) async {
-    final resolvedName =
-        currentName.trim().toLowerCase() == 'custom' ? '' : currentName;
-    final controller = TextEditingController(text: resolvedName);
-    String draft = resolvedName;
-
-    return showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: AppSpacing.pageHorizontal,
-            right: AppSpacing.pageHorizontal,
-            bottom: MediaQuery.of(context).viewInsets.bottom +
-                AppSpacing.pageBottom,
-            top: AppSpacing.pageTop,
-          ),
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              final canSubmit = draft.trim().isNotEmpty;
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Custom Brew Method', style: AppTextStyles.headlineSmall),
-                  const SizedBox(height: AppSpacing.md),
-                  TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      labelText: 'Method name',
-                      hintText: 'e.g. AeroPress',
-                    ),
-                    onChanged: (value) => setState(() => draft = value),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      ElevatedButton(
-                        onPressed: canSubmit
-                            ? () => Navigator.of(context).pop(draft.trim())
-                            : null,
-                        child: const Text('Save'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                ],
-              );
-            },
-          ),
-        );
-      },
+    final name = await showCustomMethodNameSheet(
+      context,
+      currentName: customConfig?.displayName ?? 'Custom',
+      title: 'Rename Custom Method',
     );
+    if (name == null) return;
+    await controller.renameCustomMethod(name);
   }
 
   void _handleBackToManage(BuildContext context) {
@@ -384,6 +396,35 @@ class _BrewParamPreferencesPageState
       return;
     }
     context.go(AppRoutePaths.manage);
+  }
+}
+
+class _MethodSelectorHeaderDelegate extends SliverPersistentHeaderDelegate {
+  const _MethodSelectorHeaderDelegate({required this.child});
+
+  final Widget child;
+
+  @override
+  double get minExtent => 60;
+
+  @override
+  double get maxExtent => 60;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return DecoratedBox(
+      decoration: const BoxDecoration(color: AppColors.background),
+      child: child,
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _MethodSelectorHeaderDelegate oldDelegate) {
+    return true;
   }
 }
 
