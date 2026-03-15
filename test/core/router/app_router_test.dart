@@ -55,25 +55,46 @@ void main() {
       expect(nav.selectedIndex, 2);
     });
 
-    testWidgets('edge swipe switches between shell tabs', (tester) async {
+    testWidgets('navigation bar swipe switches between shell tabs', (
+      tester,
+    ) async {
       await _pumpApp(tester);
 
-      await tester.dragFrom(const Offset(1070, 500), const Offset(-180, 0));
+      final navFinder = find.byKey(const Key('app-shell-navigation-bar'));
+
+      await tester.drag(navFinder, const Offset(-180, 0));
       await tester.pumpAndSettle();
       expect(find.byType(HistoryPage), findsOneWidget);
 
-      await tester.dragFrom(const Offset(1070, 500), const Offset(-180, 0));
+      await tester.drag(navFinder, const Offset(-180, 0));
       await tester.pumpAndSettle();
       expect(find.byType(InventoryManagePage), findsOneWidget);
 
-      await tester.dragFrom(const Offset(10, 500), const Offset(180, 0));
+      await tester.drag(navFinder, const Offset(180, 0));
       await tester.pumpAndSettle();
       expect(find.byType(HistoryPage), findsOneWidget);
     });
 
-    testWidgets('non-edge horizontal drag does not switch tabs', (
+    testWidgets('system-edge drags do not trigger tab switching', (
       tester,
     ) async {
+      await _pumpApp(tester);
+
+      await tester.dragFrom(const Offset(1, 500), const Offset(-220, 0));
+      await tester.pumpAndSettle();
+      expect(find.byType(BrewLoggerPage), findsOneWidget);
+
+      await tester.dragFrom(const Offset(1, 2960), const Offset(220, 0));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BrewLoggerPage), findsOneWidget);
+      final nav = tester.widget<NavigationBar>(
+        find.byKey(const Key('app-shell-navigation-bar')),
+      );
+      expect(nav.selectedIndex, 0);
+    });
+
+    testWidgets('content horizontal drag does not switch tabs', (tester) async {
       await _pumpApp(tester);
 
       await tester.dragFrom(const Offset(540, 500), const Offset(-220, 0));
