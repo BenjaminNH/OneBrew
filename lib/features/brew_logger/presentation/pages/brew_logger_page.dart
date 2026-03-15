@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/router/app_route_paths.dart';
 import '../../../../core/utils/timer_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../shared/helpers/brew_param_defaults.dart';
@@ -41,7 +39,6 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkOnboarding();
       _applyTemplateFromRouteIfNeeded();
     });
   }
@@ -226,13 +223,6 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
         backgroundColor: AppColors.success,
       ),
     );
-  }
-
-  Future<void> _checkOnboarding() async {
-    final shouldShow = await ref.read(brewParamBootstrapProvider.future);
-    if (!mounted || !shouldShow) return;
-    if (!mounted) return;
-    context.go(AppRoutePaths.onboarding);
   }
 
   Future<void> _onTemplateSelected(

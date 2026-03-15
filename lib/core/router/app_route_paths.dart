@@ -1,5 +1,6 @@
 /// Canonical route paths used by the app shell.
 abstract final class AppRoutePaths {
+  static const launch = '/';
   static const brew = '/brew';
   static const manage = '/manage';
   static const history = '/history';

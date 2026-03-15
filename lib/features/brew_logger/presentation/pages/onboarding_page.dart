@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/router/app_route_paths.dart';
 import '../../brew_logger_providers.dart';
 import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_method_config.dart';
@@ -22,6 +24,7 @@ class BrewOnboardingPage extends ConsumerStatefulWidget {
 class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
   final PageController _pageController = PageController();
   final ScrollController _paramScrollController = ScrollController();
+  bool _hasPlayedFirstStepHaptic = false;
   int _pageIndex = 0;
 
   @override
@@ -36,6 +39,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
     final state = ref.watch(brewPreferencesControllerProvider);
     final controller = ref.read(brewPreferencesControllerProvider.notifier);
     final bottomInset = MediaQuery.of(context).padding.bottom;
+    final reduceMotion = _shouldReduceMotion(context);
 
     ref.listen<BrewPreferencesState>(brewPreferencesControllerProvider, (
       _,
@@ -60,6 +64,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                 children: [
                   _OnboardingHero(
                     compact: _pageIndex == 1,
+                    reduceMotion: reduceMotion,
                     onSkip: _skipOnboarding,
                   ),
                   _StepIndicator(currentStep: _pageIndex),
@@ -159,18 +164,19 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
     return index >= 0 && index < enabled.length - 1;
   }
 
-  void _advance(BrewPreferencesState state) {
+  Future<void> _advance(BrewPreferencesState state) async {
     if (_pageIndex == 0) {
+      _playFirstStepHaptic();
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 320),
-        curve: Curves.easeInOutCubic,
+        duration: _pageTransitionDuration(context),
+        curve: _pageTransitionCurve(context),
       );
       return;
     }
 
     final advancedToNext = _goToNextMethod(state);
     if (!advancedToNext) {
-      _finishOnboarding();
+      await _finishOnboarding();
     }
   }
 
@@ -198,13 +204,41 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
   }
 
   void _skipOnboarding() {
-    _finishOnboarding();
+    if (!mounted) return;
+    context.go(AppRoutePaths.brew);
   }
 
-  void _finishOnboarding() {
+  bool _shouldReduceMotion(BuildContext context) {
+    final mediaQuery = MediaQuery.maybeOf(context);
+    if (mediaQuery == null) return false;
+    return mediaQuery.disableAnimations || mediaQuery.accessibleNavigation;
+  }
+
+  Duration _pageTransitionDuration(BuildContext context) {
+    if (_shouldReduceMotion(context)) {
+      return const Duration(milliseconds: 120);
+    }
+    return const Duration(milliseconds: 360);
+  }
+
+  Curve _pageTransitionCurve(BuildContext context) {
+    if (_shouldReduceMotion(context)) {
+      return Curves.easeOut;
+    }
+    return const Cubic(0.22, 0.8, 0.2, 1.0);
+  }
+
+  void _playFirstStepHaptic() {
+    if (_hasPlayedFirstStepHaptic) return;
+    _hasPlayedFirstStepHaptic = true;
+    HapticFeedback.lightImpact();
+  }
+
+  Future<void> _finishOnboarding() async {
+    await ref.read(brewParamRepositoryProvider).setOnboardingCompleted(true);
     ref.invalidate(brewParamBootstrapProvider);
     if (!mounted) return;
-    context.go('/brew');
+    context.go(AppRoutePaths.brew);
   }
 
   List<BrewMethodConfig> _visibleMethodConfigs(List<BrewMethodConfig> configs) {
@@ -378,39 +412,198 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
 }
 
 class _OnboardingHero extends StatelessWidget {
-  const _OnboardingHero({required this.compact, required this.onSkip});
+  const _OnboardingHero({
+    required this.compact,
+    required this.reduceMotion,
+    required this.onSkip,
+  });
 
   final bool compact;
+  final bool reduceMotion;
   final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
+    final duration = reduceMotion
+        ? const Duration(milliseconds: 120)
+        : const Duration(milliseconds: 360);
+    final curve = reduceMotion
+        ? Curves.easeOut
+        : const Cubic(0.22, 0.8, 0.2, 1.0);
+    final heroMinHeight = compact ? 168.0 : 220.0;
+    final ringSize = compact ? 116.0 : 176.0;
+
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 320),
-      curve: Curves.easeInOutCubic,
+      duration: duration,
+      curve: curve,
+      constraints: BoxConstraints(minHeight: heroMinHeight),
       padding: EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontal,
         compact ? AppSpacing.lg : AppSpacing.pageTop,
         AppSpacing.pageHorizontal,
-        compact ? AppSpacing.xs : AppSpacing.md,
+        compact ? AppSpacing.sm : AppSpacing.md,
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Expanded(
-            child: AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 240),
-              curve: Curves.easeOut,
-              style: compact
-                  ? AppTextStyles.displayMedium
-                  : AppTextStyles.displayLarge.copyWith(
-                      height: 1.05,
-                      fontWeight: FontWeight.w700,
+          Positioned.fill(
+            child: IgnorePointer(
+              child: ExcludeSemantics(
+                child: AnimatedOpacity(
+                  duration: duration,
+                  curve: curve,
+                  opacity: compact ? 0.45 : 0.70,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          AppColors.surface.withValues(alpha: 0.90),
+                          AppColors.background.withValues(alpha: 0.78),
+                        ],
+                      ),
                     ),
-              child: const Text('Welcome to OneBrew'),
+                  ),
+                ),
+              ),
             ),
           ),
-          TextButton(onPressed: onSkip, child: const Text('Skip')),
+          Positioned(
+            left: compact ? -24 : -8,
+            top: compact ? 18 : 24,
+            child: IgnorePointer(
+              child: ExcludeSemantics(
+                child: AnimatedOpacity(
+                  duration: duration,
+                  curve: curve,
+                  opacity: compact ? 0.12 : 0.24,
+                  child: _CoffeeRingDecoration(size: ringSize),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 92,
+            top: compact ? 10 : 16,
+            child: IgnorePointer(
+              child: ExcludeSemantics(
+                child: AnimatedContainer(
+                  duration: duration,
+                  curve: curve,
+                  width: compact ? 7 : 10,
+                  height: compact ? 7 : 10,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary.withValues(
+                      alpha: compact ? 0.35 : 0.50,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: AnimatedSlide(
+                  duration: duration,
+                  curve: curve,
+                  offset: compact ? const Offset(0, -0.03) : Offset.zero,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: AppSpacing.md,
+                      top: AppSpacing.sm,
+                      right: AppSpacing.sm,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AnimatedDefaultTextStyle(
+                          duration: duration,
+                          curve: curve,
+                          style: compact
+                              ? AppTextStyles.displayMedium.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.1,
+                                )
+                              : AppTextStyles.displayLarge.copyWith(
+                                  height: 1.05,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          child: const Text('Welcome to OneBrew'),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        AnimatedOpacity(
+                          duration: duration,
+                          curve: curve,
+                          opacity: compact ? 0.88 : 1.0,
+                          child: Text(
+                            'Focus on one brew at a time.',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.bodySmall.copyWith(
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
+                              height: 1.35,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.xs),
+                child: TextButton(onPressed: onSkip, child: const Text('Skip')),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CoffeeRingDecoration extends StatelessWidget {
+  const _CoffeeRingDecoration({required this.size});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final outerStroke = size * 0.095;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: AppColors.softShadow,
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.20),
+                width: outerStroke,
+              ),
+            ),
+          ),
+          Container(
+            width: size * 0.56,
+            height: size * 0.56,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.secondaryDark.withValues(alpha: 0.25),
+                width: size * 0.035,
+              ),
+            ),
+          ),
         ],
       ),
     );

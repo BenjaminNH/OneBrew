@@ -150,12 +150,25 @@ void main() {
       expect(find.byType(BrewOnboardingPage), findsOneWidget);
       expect(find.byKey(const Key('app-shell-navigation-bar')), findsNothing);
     });
+
+    testWidgets('launch route opens onboarding on first run', (tester) async {
+      await _pumpApp(
+        tester,
+        initialLocation: AppRoutePaths.launch,
+        isFirstRun: true,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(BrewOnboardingPage), findsOneWidget);
+      expect(find.byKey(const Key('app-shell-navigation-bar')), findsNothing);
+    });
   });
 }
 
 Future<void> _pumpApp(
   WidgetTester tester, {
   String initialLocation = AppRoutePaths.brew,
+  bool isFirstRun = false,
 }) async {
   tester.view.physicalSize = const Size(1080, 3000);
   tester.view.devicePixelRatio = 1.0;
@@ -177,7 +190,7 @@ Future<void> _pumpApp(
     ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(testDb),
-        brewParamBootstrapProvider.overrideWith((ref) async => false),
+        brewParamBootstrapProvider.overrideWith((ref) async => isFirstRun),
         recentBrewTemplatesProvider.overrideWith(
           (_) => Stream<List<BrewRecord>>.value(const <BrewRecord>[]),
         ),

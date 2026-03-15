@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:one_brew/core/constants/app_colors.dart';
+import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/brew_logger_page.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/brew_param_preferences_page.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/onboarding_page.dart';
@@ -13,8 +16,12 @@ export 'app_route_paths.dart';
 
 /// Global app router used by [MaterialApp.router].
 final GoRouter appRouter = GoRouter(
-  initialLocation: AppRoutePaths.brew,
+  initialLocation: AppRoutePaths.launch,
   routes: [
+    GoRoute(
+      path: AppRoutePaths.launch,
+      builder: (_, _) => const _LaunchGatePage(),
+    ),
     GoRoute(
       path: AppRoutePaths.onboarding,
       builder: (_, _) => const BrewOnboardingPage(),
@@ -65,6 +72,32 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
 );
+
+class _LaunchGatePage extends ConsumerWidget {
+  const _LaunchGatePage();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bootstrapAsync = ref.watch(brewParamBootstrapProvider);
+    bootstrapAsync.whenData((shouldShowOnboarding) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        context.go(
+          shouldShowOnboarding ? AppRoutePaths.onboarding : AppRoutePaths.brew,
+        );
+      });
+    });
+
+    return const Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      ),
+    );
+  }
+}
 
 /// Bottom-navigation shell wrapping feature pages.
 class AppShell extends StatefulWidget {
