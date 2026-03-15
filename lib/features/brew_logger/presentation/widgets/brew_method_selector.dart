@@ -38,31 +38,82 @@ class BrewMethodSelector extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Brew Method', style: AppTextStyles.labelMedium),
-        const SizedBox(height: AppSpacing.xs),
-        Wrap(
-          spacing: AppSpacing.xs,
-          children: enabled.map((config) {
-            final selected = config.method == state.brewMethod;
-            return ChoiceChip(
-              label: Text(config.displayName),
-              selected: selected,
-              onSelected: (_) => controller.setBrewMethod(config.method),
-              selectedColor: AppColors.primary,
-              labelStyle: AppTextStyles.labelSmall.copyWith(
-                color: selected ? Colors.white : AppColors.textSecondary,
-              ),
-              side: BorderSide(
-                color: selected ? AppColors.primary : AppColors.shadowDark,
-              ),
-              backgroundColor: AppColors.background,
-            );
-          }).toList(),
+    return AppCard(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Brew Method', style: AppTextStyles.labelMedium),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              for (int index = 0; index < enabled.length; index++) ...[
+                Expanded(
+                  child: _MethodOptionButton(
+                    config: enabled[index],
+                    selected: enabled[index].method == state.brewMethod,
+                    onPressed: () =>
+                        controller.setBrewMethod(enabled[index].method),
+                  ),
+                ),
+                if (index < enabled.length - 1)
+                  const SizedBox(width: AppSpacing.xs),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MethodOptionButton extends StatelessWidget {
+  const _MethodOptionButton({
+    required this.config,
+    required this.selected,
+    required this.onPressed,
+  });
+
+  final BrewMethodConfig config;
+  final bool selected;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final foregroundColor = selected ? Colors.white : AppColors.textSecondary;
+
+    return AnimatedContainer(
+      key: Key('brew-method-option-${config.method.name}'),
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      height: AppSpacing.buttonSmallHeight,
+      decoration: BoxDecoration(
+        color: selected ? AppColors.primary : AppColors.background,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        border: Border.all(
+          color: selected ? AppColors.primary : AppColors.shadowDark,
         ),
-      ],
+        boxShadow: selected ? AppColors.softShadow : const [],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+          onTap: onPressed,
+          child: Center(
+            child: Text(
+              config.displayName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: foregroundColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

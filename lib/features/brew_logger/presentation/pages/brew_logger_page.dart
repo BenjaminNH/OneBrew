@@ -99,17 +99,11 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.pageHorizontal,
-                  vertical: AppSpacing.pageTop,
-                ),
-                child: _PageHeader(beanName: loggerState.beanName),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.pageHorizontal,
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.pageHorizontal,
+                  AppSpacing.pageTop,
+                  AppSpacing.pageHorizontal,
+                  0,
                 ),
                 child: methodConfigsAsync.when(
                   data: (configs) => BrewMethodSelector(configs: configs),
@@ -325,58 +319,6 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => BrewRatingSheet(brewRecordId: brewRecordId),
-    );
-  }
-}
-
-class _PageHeader extends StatelessWidget {
-  const _PageHeader({required this.beanName});
-  final String beanName;
-
-  @override
-  Widget build(BuildContext context) {
-    final trimmedBeanName = beanName.trim();
-    final hasBeanName = trimmedBeanName.isNotEmpty;
-    final displayName = hasBeanName ? trimmedBeanName : 'Ready to Brew';
-    final statusLine = hasBeanName
-        ? 'OneBrew is set for this bean. Start when ready.'
-        : 'OneBrew logger is ready for your next cup.';
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'OneBrew',
-          style: AppTextStyles.labelSmall.copyWith(
-            color: AppColors.primary.withValues(alpha: 0.85),
-            letterSpacing: 2.0,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          displayName,
-          style: AppTextStyles.displayMedium.copyWith(
-            color: hasBeanName
-                ? AppColors.textPrimary
-                : AppColors.textSecondary,
-            fontWeight: FontWeight.w700,
-            height: 1.15,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          statusLine,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.textSecondary,
-            height: 1.4,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
     );
   }
 }
