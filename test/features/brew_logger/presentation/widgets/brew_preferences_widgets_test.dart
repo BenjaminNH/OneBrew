@@ -34,8 +34,8 @@ void main() {
             home: Scaffold(
               body: BrewParamListEditor(
                 items: [item],
-                onVisibilityChanged: (_, __) {},
-                onDelete: (_) {},
+                onVisibilityChanged: (brewParamItem, isVisible) {},
+                onDelete: (brewParamItem) {},
               ),
             ),
           ),
@@ -71,8 +71,8 @@ void main() {
           home: Scaffold(
             body: BrewParamListEditor(
               items: [item],
-              onVisibilityChanged: (_, __) {},
-              onDelete: (_) {},
+              onVisibilityChanged: (brewParamItem, isVisible) {},
+              onDelete: (brewParamItem) {},
             ),
           ),
         ),
@@ -109,8 +109,8 @@ void main() {
             home: Scaffold(
               body: BrewParamListEditor(
                 items: [item],
-                onVisibilityChanged: (_, __) {},
-                onDelete: (_) {},
+                onVisibilityChanged: (brewParamItem, isVisible) {},
+                onDelete: (brewParamItem) {},
               ),
             ),
           ),
