@@ -74,6 +74,7 @@ void main() {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
+      expect(find.text('OneBrew'), findsOneWidget);
       expect(find.text('Ready to Brew'), findsNothing);
       expect(
         find.text('OneBrew logger is ready for your next cup.'),
@@ -231,6 +232,58 @@ void main() {
 
       await tester.tap(find.text('Skip for now'));
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('saving rating clears focus and does not show keyboard', (
+      WidgetTester tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BrewLoggerPage)),
+      );
+      container
+          .read(brewLoggerControllerProvider.notifier)
+          .setBeanName('Test Bean');
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.coffee_rounded));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Save Brew'));
+      await tester.pumpAndSettle();
+
+      container
+          .read(brewLoggerControllerProvider.notifier)
+          .setGrindMode(GrindMode.pro);
+      await tester.pumpAndSettle();
+
+      final grindSizeField = find.byType(TextFormField);
+      expect(grindSizeField, findsOneWidget);
+      await tester.tap(grindSizeField);
+      await tester.pumpAndSettle();
+      expect(tester.testTextInput.isVisible, isTrue);
+
+      await tester.ensureVisible(find.text('Rate now'));
+      await tester.tap(find.text('Rate now'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rate this brew'), findsOneWidget);
+      expect(tester.testTextInput.isVisible, isFalse);
+
+      await tester.tap(find.text('Save rating'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Rating saved!'), findsOneWidget);
+      expect(tester.testTextInput.isVisible, isFalse);
     });
 
     testWidgets('Equipment grind slider uses dynamic equipment config', (

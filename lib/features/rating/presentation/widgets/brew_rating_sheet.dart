@@ -195,6 +195,7 @@ class _BrewRatingSheetState extends ConsumerState<BrewRatingSheet> {
   Future<void> _saveAndClose() async {
     final savedId = await ref.read(ratingControllerProvider.notifier).save();
     if (!mounted || savedId == null) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     Navigator.of(context).pop(true);
   }
 }

@@ -105,16 +105,30 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
                   AppSpacing.pageHorizontal,
                   0,
                 ),
-                child: methodConfigsAsync.when(
-                  data: (configs) => BrewMethodSelector(configs: configs),
-                  loading: () =>
-                      const LinearProgressIndicator(color: AppColors.primary),
-                  error: (_, _) => AppCard(
-                    child: Text(
-                      'Brew methods unavailable.',
-                      style: AppTextStyles.bodySmall,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'OneBrew',
+                      style: AppTextStyles.displayMedium.copyWith(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.sm),
+                    methodConfigsAsync.when(
+                      data: (configs) => BrewMethodSelector(configs: configs),
+                      loading: () => const LinearProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                      error: (_, _) => AppCard(
+                        child: Text(
+                          'Brew methods unavailable.',
+                          style: AppTextStyles.bodySmall,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -314,6 +328,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
   }
 
   Future<bool?> _openRatingSheet(int brewRecordId) {
+    FocusManager.instance.primaryFocus?.unfocus();
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
