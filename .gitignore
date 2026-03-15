@@ -55,3 +55,6 @@ devtools_options.yaml
 
 # Local temporary files
 temp/
+
+# Local agent skills/config
+.agent/
