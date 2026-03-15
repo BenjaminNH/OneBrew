@@ -1,16 +1,16 @@
 import 'dart:async';
 
+import 'package:drift/drift.dart' as drift;
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:drift/drift.dart' as drift;
-import 'package:drift/native.dart';
 import 'package:one_brew/core/database/drift_database.dart';
+import 'package:one_brew/core/widgets/app_single_select_field.dart';
 import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_brew/features/inventory/inventory_providers.dart';
-import 'package:one_brew/shared/providers/database_providers.dart';
-import 'package:one_brew/core/widgets/app_chip_input.dart';
 import 'package:one_brew/features/inventory/presentation/widgets/smart_tag_field.dart';
+import 'package:one_brew/shared/providers/database_providers.dart';
 
 class _EquipmentSelectionHarness extends ConsumerStatefulWidget {
   const _EquipmentSelectionHarness();
@@ -45,8 +45,22 @@ class _EquipmentSelectionHarnessState
   }
 }
 
+Future<void> _addValueFromSingleSelect(
+  WidgetTester tester, {
+  required String value,
+  String confirmLabel = 'Add',
+}) async {
+  await tester.tap(find.byType(AppSingleSelectField).first);
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key('single-select-add-new')));
+  await tester.pumpAndSettle();
+  await tester.enterText(find.byType(TextField).first, value);
+  await tester.tap(find.text(confirmLabel));
+  await tester.pumpAndSettle();
+}
+
 void main() {
-  testWidgets('SmartTagField renders and handles input', (
+  testWidgets('SmartTagField renders and handles single-select creation', (
     WidgetTester tester,
   ) async {
     final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
@@ -64,6 +78,7 @@ void main() {
                 return SmartTagField(
                   type: TagFieldType.bean,
                   tags: selectedTags,
+                  singleSelection: true,
                   onTagsChanged: (tags) {
                     setState(() {
                       selectedTags = tags;
@@ -77,75 +92,66 @@ void main() {
       ),
     );
 
-    // Initial state: empty field, hint text visible
-    expect(find.byType(AppChipInput), findsOneWidget);
+    expect(find.byType(AppSingleSelectField), findsOneWidget);
     expect(find.text('Type to add...'), findsOneWidget);
 
-    // Enter a new bean tag
-    await tester.enterText(find.byType(TextField), 'Gesha');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
+    await _addValueFromSingleSelect(tester, value: 'Gesha');
 
-    // Verify tag is added to the list and UI reflects it
     expect(selectedTags, ['Gesha']);
     expect(find.text('Gesha'), findsOneWidget);
   });
 
-  testWidgets(
-    'bean suggestions open on focus and keep only top 5 by useCount',
-    (WidgetTester tester) async {
-      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
-      addTearDown(db.close);
+  testWidgets('bean suggestions open on tap and keep only top 5 by useCount', (
+    WidgetTester tester,
+  ) async {
+    final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
 
-      for (var i = 1; i <= 6; i++) {
-        await db.insertBean(
-          BeansCompanion.insert(
-            name: 'Focus Bean 0$i',
-            useCount: drift.Value(i),
-          ),
-        );
-      }
+    for (var i = 1; i <= 6; i++) {
+      await db.insertBean(
+        BeansCompanion.insert(name: 'Focus Bean 0$i', useCount: drift.Value(i)),
+      );
+    }
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [databaseProvider.overrideWithValue(db)],
-          child: MaterialApp(
-            home: Scaffold(
-              body: StatefulBuilder(
-                builder: (context, setState) {
-                  List<String> selectedTags = [];
-                  return SmartTagField(
-                    type: TagFieldType.bean,
-                    tags: selectedTags,
-                    singleSelection: true,
-                    onTagsChanged: (tags) {
-                      setState(() {
-                        selectedTags = tags;
-                      });
-                    },
-                  );
-                },
-              ),
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                List<String> selectedTags = [];
+                return SmartTagField(
+                  type: TagFieldType.bean,
+                  tags: selectedTags,
+                  singleSelection: true,
+                  onTagsChanged: (tags) {
+                    setState(() {
+                      selectedTags = tags;
+                    });
+                  },
+                );
+              },
             ),
           ),
         ),
-      );
-      await tester.pumpAndSettle();
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(TextField));
-      await tester.pumpAndSettle();
+    await tester.tap(find.byType(AppSingleSelectField));
+    await tester.pumpAndSettle();
 
-      expect(find.text('Focus Bean 06'), findsOneWidget);
-      expect(find.text('Focus Bean 05'), findsOneWidget);
-      expect(find.text('Focus Bean 04'), findsOneWidget);
-      expect(find.text('Focus Bean 03'), findsOneWidget);
-      expect(find.text('Focus Bean 02'), findsOneWidget);
-      expect(find.text('Focus Bean 01'), findsNothing);
-    },
-  );
+    expect(find.text('Focus Bean 06'), findsOneWidget);
+    expect(find.text('Focus Bean 05'), findsOneWidget);
+    expect(find.text('Focus Bean 04'), findsOneWidget);
+    expect(find.text('Focus Bean 03'), findsOneWidget);
+    expect(find.text('Focus Bean 02'), findsOneWidget);
+    expect(find.text('Focus Bean 01'), findsNothing);
+  });
 
   testWidgets(
-    'equipment suggestions open on focus and keep only top 5 by useCount',
+    'equipment suggestions open on tap and keep only top 5 by useCount',
     (WidgetTester tester) async {
       final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
       addTearDown(db.close);
@@ -170,7 +176,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(TextField).first);
+      await tester.tap(find.byType(AppSingleSelectField).first);
       await tester.pumpAndSettle();
 
       expect(find.text('Focus Grinder 06'), findsOneWidget);
@@ -198,9 +204,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextField), 'Lagom Mini');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pumpAndSettle();
+      await _addValueFromSingleSelect(tester, value: 'Lagom Mini');
 
       expect(find.text('Quick Grinder Setup'), findsOneWidget);
       await tester.tap(find.text('Use Defaults'));
@@ -243,9 +247,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextField), 'K-Ultra');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
+    await _addValueFromSingleSelect(tester, value: 'K-Ultra');
 
     expect(find.text('Quick Grinder Setup'), findsOneWidget);
     await tester.tap(find.text('Save Grinder'));
@@ -283,15 +285,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextField), 'ZP6');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pumpAndSettle();
+      await _addValueFromSingleSelect(tester, value: 'ZP6');
 
       final fields = find.byType(TextField);
-      await tester.enterText(fields.at(1), '8');
-      await tester.enterText(fields.at(2), '68');
-      await tester.enterText(fields.at(3), '0.5');
-      await tester.enterText(fields.at(4), 'steps');
+      await tester.enterText(fields.at(0), '8');
+      await tester.enterText(fields.at(1), '68');
+      await tester.enterText(fields.at(2), '0.5');
+      await tester.enterText(fields.at(3), 'steps');
 
       await tester.tap(find.text('Save Grinder'));
       await tester.pump();
@@ -340,9 +340,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.byType(TextField), 'Lagom P64');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pumpAndSettle();
+      await _addValueFromSingleSelect(tester, value: 'Lagom P64');
 
       expect(find.text('Quick Grinder Setup'), findsNothing);
 

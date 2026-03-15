@@ -105,18 +105,19 @@ void main() {
       );
       expect(beanInputFinder, findsOneWidget);
 
-      final beanTextFieldFinder = find.descendant(
-        of: beanInputFinder,
-        matching: find.byType(TextField),
-      );
-      expect(beanTextFieldFinder, findsOneWidget);
-
       final applyButton = tester.widget<IconButton>(
         find.byKey(const Key('history-filter-apply')),
       );
       expect((applyButton.icon as Icon).icon, Icons.search_rounded);
 
-      await tester.enterText(beanTextFieldFinder, 'Colombia');
+      await tester.tap(beanInputFinder);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('single-select-add-new')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'Colombia');
+      await tester.tap(find.text('Use text'));
+      await tester.pumpAndSettle();
+
       await tester.tap(find.byKey(const Key('history-filter-apply')));
       await tester.pumpAndSettle();
 
@@ -143,12 +144,7 @@ void main() {
       await tester.pumpWidget(createWidget(database: db));
       await tester.pumpAndSettle();
 
-      await tester.tap(
-        find.descendant(
-          of: find.byKey(const Key('history-filter-bean-input')),
-          matching: find.byType(TextField),
-        ),
-      );
+      await tester.tap(find.byKey(const Key('history-filter-bean-input')));
       await tester.pumpAndSettle();
 
       expect(find.text('History Focus Bean 06'), findsOneWidget);

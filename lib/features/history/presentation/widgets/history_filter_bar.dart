@@ -6,7 +6,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
-import '../../../../core/widgets/app_chip_input.dart';
+import '../../../../core/widgets/app_single_select_field.dart';
 import '../../../inventory/presentation/controllers/inventory_controller.dart';
 import '../../domain/repositories/history_repository.dart';
 
@@ -79,20 +79,20 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
             children: [
               Expanded(
                 flex: 2,
-                child: AppChipInput(
+                child: AppSingleSelectField(
                   key: const Key('history-filter-bean-input'),
-                  tags: _beanTags,
+                  value: _beanTags.isEmpty ? null : _beanTags.first,
                   suggestions: _beanSuggestions,
-                  singleSelection: true,
                   hintText: 'Bean name',
-                  onTagsChanged: (tags) {
+                  addActionLabel: 'Use custom text',
+                  dialogTitle: 'Filter by Bean',
+                  dialogHintText: 'Bean name',
+                  dialogConfirmLabel: 'Use text',
+                  onChanged: (value) {
                     setState(() {
-                      _beanTags = tags;
-                      _beanQuery = tags.isEmpty ? '' : tags.first;
+                      _beanTags = value == null ? const [] : [value];
+                      _beanQuery = value?.trim() ?? '';
                     });
-                  },
-                  onInputChanged: (value) {
-                    _beanQuery = value;
                   },
                 ),
               ),
