@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/widgets/app_chip_input.dart';
+import '../../../../core/widgets/app_single_select_field.dart';
 import '../controllers/inventory_controller.dart';
 
 enum TagFieldType { bean, equipment }
@@ -90,13 +91,6 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
     _loadSuggestions();
   }
 
-  List<String> _tagsAfterSubmit(String tag) {
-    if (widget.singleSelection) return [tag];
-    final updated = widget.tags.where((existing) => existing != tag).toList();
-    updated.add(tag);
-    return updated;
-  }
-
   bool _isKnownSuggestion(String tag) {
     final normalizedTag = tag.trim().toLowerCase();
     if (normalizedTag.isEmpty) return false;
@@ -135,57 +129,87 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.singleSelection) {
+      return AppSingleSelectField(
+        value: widget.tags.isEmpty ? null : widget.tags.first,
+        onChanged: (value) {
+          widget.onTagsChanged(value == null ? const [] : [value]);
+        },
+        onCreate: _persistNewTag,
+        suggestions: _suggestions,
+        hintText: widget.hintText ?? 'Type to add...',
+        labelText: widget.labelText,
+        addActionLabel: widget.type == TagFieldType.bean
+            ? 'Add bean'
+            : 'Add grinder',
+        emptyStateText: widget.type == TagFieldType.bean
+            ? 'No beans yet'
+            : 'No grinders yet',
+        dialogTitle: widget.type == TagFieldType.bean
+            ? 'Add Coffee Bean'
+            : 'Add Grinder',
+        dialogHintText: widget.type == TagFieldType.bean
+            ? 'Bean name'
+            : 'Grinder name',
+      );
+    }
+
     return AppChipInput(
       tags: widget.tags,
       onTagsChanged: widget.onTagsChanged,
       suggestions: _suggestions,
       hintText: widget.hintText ?? 'Type to add...',
       labelText: widget.labelText,
-      singleSelection: widget.singleSelection,
+      singleSelection: false,
       onSubmit: (tag) async {
-        final messenger = ScaffoldMessenger.maybeOf(context);
-        final controller = ref.read(inventoryControllerProvider.notifier);
-        final isKnown = _isKnownSuggestion(tag);
-
-        try {
-          if (widget.type == TagFieldType.bean) {
-            if (isKnown) return;
-            await controller.addBean(tag);
-          } else {
-            if (isKnown) return;
-
-            final shouldShowFirstTimeSetup = _suggestions.isEmpty;
-            final setup = shouldShowFirstTimeSetup
-                ? await _showQuickGrinderSetupSheet(tag) ?? _defaultGrinderSetup
-                : _defaultGrinderSetup;
-            await controller.addEquipment(
-              tag,
-              isGrinder: true,
-              grindMinClick: setup.minClick,
-              grindMaxClick: setup.maxClick,
-              grindClickStep: setup.clickStep,
-              grindClickUnit: setup.clickUnit,
-            );
-            if (mounted) {
-              // Re-emit the selected equipment after persistence completes.
-              // This avoids the race where setEquipmentByName runs before insert.
-              widget.onTagsChanged(_tagsAfterSubmit(tag));
-            }
-          }
-        } catch (error) {
-          if (mounted) {
-            messenger?.showSnackBar(
-              SnackBar(content: Text('Failed to save "$tag": $error')),
-            );
-          }
-        }
-
-        // Reload suggestions so the newly added item shows up if we type it again
-        if (mounted) {
-          await _loadSuggestions();
-        }
+        await _persistNewTag(tag);
       },
     );
+  }
+
+  Future<bool> _persistNewTag(String rawTag) async {
+    final tag = rawTag.trim();
+    if (tag.isEmpty) return false;
+
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final controller = ref.read(inventoryControllerProvider.notifier);
+    final isKnown = _isKnownSuggestion(tag);
+
+    try {
+      if (widget.type == TagFieldType.bean) {
+        if (!isKnown) {
+          await controller.addBean(tag);
+        }
+      } else if (!isKnown) {
+        final shouldShowFirstTimeSetup = _suggestions.isEmpty;
+        final setup = shouldShowFirstTimeSetup
+            ? await _showQuickGrinderSetupSheet(tag)
+            : _defaultGrinderSetup;
+        if (setup == null) return false;
+
+        await controller.addEquipment(
+          tag,
+          isGrinder: true,
+          grindMinClick: setup.minClick,
+          grindMaxClick: setup.maxClick,
+          grindClickStep: setup.clickStep,
+          grindClickUnit: setup.clickUnit,
+        );
+      }
+
+      return true;
+    } catch (error) {
+      if (mounted) {
+        messenger?.showSnackBar(
+          SnackBar(content: Text('Failed to save "$tag": $error')),
+        );
+      }
+      return false;
+    } finally {
+      if (mounted) {
+        await _loadSuggestions();
+      }
+    }
   }
 }
 
