@@ -67,18 +67,90 @@ final GoRouter appRouter = GoRouter(
 );
 
 /// Bottom-navigation shell wrapping feature pages.
-class AppShell extends StatelessWidget {
+class AppShell extends StatefulWidget {
   const AppShell({super.key, required this.location, required this.child});
 
   final String location;
   final Widget child;
 
   @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> {
+  static const double _edgeSwipeWidth = 24;
+  static const double _edgeSwipeTriggerDistance = 56;
+  static const double _edgeSwipeTriggerVelocity = 700;
+
+  double _leftEdgeDragDistance = 0;
+  double _rightEdgeDragDistance = 0;
+
+  @override
   Widget build(BuildContext context) {
-    final selectedIndex = _locationToIndex(location);
+    final selectedIndex = _locationToIndex(widget.location);
 
     return Scaffold(
-      body: child,
+      body: Stack(
+        children: [
+          Positioned.fill(child: widget.child),
+          // Keep gestures constrained to edge strips to avoid conflicts with
+          // in-page horizontal interactions.
+          if (selectedIndex > 0)
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: _edgeSwipeWidth,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragStart: (_) => _leftEdgeDragDistance = 0,
+                onHorizontalDragUpdate: (details) {
+                  final delta = details.primaryDelta ?? 0;
+                  if (delta > 0) {
+                    _leftEdgeDragDistance += delta;
+                  }
+                },
+                onHorizontalDragEnd: (details) {
+                  final velocity = details.primaryVelocity ?? 0;
+                  final shouldSwitch =
+                      _leftEdgeDragDistance >= _edgeSwipeTriggerDistance ||
+                      velocity >= _edgeSwipeTriggerVelocity;
+                  _leftEdgeDragDistance = 0;
+                  if (shouldSwitch) {
+                    _goToIndex(selectedIndex - 1);
+                  }
+                },
+              ),
+            ),
+          if (selectedIndex < 2)
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: _edgeSwipeWidth,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragStart: (_) => _rightEdgeDragDistance = 0,
+                onHorizontalDragUpdate: (details) {
+                  final delta = details.primaryDelta ?? 0;
+                  if (delta < 0) {
+                    _rightEdgeDragDistance += -delta;
+                  }
+                },
+                onHorizontalDragEnd: (details) {
+                  final velocity = details.primaryVelocity ?? 0;
+                  final shouldSwitch =
+                      _rightEdgeDragDistance >= _edgeSwipeTriggerDistance ||
+                      velocity <= -_edgeSwipeTriggerVelocity;
+                  _rightEdgeDragDistance = 0;
+                  if (shouldSwitch) {
+                    _goToIndex(selectedIndex + 1);
+                  }
+                },
+              ),
+            ),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         key: const Key('app-shell-navigation-bar'),
         selectedIndex: selectedIndex,
@@ -88,7 +160,7 @@ class AppShell extends StatelessWidget {
             1 => AppRoutePaths.history,
             _ => AppRoutePaths.manage,
           };
-          if (location != target) {
+          if (widget.location != target) {
             context.go(target);
           }
         },
@@ -111,6 +183,20 @@ class AppShell extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _goToIndex(int index) {
+    if (index < 0 || index > 2) {
+      return;
+    }
+    final target = switch (index) {
+      0 => AppRoutePaths.brew,
+      1 => AppRoutePaths.history,
+      _ => AppRoutePaths.manage,
+    };
+    if (widget.location != target) {
+      context.go(target);
+    }
   }
 
   int _locationToIndex(String currentLocation) {
