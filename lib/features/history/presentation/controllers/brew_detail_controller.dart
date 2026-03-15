@@ -52,6 +52,7 @@ class BrewDetailState {
 }
 
 const _sentinel = Object();
+const Set<String> _durationSemanticParamKeys = {'brewtime', 'extractiontime'};
 
 class BrewDetailController extends Notifier<BrewDetailState> {
   BrewDetailController(this.brewId);
@@ -112,6 +113,7 @@ class BrewDetailController extends Notifier<BrewDetailState> {
         }
       }
       if (definition == null) continue;
+      if (_isDurationSemanticParam(definition.name)) continue;
       final formatted = _formatParamValue(definition, value);
       if (formatted == null) continue;
       entries.add(
@@ -164,6 +166,13 @@ class BrewDetailController extends Notifier<BrewDetailState> {
         if (text == null || text.isEmpty) return null;
         return text;
     }
+  }
+
+  bool _isDurationSemanticParam(String name) {
+    final normalized = name
+        .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '')
+        .toLowerCase();
+    return _durationSemanticParamKeys.contains(normalized);
   }
 }
 
