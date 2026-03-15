@@ -18,10 +18,10 @@ mixin _$BrewRating {
  int get id;/// FK: the brew record this rating belongs to.
  int get brewRecordId;/// Quick score 1–5 (optional).
  int? get quickScore;/// Emoji label for quick feedback (optional, e.g. "😍").
- String? get emoji;/// Acidity score 0–10 (professional mode, optional).
- double? get acidity;/// Sweetness score 0–10 (professional mode, optional).
- double? get sweetness;/// Bitterness score 0–10 (professional mode, optional).
- double? get bitterness;/// Body / mouthfeel score 0–10 (professional mode, optional).
+ String? get emoji;/// Acidity score 0–5 (professional mode, optional).
+ double? get acidity;/// Sweetness score 0–5 (professional mode, optional).
+ double? get sweetness;/// Bitterness score 0–5 (professional mode, optional).
+ double? get bitterness;/// Body / mouthfeel score 0–5 (professional mode, optional).
  double? get body;/// Comma-separated (or JSON) flavor tag notes (optional).
  String? get flavorNotes;
 /// Create a copy of BrewRating
@@ -234,13 +234,13 @@ class _BrewRating implements BrewRating {
 @override final  int? quickScore;
 /// Emoji label for quick feedback (optional, e.g. "😍").
 @override final  String? emoji;
-/// Acidity score 0–10 (professional mode, optional).
+/// Acidity score 0–5 (professional mode, optional).
 @override final  double? acidity;
-/// Sweetness score 0–10 (professional mode, optional).
+/// Sweetness score 0–5 (professional mode, optional).
 @override final  double? sweetness;
-/// Bitterness score 0–10 (professional mode, optional).
+/// Bitterness score 0–5 (professional mode, optional).
 @override final  double? bitterness;
-/// Body / mouthfeel score 0–10 (professional mode, optional).
+/// Body / mouthfeel score 0–5 (professional mode, optional).
 @override final  double? body;
 /// Comma-separated (or JSON) flavor tag notes (optional).
 @override final  String? flavorNotes;
