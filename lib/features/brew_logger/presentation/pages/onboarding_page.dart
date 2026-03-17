@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -68,7 +70,9 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                     onSkip: _skipOnboarding,
                   ),
                   _StepIndicator(currentStep: _pageIndex),
-                  const SizedBox(height: AppSpacing.sm),
+                  SizedBox(
+                    height: _pageIndex == 1 ? AppSpacing.xs : AppSpacing.sm,
+                  ),
                   Expanded(
                     child: PageView(
                       controller: _pageController,
@@ -218,7 +222,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
     if (_shouldReduceMotion(context)) {
       return const Duration(milliseconds: 120);
     }
-    return const Duration(milliseconds: 360);
+    return const Duration(milliseconds: 480);
   }
 
   Curve _pageTransitionCurve(BuildContext context) {
@@ -424,14 +428,27 @@ class _OnboardingHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isNarrow = screenWidth <= 375;
     final duration = reduceMotion
         ? const Duration(milliseconds: 120)
-        : const Duration(milliseconds: 360);
+        : const Duration(milliseconds: 480);
     final curve = reduceMotion
         ? Curves.easeOut
         : const Cubic(0.22, 0.8, 0.2, 1.0);
-    final heroMinHeight = compact ? 168.0 : 220.0;
-    final ringSize = compact ? 116.0 : 176.0;
+    final heroMinHeight = compact ? (isNarrow ? 104.0 : 112.0) : 220.0;
+    final ringLeft = compact
+        ? -(isNarrow ? 72.0 : 80.0)
+        : (isNarrow ? 8.0 : 10.0);
+    final ringSize = compact
+        ? (isNarrow ? 108.0 : 120.0)
+        : (isNarrow ? 138.0 : 156.0);
+    final ringTop = ((heroMinHeight - ringSize) / 2) + (compact ? 2.0 : 3.0);
+    final textLeftInset = compact
+        ? (isNarrow ? AppSpacing.sm : AppSpacing.md)
+        : ringLeft + (ringSize * 0.86) + (isNarrow ? 18.0 : 16.0);
+    final textRightInset = compact ? AppSpacing.sm : (isNarrow ? 60.0 : 72.0);
+    final textTopInset = compact ? 0.0 : 0.0;
 
     return AnimatedContainer(
       duration: duration,
@@ -441,17 +458,18 @@ class _OnboardingHero extends StatelessWidget {
         AppSpacing.pageHorizontal,
         compact ? AppSpacing.lg : AppSpacing.pageTop,
         AppSpacing.pageHorizontal,
-        compact ? AppSpacing.sm : AppSpacing.md,
+        compact ? AppSpacing.xs : AppSpacing.md,
       ),
       child: Stack(
         children: [
+          SizedBox(width: double.infinity, height: heroMinHeight),
           Positioned.fill(
             child: IgnorePointer(
               child: ExcludeSemantics(
                 child: AnimatedOpacity(
                   duration: duration,
                   curve: curve,
-                  opacity: compact ? 0.45 : 0.70,
+                  opacity: compact ? 0.82 : 0.94,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
@@ -469,97 +487,145 @@ class _OnboardingHero extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(
-            left: compact ? -24 : -8,
-            top: compact ? 18 : 24,
+          AnimatedPositioned(
+            duration: duration,
+            curve: curve,
+            left: ringLeft,
+            top: ringTop,
             child: IgnorePointer(
               child: ExcludeSemantics(
                 child: AnimatedOpacity(
                   duration: duration,
                   curve: curve,
-                  opacity: compact ? 0.12 : 0.24,
+                  opacity: compact ? 0.16 : 0.90,
                   child: _CoffeeRingDecoration(size: ringSize),
                 ),
               ),
             ),
           ),
           Positioned(
-            right: 92,
-            top: compact ? 10 : 16,
-            child: IgnorePointer(
-              child: ExcludeSemantics(
-                child: AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: compact ? 7 : 10,
-                  height: compact ? 7 : 10,
-                  decoration: BoxDecoration(
-                    color: AppColors.secondary.withValues(
-                      alpha: compact ? 0.35 : 0.50,
+            right: AppSpacing.xs,
+            top: AppSpacing.xs,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppColors.background.withValues(
+                  alpha: compact ? 0.84 : 0.92,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColors.shadowDark.withValues(alpha: 0.5),
+                ),
+              ),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onSkip,
+                child: SizedBox(
+                  width: isNarrow ? 52 : 56,
+                  height: isNarrow ? 36 : 40,
+                  child: Center(
+                    child: Text(
+                      'Skip',
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    shape: BoxShape.circle,
                   ),
                 ),
               ),
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: AnimatedSlide(
-                  duration: duration,
-                  curve: curve,
-                  offset: compact ? const Offset(0, -0.03) : Offset.zero,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: AppSpacing.md,
-                      top: AppSpacing.sm,
-                      right: AppSpacing.sm,
-                    ),
+          Positioned.fill(
+            child: IgnorePointer(
+              child: AnimatedSlide(
+                duration: duration,
+                curve: curve,
+                offset: Offset.zero,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: textLeftInset,
+                    right: textRightInset,
+                    top: textTopInset,
+                  ),
+                  child: AnimatedAlign(
+                    duration: duration,
+                    curve: curve,
+                    alignment: Alignment.centerLeft,
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AnimatedDefaultTextStyle(
                           duration: duration,
                           curve: curve,
                           style: compact
-                              ? AppTextStyles.displayMedium.copyWith(
-                                  fontWeight: FontWeight.w700,
+                              ? AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                  fontSize: isNarrow ? 14 : 16,
+                                  fontWeight: FontWeight.w600,
                                   height: 1.1,
                                 )
-                              : AppTextStyles.displayLarge.copyWith(
-                                  height: 1.05,
-                                  fontWeight: FontWeight.w700,
+                              : AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                  fontSize: isNarrow ? 16 : 18,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.1,
                                 ),
-                          child: const Text('Welcome to OneBrew'),
+                          child: const Text('Welcome to'),
                         ),
-                        const SizedBox(height: AppSpacing.sm),
-                        AnimatedOpacity(
+                        const SizedBox(height: AppSpacing.xs),
+                        AnimatedDefaultTextStyle(
                           duration: duration,
                           curve: curve,
-                          opacity: compact ? 0.88 : 1.0,
-                          child: Text(
-                            'Focus on one brew at a time.',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w500,
-                              height: 1.35,
+                          style: compact
+                              ? AppTextStyles.displayMedium.copyWith(
+                                  color: AppColors.primary,
+                                  fontSize: isNarrow ? 28 : 32,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.0,
+                                )
+                              : AppTextStyles.displayLarge.copyWith(
+                                  color: AppColors.primary,
+                                  fontSize: isNarrow ? 32 : 38,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.0,
+                                ),
+                          child: const SizedBox(
+                            width: double.infinity,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'OneBrew',
+                                maxLines: 1,
+                                softWrap: false,
+                              ),
                             ),
                           ),
                         ),
+                        const SizedBox(height: AppSpacing.sm),
+                        if (!compact)
+                          AnimatedOpacity(
+                            duration: duration,
+                            curve: curve,
+                            opacity: 1.0,
+                            child: Text(
+                              'Focus on one brew at a time.',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.bodySmall.copyWith(
+                                color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w500,
+                                height: 1.35,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(right: AppSpacing.xs),
-                child: TextButton(onPressed: onSkip, child: const Text('Skip')),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -572,9 +638,49 @@ class _CoffeeRingDecoration extends StatelessWidget {
 
   final double size;
 
+  Widget _bean({
+    required Alignment alignment,
+    required double width,
+    required double height,
+    required double degrees,
+    required Color color,
+    required double seamAlpha,
+  }) {
+    return Align(
+      alignment: alignment,
+      child: Transform.rotate(
+        angle: degrees * math.pi / 180,
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(height),
+                ),
+                child: const SizedBox.expand(),
+              ),
+              Container(
+                width: width * 0.62,
+                height: 1.3,
+                decoration: BoxDecoration(
+                  color: AppColors.textPrimary.withValues(alpha: seamAlpha),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final outerStroke = size * 0.095;
+    final outerStroke = size * 0.11;
     return SizedBox(
       width: size,
       height: size,
@@ -588,19 +694,66 @@ class _CoffeeRingDecoration extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: AppColors.softShadow,
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.20),
+                color: AppColors.secondary.withValues(alpha: 0.72),
                 width: outerStroke,
               ),
             ),
           ),
           Container(
-            width: size * 0.56,
-            height: size * 0.56,
+            width: size * 0.83,
+            height: size * 0.83,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.secondaryDark.withValues(alpha: 0.25),
-                width: size * 0.035,
+                color: AppColors.secondaryDark.withValues(alpha: 0.56),
+                width: size * 0.015,
+              ),
+            ),
+          ),
+          Container(
+            width: size * 0.62,
+            height: size * 0.62,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.secondary.withValues(alpha: 0.46),
+                width: size * 0.012,
+              ),
+            ),
+          ),
+          _bean(
+            alignment: const Alignment(0.44, -0.72),
+            width: size * 0.14,
+            height: size * 0.09,
+            degrees: 20,
+            color: AppColors.primaryLight,
+            seamAlpha: 0.46,
+          ),
+          _bean(
+            alignment: const Alignment(0.48, 0.63),
+            width: size * 0.13,
+            height: size * 0.085,
+            degrees: -24,
+            color: AppColors.secondaryDark,
+            seamAlpha: 0.40,
+          ),
+          _bean(
+            alignment: const Alignment(-0.36, -0.10),
+            width: size * 0.135,
+            height: size * 0.088,
+            degrees: 32,
+            color: AppColors.primary,
+            seamAlpha: 0.52,
+          ),
+          Container(
+            width: size * 0.18,
+            height: size * 0.18,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.surface,
+              border: Border.all(
+                color: AppColors.secondary.withValues(alpha: 0.68),
+                width: size * 0.012,
               ),
             ),
           ),
@@ -631,7 +784,7 @@ class _OnboardingParamStep extends StatelessWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.pageHorizontal,
-            AppSpacing.md,
+            AppSpacing.xs,
             AppSpacing.pageHorizontal,
             AppSpacing.sm,
           ),
@@ -750,7 +903,7 @@ class _StepIndicator extends StatelessWidget {
       children: List.generate(2, (index) {
         final isActive = index == currentStep;
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 280),
           margin: const EdgeInsets.symmetric(horizontal: 4),
           width: isActive ? 18 : 8,
           height: 8,
