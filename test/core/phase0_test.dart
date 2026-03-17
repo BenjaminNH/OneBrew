@@ -11,6 +11,7 @@ import 'package:one_brew/core/utils/date_utils.dart';
 import 'package:one_brew/core/utils/extensions.dart';
 import 'package:one_brew/core/utils/timer_utils.dart';
 import 'package:one_brew/core/widgets/app_card.dart';
+import 'package:one_brew/core/widgets/app_slider.dart';
 import 'package:one_brew/core/widgets/app_timer_display.dart';
 import 'package:one_brew/core/widgets/progressive_expand.dart';
 import 'package:one_brew/shared/helpers/brew_param_defaults.dart';
@@ -54,6 +55,14 @@ void main() {
     test('debossedShadow returns two shadows', () {
       expect(AppColors.debossedShadow.length, equals(2));
     });
+
+    test('primaryOverlay matches design token', () {
+      expect(AppColors.primaryOverlay, equals(const Color(0x266F4E37)));
+    });
+
+    test('secondaryOverlay matches design token', () {
+      expect(AppColors.secondaryOverlay, equals(const Color(0x26D2B48C)));
+    });
   });
 
   // ─────────────────────────────────────────────────────────────
@@ -77,6 +86,10 @@ void main() {
     });
     test('bottomSheetMaxRatio is 0.75', () {
       expect(AppSpacing.bottomSheetMaxRatio, equals(0.75));
+    });
+
+    test('sliderTrackHeight is 6dp', () {
+      expect(AppSpacing.sliderTrackHeight, equals(6.0));
     });
   });
 
@@ -411,6 +424,58 @@ void main() {
       expect(tapped, isTrue);
     });
 
+    testWidgets('press overlay appears on tap down', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(
+            body: AppCard(onTap: () {}, child: const Text('Pressable')),
+          ),
+        ),
+      );
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(AppCard)),
+      );
+      await tester.pump();
+
+      final containerFinder = find.descendant(
+        of: find.byType(AppCard),
+        matching: find.byType(AnimatedContainer),
+      );
+      final container = tester.widget<AnimatedContainer>(containerFinder);
+      final decoration = container.foregroundDecoration as BoxDecoration?;
+      expect(decoration?.color, equals(AppColors.primaryOverlay));
+
+      await gesture.up();
+    });
+
+    testWidgets('press overlay uses dark token in dark theme', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: DarkTheme.dark,
+          home: Scaffold(
+            body: AppCard(onTap: () {}, child: const Text('Dark Pressable')),
+          ),
+        ),
+      );
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byType(AppCard)),
+      );
+      await tester.pump();
+
+      final containerFinder = find.descendant(
+        of: find.byType(AppCard),
+        matching: find.byType(AnimatedContainer),
+      );
+      final container = tester.widget<AnimatedContainer>(containerFinder);
+      final decoration = container.foregroundDecoration as BoxDecoration?;
+      expect(decoration?.color, equals(AppColors.secondaryOverlay));
+
+      await gesture.up();
+    });
+
     testWidgets('AppCardFlat renders child', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -419,6 +484,24 @@ void main() {
         ),
       );
       expect(find.text('Flat Card'), findsOneWidget);
+    });
+  });
+
+  group('AppSlider Widget', () {
+    testWidgets('uses standardized track height and overlay', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: Scaffold(body: AppSlider(value: 0.5, onChanged: (_) {})),
+        ),
+      );
+
+      final sliderTheme = tester.widget<SliderTheme>(find.byType(SliderTheme));
+      expect(
+        sliderTheme.data.trackHeight,
+        equals(AppSpacing.sliderTrackHeight),
+      );
+      expect(sliderTheme.data.overlayColor, equals(AppColors.primaryOverlay));
     });
   });
 
@@ -461,6 +544,21 @@ void main() {
         ),
       );
       expect(find.text('Done ✓'), findsOneWidget);
+    });
+
+    testWidgets('progress bar uses standardized track height', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: const Scaffold(
+            body: AppTimerDisplay(elapsedSeconds: 90, targetSeconds: 180),
+          ),
+        ),
+      );
+      final progress = tester.widget<LinearProgressIndicator>(
+        find.byType(LinearProgressIndicator),
+      );
+      expect(progress.minHeight, equals(AppSpacing.sliderTrackHeight));
     });
   });
 

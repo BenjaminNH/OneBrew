@@ -60,6 +60,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                   'Brew History',
                   style: AppTextStyles.displayMedium.copyWith(
                     color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

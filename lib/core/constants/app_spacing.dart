@@ -114,7 +114,7 @@ abstract final class AppSpacing {
   static const double shadowOffsetMd = 4.0;
 
   /// 阴影偏移量 — 小（芯片、小组件）
-  static const double shadowOffsetSm = 2.0;
+  static const double shadowOffsetSm = 3.0;
 
   /// 阴影模糊半径 — 大
   static const double shadowBlurLg = 12.0;
@@ -123,7 +123,10 @@ abstract final class AppSpacing {
   static const double shadowBlurMd = 8.0;
 
   /// 阴影模糊半径 — 小
-  static const double shadowBlurSm = 4.0;
+  static const double shadowBlurSm = 6.0;
+
+  /// Slider / progress track height
+  static const double sliderTrackHeight = 6.0;
 
   // ─────────────────────────────────────────
   // Icon Sizes

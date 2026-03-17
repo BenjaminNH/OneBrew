@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'app_spacing.dart';
+
 /// OneBrew Color System
 /// Based on Neumorphism / Soft UI design with Coffee & Cream palette
 /// Ref: docs/03_UI_Specification.md § 2.2
@@ -35,6 +37,12 @@ abstract final class AppColors {
 
   /// 次强调色深色变体
   static const Color secondaryDark = Color(0xFFB8966E);
+
+  /// Primary overlay for pressed/drag feedback (15% alpha)
+  static const Color primaryOverlay = Color(0x266F4E37);
+
+  /// Secondary overlay for pressed/drag feedback in dark theme (15% alpha)
+  static const Color secondaryOverlay = Color(0x26D2B48C);
 
   // ─────────────────────────────────────────
   // Text Colors
@@ -88,14 +96,14 @@ abstract final class AppColors {
   static List<BoxShadow> get elevatedShadow => [
     BoxShadow(
       color: shadowLight,
-      offset: const Offset(-6, -6),
-      blurRadius: 12,
+      offset: const Offset(-AppSpacing.shadowOffsetLg, -AppSpacing.shadowOffsetLg),
+      blurRadius: AppSpacing.shadowBlurLg,
       spreadRadius: 0,
     ),
     BoxShadow(
       color: shadowDark,
-      offset: const Offset(6, 6),
-      blurRadius: 12,
+      offset: const Offset(AppSpacing.shadowOffsetLg, AppSpacing.shadowOffsetLg),
+      blurRadius: AppSpacing.shadowBlurLg,
       spreadRadius: 0,
     ),
   ];
@@ -104,14 +112,14 @@ abstract final class AppColors {
   static List<BoxShadow> get softShadow => [
     BoxShadow(
       color: shadowLight,
-      offset: const Offset(-3, -3),
-      blurRadius: 6,
+      offset: const Offset(-AppSpacing.shadowOffsetSm, -AppSpacing.shadowOffsetSm),
+      blurRadius: AppSpacing.shadowBlurSm,
       spreadRadius: 0,
     ),
     BoxShadow(
       color: shadowDark,
-      offset: const Offset(3, 3),
-      blurRadius: 6,
+      offset: const Offset(AppSpacing.shadowOffsetSm, AppSpacing.shadowOffsetSm),
+      blurRadius: AppSpacing.shadowBlurSm,
       spreadRadius: 0,
     ),
   ];
@@ -120,14 +128,14 @@ abstract final class AppColors {
   static List<BoxShadow> get pressedShadow => [
     BoxShadow(
       color: innerShadowDark.withValues(alpha: 0.7),
-      offset: const Offset(3, 3),
-      blurRadius: 6,
+      offset: const Offset(AppSpacing.shadowOffsetSm, AppSpacing.shadowOffsetSm),
+      blurRadius: AppSpacing.shadowBlurSm,
       spreadRadius: 0,
     ),
     BoxShadow(
       color: shadowLight.withValues(alpha: 0.5),
-      offset: const Offset(-3, -3),
-      blurRadius: 6,
+      offset: const Offset(-AppSpacing.shadowOffsetSm, -AppSpacing.shadowOffsetSm),
+      blurRadius: AppSpacing.shadowBlurSm,
       spreadRadius: 0,
     ),
   ];
@@ -136,14 +144,14 @@ abstract final class AppColors {
   static List<BoxShadow> get debossedShadow => [
     BoxShadow(
       color: shadowDark,
-      offset: const Offset(4, 4),
-      blurRadius: 8,
+      offset: const Offset(AppSpacing.shadowOffsetMd, AppSpacing.shadowOffsetMd),
+      blurRadius: AppSpacing.shadowBlurMd,
       spreadRadius: 0,
     ),
     BoxShadow(
       color: shadowLight,
-      offset: const Offset(-4, -4),
-      blurRadius: 8,
+      offset: const Offset(-AppSpacing.shadowOffsetMd, -AppSpacing.shadowOffsetMd),
+      blurRadius: AppSpacing.shadowBlurMd,
       spreadRadius: 0,
     ),
   ];

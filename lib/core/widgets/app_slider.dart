@@ -38,7 +38,7 @@ class AppSlider extends StatefulWidget {
     this.activeColor,
     this.inactiveColor,
     this.thumbColor,
-    this.trackHeight = 6.0,
+    this.trackHeight = AppSpacing.sliderTrackHeight,
     this.semanticLabel,
   });
 
@@ -117,7 +117,7 @@ class _AppSliderState extends State<AppSlider> {
                 inactiveTrackColor:
                     widget.inactiveColor ?? AppColors.shadowDark,
                 thumbColor: widget.thumbColor ?? AppColors.primary,
-                overlayColor: AppColors.primary.withValues(alpha: 0.15),
+                overlayColor: AppColors.primaryOverlay,
                 trackHeight: widget.trackHeight,
                 thumbShape: _NeumorphicThumbShape(
                   isDragging: _isDragging,
@@ -200,18 +200,28 @@ class _NeumorphicThumbShape extends SliderComponentShape {
     required Size sizeWithOverflow,
   }) {
     final canvas = context.canvas;
+    final shadowOffset = AppSpacing.shadowOffsetSm;
+    final shadowBlur = AppSpacing.shadowBlurSm;
 
     // Outer shadow (soft embossed disc)
     final shadowPaint = Paint()
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, shadowBlur);
 
     // Dark shadow (bottom-right)
     shadowPaint.color = AppColors.shadowDark.withValues(alpha: 0.6);
-    canvas.drawCircle(center + const Offset(3, 3), thumbRadius, shadowPaint);
+    canvas.drawCircle(
+      center + Offset(shadowOffset, shadowOffset),
+      thumbRadius,
+      shadowPaint,
+    );
 
     // Light shadow (top-left)
     shadowPaint.color = AppColors.shadowLight.withValues(alpha: 0.9);
-    canvas.drawCircle(center + const Offset(-3, -3), thumbRadius, shadowPaint);
+    canvas.drawCircle(
+      center + Offset(-shadowOffset, -shadowOffset),
+      thumbRadius,
+      shadowPaint,
+    );
 
     // Main disc
     final fillPaint = Paint()
@@ -225,7 +235,7 @@ class _NeumorphicThumbShape extends SliderComponentShape {
         ..color = Colors.white.withValues(alpha: 0.4)
         ..style = PaintingStyle.fill;
       canvas.drawCircle(
-        center + const Offset(-3, -3),
+        center + Offset(-shadowOffset, -shadowOffset),
         thumbRadius * 0.3,
         highlightPaint,
       );

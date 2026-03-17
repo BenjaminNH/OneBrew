@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_durations.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../controllers/rating_controller.dart';
@@ -53,7 +54,7 @@ class _BrewRatingSheetState extends ConsumerState<BrewRatingSheet> {
     });
 
     return AnimatedPadding(
-      duration: const Duration(milliseconds: 150),
+      duration: AppDurations.fast,
       padding: EdgeInsets.only(bottom: keyboardInset),
       child: Container(
         constraints: BoxConstraints(

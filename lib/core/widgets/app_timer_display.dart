@@ -183,7 +183,7 @@ class _TimerProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 6,
+      height: AppSpacing.sliderTrackHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
         boxShadow: AppColors.debossedShadow,
@@ -195,7 +195,7 @@ class _TimerProgressBar extends StatelessWidget {
           value: progress.clamp(0.0, 1.0),
           backgroundColor: Colors.transparent,
           color: isOvertime ? AppColors.error : AppColors.primary,
-          minHeight: 6,
+          minHeight: AppSpacing.sliderTrackHeight,
         ),
       ),
     );

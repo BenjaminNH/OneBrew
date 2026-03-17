@@ -169,7 +169,12 @@ class _Content extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
-                child: Text('Brew Detail', style: AppTextStyles.displayMedium),
+                child: Text(
+                  'Brew Detail',
+                  style: AppTextStyles.displayMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ],
           ),
@@ -218,6 +223,11 @@ class _Content extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   key: const Key('brew-detail-edit-rating'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(
+                      AppSpacing.buttonHeight,
+                    ),
+                  ),
                   onPressed: onEditRating,
                   icon: const Icon(Icons.edit_note_rounded),
                   label: Text(hasRating ? 'Edit Rating' : 'Add Rating'),
@@ -230,8 +240,11 @@ class _Content extends StatelessWidget {
           const SizedBox(height: AppSpacing.xl),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child: FilledButton.icon(
               key: const Key('brew-detail-brew-again'),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(AppSpacing.buttonHeight),
+              ),
               onPressed: onBrewAgain,
               icon: const Icon(Icons.replay_rounded),
               label: const Text('Brew Again'),

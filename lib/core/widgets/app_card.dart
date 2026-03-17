@@ -27,6 +27,7 @@ class AppCard extends StatefulWidget {
     this.shadows,
     this.pressedShadows,
     this.enablePressEffect = true,
+    this.pressOverlayColor,
     this.width,
     this.height,
     this.margin,
@@ -55,6 +56,12 @@ class AppCard extends StatefulWidget {
 
   /// Whether to show the press-in effect on tap (default: true)
   final bool enablePressEffect;
+
+  /// Optional overlay tint while pressed.
+  ///
+  /// Defaults to [AppColors.primaryOverlay] in light theme and
+  /// [AppColors.secondaryOverlay] in dark theme.
+  final Color? pressOverlayColor;
 
   /// Optional explicit width
   final double? width;
@@ -124,6 +131,11 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
     final currentShadows = _isPressed
         ? (widget.pressedShadows ?? AppColors.pressedShadow)
         : (widget.shadows ?? AppColors.elevatedShadow);
+    final overlayColor =
+        widget.pressOverlayColor ??
+        (Theme.of(context).brightness == Brightness.dark
+            ? AppColors.secondaryOverlay
+            : AppColors.primaryOverlay);
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -142,6 +154,13 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
           margin: widget.margin,
           padding:
               widget.padding ?? const EdgeInsets.all(AppSpacing.cardPadding),
+          foregroundDecoration:
+              _isPressed && widget.enablePressEffect && widget.onTap != null
+              ? BoxDecoration(
+                  color: overlayColor,
+                  borderRadius: BorderRadius.circular(radius),
+                )
+              : null,
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(radius),

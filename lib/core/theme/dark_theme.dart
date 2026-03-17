@@ -114,8 +114,8 @@ abstract final class DarkTheme {
         activeTrackColor: AppColors.secondary,
         inactiveTrackColor: Color(0xFF3D2A1E),
         thumbColor: AppColors.secondary,
-        overlayColor: Color(0x29D2B48C),
-        trackHeight: 4.0,
+        overlayColor: AppColors.secondaryOverlay,
+        trackHeight: AppSpacing.sliderTrackHeight,
       ),
 
       // ── NavigationBar ─────────────────────────────

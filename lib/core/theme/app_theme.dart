@@ -155,10 +155,10 @@ abstract final class AppTheme {
         activeTrackColor: AppColors.primary,
         inactiveTrackColor: AppColors.shadowDark,
         thumbColor: AppColors.primary,
-        overlayColor: Color(0x296F4E37),
+        overlayColor: AppColors.primaryOverlay,
         valueIndicatorColor: AppColors.primaryDark,
         valueIndicatorTextStyle: AppTextStyles.labelMedium,
-        trackHeight: 4.0,
+        trackHeight: AppSpacing.sliderTrackHeight,
       ),
 
       // ── Chip ──────────────────────────────────────
