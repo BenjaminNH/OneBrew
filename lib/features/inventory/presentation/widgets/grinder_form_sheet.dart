@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_durations.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../domain/entities/equipment.dart';
 
 const _maxSegments = 1000;
@@ -77,133 +79,160 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final viewInsets = MediaQuery.of(context).viewInsets;
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.pageHorizontal,
-          AppSpacing.lg,
-          AppSpacing.pageHorizontal,
-          viewInsets.bottom + AppSpacing.lg,
+    return AnimatedPadding(
+      duration: AppDurations.fast,
+      padding: EdgeInsets.only(bottom: keyboardInset),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppSpacing.radiusLg),
+          ),
+          boxShadow: AppColors.elevatedShadow,
         ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: AppSpacing.dragHandleWidth,
-                  height: AppSpacing.dragHandleHeight,
-                  decoration: BoxDecoration(
-                    color: AppColors.textDisabled,
-                    borderRadius: BorderRadius.circular(
-                      AppSpacing.radiusCircle,
-                    ),
-                  ),
-                ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppSpacing.radiusLg),
+          ),
+          child: SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.pageHorizontal,
+                AppSpacing.lg,
+                AppSpacing.pageHorizontal,
+                AppSpacing.lg,
               ),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                _isEditing ? 'Edit Grinder' : 'Add Grinder',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextFormField(
-                key: const Key('grinder-form-name'),
-                controller: _nameController,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter grinder name.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      key: const Key('grinder-form-min'),
-                      controller: _minController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: AppSpacing.dragHandleWidth,
+                        height: AppSpacing.dragHandleHeight,
+                        decoration: BoxDecoration(
+                          color: AppColors.textDisabled,
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusCircle,
+                          ),
+                        ),
                       ),
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'Min click'),
-                      validator: _validateMin,
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: TextFormField(
-                      key: const Key('grinder-form-max'),
-                      controller: _maxController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'Max click'),
-                      validator: _validateMax,
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      _isEditing ? 'Edit Grinder' : 'Add Grinder',
+                      style: AppTextStyles.headlineMedium,
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      key: const Key('grinder-form-step'),
-                      controller: _stepController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
+                    const SizedBox(height: AppSpacing.sm),
+                    TextFormField(
+                      key: const Key('grinder-form-name'),
+                      controller: _nameController,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'Step'),
-                      validator: _validateStep,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: TextFormField(
-                      key: const Key('grinder-form-unit'),
-                      controller: _unitController,
-                      textInputAction: TextInputAction.done,
-                      decoration: const InputDecoration(labelText: 'Unit'),
+                      decoration: const InputDecoration(labelText: 'Name'),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Required';
+                          return 'Please enter grinder name.';
                         }
                         return null;
                       },
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
+                    const SizedBox(height: AppSpacing.md),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            key: const Key('grinder-form-min'),
+                            controller: _minController,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: 'Min click',
+                            ),
+                            validator: _validateMin,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: TextFormField(
+                            key: const Key('grinder-form-max'),
+                            controller: _maxController,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: 'Max click',
+                            ),
+                            validator: _validateMax,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _submit,
-                      child: Text(_isEditing ? 'Save' : 'Create'),
+                    const SizedBox(height: AppSpacing.md),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            key: const Key('grinder-form-step'),
+                            controller: _stepController,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: 'Step',
+                            ),
+                            validator: _validateStep,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: TextFormField(
+                            key: const Key('grinder-form-unit'),
+                            controller: _unitController,
+                            textInputAction: TextInputAction.done,
+                            decoration: const InputDecoration(
+                              labelText: 'Unit',
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Required';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: AppSpacing.lg),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Cancel'),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: _submit,
+                            child: Text(_isEditing ? 'Save' : 'Create'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
         ),
       ),

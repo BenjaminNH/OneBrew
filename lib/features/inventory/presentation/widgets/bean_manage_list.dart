@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_durations.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../domain/entities/bean.dart';
@@ -88,6 +90,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
     final result = await showModalBottomSheet<_BeanFormResult>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (_) => _BeanFormSheet(initial: initial),
     );
     if (result == null) return;
@@ -323,87 +326,109 @@ class _BeanFormSheetState extends State<_BeanFormSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final viewInsets = MediaQuery.of(context).viewInsets;
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.pageHorizontal,
-          AppSpacing.lg,
-          AppSpacing.pageHorizontal,
-          viewInsets.bottom + AppSpacing.lg,
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+
+    return AnimatedPadding(
+      duration: AppDurations.fast,
+      padding: EdgeInsets.only(bottom: keyboardInset),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppSpacing.radiusLg),
+          ),
+          boxShadow: AppColors.elevatedShadow,
         ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: AppSpacing.dragHandleWidth,
-                  height: AppSpacing.dragHandleHeight,
-                  decoration: BoxDecoration(
-                    color: AppColors.textDisabled,
-                    borderRadius: BorderRadius.circular(
-                      AppSpacing.radiusCircle,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppSpacing.radiusLg),
+          ),
+          child: SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.pageHorizontal,
+                AppSpacing.lg,
+                AppSpacing.pageHorizontal,
+                AppSpacing.lg,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: AppSpacing.dragHandleWidth,
+                        height: AppSpacing.dragHandleHeight,
+                        decoration: BoxDecoration(
+                          color: AppColors.textDisabled,
+                          borderRadius: BorderRadius.circular(
+                            AppSpacing.radiusCircle,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      _isEditing ? 'Edit Bean' : 'Add Bean',
+                      style: AppTextStyles.headlineMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    TextFormField(
+                      key: const Key('bean-form-name'),
+                      controller: _nameController,
+                      decoration: const InputDecoration(labelText: 'Bean name'),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter bean name.';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    TextFormField(
+                      key: const Key('bean-form-roaster'),
+                      controller: _roasterController,
+                      decoration: const InputDecoration(labelText: 'Roaster'),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    TextFormField(
+                      key: const Key('bean-form-origin'),
+                      controller: _originController,
+                      decoration: const InputDecoration(labelText: 'Origin'),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    TextFormField(
+                      key: const Key('bean-form-roast-level'),
+                      controller: _roastLevelController,
+                      decoration: const InputDecoration(
+                        labelText: 'Roast level',
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Cancel'),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: _submit,
+                            child: Text(_isEditing ? 'Save' : 'Create'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                _isEditing ? 'Edit Bean' : 'Add Bean',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextFormField(
-                key: const Key('bean-form-name'),
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Bean name'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter bean name.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextFormField(
-                key: const Key('bean-form-roaster'),
-                controller: _roasterController,
-                decoration: const InputDecoration(labelText: 'Roaster'),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextFormField(
-                key: const Key('bean-form-origin'),
-                controller: _originController,
-                decoration: const InputDecoration(labelText: 'Origin'),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextFormField(
-                key: const Key('bean-form-roast-level'),
-                controller: _roastLevelController,
-                decoration: const InputDecoration(labelText: 'Roast level'),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _submit,
-                      child: Text(_isEditing ? 'Save' : 'Create'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),

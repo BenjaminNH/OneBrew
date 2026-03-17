@@ -86,6 +86,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
     final result = await showModalBottomSheet<GrinderFormResult>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (_) => GrinderFormSheet(initial: initial),
     );
     if (result == null) return;

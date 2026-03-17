@@ -75,6 +75,7 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                               'Manage',
                               style: AppTextStyles.displayMedium.copyWith(
                                 color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),

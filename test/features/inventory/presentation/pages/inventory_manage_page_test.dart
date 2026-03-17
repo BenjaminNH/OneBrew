@@ -76,4 +76,33 @@ void main() {
       );
     },
   );
+
+  testWidgets('FAB opens bean and grinder forms', (WidgetTester tester) async {
+    final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: InventoryManagePage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('manage-add-fab')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Bean'), findsOneWidget);
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Grinders'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('manage-add-fab')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Grinder'), findsOneWidget);
+  });
 }
