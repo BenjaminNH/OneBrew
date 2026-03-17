@@ -231,88 +231,99 @@ class _BrewParamPreferencesPageState
 
     await showModalBottomSheet<void>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: AppSpacing.pageHorizontal,
-            right: AppSpacing.pageHorizontal,
-            bottom:
-                MediaQuery.of(context).viewInsets.bottom +
-                AppSpacing.pageBottom,
-            top: AppSpacing.pageTop,
-          ),
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('New Parameter', style: AppTextStyles.headlineSmall),
-                  const SizedBox(height: AppSpacing.md),
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Name',
-                      hintText: 'e.g. Flow Rate',
+        final platformView =
+            WidgetsBinding.instance.platformDispatcher.views.first;
+        final keyboardInset =
+            platformView.viewInsets.bottom / platformView.devicePixelRatio;
+        final keyboardBottomGap = keyboardInset > 0
+            ? AppSpacing.sm
+            : AppSpacing.pageBottom;
+        return MediaQuery.removePadding(
+          context: context,
+          removeBottom: true,
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: AppSpacing.pageHorizontal,
+              right: AppSpacing.pageHorizontal,
+              bottom: keyboardInset + keyboardBottomGap,
+              top: AppSpacing.pageTop,
+            ),
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('New Parameter', style: AppTextStyles.headlineSmall),
+                    const SizedBox(height: AppSpacing.md),
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        hintText: 'e.g. Flow Rate',
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text('Type', style: AppTextStyles.labelMedium),
-                  const SizedBox(height: AppSpacing.xs),
-                  Wrap(
-                    spacing: AppSpacing.xs,
-                    children: ParamType.values.map((type) {
-                      final selected = selectedType == type;
-                      return ChoiceChip(
-                        label: Text(
-                          type == ParamType.number ? 'Number' : 'Text',
-                        ),
-                        selected: selected,
-                        onSelected: (_) => setState(() => selectedType = type),
-                        selectedColor: AppColors.primary,
-                        labelStyle: AppTextStyles.labelSmall.copyWith(
-                          color: selected
-                              ? Colors.white
-                              : AppColors.textSecondary,
-                        ),
-                        side: BorderSide(
-                          color: selected
-                              ? AppColors.primary
-                              : AppColors.shadowDark,
-                        ),
-                        backgroundColor: AppColors.background,
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  TextField(
-                    controller: unitController,
-                    decoration: const InputDecoration(
-                      labelText: 'Unit (optional)',
-                      hintText: 'e.g. g, ml, bar',
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await controller.addCustomParam(
-                          method: method,
-                          name: nameController.text,
-                          type: selectedType,
-                          unit: unitController.text,
+                    const SizedBox(height: AppSpacing.md),
+                    Text('Type', style: AppTextStyles.labelMedium),
+                    const SizedBox(height: AppSpacing.xs),
+                    Wrap(
+                      spacing: AppSpacing.xs,
+                      children: ParamType.values.map((type) {
+                        final selected = selectedType == type;
+                        return ChoiceChip(
+                          label: Text(
+                            type == ParamType.number ? 'Number' : 'Text',
+                          ),
+                          selected: selected,
+                          onSelected: (_) =>
+                              setState(() => selectedType = type),
+                          selectedColor: AppColors.primary,
+                          labelStyle: AppTextStyles.labelSmall.copyWith(
+                            color: selected
+                                ? Colors.white
+                                : AppColors.textSecondary,
+                          ),
+                          side: BorderSide(
+                            color: selected
+                                ? AppColors.primary
+                                : AppColors.shadowDark,
+                          ),
+                          backgroundColor: AppColors.background,
                         );
-                        if (context.mounted) Navigator.of(context).pop();
-                      },
-                      child: const Text('Add Parameter'),
+                      }).toList(),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                ],
-              );
-            },
+                    const SizedBox(height: AppSpacing.md),
+                    TextField(
+                      controller: unitController,
+                      decoration: const InputDecoration(
+                        labelText: 'Unit (optional)',
+                        hintText: 'e.g. g, ml, bar',
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await controller.addCustomParam(
+                            method: method,
+                            name: nameController.text,
+                            type: selectedType,
+                            unit: unitController.text,
+                          );
+                          if (context.mounted) Navigator.of(context).pop();
+                        },
+                        child: const Text('Add Parameter'),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
+                );
+              },
+            ),
           ),
         );
       },

@@ -24,54 +24,65 @@ Future<String?> showCustomMethodNameSheet(
 
   return showModalBottomSheet<String>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
     builder: (context) {
-      return Padding(
-        padding: EdgeInsets.only(
-          left: AppSpacing.pageHorizontal,
-          right: AppSpacing.pageHorizontal,
-          bottom:
-              MediaQuery.of(context).viewInsets.bottom + AppSpacing.pageBottom,
-          top: AppSpacing.pageTop,
-        ),
-        child: StatefulBuilder(
-          builder: (context, setState) {
-            final canSubmit = draft.trim().isNotEmpty;
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: AppTextStyles.headlineSmall),
-                const SizedBox(height: AppSpacing.md),
-                TextField(
-                  controller: controller,
-                  decoration: const InputDecoration(
-                    labelText: 'Method name',
-                    hintText: 'e.g. AeroPress',
+      final platformView =
+          WidgetsBinding.instance.platformDispatcher.views.first;
+      final keyboardInset =
+          platformView.viewInsets.bottom / platformView.devicePixelRatio;
+      final keyboardBottomGap = keyboardInset > 0
+          ? AppSpacing.sm
+          : AppSpacing.pageBottom;
+      return MediaQuery.removePadding(
+        context: context,
+        removeBottom: true,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: AppSpacing.pageHorizontal,
+            right: AppSpacing.pageHorizontal,
+            bottom: keyboardInset + keyboardBottomGap,
+            top: AppSpacing.pageTop,
+          ),
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              final canSubmit = draft.trim().isNotEmpty;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTextStyles.headlineSmall),
+                  const SizedBox(height: AppSpacing.md),
+                  TextField(
+                    controller: controller,
+                    decoration: const InputDecoration(
+                      labelText: 'Method name',
+                      hintText: 'e.g. AeroPress',
+                    ),
+                    onChanged: (value) => setState(() => draft = value),
                   ),
-                  onChanged: (value) => setState(() => draft = value),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    ElevatedButton(
-                      onPressed: canSubmit
-                          ? () => Navigator.of(context).pop(draft.trim())
-                          : null,
-                      child: const Text('Save'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
-              ],
-            );
-          },
+                  const SizedBox(height: AppSpacing.lg),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      ElevatedButton(
+                        onPressed: canSubmit
+                            ? () => Navigator.of(context).pop(draft.trim())
+                            : null,
+                        child: const Text('Save'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+              );
+            },
+          ),
         ),
       );
     },
