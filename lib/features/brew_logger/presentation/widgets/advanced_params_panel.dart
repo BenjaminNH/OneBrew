@@ -230,53 +230,51 @@ class _GrindModeSection extends StatelessWidget {
       children: [
         Text('Grind Mode', style: AppTextStyles.labelMedium),
         const SizedBox(height: AppSpacing.xs),
-        // Mode toggle chips
+        // Mode toggle buttons (equal-width, same structure as Brew Method)
         Row(
-          children: GrindMode.values.map((mode) {
-            final selected = state.grindMode == mode;
-            return Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.xs),
-              child: ChoiceChip(
-                label: Text(_grindModeLabel(mode)),
-                selected: selected,
-                onSelected: (_) => ctrl.setGrindMode(mode),
-                selectedColor: AppColors.primary,
-                labelStyle: AppTextStyles.labelSmall.copyWith(
-                  color: selected ? Colors.white : AppColors.textSecondary,
+          children: [
+            for (int index = 0; index < GrindMode.values.length; index++) ...[
+              Expanded(
+                child: _GrindModeOptionButton(
+                  label: _grindModeLabel(GrindMode.values[index]),
+                  selected: state.grindMode == GrindMode.values[index],
+                  onPressed: () => ctrl.setGrindMode(GrindMode.values[index]),
                 ),
-                side: BorderSide(
-                  color: selected ? AppColors.primary : AppColors.shadowDark,
-                ),
-                backgroundColor: AppColors.background,
               ),
-            );
-          }).toList(),
+              if (index < GrindMode.values.length - 1)
+                const SizedBox(width: AppSpacing.xs),
+            ],
+          ],
         ),
         const SizedBox(height: AppSpacing.sm),
 
         // Mode-specific input
         if (state.grindMode == GrindMode.simple) ...[
-          InputDecorator(
-            decoration: _inputDecoration('Coarseness'),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: state.grindSimpleLabel,
-                hint: const Text('Select coarseness'),
-                isExpanded: true,
-                isDense: true,
-                items: _grindSimpleLabels
-                    .map((l) => DropdownMenuItem(value: l, child: Text(l)))
-                    .toList(),
-                onChanged: ctrl.setGrindSimpleLabel,
+          _GrindInputShell(
+            child: InputDecorator(
+              decoration: _inputDecoration('Coarseness'),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: state.grindSimpleLabel,
+                  hint: const Text('Select coarseness'),
+                  isExpanded: true,
+                  isDense: true,
+                  items: _grindSimpleLabels
+                      .map((l) => DropdownMenuItem(value: l, child: Text(l)))
+                      .toList(),
+                  onChanged: ctrl.setGrindSimpleLabel,
+                ),
               ),
             ),
           ),
         ] else if (state.grindMode == GrindMode.pro) ...[
-          TextFormField(
-            initialValue: state.grindMicrons?.toString() ?? '',
-            keyboardType: TextInputType.number,
-            decoration: _inputDecoration('Grind size (μm)'),
-            onChanged: (v) => ctrl.setGrindMicrons(int.tryParse(v)),
+          _GrindInputShell(
+            child: TextFormField(
+              initialValue: state.grindMicrons?.toString() ?? '',
+              keyboardType: TextInputType.number,
+              decoration: _inputDecoration('Grind size (μm)'),
+              onChanged: (v) => ctrl.setGrindMicrons(int.tryParse(v)),
+            ),
           ),
         ],
       ],
@@ -296,12 +294,94 @@ class _GrindModeSection extends StatelessWidget {
 
   InputDecoration _inputDecoration(String label) => InputDecoration(
     labelText: label,
+    labelStyle: AppTextStyles.labelSmall.copyWith(
+      color: AppColors.textSecondary,
+    ),
+    hintStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+      borderSide: BorderSide.none,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+      borderSide: BorderSide.none,
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+      borderSide: BorderSide(
+        color: AppColors.primary.withValues(alpha: 0.65),
+        width: 1.5,
+      ),
     ),
     filled: true,
-    fillColor: AppColors.surface,
+    fillColor: AppColors.background,
   );
+}
+
+class _GrindModeOptionButton extends StatelessWidget {
+  const _GrindModeOptionButton({
+    required this.label,
+    required this.selected,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      height: AppSpacing.buttonSmallHeight,
+      decoration: BoxDecoration(
+        color: selected ? AppColors.primary : AppColors.background,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        border: Border.all(
+          color: selected ? AppColors.primary : AppColors.shadowDark,
+        ),
+        boxShadow: selected ? AppColors.softShadow : const [],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+          onTap: onPressed,
+          child: Center(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.labelSmall.copyWith(
+                color: selected ? Colors.white : AppColors.textSecondary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GrindInputShell extends StatelessWidget {
+  const _GrindInputShell({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        boxShadow: AppColors.debossedShadow,
+      ),
+      child: child,
+    );
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
