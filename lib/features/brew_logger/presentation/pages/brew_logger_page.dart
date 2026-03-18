@@ -74,7 +74,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     final templatesAsync = ref.watch(recentBrewTemplatesProvider);
     final methodConfigsAsync = ref.watch(brewMethodConfigsProvider);
 
-    ref.listen<BrewLoggerState>(brewLoggerControllerProvider, (_, next) {
+    ref.listen<BrewLoggerState>(brewLoggerControllerProvider, (previous, next) {
       if (next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -84,7 +84,9 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
         );
         ref.read(brewLoggerControllerProvider.notifier).clearError();
       }
-      if (next.savedRecordId != null && !next.isSaving) {
+      if (next.savedRecordId != null &&
+          next.savedRecordId != previous?.savedRecordId &&
+          !next.isSaving) {
         _onSaveSuccess(next.savedRecordId!);
       }
     });
@@ -241,10 +243,11 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     await ref
         .read(brewLoggerControllerProvider.notifier)
         .applyTemplate(selected);
+    if (!mounted) return;
+
     ref.read(brewTimerControllerProvider.notifier).reset();
     setState(() => _currentElapsed = 0);
 
-    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Template applied: ${selected.beanName}'),
@@ -273,6 +276,8 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
   }
 
   void _onSaveSuccess(int savedId) {
+    if (!mounted) return;
+
     ref.read(brewTimerControllerProvider.notifier).reset();
     ref.read(brewLoggerControllerProvider.notifier).resetForm();
     setState(() => _currentElapsed = 0);
@@ -284,6 +289,8 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
   }
 
   void _showSaveSuccessSnackBar(int savedId) {
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text(
@@ -291,24 +298,36 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
         ),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+        persist: false,
         action: SnackBarAction(
           label: 'Rate now',
           textColor: Colors.white,
           onPressed: () {
-            _openOptionalRatingSheet(savedId);
+            _openOptionalRatingSheet(
+              rootContext: rootNavigator.context,
+              brewRecordId: savedId,
+            );
           },
         ),
       ),
     );
   }
 
-  Future<void> _openOptionalRatingSheet(int brewRecordId) async {
-    final didSaveRating = await _openRatingSheet(brewRecordId);
-    if (!mounted || didSaveRating != true) {
+  Future<void> _openOptionalRatingSheet({
+    required BuildContext rootContext,
+    required int brewRecordId,
+  }) async {
+    final messenger = ScaffoldMessenger.maybeOf(rootContext);
+    final didSaveRating = await _openRatingSheet(
+      rootContext: rootContext,
+      brewRecordId: brewRecordId,
+    );
+    if (didSaveRating != true || messenger == null) {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    messenger.showSnackBar(
       const SnackBar(
         content: Text('Rating saved!'),
         backgroundColor: AppColors.success,
@@ -317,10 +336,14 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     );
   }
 
-  Future<bool?> _openRatingSheet(int brewRecordId) {
+  Future<bool?> _openRatingSheet({
+    required BuildContext rootContext,
+    required int brewRecordId,
+  }) {
     FocusManager.instance.primaryFocus?.unfocus();
     return showModalBottomSheet<bool>(
-      context: context,
+      context: rootContext,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => BrewRatingSheet(brewRecordId: brewRecordId),
