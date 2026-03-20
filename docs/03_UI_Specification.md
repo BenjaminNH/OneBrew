@@ -1,6 +1,6 @@
 # UI/UX 设计规范 (UI/UX Specification): OneBrew
 
-> **版本 (Version)**: v1.0 · **日期 (Date)**: 2026-03-07 · **状态 (Status)**: 草案 (Draft)
+> **版本 (Version)**: v1.1 · **日期 (Date)**: 2026-03-20 · **状态 (Status)**: 草案 (Draft)
 
 ## 1. 需求理解总结 (Understanding Summary)
 *   **目标产品 (Target Product)**: OneBrew（一款本地优先的手冲咖啡记录 Flutter App）。
@@ -69,7 +69,29 @@
 *   **Brew 页面联动**: 采用分段切换（手冲/意式/自定义），切换后自动应用该方式的参数清单；已填写但非当前方式的值保留但不显示，保存时仅写入当前方式可见参数。
 *   **历史详情**: 仅展示已记录的参数值；历史记录不可变，设置变更不影响已记录内容显示。
 
-### 4.5 默认模板参数清单 (Default Template Parameters)
+### 4.5 Manage 与 History Detail 操作区规范 (Action-Zone Rules)
+*   **Manage 列表与 FAB 的关系**:
+    *   保留单一主 FAB（新增 Bean/Grinder）。
+    *   列表区域应保持“全高可滚动”，禁止通过固定大底部留白永久压缩可视区。
+    *   使用“列表末端动态避让”（`safe area + FAB + margin`）确保最后几项可滚动到 FAB 上方并可点击。
+*   **Manage 顶部按钮顺序**:
+    *   顺序固定为 `debug` → `about` → `preferences`。
+    *   `about` 需展示：作者名、App Version、GitHub 链接（可外部打开）。
+*   **History Detail 底部主操作区**:
+    *   使用固定底部操作区，主操作放在拇指热区，内容区独立滚动。
+    *   主操作组合为：`Share`（次操作） + `Brew Again`（主 CTA）。
+    *   `Delete` 不放在底部主操作区，改为右上角危险操作入口。
+    *   `Delete` 必须二次确认，删除成功后需回刷 History 列表与 Summary。
+*   **History Detail 分享能力（预留）**:
+    *   不放在顶部栏，不要求滚动到底部才可达。
+    *   放入底部固定操作区，与 `Brew Again` 同层，保证单手可触达。
+    *   首期可仅提供占位行为（例如 `Coming soon` 提示），后续再接入系统分享。
+*   **History 页面信息密度控制**:
+    *   `History Summary` 采用单行紧凑统计，不展示 `Top Brews` 区块。
+    *   搜索/筛选区压缩为单行工具条：Bean、评分、日期、清空。
+    *   Bean / 评分 / 日期选择后即时生效，减少额外“搜索”按钮占用。
+
+### 4.6 默认模板参数清单 (Default Template Parameters)
 > **说明**：以下为“常用且不依赖专业仪器”的系统预设参数，默认勾选但可隐藏。`TDS/萃取率`等需折射仪的参数默认不包含，可由用户自定义补充。
 
 #### 4.5.1 手冲（Pour Over）默认参数
@@ -120,3 +142,6 @@
 * **[2026-03-07]** 确定核心交互原则：基于大屏友好的人体工学，操作全部下沉，采用底部弹窗驱动 (Bottom Sheet Driven) 形态。
 * **[2026-03-07]** 确定核心色彩与风格选型：奶油/白灰底色，选定 **轻拟物风格 (Neumorphism)**，配合咖啡色强调色。
 * **[2026-03-11]** 移除“记录模式（极简/详细/专业）”设计，改为仅由“参数清单/可见性”控制记录内容与展示。
+* **[2026-03-20]** 明确 Manage 页 FAB 与列表共存规则：列表全高滚动 + 列表末端动态避让，替代固定大底部留白。
+* **[2026-03-20]** 明确 History Detail 主操作下沉方案：固定底部 `Delete + Brew Again`，并增加常驻可达的分享快捷入口（首期占位）。
+* **[2026-03-20]** 明确 Manage 顶部按钮顺序与 About 信息结构：`debug` → `about` → `preferences`，About 展示作者、版本、GitHub。

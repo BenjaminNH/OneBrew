@@ -605,6 +605,51 @@ flutter test test/features/history/presentation/
 
 ---
 
+## Phase 7F: Manage / History Detail 交互优化与 About 入口
+
+### 范围
+在不改变核心业务流程的前提下，补齐 Manage 与 History Detail 的高频交互体验与可达性：
+- Manage 页：保留新增 FAB，改为“列表全高滚动 + 列表末端动态避让”
+- Manage 顶部按钮顺序调整为：`debug` → `about` → `preferences`
+- About 展示作者、App Version、GitHub 链接（外部打开）
+- History Detail：固定底部 `Delete + Brew Again` 双按钮
+- History Detail：增加常驻可达的分享快捷入口（首期占位，不接真实分享链路）
+
+### 前置依赖
+- Phase 7A（History Detail 页面基础）
+- Phase 7B（Manage 页面基础）
+- Phase 7C（主流程接入与回归）
+- Phase 7E（参数偏好入口整合）
+
+### 交付物
+
+| 文件 | 说明 |
+|---|---|
+| `lib/features/inventory/presentation/pages/inventory_manage_page.dart` | 顶部按钮顺序 + About 入口 |
+| `lib/features/inventory/presentation/widgets/bean_manage_list.dart` | 列表末端动态避让 |
+| `lib/features/inventory/presentation/widgets/grinder_manage_list.dart` | 列表末端动态避让 |
+| `lib/features/history/presentation/pages/brew_detail_page.dart` | 固定底部操作区 + 常驻分享快捷入口 |
+| `test/features/inventory/presentation/pages/inventory_manage_page_test.dart` | Manage 入口与交互覆盖 |
+| `test/features/history/presentation/pages/brew_detail_page_test.dart` | Detail 操作区与分享占位覆盖 |
+| `test/core/database/drift_database_test.dart` | 删除链路安全性覆盖（含参数值依赖） |
+
+### 验收标准
+- [ ] Manage 列表不再依赖固定大底部留白，最后一项可滚动到 FAB 上方并可操作
+- [ ] Manage 顶部按钮顺序为 `debug` → `about` → `preferences`
+- [ ] About 可展示作者、版本与 GitHub，GitHub 可触达外部链接
+- [ ] History Detail 底部固定显示 `Delete + Brew Again`，内容滚动不影响主操作可达
+- [ ] History Detail 分享快捷入口常驻可达，点击有明确占位反馈
+- [ ] 删除 Brew 记录时可安全处理关联参数值，不出现删除失败/残留异常
+
+### 推荐测试
+```bash
+flutter test test/features/inventory/presentation/pages/inventory_manage_page_test.dart
+flutter test test/features/history/presentation/pages/brew_detail_page_test.dart
+flutter test test/core/database/drift_database_test.dart
+```
+
+---
+
 ## 开发会话规划建议
 
 > [!TIP]

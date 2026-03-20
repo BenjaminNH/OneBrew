@@ -1,7 +1,7 @@
 # OneBrew 功能澄清文档（History 详情 + Inventory 管理）
 
-- 文档版本: v1.0
-- 日期: 2026-03-09
+- 文档版本: v1.1
+- 日期: 2026-03-20
 - 状态: 待评审
 - 来源: `docs/CR_2026-03-08_FeatureGap.md` 缺口项澄清（非 CR 时效信息）
 - 关联文档:
@@ -47,14 +47,16 @@
   - 基础信息: 时间、豆子名、烘焙商、产地、烘焙度、冲煮时长
   - 冲煮参数: 粉量、水量、粉水比、水温、闷蒸时间、注水方式、水质、室温
   - 研磨信息: `grindMode` + 对应值（equipment/simple/pro）
-  - 评价信息: quickScore、emoji、acidity/sweetness/bitterness/body、flavorNotes
+- 评价信息: quickScore、emoji、acidity/sweetness/bitterness/body、flavorNotes
   - 元信息: notes、createdAt、updatedAt
 - 提供“再冲一次”操作：回填 Brew 表单，不修改历史记录本身。
+- 提供“删除记录”操作：入口位于详情页右上角，需有二次确认，删除成功后返回 History 列表并刷新 Summary。
+- 提供“分享快捷入口”操作位：位于底部固定操作区，与 `Brew Again` 并列，首期可仅实现占位反馈。
 
 ### 3.4 非范围（Out of Scope）
 - 详情内编辑记录（后续迭代再考虑）
-- 详情内删除记录（后续迭代再考虑）
-- 分享、导出、云同步
+- 分享内容生成与系统分享链路接入（本期仅入口占位）
+- 导出、云同步
 
 ### 3.5 功能需求（FR）
 - `FR-HD-01`：点击 History 记录必须可打开详情。
@@ -65,6 +67,10 @@
   - `simple`: 粗细标签
   - `pro`: 微米值
 - `FR-HD-05`：点击“再冲一次”后，Brew 页参数回填成功，原历史记录不变。
+- `FR-HD-06`：详情页主操作区固定在底部，至少包含 `Share + Brew Again`，不得要求用户滚动到底部才能触达。
+- `FR-HD-07`：点击 `Delete` 必须弹出确认，确认后删除记录成功并返回 History。
+- `FR-HD-08`：分享快捷入口必须位于详情页底部固定操作区（拇指热区），首期点击可显示占位提示。
+- `FR-HD-09`：删除成功后，返回 History 时列表与 Summary 必须同步刷新，不得保留旧统计值。
 
 ### 3.6 非功能需求（NFR）
 - 性能: 本地详情打开目标 < 300ms。
@@ -77,6 +83,9 @@
 - `AC-HD-02`: Given 记录有评分，When 打开详情，Then 快速评分和专业评分均正确展示。
 - `AC-HD-03`: Given 记录无评分，When 打开详情，Then 显示“未评分”占位而非异常。
 - `AC-HD-04`: Given 点击“再冲一次”，When 返回 Brew 页，Then 参数与所选记录一致。
+- `AC-HD-05`: Given 点击删除并确认，When 删除成功，Then 返回 History 且该记录不可再查询。
+- `AC-HD-06`: Given 详情页任意滚动位置，When 观察操作入口，Then 分享快捷入口保持可达。
+- `AC-HD-07`: Given 从 History 进入详情并删除记录，When 返回 History，Then Summary 统计与列表内容同步更新。
 
 ## 4. 功能 B：豆子管理与磨豆器管理
 
@@ -99,7 +108,9 @@
   - 展示 useCount、addedAt
 - 入口要求：
   - Inventory Manage 为底部导航独立页面
-  - 底部导航顺序固定为：Brew -> Manage -> History
+  - 底部导航顺序固定为：Brew -> History -> Manage
+  - 顶部动作按钮顺序：`debug` -> `about` -> `preferences`
+  - `about` 展示作者、App Version、GitHub 链接
 
 ### 4.4 非范围（Out of Scope）
 - Bean 合并（merge duplicates）
@@ -117,6 +128,9 @@
   - `(max-min)/step` 必须处于合理范围（防止极端分段）
 - `FR-IM-06`：删除规则：Bean 删除不应影响历史记录（历史中的 `beanName` 作为快照保留）；Grinder 若有历史引用则软删除（保留历史可见且不清理 `equipmentId`），无历史引用则硬删除
 - `FR-IM-07`：保存后自动补全候选应同会话即时生效。
+- `FR-IM-08`：Manage 列表应保持全高滚动，不得依赖固定大底部空白规避 FAB 遮挡。
+- `FR-IM-09`：列表末端需具备动态避让能力，确保最后一项可滚动到 FAB 上方并可点击。
+- `FR-IM-10`：History 页顶部信息密度需受控，Summary 与筛选区合计不应长期占据首屏一半以上高度。
 
 ### 4.6 非功能需求（NFR）
 - 性能: 500 Beans / 200 Grinders 下首屏加载目标 < 300ms。
@@ -130,6 +144,9 @@
 - `AC-IM-03`: Given Grinder 被历史记录引用，When 删除，Then 删除成功且历史详情仍显示该设备。
 - `AC-IM-04`: Given Bean 重命名成功，When 查看历史详情，Then 相关记录名称一致更新。
 - `AC-IM-05`: Given Grinder 配置非法，When 保存，Then 阻止提交并显示校验错误。
+- `AC-IM-06`: Given 列表滚动到末端，When 接近 FAB 区域，Then 最后一项仍可完整显示并可操作。
+- `AC-IM-07`: Given Manage 顶部按钮，When 展示，Then 顺序为 `debug` -> `about` -> `preferences`。
+- `AC-IM-08`: Given 打开 About，When 内容加载完成，Then 可见作者、版本与 GitHub 链接。
 
 ## 5. 决策记录
 
