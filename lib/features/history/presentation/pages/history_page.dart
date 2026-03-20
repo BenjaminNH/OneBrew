@@ -69,12 +69,9 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.pageHorizontal,
               ),
-              child: BrewStatsHeader(
-                stats: state.stats,
-                topBrews: state.topBrews,
-              ),
+              child: BrewStatsHeader(stats: state.stats),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.xs),
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.pageHorizontal,
@@ -93,7 +90,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                 },
               ),
             ),
-            const SizedBox(height: AppSpacing.sm),
+            const SizedBox(height: AppSpacing.xs),
             Expanded(
               child: Builder(
                 builder: (context) {

@@ -51,6 +51,18 @@ class BrewDetailState {
   }
 }
 
+class DeleteBrewResult {
+  const DeleteBrewResult._({required this.didDelete, this.errorMessage});
+
+  const DeleteBrewResult.success() : this._(didDelete: true);
+
+  const DeleteBrewResult.failure([String? errorMessage])
+    : this._(didDelete: false, errorMessage: errorMessage);
+
+  final bool didDelete;
+  final String? errorMessage;
+}
+
 const _sentinel = Object();
 const Set<String> _durationSemanticParamKeys = {'brewtime', 'extractiontime'};
 
@@ -92,6 +104,23 @@ class BrewDetailController extends Notifier<BrewDetailState> {
         detail: null,
         errorMessage: 'Failed to load brew detail: $e',
       );
+    }
+  }
+
+  Future<DeleteBrewResult> deleteCurrentBrew() async {
+    state = state.copyWith(errorMessage: null);
+    try {
+      final deleted = await ref
+          .read(brewRepositoryProvider)
+          .deleteBrewRecord(brewId);
+      if (deleted > 0) {
+        return const DeleteBrewResult.success();
+      }
+      return const DeleteBrewResult.failure('Failed to delete brew.');
+    } catch (e) {
+      final message = 'Failed to delete brew: $e';
+      state = state.copyWith(errorMessage: message);
+      return DeleteBrewResult.failure(message);
     }
   }
 

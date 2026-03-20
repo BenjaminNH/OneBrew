@@ -12,12 +12,19 @@ import '../../../brew_logger/domain/entities/brew_record.dart';
 import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
 import '../../domain/entities/brew_detail.dart';
 import '../controllers/brew_detail_controller.dart';
+import '../controllers/history_controller.dart';
 
 class BrewDetailPage extends ConsumerWidget {
-  const BrewDetailPage({super.key, required this.brewId, this.onBrewAgain});
+  const BrewDetailPage({
+    super.key,
+    required this.brewId,
+    this.onBrewAgain,
+    this.onDelete,
+  });
 
   final int brewId;
   final VoidCallback? onBrewAgain;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -67,6 +74,10 @@ class BrewDetailPage extends ConsumerWidget {
                   controller: controller,
                 );
               },
+              onDelete: () {
+                _handleDelete(context, ref: ref, controller: controller);
+              },
+              onShare: () => _handleShare(context),
             );
           },
         ),
@@ -101,6 +112,86 @@ class BrewDetailPage extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _handleDelete(
+    BuildContext context, {
+    required WidgetRef ref,
+    required BrewDetailController controller,
+  }) async {
+    if (onDelete != null) {
+      onDelete!.call();
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Brew'),
+        content: const Text(
+          'Delete this brew record? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
+    final deleteResult = await controller.deleteCurrentBrew();
+    if (!context.mounted) {
+      return;
+    }
+    if (!deleteResult.didDelete) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(deleteResult.errorMessage ?? 'Failed to delete brew.'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    await ref.read(historyControllerProvider.notifier).load();
+    if (!context.mounted) {
+      return;
+    }
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Brew deleted.'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go(AppRoutePaths.history);
+  }
+
+  void _handleShare(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Share is coming soon.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 }
 
 class _Content extends StatelessWidget {
@@ -109,12 +200,16 @@ class _Content extends StatelessWidget {
     required this.paramEntries,
     required this.onBrewAgain,
     required this.onEditRating,
+    required this.onDelete,
+    required this.onShare,
   });
 
   final BrewDetail detail;
   final List<BrewParamEntry> paramEntries;
   final VoidCallback onBrewAgain;
   final VoidCallback onEditRating;
+  final VoidCallback onDelete;
+  final VoidCallback onShare;
 
   @override
   Widget build(BuildContext context) {
@@ -151,107 +246,122 @@ class _Content extends StatelessWidget {
       ),
     ];
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.pageHorizontal,
-        AppSpacing.pageTop,
-        AppSpacing.pageHorizontal,
-        AppSpacing.pageBottom,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: () => _handleBackToHistory(context),
-                icon: const Icon(Icons.arrow_back_rounded),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: Text(
-                  'Brew Detail',
-                  style: AppTextStyles.displayMedium.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _SectionCard(title: 'Basic', children: basicRows),
-          const SizedBox(height: AppSpacing.md),
-          if (hasParamEntries) ...[
-            _SectionCard(
-              title: 'Recorded Params',
-              children: paramEntries
-                  .map(
-                    (entry) => _DataRow(label: entry.name, value: entry.value),
-                  )
-                  .toList(),
+    final bottomContentInset =
+        AppSpacing.buttonSmallHeight + AppSpacing.xxxl + AppSpacing.xxl;
+
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.pageHorizontal,
+              AppSpacing.pageTop,
+              AppSpacing.pageHorizontal,
+              bottomContentInset,
             ),
-            if (environmentRows.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.md),
-              _SectionCard(title: 'Environment', children: environmentRows),
-            ],
-          ] else ...[
-            _SectionCard(title: 'Brew Params', children: fallbackParamRows),
-            if (environmentRows.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.md),
-              _SectionCard(title: 'Environment', children: environmentRows),
-            ],
-          ],
-          if (grindRows.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
-            _SectionCard(title: 'Grind', children: grindRows),
-          ],
-          const SizedBox(height: AppSpacing.md),
-          _SectionCard(
-            title: 'Rating',
-            children: [
-              if (hasRating)
-                ...ratingRows
-              else
-                Text(
-                  'No rating recorded yet.',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              const SizedBox(height: AppSpacing.sm),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  key: const Key('brew-detail-edit-rating'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(
-                      AppSpacing.buttonHeight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => _handleBackToHistory(context),
+                      icon: const Icon(Icons.arrow_back_rounded),
                     ),
-                  ),
-                  onPressed: onEditRating,
-                  icon: const Icon(Icons.edit_note_rounded),
-                  label: Text(hasRating ? 'Edit Rating' : 'Add Rating'),
+                    const SizedBox(width: AppSpacing.xs),
+                    Expanded(
+                      child: Text(
+                        'Brew Detail',
+                        style: AppTextStyles.displayMedium.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      key: const Key('brew-detail-delete-icon-button'),
+                      tooltip: 'Delete brew',
+                      onPressed: onDelete,
+                      icon: const Icon(Icons.delete_outline_rounded),
+                      color: AppColors.error,
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          _SectionCard(title: 'Meta', children: metaRows),
-          const SizedBox(height: AppSpacing.xl),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              key: const Key('brew-detail-brew-again'),
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(AppSpacing.buttonHeight),
-              ),
-              onPressed: onBrewAgain,
-              icon: const Icon(Icons.replay_rounded),
-              label: const Text('Brew Again'),
+                const SizedBox(height: AppSpacing.sm),
+                _SectionCard(title: 'Basic', children: basicRows),
+                const SizedBox(height: AppSpacing.md),
+                if (hasParamEntries) ...[
+                  _SectionCard(
+                    title: 'Recorded Params',
+                    children: paramEntries
+                        .map(
+                          (entry) =>
+                              _DataRow(label: entry.name, value: entry.value),
+                        )
+                        .toList(),
+                  ),
+                  if (environmentRows.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    _SectionCard(
+                      title: 'Environment',
+                      children: environmentRows,
+                    ),
+                  ],
+                ] else ...[
+                  _SectionCard(
+                    title: 'Brew Params',
+                    children: fallbackParamRows,
+                  ),
+                  if (environmentRows.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    _SectionCard(
+                      title: 'Environment',
+                      children: environmentRows,
+                    ),
+                  ],
+                ],
+                if (grindRows.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  _SectionCard(title: 'Grind', children: grindRows),
+                ],
+                const SizedBox(height: AppSpacing.md),
+                _SectionCard(
+                  title: 'Rating',
+                  children: [
+                    if (hasRating)
+                      ...ratingRows
+                    else
+                      Text(
+                        'No rating recorded yet.',
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    const SizedBox(height: AppSpacing.sm),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        key: const Key('brew-detail-edit-rating'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(
+                            AppSpacing.buttonHeight,
+                          ),
+                        ),
+                        onPressed: onEditRating,
+                        icon: const Icon(Icons.edit_note_rounded),
+                        label: Text(hasRating ? 'Edit Rating' : 'Add Rating'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _SectionCard(title: 'Meta', children: metaRows),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        _BottomActions(onShare: onShare, onBrewAgain: onBrewAgain),
+      ],
     );
   }
 
@@ -377,6 +487,57 @@ class _Content extends StatelessWidget {
       );
     }
     return rows;
+  }
+}
+
+class _BottomActions extends StatelessWidget {
+  const _BottomActions({required this.onShare, required this.onBrewAgain});
+
+  final VoidCallback onShare;
+  final VoidCallback onBrewAgain;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.pageHorizontal,
+        0,
+        AppSpacing.pageHorizontal,
+        AppSpacing.lg,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: FilledButton.icon(
+              key: const Key('brew-detail-brew-again'),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(
+                  AppSpacing.buttonSmallHeight,
+                ),
+                textStyle: AppTextStyles.buttonSecondary,
+              ),
+              onPressed: onBrewAgain,
+              icon: const Icon(Icons.replay_rounded),
+              label: const Text('Brew Again'),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: OutlinedButton.icon(
+              key: const Key('brew-detail-share-button'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(
+                  AppSpacing.buttonSmallHeight,
+                ),
+              ),
+              onPressed: onShare,
+              icon: const Icon(Icons.ios_share_rounded),
+              label: const Text('Share'),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

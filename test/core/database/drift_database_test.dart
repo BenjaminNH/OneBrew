@@ -11,6 +11,7 @@ import 'package:one_brew/core/database/drift_database.dart';
 ///   - BrewRecord CRUD + stream watch
 ///   - BrewRating CRUD
 ///   - FK relationship: BrewRecord → Equipment, BrewRecord → BrewRating (cascade delete)
+///   - Safe delete cleanup for BrewParamValue dependencies
 ///
 /// Run with:
 ///   flutter test test/core/database/drift_database_test.dart
@@ -366,6 +367,37 @@ void main() {
       expect(definition?.numberMax, 100.0);
       expect(definition?.numberStep, 1.0);
       expect(definition?.numberDefault, 93.0);
+    });
+  });
+
+  group('BrewRecord delete safety', () {
+    test('deleting brew record also removes dependent param values', () async {
+      final brewId = await db.insertBrewRecord(makeBrewCompanion());
+      final paramId = await db.insertBrewParamDefinition(
+        BrewParamDefinitionsCompanion.insert(
+          method: 'pour_over',
+          name: 'Water Temp',
+          type: 'number',
+          unit: const Value('C'),
+          sortOrder: 1,
+        ),
+      );
+
+      await db.insertBrewParamValue(
+        BrewParamValuesCompanion.insert(
+          brewRecordId: brewId,
+          paramId: paramId,
+          valueNumber: const Value(93),
+        ),
+      );
+
+      final beforeDelete = await db.getBrewParamValuesForBrew(brewId);
+      expect(beforeDelete, hasLength(1));
+
+      final deleted = await db.deleteBrewRecord(brewId);
+      expect(deleted, 1);
+      expect(await db.getBrewRecordById(brewId), isNull);
+      expect(await db.getBrewParamValuesForBrew(brewId), isEmpty);
     });
   });
 

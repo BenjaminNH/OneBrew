@@ -507,8 +507,17 @@ class OneBrewDatabase extends _$OneBrewDatabase {
 
   /// Deletes a brew record by [id].
   /// The associated [BrewRatings] row is deleted automatically via FK cascade.
-  Future<int> deleteBrewRecord(int id) =>
-      (delete(brewRecords)..where((r) => r.id.equals(id))).go();
+  ///
+  /// [BrewParamValues] does not currently rely on ON DELETE CASCADE, so its
+  /// dependent rows are removed explicitly in the same transaction.
+  Future<int> deleteBrewRecord(int id) {
+    return transaction(() async {
+      await (delete(
+        brewParamValues,
+      )..where((v) => v.brewRecordId.equals(id))).go();
+      return (delete(brewRecords)..where((r) => r.id.equals(id))).go();
+    });
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // BrewRating queries

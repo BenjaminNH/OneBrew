@@ -10,6 +10,9 @@ import '../../../../core/widgets/app_single_select_field.dart';
 import '../../../inventory/presentation/controllers/inventory_controller.dart';
 import '../../domain/repositories/history_repository.dart';
 
+const _filterControlHeight = 44.0;
+const _filterControlRadius = AppSpacing.radiusSm;
+
 class HistoryFilterBar extends ConsumerStatefulWidget {
   const HistoryFilterBar({
     super.key,
@@ -71,99 +74,110 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
 
   @override
   Widget build(BuildContext context) {
+    final hasActiveFilter =
+        _beanQuery.trim().isNotEmpty ||
+        _minScore != null ||
+        _from != null ||
+        _to != null;
+    final surfaceDecoration = _controlDecoration();
+
     return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: AppSingleSelectField(
-                  key: const Key('history-filter-bean-input'),
-                  value: _beanTags.isEmpty ? null : _beanTags.first,
-                  suggestions: _beanSuggestions,
-                  hintText: 'Bean name',
-                  addActionLabel: 'Use custom text',
-                  dialogTitle: 'Filter by Bean',
-                  dialogHintText: 'Bean name',
-                  dialogConfirmLabel: 'Use text',
+          Expanded(
+            child: AppSingleSelectField(
+              key: const Key('history-filter-bean-input'),
+              value: _beanTags.isEmpty ? null : _beanTags.first,
+              suggestions: _beanSuggestions,
+              hintText: 'Bean',
+              addActionLabel: 'Use custom text',
+              dialogTitle: 'Filter by Bean',
+              dialogHintText: 'Bean name',
+              dialogConfirmLabel: 'Use text',
+              showInlineClearButton: false,
+              minFieldHeight: _filterControlHeight,
+              fieldPadding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm,
+              ),
+              backgroundColor: AppColors.background,
+              border: surfaceDecoration.border,
+              boxShadow: surfaceDecoration.boxShadow,
+              onChanged: (value) {
+                setState(() {
+                  _beanTags = value == null ? const [] : [value];
+                  _beanQuery = value?.trim() ?? '';
+                });
+                _applyFilter();
+              },
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          SizedBox(
+            width: 92,
+            child: DecoratedBox(
+              decoration: surfaceDecoration,
+              child: SizedBox(
+                height: _filterControlHeight,
+                child: DropdownButton<int?>(
+                  key: const Key('history-filter-score-dropdown'),
+                  value: _minScore,
+                  isExpanded: true,
+                  underline: const SizedBox.shrink(),
+                  borderRadius: BorderRadius.circular(_filterControlRadius),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                  ),
+                  icon: const Icon(Icons.expand_more_rounded),
+                  selectedItemBuilder: (context) {
+                    const labels = <String>['All', '≥3', '≥4', '5'];
+                    return labels
+                        .map(
+                          (label) => Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(label, style: AppTextStyles.bodyMedium),
+                          ),
+                        )
+                        .toList(growable: false);
+                  },
+                  hint: Text(
+                    'Score',
+                    style: AppTextStyles.bodySmall.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  items: const [
+                    DropdownMenuItem<int?>(value: null, child: Text('All')),
+                    DropdownMenuItem<int?>(value: 3, child: Text('≥3')),
+                    DropdownMenuItem<int?>(value: 4, child: Text('≥4')),
+                    DropdownMenuItem<int?>(value: 5, child: Text('5')),
+                  ],
                   onChanged: (value) {
-                    setState(() {
-                      _beanTags = value == null ? const [] : [value];
-                      _beanQuery = value?.trim() ?? '';
-                    });
+                    setState(() => _minScore = value);
+                    _applyFilter();
                   },
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.background,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                  ),
-                  child: DropdownButton<int?>(
-                    key: const Key('history-filter-score-dropdown'),
-                    value: _minScore,
-                    isExpanded: true,
-                    underline: const SizedBox.shrink(),
-                    hint: Text('Min ★', style: AppTextStyles.bodySmall),
-                    items: const [
-                      DropdownMenuItem<int?>(value: null, child: Text('All')),
-                      DropdownMenuItem<int?>(value: 3, child: Text('≥3')),
-                      DropdownMenuItem<int?>(value: 4, child: Text('≥4')),
-                      DropdownMenuItem<int?>(value: 5, child: Text('5 only')),
-                    ],
-                    onChanged: (value) => setState(() => _minScore = value),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  key: const Key('history-filter-date-button'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.textPrimary,
-                    side: BorderSide(
-                      color: AppColors.shadowDark.withValues(alpha: 0.8),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                    ),
-                  ),
-                  onPressed: _pickDateRange,
-                  icon: const Icon(Icons.date_range_rounded),
-                  label: Text(
-                    _dateRangeLabel(),
-                    style: AppTextStyles.labelLarge,
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              IconButton.filled(
-                key: const Key('history-filter-apply'),
-                tooltip: 'Search history',
-                onPressed: _applyFilter,
-                icon: const Icon(Icons.search_rounded),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              IconButton(
-                key: const Key('history-filter-clear'),
-                tooltip: 'Clear filters',
-                onPressed: _clear,
-                icon: const Icon(Icons.refresh_rounded),
-              ),
-            ],
+          const SizedBox(width: AppSpacing.xs),
+          _CompactActionButton(
+            key: const Key('history-filter-date-button'),
+            tooltip: _dateRangeLabel(),
+            icon: Icons.date_range_rounded,
+            isActive: _from != null || _to != null,
+            onPressed: _pickDateRange,
           ),
+          if (hasActiveFilter) ...[
+            const SizedBox(width: AppSpacing.xs),
+            _CompactActionButton(
+              key: const Key('history-filter-clear'),
+              tooltip: 'Clear filters',
+              icon: Icons.refresh_rounded,
+              onPressed: _clear,
+            ),
+          ],
         ],
       ),
     );
@@ -196,6 +210,7 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
         59,
       );
     });
+    _applyFilter();
   }
 
   void _applyFilter() {
@@ -228,4 +243,65 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
     });
     widget.onClear();
   }
+}
+
+class _CompactActionButton extends StatelessWidget {
+  const _CompactActionButton({
+    super.key,
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+    this.isActive = false,
+  });
+
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+  final bool isActive;
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = isActive ? Colors.white : AppColors.textPrimary;
+    final decoration = BoxDecoration(
+      color: isActive ? AppColors.primary : AppColors.background,
+      borderRadius: BorderRadius.circular(_filterControlRadius),
+      boxShadow: isActive
+          ? [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.18),
+                offset: const Offset(0, 2),
+                blurRadius: 6,
+              ),
+            ]
+          : AppColors.debossedShadow,
+    );
+
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(_filterControlRadius),
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(_filterControlRadius),
+          child: SizedBox(
+            width: _filterControlHeight,
+            height: _filterControlHeight,
+            child: DecoratedBox(
+              decoration: decoration,
+              child: Icon(icon, size: AppSpacing.iconAction, color: foreground),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+BoxDecoration _controlDecoration() {
+  return BoxDecoration(
+    color: AppColors.background,
+    borderRadius: BorderRadius.circular(_filterControlRadius),
+    boxShadow: AppColors.debossedShadow,
+  );
 }

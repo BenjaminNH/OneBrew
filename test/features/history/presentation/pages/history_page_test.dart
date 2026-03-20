@@ -5,16 +5,25 @@ import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:mockito/mockito.dart';
 import 'package:one_brew/core/database/drift_database.dart';
+import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/history/domain/entities/brew_summary.dart';
 import 'package:one_brew/features/history/domain/repositories/history_repository.dart';
+import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_brew/features/history/presentation/pages/history_page.dart';
 import 'package:one_brew/features/history/history_providers.dart';
+import 'package:one_brew/features/rating/rating_providers.dart';
 import 'package:one_brew/shared/providers/database_providers.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../helpers/fake_brew_param_repository.dart';
 import '../../../../helpers/mock_repositories.mocks.dart';
+import '../../../../helpers/test_fixtures.dart';
 
 void main() {
   late MockHistoryRepository mockHistoryRepo;
+  late MockBrewRepository mockBrewRepo;
+  late MockRatingRepository mockRatingRepo;
+  late FakeBrewParamRepository fakeBrewParamRepo;
 
   final allBrews = <BrewSummary>[
     BrewSummary(
@@ -43,6 +52,10 @@ void main() {
 
   setUp(() {
     mockHistoryRepo = MockHistoryRepository();
+    mockBrewRepo = MockBrewRepository();
+    mockRatingRepo = MockRatingRepository();
+    fakeBrewParamRepo = FakeBrewParamRepository();
+
     when(
       mockHistoryRepo.getAllBrewSummaries(),
     ).thenAnswer((_) async => allBrews);
@@ -57,6 +70,8 @@ void main() {
       if (bean.contains('colombia')) return [allBrews.last];
       return allBrews;
     });
+    when(mockBrewRepo.deleteBrewRecord(any)).thenAnswer((_) async => 1);
+    when(mockRatingRepo.getRatingForBrew(any)).thenAnswer((_) async => null);
   });
 
   Widget createWidget({
@@ -64,7 +79,10 @@ void main() {
     OneBrewDatabase? database,
   }) {
     final overrides = [
+      brewRepositoryProvider.overrideWithValue(mockBrewRepo),
       historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
+      brewParamRepositoryProvider.overrideWithValue(fakeBrewParamRepo),
+      ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
     ];
     if (database != null) {
       overrides.add(databaseProvider.overrideWithValue(database));
@@ -76,6 +94,36 @@ void main() {
     );
   }
 
+  Widget createRouterWidget() {
+    final router = GoRouter(
+      initialLocation: '/history',
+      routes: [
+        GoRoute(
+          path: '/history',
+          builder: (context, state) => const HistoryPage(),
+          routes: [
+            GoRoute(
+              path: ':id',
+              builder: (_, state) => BrewDetailPage(
+                brewId: int.parse(state.pathParameters['id']!),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    return ProviderScope(
+      overrides: [
+        brewRepositoryProvider.overrideWithValue(mockBrewRepo),
+        historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
+        brewParamRepositoryProvider.overrideWithValue(fakeBrewParamRepo),
+        ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
+      ],
+      child: MaterialApp.router(routerConfig: router),
+    );
+  }
+
   group('HistoryPage widget', () {
     testWidgets('renders stats header and brew list', (tester) async {
       await tester.pumpWidget(createWidget());
@@ -83,9 +131,10 @@ void main() {
 
       expect(find.text('Brew History'), findsOneWidget);
       expect(find.byKey(const Key('history-stats-header')), findsOneWidget);
-      expect(find.text('Top Brews (by rating)'), findsOneWidget);
-      expect(find.text('Colombia Huila • Rating 5/5'), findsOneWidget);
-      expect(find.text('Ethiopia Yirgacheffe • Rating 4/5'), findsOneWidget);
+      expect(find.text('Top Brews (by rating)'), findsNothing);
+      expect(find.text('Brews'), findsOneWidget);
+      expect(find.text('Rated'), findsOneWidget);
+      expect(find.text('Avg'), findsOneWidget);
       expect(
         find.byKey(const ValueKey('history-record-card-1')),
         findsOneWidget,
@@ -105,20 +154,12 @@ void main() {
       );
       expect(beanInputFinder, findsOneWidget);
 
-      final applyButton = tester.widget<IconButton>(
-        find.byKey(const Key('history-filter-apply')),
-      );
-      expect((applyButton.icon as Icon).icon, Icons.search_rounded);
-
       await tester.tap(beanInputFinder);
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('single-select-add-new')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField).first, 'Colombia');
       await tester.tap(find.text('Use text'));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key('history-filter-apply')));
       await tester.pumpAndSettle();
 
       expect(
@@ -171,5 +212,79 @@ void main() {
 
       expect(openedId, 1);
     });
+
+    testWidgets(
+      'deleting from detail refreshes history summary and list after returning',
+      (tester) async {
+        var currentBrews = List<BrewSummary>.from(allBrews);
+        when(
+          mockHistoryRepo.getAllBrewSummaries(),
+        ).thenAnswer((_) async => List<BrewSummary>.from(currentBrews));
+        when(
+          mockHistoryRepo.getTopBrews(limit: 5),
+        ).thenAnswer((_) async => List<BrewSummary>.from(currentBrews));
+        when(mockHistoryRepo.filterBrewSummaries(any)).thenAnswer((
+          invocation,
+        ) async {
+          final filter = invocation.positionalArguments.first as BrewFilter;
+          if (filter.isEmpty) {
+            return List<BrewSummary>.from(currentBrews);
+          }
+          final bean = filter.beanName?.toLowerCase() ?? '';
+          return currentBrews
+              .where((brew) => brew.beanName.toLowerCase().contains(bean))
+              .toList();
+        });
+        when(mockHistoryRepo.getBrewDetailById(2)).thenAnswer(
+          (_) async => TestFixtures.brewDetail(
+            id: 2,
+            beanName: 'Colombia Huila',
+            quickScore: 5,
+            emoji: '😍',
+          ),
+        );
+        when(mockBrewRepo.deleteBrewRecord(2)).thenAnswer((_) async {
+          currentBrews = [allBrews.first];
+          return 1;
+        });
+
+        await tester.pumpWidget(createRouterWidget());
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const ValueKey('history-record-card-2')));
+        await tester.pumpAndSettle();
+
+        await tester.tap(
+          find.byKey(const Key('brew-detail-delete-icon-button')),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Delete'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(HistoryPage), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey('history-record-card-1')),
+          findsOneWidget,
+        );
+        expect(
+          find.byKey(const ValueKey('history-record-card-2')),
+          findsNothing,
+        );
+        expect(
+          find.descendant(
+            of: find.byKey(const Key('history-stats-total')),
+            matching: find.text('1'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byKey(const Key('history-stats-rated')),
+            matching: find.text('1'),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
   });
 }

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_value.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
-import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/history/history_providers.dart';
 import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_brew/features/rating/rating_providers.dart';
@@ -17,6 +17,7 @@ import '../../../../helpers/test_fixtures.dart';
 void main() {
   group('BrewDetailPage widget', () {
     late MockHistoryRepository mockHistoryRepo;
+    late MockBrewRepository mockBrewRepo;
     late MockRatingRepository mockRatingRepo;
     late FakeBrewParamRepository fakeBrewParamRepo;
 
@@ -30,6 +31,9 @@ void main() {
         mockHistoryRepo.getTopBrews(limit: anyNamed('limit')),
       ).thenAnswer((_) async => []);
 
+      mockBrewRepo = MockBrewRepository();
+      when(mockBrewRepo.deleteBrewRecord(any)).thenAnswer((_) async => 1);
+
       mockRatingRepo = MockRatingRepository();
       when(mockRatingRepo.getRatingForBrew(any)).thenAnswer((_) async => null);
       when(mockRatingRepo.createRating(any)).thenAnswer((_) async => 1);
@@ -38,15 +42,24 @@ void main() {
       fakeBrewParamRepo = FakeBrewParamRepository();
     });
 
-    Widget createWidget({required int brewId, VoidCallback? onBrewAgain}) {
+    Widget createWidget({
+      required int brewId,
+      VoidCallback? onBrewAgain,
+      VoidCallback? onDelete,
+    }) {
       return ProviderScope(
         overrides: [
+          brewRepositoryProvider.overrideWithValue(mockBrewRepo),
           historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
           brewParamRepositoryProvider.overrideWithValue(fakeBrewParamRepo),
           ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
         ],
         child: MaterialApp(
-          home: BrewDetailPage(brewId: brewId, onBrewAgain: onBrewAgain),
+          home: BrewDetailPage(
+            brewId: brewId,
+            onBrewAgain: onBrewAgain,
+            onDelete: onDelete,
+          ),
         ),
       );
     }
@@ -331,6 +344,53 @@ void main() {
 
       expect(find.text('Rate this brew'), findsOneWidget);
       expect(find.text('Skip for now'), findsOneWidget);
+    });
+
+    testWidgets('renders top delete and bottom actions', (tester) async {
+      final detail = TestFixtures.brewDetail(id: 16, beanName: 'Costa Rica');
+      when(
+        mockHistoryRepo.getBrewDetailById(16),
+      ).thenAnswer((_) async => detail);
+
+      var deleteTapped = false;
+      await tester.pumpWidget(
+        createWidget(
+          brewId: 16,
+          onDelete: () {
+            deleteTapped = true;
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('brew-detail-delete-icon-button')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('brew-detail-brew-again')), findsOneWidget);
+      expect(find.byKey(const Key('brew-detail-share-button')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('brew-detail-delete-icon-button')));
+      await tester.pumpAndSettle();
+
+      expect(deleteTapped, isTrue);
+    });
+
+    testWidgets('share action shows placeholder', (tester) async {
+      final detail = TestFixtures.brewDetail(id: 17, beanName: 'Brazil');
+      when(
+        mockHistoryRepo.getBrewDetailById(17),
+      ).thenAnswer((_) async => detail);
+
+      await tester.pumpWidget(createWidget(brewId: 17));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('brew-detail-share-button')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Share is coming soon.'), findsOneWidget);
     });
   });
 }

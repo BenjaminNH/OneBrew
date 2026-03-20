@@ -27,6 +27,12 @@ class AppSingleSelectField extends StatefulWidget {
     this.dialogHintText = 'Name',
     this.dialogConfirmLabel = 'Add',
     this.leadingIcon = Icons.coffee_rounded,
+    this.showInlineClearButton = true,
+    this.minFieldHeight = kMinInteractiveDimension,
+    this.fieldPadding,
+    this.backgroundColor = AppColors.background,
+    this.border,
+    this.boxShadow,
   });
 
   final String? value;
@@ -43,6 +49,12 @@ class AppSingleSelectField extends StatefulWidget {
   final String dialogHintText;
   final String dialogConfirmLabel;
   final IconData leadingIcon;
+  final bool showInlineClearButton;
+  final double minFieldHeight;
+  final EdgeInsetsGeometry? fieldPadding;
+  final Color backgroundColor;
+  final BoxBorder? border;
+  final List<BoxShadow>? boxShadow;
 
   @override
   State<AppSingleSelectField> createState() => _AppSingleSelectFieldState();
@@ -249,43 +261,49 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
             onTap: _openSelectorSheet,
             borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
             child: Container(
-              constraints: const BoxConstraints(
-                minHeight: kMinInteractiveDimension,
-              ),
+              constraints: BoxConstraints(minHeight: widget.minFieldHeight),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: widget.backgroundColor,
                 borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                boxShadow: AppColors.debossedShadow,
+                border: widget.border,
+                boxShadow: widget.boxShadow ?? AppColors.debossedShadow,
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      value ?? widget.hintText,
-                      style: value == null
-                          ? AppTextStyles.inputHint
-                          : AppTextStyles.inputText,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+              padding:
+                  widget.fieldPadding ??
+                  const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
                   ),
-                  if (value != null && widget.enabled)
-                    IconButton(
-                      icon: const Icon(
-                        Icons.close_rounded,
-                        size: AppSpacing.iconAction,
+              child: IconTheme.merge(
+                data: const IconThemeData(
+                  size: AppSpacing.iconAction,
+                  color: AppColors.textSecondary,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        value ?? widget.hintText,
+                        style: value == null
+                            ? AppTextStyles.inputHint
+                            : AppTextStyles.inputText,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      tooltip: 'Clear selection',
-                      onPressed: () => widget.onChanged(null),
                     ),
-                  const Icon(
-                    Icons.expand_more_rounded,
-                    color: AppColors.textSecondary,
-                  ),
-                ],
+                    if (value != null &&
+                        widget.enabled &&
+                        widget.showInlineClearButton)
+                      InkResponse(
+                        onTap: () => widget.onChanged(null),
+                        radius: AppSpacing.iconAction,
+                        child: const Padding(
+                          padding: EdgeInsets.all(AppSpacing.xxs),
+                          child: Icon(Icons.close_rounded),
+                        ),
+                      ),
+                    const Icon(Icons.expand_more_rounded),
+                  ],
+                ),
               ),
             ),
           ),
