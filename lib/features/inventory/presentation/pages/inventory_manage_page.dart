@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -22,6 +24,12 @@ class InventoryManagePage extends StatefulWidget {
 }
 
 class _InventoryManagePageState extends State<InventoryManagePage> {
+  static const String _authorName = 'BenjaminNH';
+  static final Uri _githubRepoUri = Uri.parse(
+    'https://github.com/BenjaminNH/OneBrew',
+  );
+  static const double _fabSize = 56;
+
   final _beanListController = BeanManageListController();
   final _grinderListController = GrinderManageListController();
 
@@ -40,6 +48,94 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
     _grinderListController.openCreateForm();
   }
 
+  Future<void> _openAboutSheet() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppSpacing.radiusLg),
+        ),
+      ),
+      builder: (sheetContext) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.pageHorizontal,
+            AppSpacing.lg,
+            AppSpacing.pageHorizontal,
+            AppSpacing.xl,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'About OneBrew',
+                style: AppTextStyles.headlineSmall.copyWith(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Author: $_authorName',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) {
+                  final versionLabel = switch (snapshot.connectionState) {
+                    ConnectionState.done when snapshot.hasData =>
+                      'v${snapshot.data!.version} (${snapshot.data!.buildNumber})',
+                    ConnectionState.done => 'Unavailable',
+                    _ => 'Loading...',
+                  };
+                  return Text(
+                    'Version: $versionLabel',
+                    key: const Key('manage-about-version-text'),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  key: const Key('manage-about-github-button'),
+                  onPressed: () => _openGithubRepo(sheetContext),
+                  icon: const Icon(Icons.open_in_new_rounded),
+                  label: const Text('Open GitHub Repository'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openGithubRepo(BuildContext sheetContext) async {
+    final launched = await launchUrl(
+      _githubRepoUri,
+      mode: LaunchMode.externalApplication,
+    );
+    if (launched || !sheetContext.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(sheetContext).showSnackBar(
+      const SnackBar(
+        content: Text('Unable to open GitHub link.'),
+        backgroundColor: AppColors.error,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -47,6 +143,12 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
       child: Builder(
         builder: (context) {
           final tabController = DefaultTabController.of(context);
+          final safeBottom = MediaQuery.paddingOf(context).bottom;
+          final listBottomAvoidance =
+              safeBottom +
+              kFloatingActionButtonMargin +
+              _fabSize +
+              AppSpacing.md;
 
           return AnimatedBuilder(
             animation: tabController,
@@ -88,6 +190,13 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                               icon: const Icon(Icons.bug_report_rounded),
                               color: AppColors.primary,
                             ),
+                          IconButton(
+                            key: const Key('manage-about-icon-button'),
+                            tooltip: 'About',
+                            onPressed: _openAboutSheet,
+                            icon: const Icon(Icons.info_outline_rounded),
+                            color: AppColors.primary,
+                          ),
                           IconButton(
                             key: const Key('manage-preferences-icon-button'),
                             tooltip: 'Record Preferences',
@@ -131,8 +240,14 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                     Expanded(
                       child: TabBarView(
                         children: [
-                          BeanManageList(controller: _beanListController),
-                          GrinderManageList(controller: _grinderListController),
+                          BeanManageList(
+                            controller: _beanListController,
+                            listBottomInset: listBottomAvoidance,
+                          ),
+                          GrinderManageList(
+                            controller: _grinderListController,
+                            listBottomInset: listBottomAvoidance,
+                          ),
                         ],
                       ),
                     ),

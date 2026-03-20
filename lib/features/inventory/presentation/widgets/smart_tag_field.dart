@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_chip_input.dart';
 import '../../../../core/widgets/app_single_select_field.dart';
 import '../controllers/inventory_controller.dart';
@@ -354,6 +355,9 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      textStyle: AppTextStyles.buttonSecondary,
+                    ),
                     onPressed: _submit,
                     child: const Text('Save Grinder'),
                   ),

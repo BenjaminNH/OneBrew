@@ -80,9 +80,7 @@ abstract final class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(AppSpacing.buttonHeight),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          ),
+          shape: const StadiumBorder(),
           elevation: 0,
           textStyle: AppTextStyles.buttonPrimary,
           padding: const EdgeInsets.symmetric(
@@ -92,14 +90,25 @@ abstract final class AppTheme {
         ),
       ),
 
+      // ── FilledButton ─────────────────────────────
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          minimumSize: const Size.fromHeight(AppSpacing.buttonSmallHeight),
+          shape: const StadiumBorder(),
+          elevation: 0,
+          textStyle: AppTextStyles.buttonPrimary,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+        ),
+      ),
+
       // ── OutlinedButton ───────────────────────────
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
           minimumSize: const Size.fromHeight(AppSpacing.buttonSmallHeight),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          ),
+          shape: const StadiumBorder(),
           side: const BorderSide(color: AppColors.primary, width: 1.5),
           textStyle: AppTextStyles.buttonSecondary,
         ),
@@ -109,6 +118,7 @@ abstract final class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
+          shape: const StadiumBorder(),
           textStyle: AppTextStyles.buttonSecondary,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,

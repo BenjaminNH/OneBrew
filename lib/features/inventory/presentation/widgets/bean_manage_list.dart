@@ -37,9 +37,10 @@ class BeanManageListController {
 }
 
 class BeanManageList extends ConsumerStatefulWidget {
-  const BeanManageList({super.key, this.controller});
+  const BeanManageList({super.key, this.controller, this.listBottomInset = 0});
 
   final BeanManageListController? controller;
+  final double listBottomInset;
 
   @override
   ConsumerState<BeanManageList> createState() => _BeanManageListState();
@@ -146,6 +147,9 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
             child: const Text('Cancel'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              textStyle: AppTextStyles.buttonSecondary,
+            ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: const Text('Delete'),
           ),
@@ -184,7 +188,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
         AppSpacing.pageHorizontal,
         0,
         AppSpacing.pageHorizontal,
-        AppSpacing.pageBottom + AppSpacing.huge,
+        AppSpacing.sm,
       ),
       child: Column(
         children: [
@@ -193,7 +197,8 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
             controller: _queryController,
             onChanged: (_) => _reload(),
             decoration: const InputDecoration(
-              labelText: 'Search beans',
+              hintText: 'Search beans',
+              floatingLabelBehavior: FloatingLabelBehavior.never,
               prefixIcon: Icon(Icons.search),
             ),
           ),
@@ -207,6 +212,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
                 ? const Center(child: Text('No beans found.'))
                 : ListView.separated(
                     key: const Key('bean-manage-list'),
+                    padding: EdgeInsets.only(bottom: widget.listBottomInset),
                     itemCount: _beans.length,
                     separatorBuilder: (_, _) =>
                         const SizedBox(height: AppSpacing.cardGap),
@@ -419,6 +425,9 @@ class _BeanFormSheetState extends State<_BeanFormSheet> {
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              textStyle: AppTextStyles.buttonSecondary,
+                            ),
                             onPressed: _submit,
                             child: Text(_isEditing ? 'Save' : 'Create'),
                           ),

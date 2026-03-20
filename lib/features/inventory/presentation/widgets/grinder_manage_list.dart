@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../domain/entities/equipment.dart';
@@ -33,9 +34,14 @@ class GrinderManageListController {
 }
 
 class GrinderManageList extends ConsumerStatefulWidget {
-  const GrinderManageList({super.key, this.controller});
+  const GrinderManageList({
+    super.key,
+    this.controller,
+    this.listBottomInset = 0,
+  });
 
   final GrinderManageListController? controller;
+  final double listBottomInset;
 
   @override
   ConsumerState<GrinderManageList> createState() => _GrinderManageListState();
@@ -145,6 +151,9 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
             child: const Text('Cancel'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              textStyle: AppTextStyles.buttonSecondary,
+            ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: const Text('Delete'),
           ),
@@ -183,7 +192,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
         AppSpacing.pageHorizontal,
         0,
         AppSpacing.pageHorizontal,
-        AppSpacing.pageBottom + AppSpacing.huge,
+        AppSpacing.sm,
       ),
       child: Column(
         children: [
@@ -192,7 +201,8 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
             controller: _queryController,
             onChanged: (_) => _reload(),
             decoration: const InputDecoration(
-              labelText: 'Search grinders',
+              hintText: 'Search grinders',
+              floatingLabelBehavior: FloatingLabelBehavior.never,
               prefixIcon: Icon(Icons.search),
             ),
           ),
@@ -206,6 +216,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
                 ? const Center(child: Text('No grinders found.'))
                 : ListView.separated(
                     key: const Key('grinder-manage-list'),
+                    padding: EdgeInsets.only(bottom: widget.listBottomInset),
                     itemCount: _grinders.length,
                     separatorBuilder: (_, _) =>
                         const SizedBox(height: AppSpacing.cardGap),

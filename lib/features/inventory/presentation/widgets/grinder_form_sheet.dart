@@ -223,6 +223,9 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              textStyle: AppTextStyles.buttonSecondary,
+                            ),
                             onPressed: _submit,
                             child: Text(_isEditing ? 'Save' : 'Create'),
                           ),

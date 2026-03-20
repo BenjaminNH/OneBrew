@@ -33,6 +33,7 @@ void main() {
       find.byKey(const Key('manage-debug-onboarding-button')),
       findsOneWidget,
     );
+    expect(find.byKey(const Key('manage-about-icon-button')), findsOneWidget);
     expect(find.byKey(const Key('manage-add-fab')), findsOneWidget);
     expect(find.byKey(const Key('bean-manage-search-field')), findsOneWidget);
 
@@ -104,5 +105,28 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Add Grinder'), findsOneWidget);
+  });
+
+  testWidgets('About button opens sheet with author and version info', (
+    WidgetTester tester,
+  ) async {
+    final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: InventoryManagePage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('manage-about-icon-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('About OneBrew'), findsOneWidget);
+    expect(find.text('Author: BenjaminNH'), findsOneWidget);
+    expect(find.byKey(const Key('manage-about-version-text')), findsOneWidget);
+    expect(find.byKey(const Key('manage-about-github-button')), findsOneWidget);
   });
 }

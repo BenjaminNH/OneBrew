@@ -85,12 +85,49 @@ abstract final class DarkTheme {
           backgroundColor: AppColors.secondary,
           foregroundColor: _darkBackground,
           minimumSize: const Size.fromHeight(AppSpacing.buttonHeight),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-          ),
+          shape: const StadiumBorder(),
           elevation: 0,
           textStyle: AppTextStyles.buttonPrimary.copyWith(
             color: _darkBackground,
+          ),
+        ),
+      ),
+
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: AppColors.secondary,
+          foregroundColor: _darkBackground,
+          minimumSize: const Size.fromHeight(AppSpacing.buttonSmallHeight),
+          shape: const StadiumBorder(),
+          elevation: 0,
+          textStyle: AppTextStyles.buttonPrimary.copyWith(
+            color: _darkBackground,
+          ),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.secondary,
+          minimumSize: const Size.fromHeight(AppSpacing.buttonSmallHeight),
+          shape: const StadiumBorder(),
+          side: const BorderSide(color: AppColors.secondary, width: 1.5),
+          textStyle: AppTextStyles.buttonSecondary.copyWith(
+            color: AppColors.secondary,
+          ),
+        ),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.secondary,
+          shape: const StadiumBorder(),
+          textStyle: AppTextStyles.buttonSecondary.copyWith(
+            color: AppColors.secondary,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.sm,
           ),
         ),
       ),
