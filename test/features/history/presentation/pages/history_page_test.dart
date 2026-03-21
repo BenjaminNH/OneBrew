@@ -286,5 +286,196 @@ void main() {
         );
       },
     );
+
+    testWidgets('saving rating in detail refreshes stats after returning', (
+      tester,
+    ) async {
+      final unrated = allBrews.first.copyWith(quickScore: null, emoji: null);
+      final rated = allBrews.last;
+      var currentBrews = <BrewSummary>[unrated, rated];
+      var detail = TestFixtures.brewDetail(
+        id: unrated.id,
+        beanName: unrated.beanName,
+        quickScore: null,
+        emoji: null,
+      );
+
+      when(
+        mockHistoryRepo.getAllBrewSummaries(),
+      ).thenAnswer((_) async => List<BrewSummary>.from(currentBrews));
+      when(
+        mockHistoryRepo.getTopBrews(limit: 5),
+      ).thenAnswer((_) async => List<BrewSummary>.from(currentBrews));
+      when(mockHistoryRepo.filterBrewSummaries(any)).thenAnswer((invocation) {
+        final filter = invocation.positionalArguments.first as BrewFilter;
+        if (filter.isEmpty) {
+          return Future.value(List<BrewSummary>.from(currentBrews));
+        }
+        final bean = filter.beanName?.toLowerCase() ?? '';
+        return Future.value(
+          currentBrews
+              .where((brew) => brew.beanName.toLowerCase().contains(bean))
+              .toList(),
+        );
+      });
+      when(
+        mockHistoryRepo.getBrewDetailById(unrated.id),
+      ).thenAnswer((_) async => detail);
+      when(mockRatingRepo.createRating(any)).thenAnswer((_) async {
+        currentBrews = [unrated.copyWith(quickScore: 3), rated];
+        detail = detail.copyWith(quickScore: 3);
+        return 99;
+      });
+
+      await tester.pumpWidget(createRouterWidget());
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('history-stats-rated')),
+          matching: find.text('1'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('history-stats-average')),
+          matching: find.text('5.0'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(
+        find.byKey(ValueKey('history-record-card-${unrated.id}')),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(
+        find.byKey(const Key('brew-detail-edit-rating')),
+      );
+      await tester.tap(find.byKey(const Key('brew-detail-edit-rating')));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Save rating'));
+      await tester.tap(find.text('Save rating'));
+      await tester.pumpAndSettle();
+
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HistoryPage), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('history-stats-rated')),
+          matching: find.text('2'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('history-stats-average')),
+          matching: find.text('4.0'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('editing existing rating refreshes stats after returning', (
+      tester,
+    ) async {
+      var currentBrews = List<BrewSummary>.from(allBrews);
+      var detail = TestFixtures.brewDetail(
+        id: allBrews.first.id,
+        beanName: allBrews.first.beanName,
+        quickScore: allBrews.first.quickScore,
+        emoji: allBrews.first.emoji,
+      );
+      var existingRating = TestFixtures.quickRating(
+        id: 7,
+        brewRecordId: allBrews.first.id,
+        quickScore: 4,
+        emoji: allBrews.first.emoji ?? '🙂',
+      );
+
+      when(
+        mockHistoryRepo.getAllBrewSummaries(),
+      ).thenAnswer((_) async => List<BrewSummary>.from(currentBrews));
+      when(
+        mockHistoryRepo.getTopBrews(limit: 5),
+      ).thenAnswer((_) async => List<BrewSummary>.from(currentBrews));
+      when(mockHistoryRepo.filterBrewSummaries(any)).thenAnswer((invocation) {
+        final filter = invocation.positionalArguments.first as BrewFilter;
+        if (filter.isEmpty) {
+          return Future.value(List<BrewSummary>.from(currentBrews));
+        }
+        final bean = filter.beanName?.toLowerCase() ?? '';
+        return Future.value(
+          currentBrews
+              .where((brew) => brew.beanName.toLowerCase().contains(bean))
+              .toList(),
+        );
+      });
+      when(
+        mockHistoryRepo.getBrewDetailById(allBrews.first.id),
+      ).thenAnswer((_) async => detail);
+      when(
+        mockRatingRepo.getRatingForBrew(allBrews.first.id),
+      ).thenAnswer((_) async => existingRating);
+      when(mockRatingRepo.updateRating(any)).thenAnswer((invocation) async {
+        final updated = invocation.positionalArguments.first;
+        final updatedScore = updated.quickScore as int?;
+        currentBrews = [
+          allBrews.first.copyWith(quickScore: updatedScore),
+          allBrews.last,
+        ];
+        detail = detail.copyWith(quickScore: updatedScore);
+        existingRating = existingRating.copyWith(quickScore: updatedScore);
+        return true;
+      });
+
+      await tester.pumpWidget(createRouterWidget());
+      await tester.pumpAndSettle();
+
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('history-stats-average')),
+          matching: find.text('4.5'),
+        ),
+        findsOneWidget,
+      );
+
+      await tester.tap(
+        find.byKey(ValueKey('history-record-card-${allBrews.first.id}')),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(
+        find.byKey(const Key('brew-detail-edit-rating')),
+      );
+      await tester.tap(find.byKey(const Key('brew-detail-edit-rating')));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('quick-rating-star-2')));
+      await tester.tap(find.byKey(const Key('quick-rating-star-2')));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Save rating'));
+      await tester.tap(find.text('Save rating'));
+      await tester.pumpAndSettle();
+
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+
+      expect(find.byType(HistoryPage), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('history-stats-average')),
+          matching: find.text('3.5'),
+        ),
+        findsOneWidget,
+      );
+      verify(mockRatingRepo.updateRating(any)).called(1);
+      verifyNever(mockRatingRepo.createRating(any));
+    });
   });
 }

@@ -127,12 +127,20 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                       final summary = state.visibleBrews[index];
                       return BrewRecordCard(
                         summary: summary,
-                        onTap: () {
+                        onTap: () async {
                           if (widget.onOpenDetail != null) {
                             widget.onOpenDetail!(summary.id);
                             return;
                           }
-                          context.push(AppRoutePaths.historyDetail(summary.id));
+                          await context.push(
+                            AppRoutePaths.historyDetail(summary.id),
+                          );
+                          if (!mounted) {
+                            return;
+                          }
+                          await ref
+                              .read(historyControllerProvider.notifier)
+                              .load();
                         },
                       );
                     },
