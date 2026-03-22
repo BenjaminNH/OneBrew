@@ -13,6 +13,7 @@ import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
 import '../../domain/entities/brew_detail.dart';
 import '../controllers/brew_detail_controller.dart';
 import '../controllers/history_controller.dart';
+import '../widgets/share_preview_bottom_sheet.dart';
 
 class BrewDetailPage extends ConsumerWidget {
   const BrewDetailPage({
@@ -77,7 +78,11 @@ class BrewDetailPage extends ConsumerWidget {
               onDelete: () {
                 _handleDelete(context, ref: ref, controller: controller);
               },
-              onShare: () => _handleShare(context),
+              onShare: () => showSharePreviewBottomSheet(
+                context,
+                detail: detail,
+                paramEntries: state.paramEntries,
+              ),
             );
           },
         ),
@@ -182,15 +187,6 @@ class BrewDetailPage extends ConsumerWidget {
       return;
     }
     context.go(AppRoutePaths.history);
-  }
-
-  void _handleShare(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Share is coming soon.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 }
 

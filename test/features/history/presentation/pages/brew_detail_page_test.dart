@@ -376,8 +376,23 @@ void main() {
       expect(deleteTapped, isTrue);
     });
 
-    testWidgets('share action shows placeholder', (tester) async {
-      final detail = TestFixtures.brewDetail(id: 17, beanName: 'Brazil');
+    testWidgets('share action opens share preview bottom sheet', (
+      tester,
+    ) async {
+      final detail =
+          TestFixtures.brewDetail(
+            id: 17,
+            beanName: 'Brazil Cerrado',
+            roaster: 'Atelier Roast',
+            quickScore: 5,
+            emoji: '😍',
+          ).copyWith(
+            acidity: null,
+            sweetness: null,
+            bitterness: null,
+            body: null,
+            flavorNotes: 'jasmine, peach, black tea',
+          );
       when(
         mockHistoryRepo.getBrewDetailById(17),
       ).thenAnswer((_) async => detail);
@@ -390,7 +405,172 @@ void main() {
       await tester.tap(find.byKey(const Key('brew-detail-share-button')));
       await tester.pumpAndSettle();
 
-      expect(find.text('Share is coming soon.'), findsOneWidget);
+      expect(
+        find.byKey(const Key('share-preview-bottom-sheet')),
+        findsOneWidget,
+      );
+      expect(find.text('Share your brew'), findsOneWidget);
+      expect(find.text('Save Poster'), findsOneWidget);
+      expect(find.text('BRAZIL CERRADO'), findsNothing);
+      expect(find.textContaining('ATELIER ROAST'), findsWidgets);
+      expect(find.text('Brazil Cerrado'), findsWidgets);
+      expect(find.text('5.0'), findsOneWidget);
+      expect(find.text('/5'), findsOneWidget);
+      expect(find.text('TIME'), findsOneWidget);
+      expect(find.text('POUR'), findsOneWidget);
+    });
+
+    testWidgets('share preview renders detailed rating poster variant', (
+      tester,
+    ) async {
+      final detail =
+          TestFixtures.brewDetail(
+            id: 18,
+            beanName: 'Panama Geisha',
+            roaster: 'Seesaw Coffee',
+          ).copyWith(
+            flavorNotes: 'peach, nutty, black tea',
+            acidity: 4.5,
+            sweetness: 4.0,
+            bitterness: 1.5,
+            body: 3.0,
+          );
+      when(
+        mockHistoryRepo.getBrewDetailById(18),
+      ).thenAnswer((_) async => detail);
+
+      await tester.pumpWidget(createWidget(brewId: 18));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Panama Geisha'), findsWidgets);
+      expect(find.text('ACID 4.5'), findsOneWidget);
+      expect(find.text('SWEET 4.0'), findsOneWidget);
+      expect(find.text('BITTER 1.5'), findsOneWidget);
+      expect(find.text('BODY 3.0'), findsOneWidget);
+      expect(find.textContaining('Peach'), findsOneWidget);
+      expect(find.textContaining('Nutty'), findsOneWidget);
+      expect(find.textContaining('Black Tea'), findsOneWidget);
+      expect(find.text('TIME'), findsOneWidget);
+      expect(find.text('POUR'), findsOneWidget);
+    });
+
+    testWidgets(
+      'share preview fills featured metric row from dynamic metric list',
+      (tester) async {
+        final detail =
+            TestFixtures.brewDetail(
+              id: 19,
+              beanName: 'Colombia Huila',
+              grindMode: GrindMode.simple,
+              grindSimpleLabel: null,
+              quickScore: null,
+              emoji: null,
+            ).copyWith(
+              equipmentId: null,
+              equipmentName: null,
+              pourMethod: null,
+              flavorNotes: null,
+              acidity: null,
+              sweetness: null,
+              bitterness: null,
+              body: null,
+            );
+        when(
+          mockHistoryRepo.getBrewDetailById(19),
+        ).thenAnswer((_) async => detail);
+
+        await tester.pumpWidget(createWidget(brewId: 19));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('DOSE'), findsOneWidget);
+        expect(find.text('YIELD'), findsOneWidget);
+        expect(find.text('TEMP'), findsOneWidget);
+        expect(find.text('TIME'), findsOneWidget);
+        expect(find.text('GRIND'), findsNothing);
+        expect(find.text('POUR'), findsNothing);
+      },
+    );
+
+    testWidgets('share preview shortens distribution/tamping label', (
+      tester,
+    ) async {
+      final detail =
+          TestFixtures.brewDetail(
+            id: 20,
+            beanName: 'El Salvador',
+            quickScore: null,
+            emoji: null,
+          ).copyWith(
+            flavorNotes: null,
+            acidity: null,
+            sweetness: null,
+            bitterness: null,
+            body: null,
+          );
+      when(
+        mockHistoryRepo.getBrewDetailById(20),
+      ).thenAnswer((_) async => detail);
+
+      final paramRepo = FakeBrewParamRepository(
+        definitions: {
+          BrewMethod.pourOver: [
+            const BrewParamDefinition(
+              id: 31,
+              method: BrewMethod.pourOver,
+              name: 'Distribution/tamping',
+              type: ParamType.text,
+              unit: null,
+              isSystem: true,
+              sortOrder: 3,
+            ),
+          ],
+        },
+        valuesByBrew: {
+          20: [
+            const BrewParamValue(
+              id: 1,
+              brewRecordId: 20,
+              paramId: 31,
+              valueText: 'WDT + level tamp',
+            ),
+          ],
+        },
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            brewRepositoryProvider.overrideWithValue(mockBrewRepo),
+            historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
+            brewParamRepositoryProvider.overrideWithValue(paramRepo),
+            ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
+          ],
+          child: const MaterialApp(home: BrewDetailPage(brewId: 20)),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+      await tester.pumpAndSettle();
+
+      final sheet = find.byKey(const Key('share-preview-bottom-sheet'));
+      expect(
+        find.descendant(of: sheet, matching: find.text('DIST/TAMP')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: sheet,
+          matching: find.text('Distribution/tamping'),
+        ),
+        findsNothing,
+      );
     });
   });
 }
