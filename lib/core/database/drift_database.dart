@@ -428,6 +428,20 @@ class OneBrewDatabase extends _$OneBrewDatabase {
     });
   }
 
+  /// Links unassigned brew records to the bean with [beanId] when their
+  /// recorded [beanName] matches case-insensitively.
+  Future<void> linkBeanToMatchingBrews({
+    required int beanId,
+    required String beanName,
+  }) async {
+    await customStatement(
+      'UPDATE brew_records '
+      'SET bean_id = ? '
+      'WHERE bean_id IS NULL AND lower(bean_name) = lower(?)',
+      [beanId, beanName],
+    );
+  }
+
   /// Counts brew records referencing the given bean name (case-insensitive).
   Future<int> countBrewRecordsByBeanName(String beanName) async {
     final row = await customSelect(

@@ -22,6 +22,8 @@ class HistoryPage extends ConsumerStatefulWidget {
 }
 
 class _HistoryPageState extends ConsumerState<HistoryPage> {
+  static const _pageTitle = 'History';
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(historyControllerProvider);
@@ -52,7 +54,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  l10n.historyTitle,
+                  _pageTitle,
                   style: AppTextStyles.displayMedium.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -150,10 +152,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
   }
 }
 
-String _localizeErrorMessage(
-  String message, {
-  required dynamic l10n,
-}) {
+String _localizeErrorMessage(String message, {required dynamic l10n}) {
   final normalized = message.toLowerCase();
   if (normalized.startsWith('failed to load history')) {
     return l10n.historyErrorLoad as String;

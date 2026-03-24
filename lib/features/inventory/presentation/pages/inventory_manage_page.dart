@@ -29,6 +29,7 @@ class InventoryManagePage extends StatefulWidget {
 
 class _InventoryManagePageState extends State<InventoryManagePage> {
   static const String _authorName = 'BenjaminNH';
+  static const String _pageTitle = 'Manage';
   static final Uri _githubRepoUri = Uri.parse(
     'https://github.com/BenjaminNH/OneBrew',
   );
@@ -96,7 +97,8 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                   final versionLabel = switch (snapshot.connectionState) {
                     ConnectionState.done when snapshot.hasData =>
                       'v${snapshot.data!.version} (${snapshot.data!.buildNumber})',
-                    ConnectionState.done => l10n.inventoryAboutVersionUnavailable,
+                    ConnectionState.done =>
+                      l10n.inventoryAboutVersionUnavailable,
                     _ => l10n.inventoryAboutVersionLoading,
                   };
                   return Text(
@@ -247,7 +249,7 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                         children: [
                           Expanded(
                             child: Text(
-                              l10n.navManage,
+                              _pageTitle,
                               style: AppTextStyles.displayMedium.copyWith(
                                 color: AppColors.textPrimary,
                                 fontWeight: FontWeight.w700,
@@ -257,7 +259,8 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                           if (kDebugMode)
                             IconButton(
                               key: const Key('manage-debug-onboarding-button'),
-                              tooltip: l10n.inventoryTooltipDebugRerunOnboarding,
+                              tooltip:
+                                  l10n.inventoryTooltipDebugRerunOnboarding,
                               onPressed: () =>
                                   context.go(AppRoutePaths.onboarding),
                               icon: const Icon(Icons.bug_report_rounded),

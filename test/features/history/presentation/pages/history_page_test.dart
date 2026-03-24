@@ -7,11 +7,13 @@ import 'package:mockito/mockito.dart';
 import 'package:one_brew/core/database/drift_database.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/history/domain/entities/brew_summary.dart';
+import 'package:one_brew/features/history/data/datasources/history_local_datasource.dart';
 import 'package:one_brew/features/history/domain/repositories/history_repository.dart';
 import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_brew/features/history/presentation/pages/history_page.dart';
 import 'package:one_brew/features/history/history_providers.dart';
-import 'package:one_brew/features/inventory/domain/entities/bean.dart' as domain;
+import 'package:one_brew/features/inventory/domain/entities/bean.dart'
+    as domain;
 import 'package:one_brew/features/inventory/presentation/controllers/inventory_controller.dart';
 import 'package:one_brew/features/rating/rating_providers.dart';
 import 'package:one_brew/core/localization/app_locale.dart';
@@ -188,19 +190,21 @@ void main() {
       final existingBean = await db.getBeanById(beanId);
       expect(existingBean, isNotNull);
 
-      await container.read(inventoryControllerProvider.notifier).saveBean(
-        initial: domain.Bean(
-          id: existingBean!.id,
-          name: existingBean.name,
-          roaster: existingBean.roaster,
-          origin: existingBean.origin,
-          roastLevel: existingBean.roastLevel,
-          addedAt: existingBean.addedAt,
-          useCount: existingBean.useCount,
-        ),
-        name: 'Renamed Bean',
-        roaster: 'Roaster B',
-      );
+      await container
+          .read(inventoryControllerProvider.notifier)
+          .saveBean(
+            initial: domain.Bean(
+              id: existingBean!.id,
+              name: existingBean.name,
+              roaster: existingBean.roaster,
+              origin: existingBean.origin,
+              roastLevel: existingBean.roastLevel,
+              addedAt: existingBean.addedAt,
+              useCount: existingBean.useCount,
+            ),
+            name: 'Renamed Bean',
+            roaster: 'Roaster B',
+          );
       await tester.pumpAndSettle();
 
       expect(find.text('Renamed Bean'), findsOneWidget);
@@ -208,11 +212,62 @@ void main() {
       expect(find.text('Original Bean'), findsNothing);
     });
 
+    testWidgets('links unassigned brew records after bean metadata is saved', (
+      tester,
+    ) async {
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final brewId = await db.insertBrewRecord(
+        BrewRecordsCompanion.insert(
+          brewDate: DateTime(2026, 3, 11, 9, 0),
+          beanName: 'Ghost Bean',
+          grindMode: const drift.Value('simple'),
+          grindSimpleLabel: const drift.Value('Medium'),
+          coffeeWeightG: 15,
+          waterWeightG: 225,
+          brewDurationS: 180,
+          createdAt: drift.Value(DateTime(2026, 3, 11, 9, 0)),
+          updatedAt: drift.Value(DateTime(2026, 3, 11, 9, 0)),
+        ),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [databaseProvider.overrideWithValue(db)],
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocaleOption.supportedLocales,
+            locale: Locale('en'),
+            home: HistoryPage(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ghost Bean'), findsOneWidget);
+      expect(find.textContaining('Roast Level:'), findsNothing);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(HistoryPage)),
+      );
+      await container
+          .read(inventoryControllerProvider.notifier)
+          .saveBean(name: 'Ghost Bean', roastLevel: 'Light Roast');
+      await tester.pumpAndSettle();
+
+      final linkedRecord = await db.getBrewRecordById(brewId);
+      expect(linkedRecord?.beanId, isNotNull);
+
+      final detail = await HistoryLocalDatasource(db).getBrewDetailById(brewId);
+      expect(detail?.roastLevel, 'Light Roast');
+    });
+
     testWidgets('renders stats header and brew list', (tester) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Brew History'), findsOneWidget);
+      expect(find.text('History'), findsOneWidget);
       expect(find.byKey(const Key('history-stats-header')), findsOneWidget);
       expect(find.text('Top Brews (by rating)'), findsNothing);
       expect(find.text('Brews'), findsOneWidget);

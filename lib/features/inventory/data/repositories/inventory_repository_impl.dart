@@ -77,7 +77,13 @@ class InventoryRepositoryImpl implements InventoryRepository {
   @override
   Future<int> createBean(domain.Bean bean) async {
     final existing = await _datasource.getBeanByNameIgnoreCase(bean.name);
-    if (existing != null) return existing.id;
+    if (existing != null) {
+      await _datasource.linkBeanToMatchingBrews(
+        beanId: existing.id,
+        beanName: existing.name,
+      );
+      return existing.id;
+    }
 
     final companion = db.BeansCompanion.insert(
       name: bean.name,
@@ -93,12 +99,25 @@ class InventoryRepositoryImpl implements InventoryRepository {
       addedAt: drift.Value(bean.addedAt),
       useCount: drift.Value(bean.useCount),
     );
-    return _datasource.insertBean(companion);
+    final beanId = await _datasource.insertBean(companion);
+    await _datasource.linkBeanToMatchingBrews(
+      beanId: beanId,
+      beanName: bean.name,
+    );
+    return beanId;
   }
 
   @override
   Future<bool> updateBean(domain.Bean bean) async {
-    return _datasource.updateBean(_mapBeanToDb(bean));
+    final didUpdate = await _datasource.updateBean(_mapBeanToDb(bean));
+    if (!didUpdate) {
+      return false;
+    }
+    await _datasource.linkBeanToMatchingBrews(
+      beanId: bean.id,
+      beanName: bean.name,
+    );
+    return true;
   }
 
   @override

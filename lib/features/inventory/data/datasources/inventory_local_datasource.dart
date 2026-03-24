@@ -19,6 +19,10 @@ abstract interface class InventoryLocalDatasource {
     required String newName,
   });
   Future<int> countBrewRecordsByBeanName(String beanName);
+  Future<void> linkBeanToMatchingBrews({
+    required int beanId,
+    required String beanName,
+  });
 
   Future<List<Equipment>> getAllEquipments();
   Future<List<Equipment>> searchEquipments(String query);
@@ -94,6 +98,12 @@ class InventoryLocalDatasourceImpl implements InventoryLocalDatasource {
       _db.countBrewRecordsByBeanName(beanName);
 
   @override
+  Future<void> linkBeanToMatchingBrews({
+    required int beanId,
+    required String beanName,
+  }) => _db.linkBeanToMatchingBrews(beanId: beanId, beanName: beanName);
+
+  @override
   Future<List<Equipment>> getAllEquipments() => _db.getAllEquipments();
 
   @override
@@ -139,9 +149,9 @@ class InventoryLocalDatasourceImpl implements InventoryLocalDatasource {
   Future<Equipment?> getEquipmentByNameIgnoreCase(String name) async {
     final normalized = name.trim().toLowerCase();
     if (normalized.isEmpty) return null;
-    return (_db.select(_db.equipments)
-          ..where((e) => e.name.lower().equals(normalized)))
-        .getSingleOrNull();
+    return (_db.select(
+      _db.equipments,
+    )..where((e) => e.name.lower().equals(normalized))).getSingleOrNull();
   }
 
   @override

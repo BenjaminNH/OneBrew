@@ -5,6 +5,7 @@ import '../../domain/entities/bean.dart';
 import '../../domain/entities/equipment.dart';
 import '../../domain/inventory_exceptions.dart';
 import '../../domain/repositories/inventory_repository.dart';
+import '../../../history/presentation/controllers/brew_detail_controller.dart';
 import '../../../history/presentation/controllers/history_controller.dart';
 import '../../domain/usecases/create_bean.dart';
 import '../../domain/usecases/create_equipment.dart';
@@ -155,6 +156,7 @@ class InventoryController extends AsyncNotifier<void> {
       );
     });
     ref.invalidate(historyControllerProvider);
+    ref.invalidate(brewDetailControllerProvider);
   }
 
   Future<void> deleteBean(int beanId) async {
@@ -162,6 +164,7 @@ class InventoryController extends AsyncNotifier<void> {
       await ref.read(inventoryRepositoryProvider).deleteBean(beanId);
     });
     ref.invalidate(historyControllerProvider);
+    ref.invalidate(brewDetailControllerProvider);
   }
 
   Future<void> saveGrinder({
@@ -237,9 +240,7 @@ class InventoryController extends AsyncNotifier<void> {
     for (final candidate in candidates) {
       if (candidate.name.trim().toLowerCase() != normalized) continue;
       if (editingId != null && candidate.id == editingId) continue;
-      throw const InventoryConflictException(
-        'conflict.grinder_name_exists',
-      );
+      throw const InventoryConflictException('conflict.grinder_name_exists');
     }
   }
 
