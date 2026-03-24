@@ -12,6 +12,9 @@ class BrewParamDefinitions extends Table {
   /// Parameter display name (e.g. "Water Temp").
   TextColumn get name => text()();
 
+  /// Stable semantic key for system params (e.g. "water_temp").
+  TextColumn get paramKey => text().nullable()();
+
   /// Parameter type: 'number' | 'text'.
   TextColumn get type => text()();
 

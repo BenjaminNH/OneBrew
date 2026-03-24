@@ -78,6 +78,16 @@ class BrewParamLocalDatasource {
 
   Future<int> deleteParamValue(int id) => _db.deleteBrewParamValue(id);
 
+  Future<List<String>> getTopTextParamSuggestions({
+    required String method,
+    required String paramKey,
+    int limit = 3,
+  }) => _db.getTopTextParamSuggestions(
+    method: method,
+    paramKey: paramKey,
+    limit: limit,
+  );
+
   Future<bool> isOnboardingCompleted() => _db.isOnboardingCompleted();
 
   Future<void> setOnboardingCompleted(bool completed) =>

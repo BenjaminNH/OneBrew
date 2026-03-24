@@ -7,6 +7,7 @@ import 'package:one_brew/features/brew_logger/data/datasources/brew_param_local_
 import 'package:one_brew/features/brew_logger/data/repositories/brew_param_repository_impl.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_method.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_key.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_value.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_visibility.dart';
 import 'package:one_brew/features/brew_logger/domain/usecases/initialize_default_brew_params.dart';
@@ -189,6 +190,108 @@ void main() {
 
       final deleted = await repository.deleteParamValue(valueId);
       expect(deleted, 1);
+    });
+
+    test('returns top 3 text param suggestions by usage count', () async {
+      Future<int> seedBrew(int id) {
+        return db.insertBrewRecord(
+          BrewRecordsCompanion.insert(
+            brewDate: DateTime(2026, 3, id, 8, 0),
+            beanName: 'Bean $id',
+            grindMode: const Value('simple'),
+            grindSimpleLabel: const Value('Medium'),
+            coffeeWeightG: 15,
+            waterWeightG: 225,
+            brewDurationS: 180,
+            createdAt: Value(DateTime(2026, 3, id, 8, 0)),
+            updatedAt: Value(DateTime(2026, 3, id, 8, 0)),
+          ),
+        );
+      }
+
+      final brew1 = await seedBrew(1);
+      final brew2 = await seedBrew(2);
+      final brew3 = await seedBrew(3);
+      final brew4 = await seedBrew(4);
+      final brew5 = await seedBrew(5);
+
+      final agitationDefId = await repository.createParamDefinition(
+        const BrewParamDefinition(
+          id: 0,
+          method: BrewMethod.pourOver,
+          paramKey: BrewParamKeys.agitation,
+          name: 'Agitation',
+          type: ParamType.text,
+          isSystem: true,
+          sortOrder: 10,
+        ),
+      );
+      final pourMethodDefId = await repository.createParamDefinition(
+        const BrewParamDefinition(
+          id: 0,
+          method: BrewMethod.pourOver,
+          paramKey: BrewParamKeys.pourMethod,
+          name: 'Pour Method',
+          type: ParamType.text,
+          isSystem: true,
+          sortOrder: 11,
+        ),
+      );
+
+      await repository.createParamValue(
+        BrewParamValue(
+          id: 0,
+          brewRecordId: brew1,
+          paramId: agitationDefId,
+          valueText: 'Swirl',
+        ),
+      );
+      await repository.createParamValue(
+        BrewParamValue(
+          id: 0,
+          brewRecordId: brew2,
+          paramId: agitationDefId,
+          valueText: 'Swirl',
+        ),
+      );
+      await repository.createParamValue(
+        BrewParamValue(
+          id: 0,
+          brewRecordId: brew3,
+          paramId: agitationDefId,
+          valueText: 'Stir',
+        ),
+      );
+      await repository.createParamValue(
+        BrewParamValue(
+          id: 0,
+          brewRecordId: brew4,
+          paramId: agitationDefId,
+          valueText: 'Shake',
+        ),
+      );
+      await repository.createParamValue(
+        BrewParamValue(
+          id: 0,
+          brewRecordId: brew5,
+          paramId: agitationDefId,
+          valueText: '  ',
+        ),
+      );
+      await repository.createParamValue(
+        BrewParamValue(
+          id: 0,
+          brewRecordId: brew5,
+          paramId: pourMethodDefId,
+          valueText: 'Center Pour',
+        ),
+      );
+
+      final suggestions = await repository.getTopTextParamSuggestions(
+        method: BrewMethod.pourOver,
+        paramKey: BrewParamKeys.agitation,
+      );
+      expect(suggestions, ['Swirl', 'Shake', 'Stir']);
     });
   });
 

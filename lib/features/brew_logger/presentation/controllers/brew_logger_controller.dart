@@ -4,13 +4,13 @@ import '../../../inventory/inventory_providers.dart';
 import '../../../inventory/domain/entities/equipment.dart';
 import '../../brew_logger_providers.dart';
 import '../../domain/entities/brew_param_definition.dart';
+import '../../domain/entities/brew_param_key.dart';
 import '../../domain/entities/brew_param_value.dart';
 import '../../domain/entities/brew_record.dart';
 import '../../domain/repositories/brew_param_repository.dart';
 import '../../domain/usecases/create_brew_record.dart';
 import '../../domain/usecases/delete_brew_record.dart';
 import '../../domain/usecases/update_brew_record.dart';
-import '../models/brew_param_names.dart';
 import '../../../../shared/helpers/brew_param_defaults.dart';
 
 class BrewParamValueDraft {
@@ -40,6 +40,7 @@ class BrewParamValueDraft {
 class BrewLoggerState {
   const BrewLoggerState({
     this.beanName = '',
+    this.beanId,
     this.equipmentId,
     this.selectedEquipmentName,
     this.brewMethod = BrewMethod.pourOver,
@@ -71,6 +72,7 @@ class BrewLoggerState {
   });
 
   final String beanName;
+  final int? beanId;
   final int? equipmentId;
 
   /// Display name of the selected equipment (for the SmartTagField tags list).
@@ -147,6 +149,7 @@ class BrewLoggerState {
 
   BrewLoggerState copyWith({
     String? beanName,
+    Object? beanId = _sentinel,
     Object? equipmentId = _sentinel,
     Object? selectedEquipmentName = _sentinel,
     BrewMethod? brewMethod,
@@ -177,6 +180,7 @@ class BrewLoggerState {
   }) {
     return BrewLoggerState(
       beanName: beanName ?? this.beanName,
+      beanId: beanId == _sentinel ? this.beanId : beanId as int?,
       equipmentId: equipmentId == _sentinel
           ? this.equipmentId
           : equipmentId as int?,
@@ -262,7 +266,16 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     return const BrewLoggerState();
   }
 
-  void setBeanName(String name) => state = state.copyWith(beanName: name);
+  void setBeanName(String name) {
+    final trimmed = name.trim();
+    final current = state.beanName.trim();
+    final changed = trimmed.toLowerCase() != current.toLowerCase();
+    state = state.copyWith(
+      beanName: name,
+      beanId: changed ? null : state.beanId,
+    );
+  }
+
   void setEquipmentId(int? id) => state = state.copyWith(equipmentId: id);
   void setBrewMethod(BrewMethod method) =>
       state = state.copyWith(brewMethod: method);
@@ -389,26 +402,26 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       state = state.copyWith(grindMicrons: microns);
   void setCoffeeWeight(double grams) {
     final name = state.brewMethod == BrewMethod.espresso
-        ? BrewParamNames.coffeeDose
-        : BrewParamNames.coffeeWeight;
+        ? BrewParamKeys.coffeeDose
+        : BrewParamKeys.coffeeWeight;
     state = state.copyWith(
-      coffeeWeightG: _normalizeTemplateNumber(name: name, value: grams),
+      coffeeWeightG: _normalizeTemplateNumber(paramKey: name, value: grams),
     );
   }
 
   void setWaterWeight(double grams) {
     final name = state.brewMethod == BrewMethod.espresso
-        ? BrewParamNames.yieldAmount
-        : BrewParamNames.waterWeight;
+        ? BrewParamKeys.yieldAmount
+        : BrewParamKeys.waterWeight;
     state = state.copyWith(
-      waterWeightG: _normalizeTemplateNumber(name: name, value: grams),
+      waterWeightG: _normalizeTemplateNumber(paramKey: name, value: grams),
     );
   }
 
   void setWaterTemp(double celsius) {
     state = state.copyWith(
       waterTempC: _normalizeTemplateNumber(
-        name: BrewParamNames.waterTemp,
+        paramKey: BrewParamKeys.waterTemp,
         value: celsius,
       ),
     );
@@ -416,10 +429,10 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
 
   void setBrewDuration(int seconds) {
     final name = state.brewMethod == BrewMethod.espresso
-        ? BrewParamNames.extractionTime
-        : BrewParamNames.brewTime;
+        ? BrewParamKeys.extractionTime
+        : BrewParamKeys.brewTime;
     final normalized = _normalizeTemplateNumber(
-      name: name,
+      paramKey: name,
       value: seconds.toDouble(),
     ).round();
     state = state.copyWith(brewDurationS: normalized);
@@ -431,7 +444,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       return;
     }
     final normalized = _normalizeTemplateNumber(
-      name: BrewParamNames.bloomTime,
+      paramKey: BrewParamKeys.bloomTime,
       value: seconds.toDouble(),
     ).round();
     state = state.copyWith(bloomTimeS: normalized <= 0 ? null : normalized);
@@ -536,6 +549,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
 
     state = state.copyWith(
       beanName: template.beanName,
+      beanId: template.beanId,
       equipmentId: template.equipmentId,
       selectedEquipmentName: selectedEquipmentName,
       brewMethod: template.brewMethod,
@@ -550,28 +564,28 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
           ? _normalizeGrindClickUnit(selectedEquipment.grindClickUnit)
           : null,
       coffeeWeightG: _normalizeTemplateNumber(
-        name: template.brewMethod == BrewMethod.espresso
-            ? BrewParamNames.coffeeDose
-            : BrewParamNames.coffeeWeight,
+        paramKey: template.brewMethod == BrewMethod.espresso
+            ? BrewParamKeys.coffeeDose
+            : BrewParamKeys.coffeeWeight,
         value: template.coffeeWeightG,
       ),
       waterWeightG: _normalizeTemplateNumber(
-        name: template.brewMethod == BrewMethod.espresso
-            ? BrewParamNames.yieldAmount
-            : BrewParamNames.waterWeight,
+        paramKey: template.brewMethod == BrewMethod.espresso
+            ? BrewParamKeys.yieldAmount
+            : BrewParamKeys.waterWeight,
         value: template.waterWeightG,
       ),
       waterTempC: template.waterTempC == null
           ? null
           : _normalizeTemplateNumber(
-              name: BrewParamNames.waterTemp,
+              paramKey: BrewParamKeys.waterTemp,
               value: template.waterTempC!,
             ),
       brewDurationS: template.brewDurationS,
       bloomTimeS: template.bloomTimeS == null
           ? null
           : _normalizeTemplateNumber(
-              name: BrewParamNames.bloomTime,
+              paramKey: BrewParamKeys.bloomTime,
               value: template.bloomTimeS!.toDouble(),
             ).round(),
       pourMethod: template.pourMethod,
@@ -635,10 +649,12 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     state = state.copyWith(isSaving: true, errorMessage: null);
     try {
       final now = DateTime.now();
+      final resolvedBeanId = await _resolveBeanIdForPersist();
       final record = BrewRecord(
         id: 0,
         brewDate: now,
         beanName: state.beanName.trim(),
+        beanId: resolvedBeanId,
         equipmentId: state.equipmentId,
         brewMethod: state.brewMethod,
         grindMode: state.grindMode,
@@ -665,7 +681,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       );
 
       // Increment use counts so autocomplete ranking stays accurate.
-      await _incrementUseCounts();
+      await _incrementUseCounts(beanId: resolvedBeanId);
 
       state = state.copyWith(isSaving: false, savedRecordId: id);
       return id;
@@ -690,11 +706,13 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     state = state.copyWith(isSaving: true, errorMessage: null);
     try {
       final now = DateTime.now();
+      final resolvedBeanId = await _resolveBeanIdForPersist();
       final record = BrewRecord(
         id: existingId,
         // Preserve the original brew date — only override editable fields.
         brewDate: originalBrewDate,
         beanName: state.beanName.trim(),
+        beanId: resolvedBeanId,
         equipmentId: state.equipmentId,
         brewMethod: state.brewMethod,
         grindMode: state.grindMode,
@@ -742,23 +760,34 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
 
   /// Increments use counts after a successful save, keeping the autocomplete
   /// ranking accurate.
-  Future<void> _incrementUseCounts() async {
+  Future<void> _incrementUseCounts({required int? beanId}) async {
     final inventoryRepo = ref.read(inventoryRepositoryProvider);
-    // We don't have a beanId here; the inventory repo uses the name as the
-    // unique lookup key when creating beans, so we search by name first.
-    final beans = await inventoryRepo.searchBeans(state.beanName.trim());
-    final matchedBean = beans.cast<dynamic>().firstWhere(
-      (b) =>
-          (b.name as String).toLowerCase() ==
-          state.beanName.trim().toLowerCase(),
-      orElse: () => null,
-    );
-    if (matchedBean != null) {
-      await inventoryRepo.incrementBeanUseCount(matchedBean.id as int);
+    if (beanId != null) {
+      await inventoryRepo.incrementBeanUseCount(beanId);
     }
     if (state.equipmentId != null) {
       await inventoryRepo.incrementEquipmentUseCount(state.equipmentId!);
     }
+  }
+
+  Future<int?> _resolveBeanIdForPersist() async {
+    if (state.beanId != null) {
+      return state.beanId;
+    }
+
+    final normalizedName = state.beanName.trim();
+    if (normalizedName.isEmpty) {
+      return null;
+    }
+
+    final inventoryRepo = ref.read(inventoryRepositoryProvider);
+    final beans = await inventoryRepo.searchBeans(normalizedName);
+    for (final bean in beans) {
+      if (bean.name.trim().toLowerCase() == normalizedName.toLowerCase()) {
+        return bean.id;
+      }
+    }
+    return null;
   }
 
   Future<void> _persistParamValues({
@@ -796,9 +825,9 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     required int brewRecordId,
     required int elapsedSeconds,
   }) {
-    switch (definition.name) {
-      case BrewParamNames.coffeeWeight:
-      case BrewParamNames.coffeeDose:
+    switch (definition.resolvedParamKey) {
+      case BrewParamKeys.coffeeWeight:
+      case BrewParamKeys.coffeeDose:
         final normalizedCoffee = _normalizeNumberByDefinition(
           definition: definition,
           value: state.coffeeWeightG,
@@ -809,8 +838,8 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
           paramId: definition.id,
           valueNumber: normalizedCoffee,
         );
-      case BrewParamNames.waterWeight:
-      case BrewParamNames.yieldAmount:
+      case BrewParamKeys.waterWeight:
+      case BrewParamKeys.yieldAmount:
         final normalizedWater = _normalizeNumberByDefinition(
           definition: definition,
           value: state.waterWeightG,
@@ -821,7 +850,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
           paramId: definition.id,
           valueNumber: normalizedWater,
         );
-      case BrewParamNames.brewRatio:
+      case BrewParamKeys.brewRatio:
         if (state.coffeeWeightG <= 0) return null;
         final normalizedRatio = _normalizeNumberByDefinition(
           definition: definition,
@@ -833,7 +862,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
           paramId: definition.id,
           valueNumber: normalizedRatio,
         );
-      case BrewParamNames.waterTemp:
+      case BrewParamKeys.waterTemp:
         if (state.waterTempC == null) return null;
         final normalizedTemp = _normalizeNumberByDefinition(
           definition: definition,
@@ -845,8 +874,8 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
           paramId: definition.id,
           valueNumber: normalizedTemp,
         );
-      case BrewParamNames.brewTime:
-      case BrewParamNames.extractionTime:
+      case BrewParamKeys.brewTime:
+      case BrewParamKeys.extractionTime:
         if (elapsedSeconds <= 0) return null;
         final normalizedBrewTime = _normalizeNumberByDefinition(
           definition: definition,
@@ -858,7 +887,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
           paramId: definition.id,
           valueNumber: normalizedBrewTime,
         );
-      case BrewParamNames.bloomTime:
+      case BrewParamKeys.bloomTime:
         if (state.bloomTimeS == null) return null;
         final normalizedBloomTime = _normalizeNumberByDefinition(
           definition: definition,
@@ -870,7 +899,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
           paramId: definition.id,
           valueNumber: normalizedBloomTime,
         );
-      case BrewParamNames.pourMethod:
+      case BrewParamKeys.pourMethod:
         final method = state.pourMethod?.trim();
         if (method == null || method.isEmpty) return null;
         return BrewParamValue(
@@ -879,7 +908,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
           paramId: definition.id,
           valueText: method,
         );
-      case BrewParamNames.grindSize:
+      case BrewParamKeys.grindSize:
         final grindValue = _formatGrindValueForParam();
         if (grindValue == null || grindValue.isEmpty) return null;
         return BrewParamValue(
@@ -918,12 +947,12 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
   }
 
   double _normalizeTemplateNumber({
-    required String name,
+    required String? paramKey,
     required double value,
   }) {
     final range = BrewParamDefaults.numberRangeFor(
       method: state.brewMethod,
-      name: name,
+      paramKey: paramKey,
     );
     if (range == null) return value;
     return range.normalize(value);

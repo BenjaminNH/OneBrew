@@ -11,6 +11,7 @@ import '../../features/brew_logger/data/models/brew_method_config_model.dart';
 import '../../features/brew_logger/data/models/brew_param_definition_model.dart';
 import '../../features/brew_logger/data/models/brew_param_visibility_model.dart';
 import '../../features/brew_logger/data/models/brew_param_value_model.dart';
+import '../../features/brew_logger/domain/entities/brew_param_key.dart';
 import '../../features/inventory/data/models/bean_model.dart';
 import '../../features/inventory/data/models/equipment_model.dart';
 import '../../features/rating/data/models/brew_rating_model.dart';
@@ -32,6 +33,7 @@ LazyDatabase _openConnection() {
 class _SystemParamRangeSeed {
   const _SystemParamRangeSeed({
     required this.method,
+    required this.paramKey,
     required this.name,
     required this.min,
     required this.max,
@@ -40,6 +42,7 @@ class _SystemParamRangeSeed {
   });
 
   final String method;
+  final String paramKey;
   final String name;
   final double min;
   final double max;
@@ -50,6 +53,7 @@ class _SystemParamRangeSeed {
 const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   _SystemParamRangeSeed(
     method: 'pour_over',
+    paramKey: BrewParamKeys.coffeeWeight,
     name: 'Coffee Weight',
     min: 8.0,
     max: 40.0,
@@ -58,6 +62,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'pour_over',
+    paramKey: BrewParamKeys.waterWeight,
     name: 'Water Weight',
     min: 120.0,
     max: 700.0,
@@ -66,6 +71,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'pour_over',
+    paramKey: BrewParamKeys.brewRatio,
     name: 'Brew Ratio',
     min: 10.0,
     max: 22.0,
@@ -74,6 +80,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'pour_over',
+    paramKey: BrewParamKeys.waterTemp,
     name: 'Water Temp',
     min: 80.0,
     max: 100.0,
@@ -82,6 +89,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'pour_over',
+    paramKey: BrewParamKeys.brewTime,
     name: 'Brew Time',
     min: 30.0,
     max: 480.0,
@@ -90,6 +98,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'pour_over',
+    paramKey: BrewParamKeys.bloomTime,
     name: 'Bloom Time',
     min: 0.0,
     max: 90.0,
@@ -98,6 +107,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'pour_over',
+    paramKey: BrewParamKeys.bloomWater,
     name: 'Bloom Water',
     min: 0.0,
     max: 200.0,
@@ -106,6 +116,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'espresso',
+    paramKey: BrewParamKeys.coffeeDose,
     name: 'Coffee Dose',
     min: 12.0,
     max: 24.0,
@@ -114,6 +125,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'espresso',
+    paramKey: BrewParamKeys.yieldAmount,
     name: 'Yield',
     min: 18.0,
     max: 60.0,
@@ -122,6 +134,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'espresso',
+    paramKey: BrewParamKeys.brewRatio,
     name: 'Brew Ratio',
     min: 1.0,
     max: 4.0,
@@ -130,6 +143,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'espresso',
+    paramKey: BrewParamKeys.extractionTime,
     name: 'Extraction Time',
     min: 15.0,
     max: 45.0,
@@ -138,6 +152,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'espresso',
+    paramKey: BrewParamKeys.pressure,
     name: 'Pressure',
     min: 6.0,
     max: 11.0,
@@ -146,6 +161,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'espresso',
+    paramKey: BrewParamKeys.waterTemp,
     name: 'Water Temp',
     min: 85.0,
     max: 98.0,
@@ -154,6 +170,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'espresso',
+    paramKey: BrewParamKeys.preInfusion,
     name: 'Pre-infusion Time',
     min: 0.0,
     max: 20.0,
@@ -162,6 +179,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'custom',
+    paramKey: BrewParamKeys.coffeeWeight,
     name: 'Coffee Weight',
     min: 8.0,
     max: 40.0,
@@ -170,6 +188,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'custom',
+    paramKey: BrewParamKeys.waterWeight,
     name: 'Water Weight',
     min: 120.0,
     max: 700.0,
@@ -178,6 +197,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
   ),
   _SystemParamRangeSeed(
     method: 'custom',
+    paramKey: BrewParamKeys.brewRatio,
     name: 'Brew Ratio',
     min: 8.0,
     max: 24.0,
@@ -219,6 +239,7 @@ const List<_SystemParamRangeSeed> _systemParamRangeSeeds = [
 )
 class OneBrewDatabase extends _$OneBrewDatabase {
   static const String onboardingCompletedSettingKey = 'onboarding_completed';
+  static const String localeOverrideSettingKey = 'locale_override';
 
   /// Creates a database backed by the given [QueryExecutor].
   /// Use the named constructor [OneBrewDatabase.forTesting] for in-memory
@@ -229,7 +250,7 @@ class OneBrewDatabase extends _$OneBrewDatabase {
   OneBrewDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -273,6 +294,17 @@ class OneBrewDatabase extends _$OneBrewDatabase {
       if (from < 6) {
         await m.createTable(appSettings);
       }
+      if (from < 7) {
+        await m.addColumn(appSettings, appSettings.stringValue);
+      }
+      if (from >= 3 && from < 8) {
+        await m.addColumn(brewParamDefinitions, brewParamDefinitions.paramKey);
+        await _backfillSystemParamKeys();
+      }
+      if (from >= 4 && from < 9) {
+        await m.addColumn(brewRecords, brewRecords.beanId);
+        await _backfillBrewRecordBeanIds();
+      }
     },
     beforeOpen: (details) async {
       // Enable foreign-key constraints on every connection.
@@ -297,6 +329,37 @@ class OneBrewDatabase extends _$OneBrewDatabase {
         ],
       );
     }
+  }
+
+  Future<void> _backfillSystemParamKeys() async {
+    for (final seed in _systemParamRangeSeeds) {
+      await customStatement(
+        'UPDATE brew_param_definitions '
+        'SET param_key = ? '
+        'WHERE method = ? AND name = ?',
+        [seed.paramKey, seed.method, seed.name],
+      );
+    }
+
+    await customStatement(
+      'UPDATE brew_param_definitions '
+      'SET param_key = ? || id '
+      'WHERE param_key IS NULL',
+      [BrewParamKeys.customPrefix],
+    );
+  }
+
+  Future<void> _backfillBrewRecordBeanIds() async {
+    await customStatement(
+      'UPDATE brew_records '
+      'SET bean_id = ('
+      '  SELECT beans.id '
+      '  FROM beans '
+      '  WHERE lower(beans.name) = lower(brew_records.bean_name) '
+      '  LIMIT 1'
+      ') '
+      'WHERE bean_id IS NULL',
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -493,6 +556,21 @@ class OneBrewDatabase extends _$OneBrewDatabase {
     brewRecords,
   )..orderBy([(r) => OrderingTerm.desc(r.brewDate)])).watch();
 
+  /// Emits whenever history-relevant joined data changes.
+  ///
+  /// Used to refresh history UI when brew records, ratings, or linked bean
+  /// metadata change while the page remains mounted.
+  Stream<int> watchHistoryRefreshRevision() {
+    final query = select(brewRecords).join([
+      leftOuterJoin(
+        brewRatings,
+        brewRatings.brewRecordId.equalsExp(brewRecords.id),
+      ),
+      leftOuterJoin(beans, beans.id.equalsExp(brewRecords.beanId)),
+    ]);
+    return query.watch().map((rows) => rows.length);
+  }
+
   /// Returns a single brew record by [id], or null if not found.
   Future<BrewRecord?> getBrewRecordById(int id) =>
       (select(brewRecords)..where((r) => r.id.equals(id))).getSingleOrNull();
@@ -648,6 +726,37 @@ class OneBrewDatabase extends _$OneBrewDatabase {
   Future<int> deleteBrewParamValue(int id) =>
       (delete(brewParamValues)..where((v) => v.id.equals(id))).go();
 
+  Future<List<String>> getTopTextParamSuggestions({
+    required String method,
+    required String paramKey,
+    int limit = 3,
+  }) async {
+    final rows = await customSelect(
+      '''
+SELECT TRIM(v.value_text) AS suggestion, COUNT(*) AS use_count, MAX(v.id) AS latest_id
+FROM brew_param_values v
+INNER JOIN brew_param_definitions d ON d.id = v.param_id
+WHERE d.method = ? AND d.param_key = ? AND d.type = 'text'
+  AND v.value_text IS NOT NULL
+  AND TRIM(v.value_text) != ''
+GROUP BY TRIM(v.value_text)
+ORDER BY use_count DESC, latest_id DESC
+LIMIT ?
+''',
+      variables: [
+        Variable.withString(method),
+        Variable.withString(paramKey),
+        Variable.withInt(limit),
+      ],
+      readsFrom: {brewParamValues, brewParamDefinitions},
+    ).get();
+
+    return rows
+        .map((row) => row.read<String>('suggestion').trim())
+        .where((value) => value.isNotEmpty)
+        .toList();
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // App settings queries
   // ─────────────────────────────────────────────────────────────────────────
@@ -665,6 +774,36 @@ class OneBrewDatabase extends _$OneBrewDatabase {
       AppSettingsCompanion(
         key: const Value(onboardingCompletedSettingKey),
         boolValue: Value(completed),
+      ),
+    );
+  }
+
+  Stream<String?> watchLocaleOverrideCode() {
+    return (select(appSettings)
+          ..where((s) => s.key.equals(localeOverrideSettingKey)))
+        .watchSingleOrNull()
+        .map((row) => row?.stringValue);
+  }
+
+  Future<String?> getLocaleOverrideCode() async {
+    final row = await (select(
+      appSettings,
+    )..where((s) => s.key.equals(localeOverrideSettingKey))).getSingleOrNull();
+    return row?.stringValue;
+  }
+
+  Future<void> setLocaleOverrideCode(String? localeCode) async {
+    if (localeCode == null) {
+      await (delete(
+        appSettings,
+      )..where((s) => s.key.equals(localeOverrideSettingKey))).go();
+      return;
+    }
+
+    await into(appSettings).insertOnConflictUpdate(
+      AppSettingsCompanion(
+        key: const Value(localeOverrideSettingKey),
+        stringValue: Value(localeCode),
       ),
     );
   }

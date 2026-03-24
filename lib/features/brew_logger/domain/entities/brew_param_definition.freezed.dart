@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BrewParamDefinition {
 
- int get id; BrewMethod get method; String get name; ParamType get type; String? get unit; double? get numberMin; double? get numberMax; double? get numberStep; double? get numberDefault; bool get isSystem; int get sortOrder;
+ int get id; BrewMethod get method; String? get paramKey; String get name; ParamType get type; String? get unit; double? get numberMin; double? get numberMax; double? get numberStep; double? get numberDefault; bool get isSystem; int get sortOrder;
 /// Create a copy of BrewParamDefinition
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $BrewParamDefinitionCopyWith<BrewParamDefinition> get copyWith => _$BrewParamDef
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrewParamDefinition&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.numberMin, numberMin) || other.numberMin == numberMin)&&(identical(other.numberMax, numberMax) || other.numberMax == numberMax)&&(identical(other.numberStep, numberStep) || other.numberStep == numberStep)&&(identical(other.numberDefault, numberDefault) || other.numberDefault == numberDefault)&&(identical(other.isSystem, isSystem) || other.isSystem == isSystem)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BrewParamDefinition&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.paramKey, paramKey) || other.paramKey == paramKey)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.numberMin, numberMin) || other.numberMin == numberMin)&&(identical(other.numberMax, numberMax) || other.numberMax == numberMax)&&(identical(other.numberStep, numberStep) || other.numberStep == numberStep)&&(identical(other.numberDefault, numberDefault) || other.numberDefault == numberDefault)&&(identical(other.isSystem, isSystem) || other.isSystem == isSystem)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,method,name,type,unit,numberMin,numberMax,numberStep,numberDefault,isSystem,sortOrder);
+int get hashCode => Object.hash(runtimeType,id,method,paramKey,name,type,unit,numberMin,numberMax,numberStep,numberDefault,isSystem,sortOrder);
 
 @override
 String toString() {
-  return 'BrewParamDefinition(id: $id, method: $method, name: $name, type: $type, unit: $unit, numberMin: $numberMin, numberMax: $numberMax, numberStep: $numberStep, numberDefault: $numberDefault, isSystem: $isSystem, sortOrder: $sortOrder)';
+  return 'BrewParamDefinition(id: $id, method: $method, paramKey: $paramKey, name: $name, type: $type, unit: $unit, numberMin: $numberMin, numberMax: $numberMax, numberStep: $numberStep, numberDefault: $numberDefault, isSystem: $isSystem, sortOrder: $sortOrder)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $BrewParamDefinitionCopyWith<$Res>  {
   factory $BrewParamDefinitionCopyWith(BrewParamDefinition value, $Res Function(BrewParamDefinition) _then) = _$BrewParamDefinitionCopyWithImpl;
 @useResult
 $Res call({
- int id, BrewMethod method, String name, ParamType type, String? unit, double? numberMin, double? numberMax, double? numberStep, double? numberDefault, bool isSystem, int sortOrder
+ int id, BrewMethod method, String? paramKey, String name, ParamType type, String? unit, double? numberMin, double? numberMax, double? numberStep, double? numberDefault, bool isSystem, int sortOrder
 });
 
 
@@ -62,11 +62,12 @@ class _$BrewParamDefinitionCopyWithImpl<$Res>
 
 /// Create a copy of BrewParamDefinition
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? method = null,Object? name = null,Object? type = null,Object? unit = freezed,Object? numberMin = freezed,Object? numberMax = freezed,Object? numberStep = freezed,Object? numberDefault = freezed,Object? isSystem = null,Object? sortOrder = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? method = null,Object? paramKey = freezed,Object? name = null,Object? type = null,Object? unit = freezed,Object? numberMin = freezed,Object? numberMax = freezed,Object? numberStep = freezed,Object? numberDefault = freezed,Object? isSystem = null,Object? sortOrder = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
-as BrewMethod,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as BrewMethod,paramKey: freezed == paramKey ? _self.paramKey : paramKey // ignore: cast_nullable_to_non_nullable
+as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ParamType,unit: freezed == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
 as String?,numberMin: freezed == numberMin ? _self.numberMin : numberMin // ignore: cast_nullable_to_non_nullable
@@ -160,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  BrewMethod method,  String name,  ParamType type,  String? unit,  double? numberMin,  double? numberMax,  double? numberStep,  double? numberDefault,  bool isSystem,  int sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  BrewMethod method,  String? paramKey,  String name,  ParamType type,  String? unit,  double? numberMin,  double? numberMax,  double? numberStep,  double? numberDefault,  bool isSystem,  int sortOrder)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BrewParamDefinition() when $default != null:
-return $default(_that.id,_that.method,_that.name,_that.type,_that.unit,_that.numberMin,_that.numberMax,_that.numberStep,_that.numberDefault,_that.isSystem,_that.sortOrder);case _:
+return $default(_that.id,_that.method,_that.paramKey,_that.name,_that.type,_that.unit,_that.numberMin,_that.numberMax,_that.numberStep,_that.numberDefault,_that.isSystem,_that.sortOrder);case _:
   return orElse();
 
 }
@@ -181,10 +182,10 @@ return $default(_that.id,_that.method,_that.name,_that.type,_that.unit,_that.num
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  BrewMethod method,  String name,  ParamType type,  String? unit,  double? numberMin,  double? numberMax,  double? numberStep,  double? numberDefault,  bool isSystem,  int sortOrder)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  BrewMethod method,  String? paramKey,  String name,  ParamType type,  String? unit,  double? numberMin,  double? numberMax,  double? numberStep,  double? numberDefault,  bool isSystem,  int sortOrder)  $default,) {final _that = this;
 switch (_that) {
 case _BrewParamDefinition():
-return $default(_that.id,_that.method,_that.name,_that.type,_that.unit,_that.numberMin,_that.numberMax,_that.numberStep,_that.numberDefault,_that.isSystem,_that.sortOrder);case _:
+return $default(_that.id,_that.method,_that.paramKey,_that.name,_that.type,_that.unit,_that.numberMin,_that.numberMax,_that.numberStep,_that.numberDefault,_that.isSystem,_that.sortOrder);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -201,10 +202,10 @@ return $default(_that.id,_that.method,_that.name,_that.type,_that.unit,_that.num
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  BrewMethod method,  String name,  ParamType type,  String? unit,  double? numberMin,  double? numberMax,  double? numberStep,  double? numberDefault,  bool isSystem,  int sortOrder)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  BrewMethod method,  String? paramKey,  String name,  ParamType type,  String? unit,  double? numberMin,  double? numberMax,  double? numberStep,  double? numberDefault,  bool isSystem,  int sortOrder)?  $default,) {final _that = this;
 switch (_that) {
 case _BrewParamDefinition() when $default != null:
-return $default(_that.id,_that.method,_that.name,_that.type,_that.unit,_that.numberMin,_that.numberMax,_that.numberStep,_that.numberDefault,_that.isSystem,_that.sortOrder);case _:
+return $default(_that.id,_that.method,_that.paramKey,_that.name,_that.type,_that.unit,_that.numberMin,_that.numberMax,_that.numberStep,_that.numberDefault,_that.isSystem,_that.sortOrder);case _:
   return null;
 
 }
@@ -216,11 +217,12 @@ return $default(_that.id,_that.method,_that.name,_that.type,_that.unit,_that.num
 
 
 class _BrewParamDefinition implements BrewParamDefinition {
-  const _BrewParamDefinition({required this.id, required this.method, required this.name, required this.type, this.unit, this.numberMin, this.numberMax, this.numberStep, this.numberDefault, required this.isSystem, required this.sortOrder});
+  const _BrewParamDefinition({required this.id, required this.method, this.paramKey, required this.name, required this.type, this.unit, this.numberMin, this.numberMax, this.numberStep, this.numberDefault, required this.isSystem, required this.sortOrder});
   
 
 @override final  int id;
 @override final  BrewMethod method;
+@override final  String? paramKey;
 @override final  String name;
 @override final  ParamType type;
 @override final  String? unit;
@@ -241,16 +243,16 @@ _$BrewParamDefinitionCopyWith<_BrewParamDefinition> get copyWith => __$BrewParam
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrewParamDefinition&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.numberMin, numberMin) || other.numberMin == numberMin)&&(identical(other.numberMax, numberMax) || other.numberMax == numberMax)&&(identical(other.numberStep, numberStep) || other.numberStep == numberStep)&&(identical(other.numberDefault, numberDefault) || other.numberDefault == numberDefault)&&(identical(other.isSystem, isSystem) || other.isSystem == isSystem)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BrewParamDefinition&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.paramKey, paramKey) || other.paramKey == paramKey)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.unit, unit) || other.unit == unit)&&(identical(other.numberMin, numberMin) || other.numberMin == numberMin)&&(identical(other.numberMax, numberMax) || other.numberMax == numberMax)&&(identical(other.numberStep, numberStep) || other.numberStep == numberStep)&&(identical(other.numberDefault, numberDefault) || other.numberDefault == numberDefault)&&(identical(other.isSystem, isSystem) || other.isSystem == isSystem)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,method,name,type,unit,numberMin,numberMax,numberStep,numberDefault,isSystem,sortOrder);
+int get hashCode => Object.hash(runtimeType,id,method,paramKey,name,type,unit,numberMin,numberMax,numberStep,numberDefault,isSystem,sortOrder);
 
 @override
 String toString() {
-  return 'BrewParamDefinition(id: $id, method: $method, name: $name, type: $type, unit: $unit, numberMin: $numberMin, numberMax: $numberMax, numberStep: $numberStep, numberDefault: $numberDefault, isSystem: $isSystem, sortOrder: $sortOrder)';
+  return 'BrewParamDefinition(id: $id, method: $method, paramKey: $paramKey, name: $name, type: $type, unit: $unit, numberMin: $numberMin, numberMax: $numberMax, numberStep: $numberStep, numberDefault: $numberDefault, isSystem: $isSystem, sortOrder: $sortOrder)';
 }
 
 
@@ -261,7 +263,7 @@ abstract mixin class _$BrewParamDefinitionCopyWith<$Res> implements $BrewParamDe
   factory _$BrewParamDefinitionCopyWith(_BrewParamDefinition value, $Res Function(_BrewParamDefinition) _then) = __$BrewParamDefinitionCopyWithImpl;
 @override @useResult
 $Res call({
- int id, BrewMethod method, String name, ParamType type, String? unit, double? numberMin, double? numberMax, double? numberStep, double? numberDefault, bool isSystem, int sortOrder
+ int id, BrewMethod method, String? paramKey, String name, ParamType type, String? unit, double? numberMin, double? numberMax, double? numberStep, double? numberDefault, bool isSystem, int sortOrder
 });
 
 
@@ -278,11 +280,12 @@ class __$BrewParamDefinitionCopyWithImpl<$Res>
 
 /// Create a copy of BrewParamDefinition
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? method = null,Object? name = null,Object? type = null,Object? unit = freezed,Object? numberMin = freezed,Object? numberMax = freezed,Object? numberStep = freezed,Object? numberDefault = freezed,Object? isSystem = null,Object? sortOrder = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? method = null,Object? paramKey = freezed,Object? name = null,Object? type = null,Object? unit = freezed,Object? numberMin = freezed,Object? numberMax = freezed,Object? numberStep = freezed,Object? numberDefault = freezed,Object? isSystem = null,Object? sortOrder = null,}) {
   return _then(_BrewParamDefinition(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
-as BrewMethod,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as BrewMethod,paramKey: freezed == paramKey ? _self.paramKey : paramKey // ignore: cast_nullable_to_non_nullable
+as String?,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ParamType,unit: freezed == unit ? _self.unit : unit // ignore: cast_nullable_to_non_nullable
 as String?,numberMin: freezed == numberMin ? _self.numberMin : numberMin // ignore: cast_nullable_to_non_nullable

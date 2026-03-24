@@ -86,6 +86,7 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
       BrewParamDefinition(
         id: row.id,
         method: _methodFromDb(row.method),
+        paramKey: row.paramKey,
         name: row.name,
         type: _paramTypeFromDb(row.type),
         unit: row.unit,
@@ -102,6 +103,7 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
   ) => db.BrewParamDefinitionsCompanion(
     id: drift.Value(def.id),
     method: drift.Value(_methodToDb(def.method)),
+    paramKey: drift.Value(def.paramKey),
     name: drift.Value(def.name),
     type: drift.Value(_paramTypeToDb(def.type)),
     unit: drift.Value(def.unit),
@@ -117,6 +119,7 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
     BrewParamDefinition def,
   ) => db.BrewParamDefinitionsCompanion.insert(
     method: _methodToDb(def.method),
+    paramKey: drift.Value(def.paramKey),
     name: def.name,
     type: _paramTypeToDb(def.type),
     unit: drift.Value(def.unit),
@@ -307,6 +310,19 @@ class BrewParamRepositoryImpl implements BrewParamRepository {
 
   @override
   Future<int> deleteParamValue(int id) => _datasource.deleteParamValue(id);
+
+  @override
+  Future<List<String>> getTopTextParamSuggestions({
+    required BrewMethod method,
+    required String paramKey,
+    int limit = 3,
+  }) {
+    return _datasource.getTopTextParamSuggestions(
+      method: _methodToDb(method),
+      paramKey: paramKey,
+      limit: limit,
+    );
+  }
 
   @override
   Future<bool> hasCompletedOnboarding() => _datasource.isOnboardingCompleted();

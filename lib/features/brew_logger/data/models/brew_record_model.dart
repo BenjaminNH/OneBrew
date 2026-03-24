@@ -15,8 +15,9 @@ enum GrindMode { equipment, simple, pro }
 /// Drift Table definition for BrewRecord (冲煮记录).
 ///
 /// Central entity that captures a single brew session.
-/// References [Beans] via [beanName] (soft FK, stored as name string)
-/// and optionally [Equipments] via [equipmentId].
+/// Keeps [beanName] as immutable snapshot/fallback display text and optionally
+/// links to [Beans] through [beanId] for stable metadata lookup.
+/// Also optionally links to [Equipments] via [equipmentId].
 ///
 /// Ref: docs/01_Architecture.md § 3.2 — BrewRecord entity
 class BrewRecords extends Table {
@@ -30,6 +31,13 @@ class BrewRecords extends Table {
   /// Stored as a name rather than FK to allow deletion of beans without
   /// losing historical brew records.
   TextColumn get beanName => text()();
+
+  /// Optional FK to beans table for stable linkage and metadata joins.
+  IntColumn get beanId => integer().nullable().references(
+    Beans,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
 
   /// Optional FK to Equipments — used for equipment-linked grind mode.
   IntColumn get equipmentId =>

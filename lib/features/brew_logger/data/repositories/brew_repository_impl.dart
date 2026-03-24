@@ -23,6 +23,7 @@ class BrewRepositoryImpl implements BrewRepository {
     id: row.id,
     brewDate: row.brewDate,
     beanName: row.beanName,
+    beanId: row.beanId,
     equipmentId: row.equipmentId,
     brewMethod: _brewMethodToDomain(row.brewMethod),
     grindMode: _grindModeToDomain(row.grindMode),
@@ -91,6 +92,7 @@ class BrewRepositoryImpl implements BrewRepository {
         id: drift.Value(record.id),
         brewDate: drift.Value(record.brewDate),
         beanName: drift.Value(record.beanName),
+        beanId: drift.Value(record.beanId),
         equipmentId: drift.Value(record.equipmentId),
         brewMethod: drift.Value(_brewMethodToDb(record.brewMethod)),
         grindMode: drift.Value(_grindModeToDb(record.grindMode)),
@@ -114,6 +116,7 @@ class BrewRepositoryImpl implements BrewRepository {
       db.BrewRecordsCompanion.insert(
         brewDate: record.brewDate,
         beanName: record.beanName,
+        beanId: drift.Value(record.beanId),
         equipmentId: drift.Value(record.equipmentId),
         brewMethod: drift.Value(_brewMethodToDb(record.brewMethod)),
         grindMode: drift.Value(_grindModeToDb(record.grindMode)),

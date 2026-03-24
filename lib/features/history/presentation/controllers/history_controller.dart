@@ -104,6 +104,7 @@ class HistoryController extends Notifier<HistoryState> {
     _getBrewHistory = GetBrewHistory(repo);
     _filterBrews = FilterBrews(repo);
     _getTopBrews = GetTopBrews(repo);
+    Future.microtask(load);
     return const HistoryState(isLoading: true);
   }
 

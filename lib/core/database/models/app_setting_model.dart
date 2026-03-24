@@ -6,6 +6,8 @@ class AppSettings extends Table {
 
   BoolColumn get boolValue => boolean().withDefault(const Constant(false))();
 
+  TextColumn get stringValue => text().nullable()();
+
   @override
   Set<Column<Object>>? get primaryKey => {key};
 }

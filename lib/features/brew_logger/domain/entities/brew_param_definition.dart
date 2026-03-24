@@ -14,6 +14,7 @@ abstract class BrewParamDefinition with _$BrewParamDefinition {
   const factory BrewParamDefinition({
     required int id,
     required BrewMethod method,
+    String? paramKey,
     required String name,
     required ParamType type,
     String? unit,

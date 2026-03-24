@@ -9,6 +9,7 @@ library;
 /// Ref: docs/01_Architecture.md § 3.3 — 参数默认值
 import 'package:one_brew/features/brew_logger/domain/entities/brew_method.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_key.dart';
 
 class BrewMethodConfigSeed {
   const BrewMethodConfigSeed({
@@ -25,6 +26,7 @@ class BrewMethodConfigSeed {
 class BrewParamTemplate {
   const BrewParamTemplate({
     required this.method,
+    this.paramKey,
     required this.name,
     required this.type,
     this.unit,
@@ -38,6 +40,7 @@ class BrewParamTemplate {
   });
 
   final BrewMethod method;
+  final String? paramKey;
   final String name;
   final ParamType type;
   final String? unit;
@@ -102,6 +105,7 @@ abstract final class BrewParamDefaults {
   static const List<BrewParamTemplate> paramTemplates = [
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.coffeeWeight,
       name: 'Coffee Weight',
       type: ParamType.number,
       unit: 'g',
@@ -113,6 +117,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.waterWeight,
       name: 'Water Weight',
       type: ParamType.number,
       unit: 'g',
@@ -124,6 +129,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.brewRatio,
       name: 'Brew Ratio',
       type: ParamType.number,
       numberMin: 10.0,
@@ -134,6 +140,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.waterTemp,
       name: 'Water Temp',
       type: ParamType.number,
       unit: 'C',
@@ -145,12 +152,14 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.grindSize,
       name: 'Grind Size',
       type: ParamType.text,
       sortOrder: 5,
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.brewTime,
       name: 'Brew Time',
       type: ParamType.number,
       unit: 's',
@@ -162,6 +171,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.bloomTime,
       name: 'Bloom Time',
       type: ParamType.number,
       unit: 's',
@@ -173,6 +183,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.bloomWater,
       name: 'Bloom Water',
       type: ParamType.number,
       unit: 'g',
@@ -184,24 +195,28 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.pourMethod,
       name: 'Pour Method',
       type: ParamType.text,
       sortOrder: 9,
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.agitation,
       name: 'Agitation',
       type: ParamType.text,
       sortOrder: 10,
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.filterDripper,
       name: 'Filter/Dripper',
       type: ParamType.text,
       sortOrder: 11,
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.coffeeDose,
       name: 'Coffee Dose',
       type: ParamType.number,
       unit: 'g',
@@ -213,6 +228,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.yieldAmount,
       name: 'Yield',
       type: ParamType.number,
       unit: 'g',
@@ -224,6 +240,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.brewRatio,
       name: 'Brew Ratio',
       type: ParamType.number,
       numberMin: 1.0,
@@ -234,6 +251,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.extractionTime,
       name: 'Extraction Time',
       type: ParamType.number,
       unit: 's',
@@ -245,6 +263,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.pressure,
       name: 'Pressure',
       type: ParamType.number,
       unit: 'bar',
@@ -256,6 +275,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.waterTemp,
       name: 'Water Temp',
       type: ParamType.number,
       unit: 'C',
@@ -267,6 +287,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.preInfusion,
       name: 'Pre-infusion Time',
       type: ParamType.number,
       unit: 's',
@@ -278,18 +299,21 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.grindSize,
       name: 'Grind Size',
       type: ParamType.text,
       sortOrder: 8,
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.distributionTamping,
       name: 'Distribution/Tamping',
       type: ParamType.text,
       sortOrder: 9,
     ),
     BrewParamTemplate(
       method: BrewMethod.custom,
+      paramKey: BrewParamKeys.coffeeWeight,
       name: 'Coffee Weight',
       type: ParamType.number,
       unit: 'g',
@@ -301,6 +325,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.custom,
+      paramKey: BrewParamKeys.waterWeight,
       name: 'Water Weight',
       type: ParamType.number,
       unit: 'g',
@@ -312,6 +337,7 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.custom,
+      paramKey: BrewParamKeys.brewRatio,
       name: 'Brew Ratio',
       type: ParamType.number,
       numberMin: 8.0,
@@ -324,19 +350,22 @@ abstract final class BrewParamDefaults {
 
   static BrewParamTemplate? templateFor({
     required BrewMethod method,
-    required String name,
+    required String? paramKey,
   }) {
+    if (paramKey == null) return null;
     for (final template in paramTemplates) {
-      if (template.method == method && template.name == name) return template;
+      if (template.method == method && template.paramKey == paramKey) {
+        return template;
+      }
     }
     return null;
   }
 
   static BrewParamNumberRange? numberRangeFor({
     required BrewMethod method,
-    required String name,
+    required String? paramKey,
   }) {
-    return templateFor(method: method, name: name)?.numberRange;
+    return templateFor(method: method, paramKey: paramKey)?.numberRange;
   }
   // ─────────────────────────────────────────
   // Essential Parameters (always shown)

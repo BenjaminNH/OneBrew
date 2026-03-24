@@ -7,6 +7,7 @@ import 'data/repositories/brew_repository_impl.dart';
 import 'domain/entities/brew_method.dart';
 import 'domain/entities/brew_method_config.dart';
 import 'domain/entities/brew_param_definition.dart';
+import 'domain/entities/brew_param_key.dart';
 import 'domain/entities/brew_param_visibility.dart';
 import 'domain/repositories/brew_param_repository.dart';
 import 'domain/repositories/brew_repository.dart';
@@ -55,15 +56,15 @@ class BrewParamCatalog {
     for (final visibility in visibilities) visibility.paramId: visibility,
   };
 
-  BrewParamDefinition? definitionByName(String name) {
+  BrewParamDefinition? definitionByKey(String key) {
     for (final def in definitions) {
-      if (def.name == name) return def;
+      if (def.resolvedParamKey == key) return def;
     }
     return null;
   }
 
-  bool isVisibleByName(String name) {
-    final def = definitionByName(name);
+  bool isVisibleByKey(String key) {
+    final def = definitionByKey(key);
     if (def == null) return false;
     return visibilityByParamId[def.id]?.isVisible ?? true;
   }

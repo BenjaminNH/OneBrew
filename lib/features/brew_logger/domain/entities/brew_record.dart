@@ -33,6 +33,9 @@ abstract class BrewRecord with _$BrewRecord {
     /// Name of the coffee bean used (FK to Bean.name).
     required String beanName,
 
+    /// Optional FK to bean inventory row. Preferred linkage for metadata.
+    int? beanId,
+
     /// Optional FK to equipment (grinder) used.
     int? equipmentId,
 

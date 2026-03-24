@@ -115,10 +115,7 @@ class HistoryLocalDatasource {
         _db.brewRatings,
         _db.brewRatings.brewRecordId.equalsExp(_db.brewRecords.id),
       ),
-      leftOuterJoin(
-        _db.beans,
-        _db.beans.name.equalsExp(_db.brewRecords.beanName),
-      ),
+      leftOuterJoin(_db.beans, _db.beans.id.equalsExp(_db.brewRecords.beanId)),
     ]);
 
     query.orderBy([OrderingTerm.desc(_db.brewRecords.brewDate)]);
@@ -139,15 +136,16 @@ class HistoryLocalDatasource {
         _db.brewRatings,
         _db.brewRatings.brewRecordId.equalsExp(_db.brewRecords.id),
       ),
-      leftOuterJoin(
-        _db.beans,
-        _db.beans.name.equalsExp(_db.brewRecords.beanName),
-      ),
+      leftOuterJoin(_db.beans, _db.beans.id.equalsExp(_db.brewRecords.beanId)),
     ]);
 
     final normalizedBean = beanName?.trim().toLowerCase();
     if (normalizedBean != null && normalizedBean.isNotEmpty) {
-      query.where(_db.brewRecords.beanName.lower().like('%$normalizedBean%'));
+      final queryText = '%$normalizedBean%';
+      query.where(
+        _db.brewRecords.beanName.lower().like(queryText) |
+            _db.beans.name.lower().like(queryText),
+      );
     }
     if (minScore != null) {
       query.where(_db.brewRatings.quickScore.isBiggerOrEqualValue(minScore));
@@ -174,10 +172,7 @@ class HistoryLocalDatasource {
         _db.brewRatings,
         _db.brewRatings.brewRecordId.equalsExp(_db.brewRecords.id),
       ),
-      leftOuterJoin(
-        _db.beans,
-        _db.beans.name.equalsExp(_db.brewRecords.beanName),
-      ),
+      leftOuterJoin(_db.beans, _db.beans.id.equalsExp(_db.brewRecords.beanId)),
     ]);
 
     query.where(_db.brewRatings.quickScore.isNotNull());
@@ -197,10 +192,7 @@ class HistoryLocalDatasource {
         _db.brewRatings,
         _db.brewRatings.brewRecordId.equalsExp(_db.brewRecords.id),
       ),
-      leftOuterJoin(
-        _db.beans,
-        _db.beans.name.equalsExp(_db.brewRecords.beanName),
-      ),
+      leftOuterJoin(_db.beans, _db.beans.id.equalsExp(_db.brewRecords.beanId)),
       leftOuterJoin(
         _db.equipments,
         _db.equipments.id.equalsExp(_db.brewRecords.equipmentId),
@@ -224,7 +216,7 @@ class HistoryLocalDatasource {
     return HistoryBrewRow(
       id: brew.id,
       brewDate: brew.brewDate,
-      beanName: brew.beanName,
+      beanName: _preferredBeanName(beanName: brew.beanName, beanRow: bean),
       roaster: bean?.roaster,
       brewDurationS: brew.brewDurationS,
       coffeeWeightG: brew.coffeeWeightG,
@@ -244,7 +236,7 @@ class HistoryLocalDatasource {
     return HistoryBrewDetailRow(
       id: brew.id,
       brewDate: brew.brewDate,
-      beanName: brew.beanName,
+      beanName: _preferredBeanName(beanName: brew.beanName, beanRow: bean),
       roaster: bean?.roaster,
       origin: bean?.origin,
       roastLevel: bean?.roastLevel,
@@ -274,6 +266,14 @@ class HistoryLocalDatasource {
       createdAt: brew.createdAt,
       updatedAt: brew.updatedAt,
     );
+  }
+
+  String _preferredBeanName({required String beanName, Bean? beanRow}) {
+    final linkedName = beanRow?.name.trim();
+    if (linkedName != null && linkedName.isNotEmpty) {
+      return linkedName;
+    }
+    return beanName;
   }
 }
 

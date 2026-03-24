@@ -72,6 +72,7 @@ void main() {
       id: 1,
       brewDate: now,
       beanName: 'Test Bean',
+      beanId: 7,
       equipmentId: null,
       brewMethod: 'pour_over',
       grindMode: 'equipment',
@@ -95,6 +96,7 @@ void main() {
       id: 1,
       brewDate: now,
       beanName: 'Test Bean',
+      beanId: 7,
       equipmentId: null,
       brewMethod: domain.BrewMethod.pourOver,
       grindMode: domain.GrindMode.equipment,
@@ -123,6 +125,7 @@ void main() {
       final result = results.first;
       expect(result.id, 1);
       expect(result.beanName, 'Test Bean');
+      expect(result.beanId, 7);
       expect(result.grindMode, domain.GrindMode.equipment);
     });
 
@@ -148,6 +151,7 @@ void main() {
           fakeDatasource.lastInsertedCompanion!.beanName.value,
           'Test Bean',
         );
+        expect(fakeDatasource.lastInsertedCompanion!.beanId.value, 7);
       },
     );
 

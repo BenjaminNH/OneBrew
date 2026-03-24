@@ -5,6 +5,7 @@ import '../../domain/entities/bean.dart';
 import '../../domain/entities/equipment.dart';
 import '../../domain/inventory_exceptions.dart';
 import '../../domain/repositories/inventory_repository.dart';
+import '../../../history/presentation/controllers/history_controller.dart';
 import '../../domain/usecases/create_bean.dart';
 import '../../domain/usecases/create_equipment.dart';
 import '../../domain/usecases/delete_grinder_with_guard.dart';
@@ -114,7 +115,7 @@ class InventoryController extends AsyncNotifier<void> {
   }) async {
     final normalizedName = name.trim();
     if (normalizedName.isEmpty) {
-      throw const InventoryValidationException('Bean name cannot be empty.');
+      throw const InventoryValidationException('validation.bean_name_empty');
     }
 
     await _runMutation(() async {
@@ -153,12 +154,14 @@ class InventoryController extends AsyncNotifier<void> {
         ),
       );
     });
+    ref.invalidate(historyControllerProvider);
   }
 
   Future<void> deleteBean(int beanId) async {
     await _runMutation(() async {
       await ref.read(inventoryRepositoryProvider).deleteBean(beanId);
     });
+    ref.invalidate(historyControllerProvider);
   }
 
   Future<void> saveGrinder({
@@ -171,7 +174,7 @@ class InventoryController extends AsyncNotifier<void> {
   }) async {
     final normalizedName = name.trim();
     if (normalizedName.isEmpty) {
-      throw const InventoryValidationException('Grinder name cannot be empty.');
+      throw const InventoryValidationException('validation.grinder_name_empty');
     }
 
     await _runMutation(() async {
@@ -235,7 +238,7 @@ class InventoryController extends AsyncNotifier<void> {
       if (candidate.name.trim().toLowerCase() != normalized) continue;
       if (editingId != null && candidate.id == editingId) continue;
       throw const InventoryConflictException(
-        'A grinder with the same name already exists.',
+        'conflict.grinder_name_exists',
       );
     }
   }

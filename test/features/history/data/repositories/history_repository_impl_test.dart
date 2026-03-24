@@ -21,13 +21,13 @@ void main() {
     await db.close();
   });
 
-  Future<void> seedBean(
+  Future<int> seedBean(
     String name, {
     String? roaster,
     String? origin,
     String? roastLevel,
   }) async {
-    await db.insertBean(
+    return db.insertBean(
       BeansCompanion.insert(
         name: name,
         roaster: roaster == null
@@ -43,11 +43,16 @@ void main() {
     );
   }
 
-  Future<int> seedBrew({required DateTime brewDate, required String beanName}) {
+  Future<int> seedBrew({
+    required DateTime brewDate,
+    required String beanName,
+    int? beanId,
+  }) {
     return db.insertBrewRecord(
       BrewRecordsCompanion.insert(
         brewDate: brewDate,
         beanName: beanName,
+        beanId: drift.Value(beanId),
         grindMode: const drift.Value('equipment'),
         coffeeWeightG: 15,
         waterWeightG: 240,
@@ -98,20 +103,29 @@ void main() {
 
   group('HistoryRepositoryImpl filtering', () {
     test('filters by bean, score, and date range', () async {
-      await seedBean('Ethiopia Yirgacheffe', roaster: 'Roaster A');
-      await seedBean('Colombia Huila', roaster: 'Roaster B');
+      final ethiopiaBeanId = await seedBean(
+        'Ethiopia Yirgacheffe',
+        roaster: 'Roaster A',
+      );
+      final colombiaBeanId = await seedBean(
+        'Colombia Huila',
+        roaster: 'Roaster B',
+      );
 
       final ethiopiaRecent = await seedBrew(
         brewDate: DateTime(2026, 3, 1, 9, 0),
         beanName: 'Ethiopia Yirgacheffe',
+        beanId: ethiopiaBeanId,
       );
       final colombiaRecent = await seedBrew(
         brewDate: DateTime(2026, 3, 2, 9, 0),
         beanName: 'Colombia Huila',
+        beanId: colombiaBeanId,
       );
       final ethiopiaOld = await seedBrew(
         brewDate: DateTime(2026, 1, 15, 9, 0),
         beanName: 'Ethiopia Yirgacheffe',
+        beanId: ethiopiaBeanId,
       );
 
       await seedRating(ethiopiaRecent, 4);
@@ -137,21 +151,24 @@ void main() {
 
   group('HistoryRepositoryImpl top brews', () {
     test('returns top brews by score desc, then date desc', () async {
-      await seedBean('Bean A');
-      await seedBean('Bean B');
-      await seedBean('Bean C');
+      final beanA = await seedBean('Bean A');
+      final beanB = await seedBean('Bean B');
+      final beanC = await seedBean('Bean C');
 
       final score4 = await seedBrew(
         brewDate: DateTime(2026, 3, 1, 10, 0),
         beanName: 'Bean A',
+        beanId: beanA,
       );
       final score5Older = await seedBrew(
         brewDate: DateTime(2026, 3, 2, 10, 0),
         beanName: 'Bean B',
+        beanId: beanB,
       );
       final score5Newer = await seedBrew(
         brewDate: DateTime(2026, 3, 3, 10, 0),
         beanName: 'Bean C',
+        beanId: beanC,
       );
 
       await seedRating(score4, 4);
@@ -170,7 +187,7 @@ void main() {
 
   group('HistoryRepositoryImpl detail query', () {
     test('maps brew + bean + equipment + rating into full detail', () async {
-      await seedBean(
+      final beanId = await seedBean(
         'Ethiopia Yirgacheffe',
         roaster: 'Roaster A',
         origin: 'Ethiopia',
@@ -187,6 +204,7 @@ void main() {
         BrewRecordsCompanion.insert(
           brewDate: DateTime(2026, 3, 7, 9, 30),
           beanName: 'Ethiopia Yirgacheffe',
+          beanId: drift.Value(beanId),
           equipmentId: drift.Value(equipmentId),
           grindMode: const drift.Value('equipment'),
           grindClickValue: const drift.Value(22.5),
@@ -237,5 +255,30 @@ void main() {
       final result = await repository.getBrewDetailById(999);
       expect(result, isNull);
     });
+
+    test(
+      'falls back to stored bean name when bean link is unavailable',
+      () async {
+        final brewId = await seedBrewWithCompanion(
+          BrewRecordsCompanion.insert(
+            brewDate: DateTime(2026, 3, 9, 10, 0),
+            beanName: 'Loose Bean Name',
+            beanId: const drift.Value(null),
+            grindMode: const drift.Value('equipment'),
+            coffeeWeightG: 15.0,
+            waterWeightG: 240.0,
+            brewDurationS: 180,
+          ),
+        );
+
+        final result = await repository.getBrewDetailById(brewId);
+
+        expect(result, isNotNull);
+        expect(result!.beanName, 'Loose Bean Name');
+        expect(result.roaster, isNull);
+        expect(result.origin, isNull);
+        expect(result.roastLevel, isNull);
+      },
+    );
   });
 }

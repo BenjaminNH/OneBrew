@@ -1202,6 +1202,18 @@ class $BrewRecordsTable extends BrewRecords
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _beanIdMeta = const VerificationMeta('beanId');
+  @override
+  late final GeneratedColumn<int> beanId = GeneratedColumn<int>(
+    'bean_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES beans (id) ON DELETE SET NULL',
+    ),
+  );
   static const VerificationMeta _equipmentIdMeta = const VerificationMeta(
     'equipmentId',
   );
@@ -1399,6 +1411,7 @@ class $BrewRecordsTable extends BrewRecords
     id,
     brewDate,
     beanName,
+    beanId,
     equipmentId,
     brewMethod,
     grindMode,
@@ -1447,6 +1460,12 @@ class $BrewRecordsTable extends BrewRecords
       );
     } else if (isInserting) {
       context.missing(_beanNameMeta);
+    }
+    if (data.containsKey('bean_id')) {
+      context.handle(
+        _beanIdMeta,
+        beanId.isAcceptableOrUnknown(data['bean_id']!, _beanIdMeta),
+      );
     }
     if (data.containsKey('equipment_id')) {
       context.handle(
@@ -1604,6 +1623,10 @@ class $BrewRecordsTable extends BrewRecords
         DriftSqlType.string,
         data['${effectivePrefix}bean_name'],
       )!,
+      beanId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}bean_id'],
+      ),
       equipmentId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}equipment_id'],
@@ -1693,6 +1716,9 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
   /// losing historical brew records.
   final String beanName;
 
+  /// Optional FK to beans table for stable linkage and metadata joins.
+  final int? beanId;
+
   /// Optional FK to Equipments — used for equipment-linked grind mode.
   final int? equipmentId;
 
@@ -1750,6 +1776,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     required this.id,
     required this.brewDate,
     required this.beanName,
+    this.beanId,
     this.equipmentId,
     required this.brewMethod,
     required this.grindMode,
@@ -1774,6 +1801,9 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     map['id'] = Variable<int>(id);
     map['brew_date'] = Variable<DateTime>(brewDate);
     map['bean_name'] = Variable<String>(beanName);
+    if (!nullToAbsent || beanId != null) {
+      map['bean_id'] = Variable<int>(beanId);
+    }
     if (!nullToAbsent || equipmentId != null) {
       map['equipment_id'] = Variable<int>(equipmentId);
     }
@@ -1819,6 +1849,9 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       id: Value(id),
       brewDate: Value(brewDate),
       beanName: Value(beanName),
+      beanId: beanId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(beanId),
       equipmentId: equipmentId == null && nullToAbsent
           ? const Value.absent()
           : Value(equipmentId),
@@ -1868,6 +1901,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       id: serializer.fromJson<int>(json['id']),
       brewDate: serializer.fromJson<DateTime>(json['brewDate']),
       beanName: serializer.fromJson<String>(json['beanName']),
+      beanId: serializer.fromJson<int?>(json['beanId']),
       equipmentId: serializer.fromJson<int?>(json['equipmentId']),
       brewMethod: serializer.fromJson<String>(json['brewMethod']),
       grindMode: serializer.fromJson<String>(json['grindMode']),
@@ -1894,6 +1928,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       'id': serializer.toJson<int>(id),
       'brewDate': serializer.toJson<DateTime>(brewDate),
       'beanName': serializer.toJson<String>(beanName),
+      'beanId': serializer.toJson<int?>(beanId),
       'equipmentId': serializer.toJson<int?>(equipmentId),
       'brewMethod': serializer.toJson<String>(brewMethod),
       'grindMode': serializer.toJson<String>(grindMode),
@@ -1918,6 +1953,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     int? id,
     DateTime? brewDate,
     String? beanName,
+    Value<int?> beanId = const Value.absent(),
     Value<int?> equipmentId = const Value.absent(),
     String? brewMethod,
     String? grindMode,
@@ -1939,6 +1975,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     id: id ?? this.id,
     brewDate: brewDate ?? this.brewDate,
     beanName: beanName ?? this.beanName,
+    beanId: beanId.present ? beanId.value : this.beanId,
     equipmentId: equipmentId.present ? equipmentId.value : this.equipmentId,
     brewMethod: brewMethod ?? this.brewMethod,
     grindMode: grindMode ?? this.grindMode,
@@ -1966,6 +2003,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
       id: data.id.present ? data.id.value : this.id,
       brewDate: data.brewDate.present ? data.brewDate.value : this.brewDate,
       beanName: data.beanName.present ? data.beanName.value : this.beanName,
+      beanId: data.beanId.present ? data.beanId.value : this.beanId,
       equipmentId: data.equipmentId.present
           ? data.equipmentId.value
           : this.equipmentId,
@@ -2014,6 +2052,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
           ..write('id: $id, ')
           ..write('brewDate: $brewDate, ')
           ..write('beanName: $beanName, ')
+          ..write('beanId: $beanId, ')
           ..write('equipmentId: $equipmentId, ')
           ..write('brewMethod: $brewMethod, ')
           ..write('grindMode: $grindMode, ')
@@ -2036,10 +2075,11 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     brewDate,
     beanName,
+    beanId,
     equipmentId,
     brewMethod,
     grindMode,
@@ -2057,7 +2097,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
     notes,
     createdAt,
     updatedAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2065,6 +2105,7 @@ class BrewRecord extends DataClass implements Insertable<BrewRecord> {
           other.id == this.id &&
           other.brewDate == this.brewDate &&
           other.beanName == this.beanName &&
+          other.beanId == this.beanId &&
           other.equipmentId == this.equipmentId &&
           other.brewMethod == this.brewMethod &&
           other.grindMode == this.grindMode &&
@@ -2088,6 +2129,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
   final Value<int> id;
   final Value<DateTime> brewDate;
   final Value<String> beanName;
+  final Value<int?> beanId;
   final Value<int?> equipmentId;
   final Value<String> brewMethod;
   final Value<String> grindMode;
@@ -2109,6 +2151,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     this.id = const Value.absent(),
     this.brewDate = const Value.absent(),
     this.beanName = const Value.absent(),
+    this.beanId = const Value.absent(),
     this.equipmentId = const Value.absent(),
     this.brewMethod = const Value.absent(),
     this.grindMode = const Value.absent(),
@@ -2131,6 +2174,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     this.id = const Value.absent(),
     required DateTime brewDate,
     required String beanName,
+    this.beanId = const Value.absent(),
     this.equipmentId = const Value.absent(),
     this.brewMethod = const Value.absent(),
     this.grindMode = const Value.absent(),
@@ -2157,6 +2201,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     Expression<int>? id,
     Expression<DateTime>? brewDate,
     Expression<String>? beanName,
+    Expression<int>? beanId,
     Expression<int>? equipmentId,
     Expression<String>? brewMethod,
     Expression<String>? grindMode,
@@ -2179,6 +2224,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
       if (id != null) 'id': id,
       if (brewDate != null) 'brew_date': brewDate,
       if (beanName != null) 'bean_name': beanName,
+      if (beanId != null) 'bean_id': beanId,
       if (equipmentId != null) 'equipment_id': equipmentId,
       if (brewMethod != null) 'brew_method': brewMethod,
       if (grindMode != null) 'grind_mode': grindMode,
@@ -2203,6 +2249,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     Value<int>? id,
     Value<DateTime>? brewDate,
     Value<String>? beanName,
+    Value<int?>? beanId,
     Value<int?>? equipmentId,
     Value<String>? brewMethod,
     Value<String>? grindMode,
@@ -2225,6 +2272,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
       id: id ?? this.id,
       brewDate: brewDate ?? this.brewDate,
       beanName: beanName ?? this.beanName,
+      beanId: beanId ?? this.beanId,
       equipmentId: equipmentId ?? this.equipmentId,
       brewMethod: brewMethod ?? this.brewMethod,
       grindMode: grindMode ?? this.grindMode,
@@ -2256,6 +2304,9 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
     }
     if (beanName.present) {
       map['bean_name'] = Variable<String>(beanName.value);
+    }
+    if (beanId.present) {
+      map['bean_id'] = Variable<int>(beanId.value);
     }
     if (equipmentId.present) {
       map['equipment_id'] = Variable<int>(equipmentId.value);
@@ -2317,6 +2368,7 @@ class BrewRecordsCompanion extends UpdateCompanion<BrewRecord> {
           ..write('id: $id, ')
           ..write('brewDate: $brewDate, ')
           ..write('beanName: $beanName, ')
+          ..write('beanId: $beanId, ')
           ..write('equipmentId: $equipmentId, ')
           ..write('brewMethod: $brewMethod, ')
           ..write('grindMode: $grindMode, ')
@@ -3275,6 +3327,17 @@ class $BrewParamDefinitionsTable extends BrewParamDefinitions
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _paramKeyMeta = const VerificationMeta(
+    'paramKey',
+  );
+  @override
+  late final GeneratedColumn<String> paramKey = GeneratedColumn<String>(
+    'param_key',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _typeMeta = const VerificationMeta('type');
   @override
   late final GeneratedColumn<String> type = GeneratedColumn<String>(
@@ -3368,6 +3431,7 @@ class $BrewParamDefinitionsTable extends BrewParamDefinitions
     id,
     method,
     name,
+    paramKey,
     type,
     unit,
     numberMin,
@@ -3407,6 +3471,12 @@ class $BrewParamDefinitionsTable extends BrewParamDefinitions
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('param_key')) {
+      context.handle(
+        _paramKeyMeta,
+        paramKey.isAcceptableOrUnknown(data['param_key']!, _paramKeyMeta),
+      );
     }
     if (data.containsKey('type')) {
       context.handle(
@@ -3484,6 +3554,10 @@ class $BrewParamDefinitionsTable extends BrewParamDefinitions
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      paramKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}param_key'],
+      ),
       type: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}type'],
@@ -3535,6 +3609,9 @@ class BrewParamDefinition extends DataClass
   /// Parameter display name (e.g. "Water Temp").
   final String name;
 
+  /// Stable semantic key for system params (e.g. "water_temp").
+  final String? paramKey;
+
   /// Parameter type: 'number' | 'text'.
   final String type;
 
@@ -3562,6 +3639,7 @@ class BrewParamDefinition extends DataClass
     required this.id,
     required this.method,
     required this.name,
+    this.paramKey,
     required this.type,
     this.unit,
     this.numberMin,
@@ -3577,6 +3655,9 @@ class BrewParamDefinition extends DataClass
     map['id'] = Variable<int>(id);
     map['method'] = Variable<String>(method);
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || paramKey != null) {
+      map['param_key'] = Variable<String>(paramKey);
+    }
     map['type'] = Variable<String>(type);
     if (!nullToAbsent || unit != null) {
       map['unit'] = Variable<String>(unit);
@@ -3603,6 +3684,9 @@ class BrewParamDefinition extends DataClass
       id: Value(id),
       method: Value(method),
       name: Value(name),
+      paramKey: paramKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(paramKey),
       type: Value(type),
       unit: unit == null && nullToAbsent ? const Value.absent() : Value(unit),
       numberMin: numberMin == null && nullToAbsent
@@ -3631,6 +3715,7 @@ class BrewParamDefinition extends DataClass
       id: serializer.fromJson<int>(json['id']),
       method: serializer.fromJson<String>(json['method']),
       name: serializer.fromJson<String>(json['name']),
+      paramKey: serializer.fromJson<String?>(json['paramKey']),
       type: serializer.fromJson<String>(json['type']),
       unit: serializer.fromJson<String?>(json['unit']),
       numberMin: serializer.fromJson<double?>(json['numberMin']),
@@ -3648,6 +3733,7 @@ class BrewParamDefinition extends DataClass
       'id': serializer.toJson<int>(id),
       'method': serializer.toJson<String>(method),
       'name': serializer.toJson<String>(name),
+      'paramKey': serializer.toJson<String?>(paramKey),
       'type': serializer.toJson<String>(type),
       'unit': serializer.toJson<String?>(unit),
       'numberMin': serializer.toJson<double?>(numberMin),
@@ -3663,6 +3749,7 @@ class BrewParamDefinition extends DataClass
     int? id,
     String? method,
     String? name,
+    Value<String?> paramKey = const Value.absent(),
     String? type,
     Value<String?> unit = const Value.absent(),
     Value<double?> numberMin = const Value.absent(),
@@ -3675,6 +3762,7 @@ class BrewParamDefinition extends DataClass
     id: id ?? this.id,
     method: method ?? this.method,
     name: name ?? this.name,
+    paramKey: paramKey.present ? paramKey.value : this.paramKey,
     type: type ?? this.type,
     unit: unit.present ? unit.value : this.unit,
     numberMin: numberMin.present ? numberMin.value : this.numberMin,
@@ -3691,6 +3779,7 @@ class BrewParamDefinition extends DataClass
       id: data.id.present ? data.id.value : this.id,
       method: data.method.present ? data.method.value : this.method,
       name: data.name.present ? data.name.value : this.name,
+      paramKey: data.paramKey.present ? data.paramKey.value : this.paramKey,
       type: data.type.present ? data.type.value : this.type,
       unit: data.unit.present ? data.unit.value : this.unit,
       numberMin: data.numberMin.present ? data.numberMin.value : this.numberMin,
@@ -3712,6 +3801,7 @@ class BrewParamDefinition extends DataClass
           ..write('id: $id, ')
           ..write('method: $method, ')
           ..write('name: $name, ')
+          ..write('paramKey: $paramKey, ')
           ..write('type: $type, ')
           ..write('unit: $unit, ')
           ..write('numberMin: $numberMin, ')
@@ -3729,6 +3819,7 @@ class BrewParamDefinition extends DataClass
     id,
     method,
     name,
+    paramKey,
     type,
     unit,
     numberMin,
@@ -3745,6 +3836,7 @@ class BrewParamDefinition extends DataClass
           other.id == this.id &&
           other.method == this.method &&
           other.name == this.name &&
+          other.paramKey == this.paramKey &&
           other.type == this.type &&
           other.unit == this.unit &&
           other.numberMin == this.numberMin &&
@@ -3760,6 +3852,7 @@ class BrewParamDefinitionsCompanion
   final Value<int> id;
   final Value<String> method;
   final Value<String> name;
+  final Value<String?> paramKey;
   final Value<String> type;
   final Value<String?> unit;
   final Value<double?> numberMin;
@@ -3772,6 +3865,7 @@ class BrewParamDefinitionsCompanion
     this.id = const Value.absent(),
     this.method = const Value.absent(),
     this.name = const Value.absent(),
+    this.paramKey = const Value.absent(),
     this.type = const Value.absent(),
     this.unit = const Value.absent(),
     this.numberMin = const Value.absent(),
@@ -3785,6 +3879,7 @@ class BrewParamDefinitionsCompanion
     this.id = const Value.absent(),
     required String method,
     required String name,
+    this.paramKey = const Value.absent(),
     required String type,
     this.unit = const Value.absent(),
     this.numberMin = const Value.absent(),
@@ -3801,6 +3896,7 @@ class BrewParamDefinitionsCompanion
     Expression<int>? id,
     Expression<String>? method,
     Expression<String>? name,
+    Expression<String>? paramKey,
     Expression<String>? type,
     Expression<String>? unit,
     Expression<double>? numberMin,
@@ -3814,6 +3910,7 @@ class BrewParamDefinitionsCompanion
       if (id != null) 'id': id,
       if (method != null) 'method': method,
       if (name != null) 'name': name,
+      if (paramKey != null) 'param_key': paramKey,
       if (type != null) 'type': type,
       if (unit != null) 'unit': unit,
       if (numberMin != null) 'number_min': numberMin,
@@ -3829,6 +3926,7 @@ class BrewParamDefinitionsCompanion
     Value<int>? id,
     Value<String>? method,
     Value<String>? name,
+    Value<String?>? paramKey,
     Value<String>? type,
     Value<String?>? unit,
     Value<double?>? numberMin,
@@ -3842,6 +3940,7 @@ class BrewParamDefinitionsCompanion
       id: id ?? this.id,
       method: method ?? this.method,
       name: name ?? this.name,
+      paramKey: paramKey ?? this.paramKey,
       type: type ?? this.type,
       unit: unit ?? this.unit,
       numberMin: numberMin ?? this.numberMin,
@@ -3864,6 +3963,9 @@ class BrewParamDefinitionsCompanion
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (paramKey.present) {
+      map['param_key'] = Variable<String>(paramKey.value);
     }
     if (type.present) {
       map['type'] = Variable<String>(type.value);
@@ -3898,6 +4000,7 @@ class BrewParamDefinitionsCompanion
           ..write('id: $id, ')
           ..write('method: $method, ')
           ..write('name: $name, ')
+          ..write('paramKey: $paramKey, ')
           ..write('type: $type, ')
           ..write('unit: $unit, ')
           ..write('numberMin: $numberMin, ')
@@ -4630,8 +4733,19 @@ class $AppSettingsTable extends AppSettings
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _stringValueMeta = const VerificationMeta(
+    'stringValue',
+  );
   @override
-  List<GeneratedColumn> get $columns => [key, boolValue];
+  late final GeneratedColumn<String> stringValue = GeneratedColumn<String>(
+    'string_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, boolValue, stringValue];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4658,6 +4772,15 @@ class $AppSettingsTable extends AppSettings
         boolValue.isAcceptableOrUnknown(data['bool_value']!, _boolValueMeta),
       );
     }
+    if (data.containsKey('string_value')) {
+      context.handle(
+        _stringValueMeta,
+        stringValue.isAcceptableOrUnknown(
+          data['string_value']!,
+          _stringValueMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4675,6 +4798,10 @@ class $AppSettingsTable extends AppSettings
         DriftSqlType.bool,
         data['${effectivePrefix}bool_value'],
       )!,
+      stringValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}string_value'],
+      ),
     );
   }
 
@@ -4687,17 +4814,31 @@ class $AppSettingsTable extends AppSettings
 class AppSetting extends DataClass implements Insertable<AppSetting> {
   final String key;
   final bool boolValue;
-  const AppSetting({required this.key, required this.boolValue});
+  final String? stringValue;
+  const AppSetting({
+    required this.key,
+    required this.boolValue,
+    this.stringValue,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['key'] = Variable<String>(key);
     map['bool_value'] = Variable<bool>(boolValue);
+    if (!nullToAbsent || stringValue != null) {
+      map['string_value'] = Variable<String>(stringValue);
+    }
     return map;
   }
 
   AppSettingsCompanion toCompanion(bool nullToAbsent) {
-    return AppSettingsCompanion(key: Value(key), boolValue: Value(boolValue));
+    return AppSettingsCompanion(
+      key: Value(key),
+      boolValue: Value(boolValue),
+      stringValue: stringValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stringValue),
+    );
   }
 
   factory AppSetting.fromJson(
@@ -4708,6 +4849,7 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     return AppSetting(
       key: serializer.fromJson<String>(json['key']),
       boolValue: serializer.fromJson<bool>(json['boolValue']),
+      stringValue: serializer.fromJson<String?>(json['stringValue']),
     );
   }
   @override
@@ -4716,15 +4858,26 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
     return <String, dynamic>{
       'key': serializer.toJson<String>(key),
       'boolValue': serializer.toJson<bool>(boolValue),
+      'stringValue': serializer.toJson<String?>(stringValue),
     };
   }
 
-  AppSetting copyWith({String? key, bool? boolValue}) =>
-      AppSetting(key: key ?? this.key, boolValue: boolValue ?? this.boolValue);
+  AppSetting copyWith({
+    String? key,
+    bool? boolValue,
+    Value<String?> stringValue = const Value.absent(),
+  }) => AppSetting(
+    key: key ?? this.key,
+    boolValue: boolValue ?? this.boolValue,
+    stringValue: stringValue.present ? stringValue.value : this.stringValue,
+  );
   AppSetting copyWithCompanion(AppSettingsCompanion data) {
     return AppSetting(
       key: data.key.present ? data.key.value : this.key,
       boolValue: data.boolValue.present ? data.boolValue.value : this.boolValue,
+      stringValue: data.stringValue.present
+          ? data.stringValue.value
+          : this.stringValue,
     );
   }
 
@@ -4732,43 +4885,50 @@ class AppSetting extends DataClass implements Insertable<AppSetting> {
   String toString() {
     return (StringBuffer('AppSetting(')
           ..write('key: $key, ')
-          ..write('boolValue: $boolValue')
+          ..write('boolValue: $boolValue, ')
+          ..write('stringValue: $stringValue')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(key, boolValue);
+  int get hashCode => Object.hash(key, boolValue, stringValue);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is AppSetting &&
           other.key == this.key &&
-          other.boolValue == this.boolValue);
+          other.boolValue == this.boolValue &&
+          other.stringValue == this.stringValue);
 }
 
 class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   final Value<String> key;
   final Value<bool> boolValue;
+  final Value<String?> stringValue;
   final Value<int> rowid;
   const AppSettingsCompanion({
     this.key = const Value.absent(),
     this.boolValue = const Value.absent(),
+    this.stringValue = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AppSettingsCompanion.insert({
     required String key,
     this.boolValue = const Value.absent(),
+    this.stringValue = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : key = Value(key);
   static Insertable<AppSetting> custom({
     Expression<String>? key,
     Expression<bool>? boolValue,
+    Expression<String>? stringValue,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (key != null) 'key': key,
       if (boolValue != null) 'bool_value': boolValue,
+      if (stringValue != null) 'string_value': stringValue,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4776,11 +4936,13 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   AppSettingsCompanion copyWith({
     Value<String>? key,
     Value<bool>? boolValue,
+    Value<String?>? stringValue,
     Value<int>? rowid,
   }) {
     return AppSettingsCompanion(
       key: key ?? this.key,
       boolValue: boolValue ?? this.boolValue,
+      stringValue: stringValue ?? this.stringValue,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4794,6 +4956,9 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     if (boolValue.present) {
       map['bool_value'] = Variable<bool>(boolValue.value);
     }
+    if (stringValue.present) {
+      map['string_value'] = Variable<String>(stringValue.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4805,6 +4970,7 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
     return (StringBuffer('AppSettingsCompanion(')
           ..write('key: $key, ')
           ..write('boolValue: $boolValue, ')
+          ..write('stringValue: $stringValue, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4847,6 +5013,13 @@ abstract class _$OneBrewDatabase extends GeneratedDatabase {
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
       on: TableUpdateQuery.onTableName(
+        'beans',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('brew_records', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
         'brew_records',
         limitUpdateKind: UpdateKind.delete,
       ),
@@ -4875,6 +5048,29 @@ typedef $$BeansTableUpdateCompanionBuilder =
       Value<DateTime> addedAt,
       Value<int> useCount,
     });
+
+final class $$BeansTableReferences
+    extends BaseReferences<_$OneBrewDatabase, $BeansTable, Bean> {
+  $$BeansTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$BrewRecordsTable, List<BrewRecord>>
+  _brewRecordsRefsTable(_$OneBrewDatabase db) => MultiTypedResultKey.fromTable(
+    db.brewRecords,
+    aliasName: $_aliasNameGenerator(db.beans.id, db.brewRecords.beanId),
+  );
+
+  $$BrewRecordsTableProcessedTableManager get brewRecordsRefs {
+    final manager = $$BrewRecordsTableTableManager(
+      $_db,
+      $_db.brewRecords,
+    ).filter((f) => f.beanId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_brewRecordsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
 
 class $$BeansTableFilterComposer
     extends Composer<_$OneBrewDatabase, $BeansTable> {
@@ -4919,6 +5115,31 @@ class $$BeansTableFilterComposer
     column: $table.useCount,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> brewRecordsRefs(
+    Expression<bool> Function($$BrewRecordsTableFilterComposer f) f,
+  ) {
+    final $$BrewRecordsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.brewRecords,
+      getReferencedColumn: (t) => t.beanId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewRecordsTableFilterComposer(
+            $db: $db,
+            $table: $db.brewRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BeansTableOrderingComposer
@@ -4997,6 +5218,31 @@ class $$BeansTableAnnotationComposer
 
   GeneratedColumn<int> get useCount =>
       $composableBuilder(column: $table.useCount, builder: (column) => column);
+
+  Expression<T> brewRecordsRefs<T extends Object>(
+    Expression<T> Function($$BrewRecordsTableAnnotationComposer a) f,
+  ) {
+    final $$BrewRecordsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.brewRecords,
+      getReferencedColumn: (t) => t.beanId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BrewRecordsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.brewRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$BeansTableTableManager
@@ -5010,9 +5256,9 @@ class $$BeansTableTableManager
           $$BeansTableAnnotationComposer,
           $$BeansTableCreateCompanionBuilder,
           $$BeansTableUpdateCompanionBuilder,
-          (Bean, BaseReferences<_$OneBrewDatabase, $BeansTable, Bean>),
+          (Bean, $$BeansTableReferences),
           Bean,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool brewRecordsRefs})
         > {
   $$BeansTableTableManager(_$OneBrewDatabase db, $BeansTable table)
     : super(
@@ -5062,9 +5308,33 @@ class $$BeansTableTableManager
                 useCount: useCount,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) =>
+                    (e.readTable(table), $$BeansTableReferences(db, table, e)),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({brewRecordsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (brewRecordsRefs) db.brewRecords],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (brewRecordsRefs)
+                    await $_getPrefetchedData<Bean, $BeansTable, BrewRecord>(
+                      currentTable: table,
+                      referencedTable: $$BeansTableReferences
+                          ._brewRecordsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$BeansTableReferences(db, table, p0).brewRecordsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.beanId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -5079,9 +5349,9 @@ typedef $$BeansTableProcessedTableManager =
       $$BeansTableAnnotationComposer,
       $$BeansTableCreateCompanionBuilder,
       $$BeansTableUpdateCompanionBuilder,
-      (Bean, BaseReferences<_$OneBrewDatabase, $BeansTable, Bean>),
+      (Bean, $$BeansTableReferences),
       Bean,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool brewRecordsRefs})
     >;
 typedef $$EquipmentsTableCreateCompanionBuilder =
     EquipmentsCompanion Function({
@@ -5510,6 +5780,7 @@ typedef $$BrewRecordsTableCreateCompanionBuilder =
       Value<int> id,
       required DateTime brewDate,
       required String beanName,
+      Value<int?> beanId,
       Value<int?> equipmentId,
       Value<String> brewMethod,
       Value<String> grindMode,
@@ -5533,6 +5804,7 @@ typedef $$BrewRecordsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<DateTime> brewDate,
       Value<String> beanName,
+      Value<int?> beanId,
       Value<int?> equipmentId,
       Value<String> brewMethod,
       Value<String> grindMode,
@@ -5555,6 +5827,24 @@ typedef $$BrewRecordsTableUpdateCompanionBuilder =
 final class $$BrewRecordsTableReferences
     extends BaseReferences<_$OneBrewDatabase, $BrewRecordsTable, BrewRecord> {
   $$BrewRecordsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $BeansTable _beanIdTable(_$OneBrewDatabase db) => db.beans.createAlias(
+    $_aliasNameGenerator(db.brewRecords.beanId, db.beans.id),
+  );
+
+  $$BeansTableProcessedTableManager? get beanId {
+    final $_column = $_itemColumn<int>('bean_id');
+    if ($_column == null) return null;
+    final manager = $$BeansTableTableManager(
+      $_db,
+      $_db.beans,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_beanIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static $EquipmentsTable _equipmentIdTable(_$OneBrewDatabase db) =>
       db.equipments.createAlias(
@@ -5724,6 +6014,29 @@ class $$BrewRecordsTableFilterComposer
     column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$BeansTableFilterComposer get beanId {
+    final $$BeansTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.beanId,
+      referencedTable: $db.beans,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BeansTableFilterComposer(
+            $db: $db,
+            $table: $db.beans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   $$EquipmentsTableFilterComposer get equipmentId {
     final $$EquipmentsTableFilterComposer composer = $composerBuilder(
@@ -5903,6 +6216,29 @@ class $$BrewRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  $$BeansTableOrderingComposer get beanId {
+    final $$BeansTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.beanId,
+      referencedTable: $db.beans,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BeansTableOrderingComposer(
+            $db: $db,
+            $table: $db.beans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$EquipmentsTableOrderingComposer get equipmentId {
     final $$EquipmentsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -6013,6 +6349,29 @@ class $$BrewRecordsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
+  $$BeansTableAnnotationComposer get beanId {
+    final $$BeansTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.beanId,
+      referencedTable: $db.beans,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BeansTableAnnotationComposer(
+            $db: $db,
+            $table: $db.beans,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   $$EquipmentsTableAnnotationComposer get equipmentId {
     final $$EquipmentsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -6101,6 +6460,7 @@ class $$BrewRecordsTableTableManager
           (BrewRecord, $$BrewRecordsTableReferences),
           BrewRecord,
           PrefetchHooks Function({
+            bool beanId,
             bool equipmentId,
             bool brewRatingsRefs,
             bool brewParamValuesRefs,
@@ -6122,6 +6482,7 @@ class $$BrewRecordsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<DateTime> brewDate = const Value.absent(),
                 Value<String> beanName = const Value.absent(),
+                Value<int?> beanId = const Value.absent(),
                 Value<int?> equipmentId = const Value.absent(),
                 Value<String> brewMethod = const Value.absent(),
                 Value<String> grindMode = const Value.absent(),
@@ -6143,6 +6504,7 @@ class $$BrewRecordsTableTableManager
                 id: id,
                 brewDate: brewDate,
                 beanName: beanName,
+                beanId: beanId,
                 equipmentId: equipmentId,
                 brewMethod: brewMethod,
                 grindMode: grindMode,
@@ -6166,6 +6528,7 @@ class $$BrewRecordsTableTableManager
                 Value<int> id = const Value.absent(),
                 required DateTime brewDate,
                 required String beanName,
+                Value<int?> beanId = const Value.absent(),
                 Value<int?> equipmentId = const Value.absent(),
                 Value<String> brewMethod = const Value.absent(),
                 Value<String> grindMode = const Value.absent(),
@@ -6187,6 +6550,7 @@ class $$BrewRecordsTableTableManager
                 id: id,
                 brewDate: brewDate,
                 beanName: beanName,
+                beanId: beanId,
                 equipmentId: equipmentId,
                 brewMethod: brewMethod,
                 grindMode: grindMode,
@@ -6215,6 +6579,7 @@ class $$BrewRecordsTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
+                beanId = false,
                 equipmentId = false,
                 brewRatingsRefs = false,
                 brewParamValuesRefs = false,
@@ -6241,6 +6606,21 @@ class $$BrewRecordsTableTableManager
                           dynamic
                         >
                       >(state) {
+                        if (beanId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.beanId,
+                                    referencedTable:
+                                        $$BrewRecordsTableReferences
+                                            ._beanIdTable(db),
+                                    referencedColumn:
+                                        $$BrewRecordsTableReferences
+                                            ._beanIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
                         if (equipmentId) {
                           state =
                               state.withJoin(
@@ -6324,6 +6704,7 @@ typedef $$BrewRecordsTableProcessedTableManager =
       (BrewRecord, $$BrewRecordsTableReferences),
       BrewRecord,
       PrefetchHooks Function({
+        bool beanId,
         bool equipmentId,
         bool brewRatingsRefs,
         bool brewParamValuesRefs,
@@ -6919,6 +7300,7 @@ typedef $$BrewParamDefinitionsTableCreateCompanionBuilder =
       Value<int> id,
       required String method,
       required String name,
+      Value<String?> paramKey,
       required String type,
       Value<String?> unit,
       Value<double?> numberMin,
@@ -6933,6 +7315,7 @@ typedef $$BrewParamDefinitionsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<String> method,
       Value<String> name,
+      Value<String?> paramKey,
       Value<String> type,
       Value<String?> unit,
       Value<double?> numberMin,
@@ -7030,6 +7413,11 @@ class $$BrewParamDefinitionsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
     column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get paramKey => $composableBuilder(
+    column: $table.paramKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7149,6 +7537,11 @@ class $$BrewParamDefinitionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get paramKey => $composableBuilder(
+    column: $table.paramKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get type => $composableBuilder(
     column: $table.type,
     builder: (column) => ColumnOrderings(column),
@@ -7207,6 +7600,9 @@ class $$BrewParamDefinitionsTableAnnotationComposer
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get paramKey =>
+      $composableBuilder(column: $table.paramKey, builder: (column) => column);
 
   GeneratedColumn<String> get type =>
       $composableBuilder(column: $table.type, builder: (column) => column);
@@ -7330,6 +7726,7 @@ class $$BrewParamDefinitionsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> method = const Value.absent(),
                 Value<String> name = const Value.absent(),
+                Value<String?> paramKey = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<String?> unit = const Value.absent(),
                 Value<double?> numberMin = const Value.absent(),
@@ -7342,6 +7739,7 @@ class $$BrewParamDefinitionsTableTableManager
                 id: id,
                 method: method,
                 name: name,
+                paramKey: paramKey,
                 type: type,
                 unit: unit,
                 numberMin: numberMin,
@@ -7356,6 +7754,7 @@ class $$BrewParamDefinitionsTableTableManager
                 Value<int> id = const Value.absent(),
                 required String method,
                 required String name,
+                Value<String?> paramKey = const Value.absent(),
                 required String type,
                 Value<String?> unit = const Value.absent(),
                 Value<double?> numberMin = const Value.absent(),
@@ -7368,6 +7767,7 @@ class $$BrewParamDefinitionsTableTableManager
                 id: id,
                 method: method,
                 name: name,
+                paramKey: paramKey,
                 type: type,
                 unit: unit,
                 numberMin: numberMin,
@@ -8217,12 +8617,14 @@ typedef $$AppSettingsTableCreateCompanionBuilder =
     AppSettingsCompanion Function({
       required String key,
       Value<bool> boolValue,
+      Value<String?> stringValue,
       Value<int> rowid,
     });
 typedef $$AppSettingsTableUpdateCompanionBuilder =
     AppSettingsCompanion Function({
       Value<String> key,
       Value<bool> boolValue,
+      Value<String?> stringValue,
       Value<int> rowid,
     });
 
@@ -8242,6 +8644,11 @@ class $$AppSettingsTableFilterComposer
 
   ColumnFilters<bool> get boolValue => $composableBuilder(
     column: $table.boolValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get stringValue => $composableBuilder(
+    column: $table.stringValue,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -8264,6 +8671,11 @@ class $$AppSettingsTableOrderingComposer
     column: $table.boolValue,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get stringValue => $composableBuilder(
+    column: $table.stringValue,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$AppSettingsTableAnnotationComposer
@@ -8280,6 +8692,11 @@ class $$AppSettingsTableAnnotationComposer
 
   GeneratedColumn<bool> get boolValue =>
       $composableBuilder(column: $table.boolValue, builder: (column) => column);
+
+  GeneratedColumn<String> get stringValue => $composableBuilder(
+    column: $table.stringValue,
+    builder: (column) => column,
+  );
 }
 
 class $$AppSettingsTableTableManager
@@ -8315,20 +8732,24 @@ class $$AppSettingsTableTableManager
               ({
                 Value<String> key = const Value.absent(),
                 Value<bool> boolValue = const Value.absent(),
+                Value<String?> stringValue = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AppSettingsCompanion(
                 key: key,
                 boolValue: boolValue,
+                stringValue: stringValue,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String key,
                 Value<bool> boolValue = const Value.absent(),
+                Value<String?> stringValue = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AppSettingsCompanion.insert(
                 key: key,
                 boolValue: boolValue,
+                stringValue: stringValue,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

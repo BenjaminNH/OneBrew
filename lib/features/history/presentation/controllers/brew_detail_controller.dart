@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../brew_logger/brew_logger_providers.dart';
 import '../../../brew_logger/domain/entities/brew_method.dart';
 import '../../../brew_logger/domain/entities/brew_param_definition.dart';
+import '../../../brew_logger/domain/entities/brew_param_key.dart';
 import '../../../brew_logger/domain/entities/brew_param_value.dart';
 import '../../../brew_logger/domain/repositories/brew_param_repository.dart';
 import '../../domain/entities/brew_detail.dart';
@@ -11,11 +12,13 @@ import '../../history_providers.dart';
 
 class BrewParamEntry {
   const BrewParamEntry({
+    required this.paramKey,
     required this.name,
     required this.value,
     required this.sortOrder,
   });
 
+  final String? paramKey;
   final String name;
   final String value;
   final int sortOrder;
@@ -64,7 +67,6 @@ class DeleteBrewResult {
 }
 
 const _sentinel = Object();
-const Set<String> _durationSemanticParamKeys = {'brewtime', 'extractiontime'};
 
 class BrewDetailController extends Notifier<BrewDetailState> {
   BrewDetailController(this.brewId);
@@ -142,11 +144,14 @@ class BrewDetailController extends Notifier<BrewDetailState> {
         }
       }
       if (definition == null) continue;
-      if (_isDurationSemanticParam(definition.name)) continue;
+      if (durationSemanticParamKeys.contains(definition.resolvedParamKey)) {
+        continue;
+      }
       final formatted = _formatParamValue(definition, value);
       if (formatted == null) continue;
       entries.add(
         BrewParamEntry(
+          paramKey: definition.resolvedParamKey,
           name: definition.name,
           value: formatted,
           sortOrder: definition.sortOrder,
@@ -195,13 +200,6 @@ class BrewDetailController extends Notifier<BrewDetailState> {
         if (text == null || text.isEmpty) return null;
         return text;
     }
-  }
-
-  bool _isDurationSemanticParam(String name) {
-    final normalized = name
-        .replaceAll(RegExp(r'[^a-zA-Z0-9]'), '')
-        .toLowerCase();
-    return _durationSemanticParamKeys.contains(normalized);
   }
 }
 

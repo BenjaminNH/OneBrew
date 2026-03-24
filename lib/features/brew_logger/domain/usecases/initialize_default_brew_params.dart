@@ -34,6 +34,7 @@ class InitializeDefaultBrewParams {
           BrewParamDefinition(
             id: 0,
             method: template.method,
+            paramKey: template.paramKey,
             name: template.name,
             type: template.type,
             unit: template.unit,

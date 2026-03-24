@@ -272,6 +272,47 @@ class FakeBrewParamRepository implements BrewParamRepository {
   }
 
   @override
+  Future<List<String>> getTopTextParamSuggestions({
+    required BrewMethod method,
+    required String paramKey,
+    int limit = 3,
+  }) async {
+    final definitions = _definitions[method] ?? const [];
+    final matchingIds = definitions
+        .where(
+          (definition) =>
+              definition.type == ParamType.text &&
+              definition.paramKey == paramKey,
+        )
+        .map((definition) => definition.id)
+        .toSet();
+    if (matchingIds.isEmpty) {
+      return const [];
+    }
+
+    final usage = <String, int>{};
+    final latestOrder = <String, int>{};
+    var order = 0;
+    for (final values in _valuesByBrew.values) {
+      for (final value in values) {
+        if (!matchingIds.contains(value.paramId)) continue;
+        final text = value.valueText?.trim();
+        if (text == null || text.isEmpty) continue;
+        usage.update(text, (count) => count + 1, ifAbsent: () => 1);
+        latestOrder[text] = order++;
+      }
+    }
+
+    final entries = usage.entries.toList()
+      ..sort((a, b) {
+        final countCompare = b.value.compareTo(a.value);
+        if (countCompare != 0) return countCompare;
+        return (latestOrder[b.key] ?? 0).compareTo(latestOrder[a.key] ?? 0);
+      });
+    return entries.take(limit).map((entry) => entry.key).toList();
+  }
+
+  @override
   Future<bool> hasCompletedOnboarding() async => _hasCompletedOnboarding;
 
   @override
