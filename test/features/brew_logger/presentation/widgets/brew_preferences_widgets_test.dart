@@ -6,6 +6,8 @@ import 'package:one_brew/features/brew_logger/domain/entities/brew_param_visibil
 import 'package:one_brew/features/brew_logger/presentation/controllers/brew_preferences_controller.dart';
 import 'package:one_brew/features/brew_logger/presentation/widgets/brew_preferences_widgets.dart';
 
+import '../../../../helpers/localized_test_app.dart';
+
 void main() {
   group('BrewParamListEditor', () {
     testWidgets(
@@ -29,14 +31,13 @@ void main() {
           ),
         );
 
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: BrewParamListEditor(
-                items: [item],
-                onVisibilityChanged: (brewParamItem, isVisible) {},
-                onDelete: (brewParamItem) {},
-              ),
+        await pumpLocalizedWidget(
+          tester,
+          child: Scaffold(
+            body: BrewParamListEditor(
+              items: [item],
+              onVisibilityChanged: (brewParamItem, isVisible) {},
+              onDelete: (brewParamItem) {},
             ),
           ),
         );
@@ -66,14 +67,13 @@ void main() {
         ),
       );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: BrewParamListEditor(
-              items: [item],
-              onVisibilityChanged: (brewParamItem, isVisible) {},
-              onDelete: (brewParamItem) {},
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        child: Scaffold(
+          body: BrewParamListEditor(
+            items: [item],
+            onVisibilityChanged: (brewParamItem, isVisible) {},
+            onDelete: (brewParamItem) {},
           ),
         ),
       );
@@ -104,14 +104,13 @@ void main() {
           ),
         );
 
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: BrewParamListEditor(
-                items: [item],
-                onVisibilityChanged: (brewParamItem, isVisible) {},
-                onDelete: (brewParamItem) {},
-              ),
+        await pumpLocalizedWidget(
+          tester,
+          child: Scaffold(
+            body: BrewParamListEditor(
+              items: [item],
+              onVisibilityChanged: (brewParamItem, isVisible) {},
+              onDelete: (brewParamItem) {},
             ),
           ),
         );

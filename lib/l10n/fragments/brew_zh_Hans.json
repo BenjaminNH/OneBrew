@@ -1,0 +1,252 @@
+{
+  "brewMethodsUnavailable": "萃取方式不可用。",
+  "brewEnableMethodInPreferences": "请先在偏好中启用至少一种萃取方式。",
+  "brewMethodSelectorLabel": "萃取方式",
+  "brewMethodNamePourOver": "手冲",
+  "brewMethodNameEspresso": "意式",
+  "brewPreferencesTitle": "记录偏好",
+  "brewPreferencesSubtitle": "设置默认萃取方式与参数列表。",
+  "brewPreferencesSectionMethodsTitle": "萃取方式",
+  "brewPreferencesSectionMethodsSubtitle": "选择哪些方式显示在“萃取”页。",
+  "brewPreferencesSectionParamsTitle": "参数列表",
+  "brewPreferencesSectionParamsSubtitle": "为每种方式隐藏默认参数或添加自定义参数。",
+  "brewEnableMethodToConfigureParams": "启用一种方式以配置参数。",
+  "brewNoParamsConfiguredYet": "该方式暂未配置任何参数。",
+  "brewTooltipDeleteParameter": "删除参数",
+  "brewActionAddCustomParameter": "添加自定义参数",
+  "brewAddParamSheetTitle": "新参数",
+  "brewAddParamFieldNameHint": "例如：流速",
+  "brewAddParamFieldTypeLabel": "类型",
+  "brewParamTypeNumber": "数字",
+  "brewParamTypeText": "文本",
+  "brewAddParamFieldUnitLabel": "单位（可选）",
+  "brewAddParamFieldUnitHint": "例如：g、ml、bar",
+  "brewAddParamFieldMinLabel": "最小值",
+  "brewAddParamFieldMaxLabel": "最大值",
+  "brewAddParamFieldStepLabel": "步长（可选）",
+  "brewAddParamFieldDefaultLabel": "默认值（可选）",
+  "brewAddParamValidationNameRequired": "请输入名称。",
+  "brewAddParamValidationMinRequired": "请输入最小值。",
+  "brewAddParamValidationMaxRequired": "请输入最大值。",
+  "brewAddParamValidationMaxGreaterThanMin": "最大值必须大于最小值。",
+  "brewAddParamValidationStepPositive": "步长必须大于 0。",
+  "brewAddParamValidationDefaultWithinRange": "默认值必须在范围内。",
+  "brewActionAddParameter": "添加参数",
+  "onboardingStepChooseMethodsTitle": "选择萃取方式",
+  "onboardingStepChooseMethodsSubtitle": "至少选择一种方式开始使用。也可以添加自定义方式来匹配你的习惯。",
+  "onboardingPrimaryNext": "下一步",
+  "onboardingPrimaryNextMethod": "下一个方式",
+  "onboardingPrimaryFinish": "完成",
+  "onboardingSkip": "跳过",
+  "onboardingWelcomeTo": "Welcome to",
+  "onboardingTagline": "Focus on one brew at a time.",
+  "onboardingParamListTitle": "参数列表",
+  "onboardingParamListSubtitle": "隐藏默认参数或添加自定义参数。",
+  "brewBeanLabel": "咖啡豆",
+  "brewBeanHint": "搜索或添加咖啡豆…",
+  "brewLabelCoffee": "粉量",
+  "brewLabelDose": "粉量",
+  "brewLabelWater": "水量",
+  "brewLabelYield": "出杯量",
+  "brewParamLabelCoffeeDose": "粉量",
+  "brewParamLabelWaterWeight": "水量",
+  "brewParamLabelYield": "出杯量",
+  "brewParamLabelBrewRatio": "比例",
+  "brewParamLabelWaterTemp": "水温",
+  "brewParamLabelGrindSize": "研磨",
+  "brewParamLabelBrewTime": "萃取时间",
+  "brewParamLabelExtractionTime": "萃取时间",
+  "brewParamLabelBloomTime": "闷蒸时间",
+  "brewParamLabelBloomWater": "闷蒸水量",
+  "brewParamLabelPourMethod": "注水方式",
+  "brewParamLabelAgitation": "扰流",
+  "brewParamLabelFilterDripper": "滤杯 / 滤纸",
+  "brewParamLabelPressure": "压力",
+  "brewParamLabelPreInfusion": "预浸泡时间",
+  "brewParamLabelDistributionTamping": "布粉 / 压粉",
+  "@brewSemanticWeight": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewSemanticWeight": "{label} 重量",
+  "@brewRatioBadge": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "brewRatioBadge": "1 : {ratio}",
+  "brewGrindModeLabel": "研磨模式",
+  "brewAdvancedTempLabel": "水温",
+  "brewAdvancedTempSemantic": "水温",
+  "brewAdvancedBloomLabel": "闷蒸",
+  "brewAdvancedBloomSemantic": "闷蒸时间（秒）",
+  "brewAdvancedSelectGrinderHint": "选择磨豆机…",
+  "brewAdvancedEquipmentLabel": "磨豆机 / 器具",
+  "brewAdvancedGrindClicksLabel": "刻度",
+  "brewAdvancedGrindClicksSemantic": "研磨刻度",
+  "brewAdvancedPourMethodLabel": "注水方式",
+  "brewAdvancedPourMethodHint": "例如：螺旋、脉冲、中心",
+  "brewAdvancedGrindModeGrinder": "磨豆机",
+  "brewAdvancedGrindModeSimple": "简易",
+  "brewAdvancedGrindModePro": "专业（μm）",
+  "brewAdvancedCoarsenessLabel": "粗细",
+  "brewAdvancedCoarsenessHint": "选择粗细",
+  "brewAdvancedGrindSizeLabel": "研磨粒径（μm）",
+  "brewGrindSimpleExtraFine": "极细",
+  "brewGrindSimpleFine": "较细",
+  "brewGrindSimpleMediumFine": "中细",
+  "brewGrindSimpleMedium": "中",
+  "brewGrindSimpleMediumCoarse": "中粗",
+  "brewGrindSimpleCoarse": "较粗",
+  "brewGrindSimpleExtraCoarse": "极粗",
+  "brewTimerTargetOff": "倒计时：关闭",
+  "@brewTimerTargetValue": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTimerTargetValue": "倒计时 {time}",
+  "@brewTimerAdjustStepTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerAdjustStepTooltip": "调整倒计时 {seconds} 秒",
+  "brewTimerDecreaseTargetSemantics": "减少倒计时",
+  "brewTimerIncreaseTargetSemantics": "增加倒计时",
+  "brewTimerUseTarget": "开启倒计时",
+  "brewTimerTargetOn": "关闭倒计时",
+  "brewTimerReset": "重置计时器",
+  "brewTimerPause": "暂停",
+  "brewTimerResume": "继续",
+  "brewTimerBrew": "萃取",
+  "brewTimerEnableTargetToUseCountdown": "开启倒计时后可使用倒计时模式",
+  "brewTimerSwitchToCountUp": "切换为正计时",
+  "brewTimerSwitchToCountdown": "切换为倒计时",
+  "brewTimerToggleCountdownSemantics": "切换计时模式",
+  "@brewTimerDecreaseTargetTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerDecreaseTargetTooltip": "倒计时减少 {seconds} 秒",
+  "@brewTimerIncreaseTargetTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerIncreaseTargetTooltip": "倒计时增加 {seconds} 秒",
+  "brewTemplateLoadedFromHistory": "已从历史加载模板",
+  "brewTemplatesUnavailable": "当前暂时无法使用模板。",
+  "@brewTemplateApplied": {
+    "placeholders": {
+      "beanName": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplateApplied": "已应用模板：{beanName}",
+  "brewUntitledBrew": "未命名萃取",
+  "@brewTemplateSubtitle": {
+    "placeholders": {
+      "coffeeGrams": {
+        "type": "String"
+      },
+      "waterGrams": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplateSubtitle": "{coffeeGrams}g -> {waterGrams}g | {duration}",
+  "brewSaveRecordSemantics": "保存萃取记录",
+  "brewSaveActionReady": "保存",
+  "brewSaveActionDisabled": "开始计时后可保存",
+  "brewSaveSuccessMessage": "已保存。你可以现在评分，或稍后在历史详情中评分。",
+  "brewSaveSuccessRateNow": "立即评分",
+  "brewRatingSaved": "评分已保存！",
+  "@brewAdjustedToNearestStep": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "brewAdjustedToNearestStep": "已调整到最近的步进：{value}{unit}",
+  "@brewAdjustDialogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewAdjustDialogTitle": "调整 {label}",
+  "brewActionClear": "清除",
+  "brewActionApply": "应用",
+  "brewValueLabel": "数值",
+  "@brewValueLabelWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "brewValueLabelWithUnit": "数值（{unit}）",
+  "brewErrorValueRequired": "请输入数值。",
+  "brewErrorInvalidNumber": "请输入有效数字。",
+  "@brewErrorValueOutOfRange": {
+    "placeholders": {
+      "min": {
+        "type": "double"
+      },
+      "max": {
+        "type": "double"
+      }
+    }
+  },
+  "brewErrorValueOutOfRange": "数值必须在 {min} 和 {max} 之间。",
+  "@brewSemanticValue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewSemanticValue": "{label} 值",
+  "brewTextFieldHintEnterText": "输入文本",
+  "brewCustomMethodSheetTitle": "自定义萃取方式",
+  "brewRenameCustomMethodSheetTitle": "重命名自定义方式",
+  "brewCustomMethodNameLabel": "方式名称",
+  "brewCustomMethodNameHint": "例如：AeroPress",
+  "brewCustomMethodSave": "保存",
+  "brewCustomMethodWantAnother": "需要另一种方式？点此添加",
+  "@brewCustomMethodDisplay": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "brewCustomMethodDisplay": "自定义方式：{name}",
+  "brewCustomMethodDefaultName": "自定义",
+  "brewCustomMethodRename": "重命名",
+  "brewCustomMethodDelete": "删除"
+}

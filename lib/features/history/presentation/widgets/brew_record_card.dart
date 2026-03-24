@@ -5,6 +5,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../l10n/l10n.dart';
 import '../../domain/entities/brew_summary.dart';
 
 class BrewRecordCard extends StatelessWidget {
@@ -17,6 +18,8 @@ class BrewRecordCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final localeName = Localizations.localeOf(context).toString();
     final ratio = summary.coffeeWeightG > 0
         ? summary.waterWeightG / summary.coffeeWeightG
         : 0;
@@ -58,7 +61,7 @@ class BrewRecordCard extends StatelessWidget {
                       ),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
-                        'Top Brew',
+                        l10n.historyTopBrew,
                         style: AppTextStyles.labelMedium.copyWith(
                           color: AppColors.primaryDark,
                         ),
@@ -70,13 +73,19 @@ class BrewRecordCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            AppDateUtils.formatDateTimeShort(summary.brewDate),
+            AppDateUtils.formatDateTimeShort(
+              summary.brewDate,
+              localeName: localeName,
+            ),
             style: AppTextStyles.bodySmall,
           ),
           if (summary.roaster != null &&
               summary.roaster!.trim().isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xxs),
-            Text('Roaster: ${summary.roaster}', style: AppTextStyles.bodySmall),
+            Text(
+              l10n.historyRoasterPrefix(summary.roaster!.trim()),
+              style: AppTextStyles.bodySmall,
+            ),
           ],
           const SizedBox(height: AppSpacing.sm),
           Wrap(
@@ -85,7 +94,7 @@ class BrewRecordCard extends StatelessWidget {
             children: [
               _MetaChip(
                 icon: Icons.timer_outlined,
-                text: '${summary.brewDurationS}s',
+                text: l10n.historySecondsSuffix(summary.brewDurationS),
               ),
               _MetaChip(
                 icon: Icons.water_drop_outlined,

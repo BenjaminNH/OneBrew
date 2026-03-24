@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:one_brew/features/inventory/presentation/widgets/grinder_form_sheet.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 
 class _GrinderSheetHarness extends StatefulWidget {
   const _GrinderSheetHarness();
@@ -40,7 +41,14 @@ void main() {
   testWidgets('GrinderFormSheet validates invalid range', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: _GrinderSheetHarness()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: Locale('en'),
+        home: _GrinderSheetHarness(),
+      ),
+    );
 
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
@@ -59,7 +67,14 @@ void main() {
   testWidgets('GrinderFormSheet returns result when form is valid', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: _GrinderSheetHarness()));
+    await tester.pumpWidget(
+      const MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: Locale('en'),
+        home: _GrinderSheetHarness(),
+      ),
+    );
 
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();

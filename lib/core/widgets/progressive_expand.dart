@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../constants/app_durations.dart';
 import '../constants/app_spacing.dart';
@@ -25,8 +26,8 @@ class ProgressiveExpand extends StatefulWidget {
     required this.expandedChild,
     this.isExpanded = false,
     this.onExpandChanged,
-    this.expandLabel = 'Show more',
-    this.collapseLabel = 'Show less',
+    this.expandLabel,
+    this.collapseLabel,
     this.expandIcon = Icons.keyboard_arrow_down_rounded,
     this.collapseIcon = Icons.keyboard_arrow_up_rounded,
     this.duration,
@@ -48,10 +49,10 @@ class ProgressiveExpand extends StatefulWidget {
   final ValueChanged<bool>? onExpandChanged;
 
   /// Label for the expand toggle button
-  final String expandLabel;
+  final String? expandLabel;
 
   /// Label for the collapse toggle button
-  final String collapseLabel;
+  final String? collapseLabel;
 
   /// Icon shown in collapsed state
   final IconData expandIcon;
@@ -182,8 +183,8 @@ class _ExpandToggleButton extends StatelessWidget {
   });
 
   final bool isExpanded;
-  final String expandLabel;
-  final String collapseLabel;
+  final String? expandLabel;
+  final String? collapseLabel;
   final IconData expandIcon;
   final IconData collapseIcon;
   final Animation<double> rotateAnimation;
@@ -191,6 +192,7 @@ class _ExpandToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
@@ -202,7 +204,9 @@ class _ExpandToggleButton extends StatelessWidget {
             AnimatedSwitcher(
               duration: AppDurations.fast,
               child: Text(
-                isExpanded ? collapseLabel : expandLabel,
+                isExpanded
+                    ? (collapseLabel ?? l10n.progressiveExpandShowLess)
+                    : (expandLabel ?? l10n.progressiveExpandShowMore),
                 key: ValueKey(isExpanded),
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: Theme.of(context).colorScheme.primary,

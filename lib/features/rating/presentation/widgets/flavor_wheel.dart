@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../l10n/l10n.dart';
 import '../constants/rating_presets.dart';
 
 class FlavorWheel extends StatelessWidget {
@@ -18,12 +19,13 @@ class FlavorWheel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AppInsetContainer(
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Flavor Notes', style: AppTextStyles.titleLarge),
+          Text(l10n.ratingFlavorNotesTitle, style: AppTextStyles.titleLarge),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.xs,
@@ -34,7 +36,7 @@ class FlavorWheel extends StatelessWidget {
                 key: Key(
                   'flavor-note-${note.toLowerCase().replaceAll(' ', '-')}',
                 ),
-                label: Text(note),
+                label: Text(flavorNoteLabel(note, l10n)),
                 selected: selected,
                 onSelected: (_) => onToggleNote(note),
                 selectedColor: AppColors.secondary.withValues(alpha: 0.35),

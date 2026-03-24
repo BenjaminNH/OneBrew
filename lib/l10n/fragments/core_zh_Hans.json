@@ -1,0 +1,64 @@
+{
+  "appTitle": "OneBrew",
+  "navBrew": "萃取",
+  "navHistory": "历史",
+  "navManage": "管理",
+  "routeInvalidHistoryDetailId": "无效的历史记录详情 ID。",
+  "actionGoBack": "返回",
+  "actionCancel": "取消",
+  "actionAdd": "添加",
+  "commonName": "名称",
+  "chipInputHint": "输入后按回车…",
+  "chipInputAddMore": "继续添加…",
+  "singleSelectHint": "请选择",
+  "singleSelectAddAction": "新增",
+  "singleSelectEmptyState": "暂无建议项",
+  "singleSelectDialogTitle": "添加项目",
+  "singleSelectDialogHint": "名称",
+  "singleSelectDialogConfirm": "添加",
+  "timerPhaseBloom": "闷蒸",
+  "timerPhaseDone": "完成 ✓",
+  "timerPhaseReady": "准备就绪",
+  "timerPhaseBrewing": "萃取中",
+  "progressiveExpandShowMore": "展开更多",
+  "progressiveExpandShowLess": "收起",
+  "dateJustNow": "刚刚",
+  "@dateMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateMinutesAgo": "{count} 分钟前",
+  "@dateDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateDaysAgo": "{count} 天前",
+  "@dateTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dateTodayAt": "今天 {time}",
+  "@dateYesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dateYesterdayAt": "昨天 {time}",
+  "dateToday": "今天",
+  "dateYesterday": "昨天",
+  "dateThisWeek": "本周",
+  "languageSystemDefault": "跟随系统",
+  "languageEnglish": "English",
+  "languageSimplifiedChinese": "简体中文"
+}

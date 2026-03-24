@@ -2,24 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:one_brew/features/rating/presentation/widgets/flavor_sliders.dart';
 
+import '../../../../helpers/localized_test_app.dart';
+
 void main() {
   group('FlavorSliders', () {
     testWidgets('uses 0-5 slider scale and shows value labels as /5', (
       tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: FlavorSliders(
-              acidity: 4.5,
-              sweetness: 3.0,
-              bitterness: 2.5,
-              body: 5.0,
-              onAcidityChanged: (_) {},
-              onSweetnessChanged: (_) {},
-              onBitternessChanged: (_) {},
-              onBodyChanged: (_) {},
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        child: Scaffold(
+          body: FlavorSliders(
+            acidity: 4.5,
+            sweetness: 3.0,
+            bitterness: 2.5,
+            body: 5.0,
+            onAcidityChanged: (_) {},
+            onSweetnessChanged: (_) {},
+            onBitternessChanged: (_) {},
+            onBodyChanged: (_) {},
           ),
         ),
       );

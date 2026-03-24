@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
@@ -75,19 +76,23 @@ class AppTimerDisplay extends StatelessWidget {
     return '$m:${s.toString().padLeft(2, '0')}';
   }
 
-  String get _phaseLabel {
-    if (bloomSeconds > 0 && elapsedSeconds <= bloomSeconds) return 'Bloom';
-    if (targetSeconds != null && elapsedSeconds >= targetSeconds!) {
-      return 'Done ✓';
+  String _phaseLabel(BuildContext context) {
+    final l10n = context.l10n;
+    if (bloomSeconds > 0 && elapsedSeconds <= bloomSeconds) {
+      return l10n.timerPhaseBloom;
     }
-    if (!isRunning && elapsedSeconds == 0) return 'Ready';
-    return 'Brewing';
+    if (targetSeconds != null && elapsedSeconds >= targetSeconds!) {
+      return l10n.timerPhaseDone;
+    }
+    if (!isRunning && elapsedSeconds == 0) return l10n.timerPhaseReady;
+    return l10n.timerPhaseBrewing;
   }
 
   Color _phaseLabelColor(BuildContext context) {
+    final phaseLabel = _phaseLabel(context);
     if (phaseColor != null) return phaseColor!;
-    if (_phaseLabel == 'Bloom') return AppColors.secondary;
-    if (_phaseLabel.startsWith('Done')) return AppColors.success;
+    if (phaseLabel == context.l10n.timerPhaseBloom) return AppColors.secondary;
+    if (phaseLabel == context.l10n.timerPhaseDone) return AppColors.success;
     return AppColors.primary;
   }
 
@@ -98,6 +103,7 @@ class AppTimerDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final phaseLabel = _phaseLabel(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -106,8 +112,8 @@ class AppTimerDisplay extends StatelessWidget {
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Text(
-              _phaseLabel,
-              key: ValueKey(_phaseLabel),
+              phaseLabel,
+              key: ValueKey(phaseLabel),
               style: AppTextStyles.titleMedium.copyWith(
                 color: _phaseLabelColor(context),
                 fontWeight: FontWeight.w600,

@@ -10,7 +10,13 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../brew_logger/domain/entities/brew_record.dart';
+import '../../../brew_logger/domain/entities/brew_param_key.dart';
+import '../../../brew_logger/presentation/models/brew_param_display.dart';
+import '../../../brew_logger/presentation/models/grind_simple_label_localizer.dart';
+import '../../../rating/presentation/constants/rating_presets.dart';
 import '../../domain/entities/brew_detail.dart';
 import '../controllers/brew_detail_controller.dart';
 
@@ -54,6 +60,7 @@ class _SharePreviewBottomSheetState extends State<SharePreviewBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final mediaQuery = MediaQuery.of(context);
     final posterViewportSize = math.min(
       _posterCardSize,
@@ -105,7 +112,7 @@ class _SharePreviewBottomSheetState extends State<SharePreviewBottomSheet> {
                   children: [
                     Expanded(
                       child: Text(
-                        'Share your brew',
+                        l10n.sharePreviewTitle,
                         style: _inter(
                           20,
                           FontWeight.w600,
@@ -142,7 +149,7 @@ class _SharePreviewBottomSheetState extends State<SharePreviewBottomSheet> {
                         onPressed: _isSaving
                             ? null
                             : () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+                        child: Text(l10n.actionCancel),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
@@ -153,7 +160,11 @@ class _SharePreviewBottomSheetState extends State<SharePreviewBottomSheet> {
                           textStyle: AppTextStyles.buttonSecondary,
                         ),
                         onPressed: _isSaving ? null : _savePoster,
-                        child: Text(_isSaving ? 'Saving...' : 'Save Poster'),
+                        child: Text(
+                          _isSaving
+                              ? l10n.sharePreviewSaving
+                              : l10n.sharePreviewSavePoster,
+                        ),
                       ),
                     ),
                   ],
@@ -172,6 +183,7 @@ class _SharePreviewBottomSheetState extends State<SharePreviewBottomSheet> {
     try {
       final messenger = ScaffoldMessenger.of(context);
       final navigator = Navigator.of(context);
+      final l10n = context.l10n;
 
       await WidgetsBinding.instance.endOfFrame;
       final boundary =
@@ -202,8 +214,8 @@ class _SharePreviewBottomSheetState extends State<SharePreviewBottomSheet> {
 
       navigator.pop();
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Poster saved to your photo library.'),
+        SnackBar(
+          content: Text(l10n.sharePreviewSaved),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
@@ -212,9 +224,10 @@ class _SharePreviewBottomSheetState extends State<SharePreviewBottomSheet> {
       if (!mounted) {
         return;
       }
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to save poster: $error'),
+          content: Text(l10n.sharePreviewSaveFailed(error.toString())),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -235,8 +248,9 @@ class _PosterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rating = _buildPosterRating(detail);
-    final allMetrics = _buildPosterMetrics(detail, paramEntries);
+    final l10n = context.l10n;
+    final rating = _buildPosterRating(context, detail);
+    final allMetrics = _buildPosterMetrics(detail, paramEntries, l10n: l10n);
     final gridSpec = _gridSpecFor(allMetrics.length);
     final visibleMetrics = allMetrics.take(gridSpec.maxItems).toList();
 
@@ -273,7 +287,12 @@ class _PosterCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: _PosterMetricGrid(metrics: visibleMetrics, spec: gridSpec),
             ),
-            _PosterFooter(date: _formatPosterDate(detail.brewDate)),
+            _PosterFooter(
+              date: _formatPosterDate(
+                detail.brewDate,
+                localeName: Localizations.localeOf(context).toString(),
+              ),
+            ),
           ],
         ),
       ),
@@ -327,7 +346,7 @@ class _PosterTopBlock extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 5,
             runSpacing: 5,
-            children: _buildScoreSummaryWidgets(rating.summaries),
+            children: _buildScoreSummaryWidgets(context, rating.summaries),
           ),
           if (rating.flavorTags.isNotEmpty) ...[
             const SizedBox(height: 6),
@@ -428,7 +447,7 @@ class _MetricCell extends StatelessWidget {
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                metric.label,
+                _posterMetricLabel(context, metric.label),
                 maxLines: 1,
                 softWrap: false,
                 style: _inter(
@@ -778,12 +797,15 @@ String? _posterOverline(BrewDetail detail) {
   return parts.join(' • ');
 }
 
-List<Widget> _buildScoreSummaryWidgets(List<String> summaries) {
+List<Widget> _buildScoreSummaryWidgets(
+  BuildContext context,
+  List<String> summaries,
+) {
   final widgets = <Widget>[];
   for (var index = 0; index < summaries.length; index += 1) {
     widgets.add(
       Text(
-        summaries[index],
+        _posterScoreSummary(context, summaries[index]),
         style: _outfit(
           9,
           FontWeight.w700,
@@ -801,20 +823,67 @@ List<Widget> _buildScoreSummaryWidgets(List<String> summaries) {
   return widgets;
 }
 
-_PosterRating _buildPosterRating(BrewDetail detail) {
+String _posterMetricLabel(BuildContext context, String label) {
+  final l10n = context.l10n;
+  switch (label) {
+    case 'DOSE':
+      return l10n.posterMetricDose;
+    case 'YIELD':
+      return l10n.posterMetricYield;
+    case 'RATIO':
+      return l10n.posterMetricRatio;
+    case 'TIME':
+      return l10n.posterMetricTime;
+    case 'TEMP':
+      return l10n.posterMetricTemp;
+    case 'GRIND':
+      return l10n.posterMetricGrind;
+    case 'BLOOM':
+      return l10n.posterMetricBloom;
+    case 'POUR':
+      return l10n.posterMetricPour;
+    case 'WATER':
+      return l10n.posterMetricWater;
+    case 'ROOM':
+      return l10n.posterMetricRoom;
+    default:
+      return label;
+  }
+}
+
+String _posterScoreSummary(BuildContext context, String raw) {
+  final l10n = context.l10n;
+  final parts = raw.split(' ');
+  if (parts.length < 2) {
+    return raw;
+  }
+  final key = parts.first;
+  final value = raw.substring(key.length).trimLeft();
+  final label = switch (key) {
+    'ACID' => l10n.posterScoreAcid,
+    'SWEET' => l10n.posterScoreSweet,
+    'BITTER' => l10n.posterScoreBitter,
+    'BODY' => l10n.posterScoreBody,
+    _ => key,
+  };
+  return '$label $value'.trim();
+}
+
+_PosterRating _buildPosterRating(BuildContext context, BrewDetail detail) {
   return _PosterRating(
     quickLabel: _hasQuickRating(detail) ? _quickBadge(detail) : null,
     quickScoreValue: detail.quickScore?.toDouble(),
     quickEmoji: _clean(detail.emoji),
     summaries: _scoreSummaries(detail),
-    flavorTags: _flavorTags(detail).take(3).toList(),
+    flavorTags: _flavorTags(context, detail).take(3).toList(),
   );
 }
 
 List<_PosterMetric> _buildPosterMetrics(
   BrewDetail detail,
-  List<BrewParamEntry> paramEntries,
-) {
+  List<BrewParamEntry> paramEntries, {
+  required AppLocalizations l10n,
+}) {
   final metrics = <_PosterMetric>[];
   final semanticIds = <String>{};
 
@@ -832,18 +901,18 @@ List<_PosterMetric> _buildPosterMetrics(
   addMetric(_yieldMetric(detail), semanticId: 'yield');
 
   for (final entry in paramEntries) {
-    final metric = _metricFromEntry(entry);
+    final metric = _metricFromEntry(entry, l10n: l10n);
     if (metric == null) {
       continue;
     }
-    final semanticId = _semanticIdFromLabel(entry.name);
+    final semanticId = _semanticIdForEntry(entry);
     addMetric(metric, semanticId: semanticId);
   }
 
   addMetric(_ratioMetric(detail), semanticId: 'ratio');
   addMetric(_timeMetric(detail), semanticId: 'time');
   addMetric(_temperatureMetric(detail), semanticId: 'temp');
-  addMetric(_grindMetric(detail), semanticId: 'grind');
+  addMetric(_grindMetric(detail, l10n: l10n), semanticId: 'grind');
   addMetric(_bloomMetric(detail), semanticId: 'bloom');
   addMetric(_pourMetric(detail), semanticId: 'pour');
   addMetric(_waterTypeMetric(detail), semanticId: 'water-type');
@@ -878,8 +947,11 @@ _PosterMetric? _temperatureMetric(BrewDetail detail) {
   return value == null ? null : _PosterMetric('TEMP', value);
 }
 
-_PosterMetric? _grindMetric(BrewDetail detail) {
-  final value = _formatGrind(detail);
+_PosterMetric? _grindMetric(
+  BrewDetail detail, {
+  required AppLocalizations l10n,
+}) {
+  final value = _formatGrind(detail, l10n: l10n);
   return value == null ? null : _PosterMetric('GRIND', value);
 }
 
@@ -912,88 +984,85 @@ _PosterMetric? _roomTempMetric(BrewDetail detail) {
   return _PosterMetric('ROOM', '$text°C');
 }
 
-_PosterMetric? _metricFromEntry(BrewParamEntry entry) {
-  final value = _clean(entry.value);
-  if (value == null) {
+_PosterMetric? _metricFromEntry(
+  BrewParamEntry entry, {
+  required AppLocalizations l10n,
+}) {
+  final rawValue = _clean(entry.value);
+  if (rawValue == null) {
     return null;
   }
-  return _PosterMetric(_displayMetricLabel(entry.name), value);
+  final value = localizedParamValue(
+    l10n: l10n,
+    paramKey: entry.paramKey,
+    value: rawValue,
+  );
+  return _PosterMetric(_displayMetricLabel(entry), value);
 }
 
-String _displayMetricLabel(String raw) {
-  final semanticId = _semanticIdFromLabel(raw);
+String _displayMetricLabel(BrewParamEntry entry) {
+  final semanticId = resolveParamKey(
+    paramKey: entry.paramKey,
+    name: entry.name,
+  );
   switch (semanticId) {
-    case 'dose':
+    case BrewParamKeys.coffeeWeight:
+    case BrewParamKeys.coffeeDose:
       return 'DOSE';
-    case 'yield':
+    case BrewParamKeys.waterWeight:
+    case BrewParamKeys.yieldAmount:
       return 'YIELD';
-    case 'ratio':
+    case BrewParamKeys.brewRatio:
       return 'RATIO';
-    case 'time':
+    case BrewParamKeys.brewTime:
+    case BrewParamKeys.extractionTime:
       return 'TIME';
-    case 'temp':
+    case BrewParamKeys.waterTemp:
       return 'TEMP';
-    case 'grind':
+    case BrewParamKeys.grindSize:
       return 'GRIND';
-    case 'bloom':
+    case BrewParamKeys.bloomTime:
+    case BrewParamKeys.bloomWater:
       return 'BLOOM';
-    case 'pour':
+    case BrewParamKeys.pourMethod:
       return 'POUR';
-    case 'water-type':
-      return 'WATER';
-    case 'room-temp':
-      return 'ROOM';
     default:
-      return _compactMetricLabel(raw);
+      return _compactMetricLabel(entry.name);
   }
 }
 
-String? _semanticIdFromLabel(String raw) {
-  final normalized = raw.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase();
-  if (normalized.isEmpty) {
-    return null;
-  }
-  if (normalized.contains('coffeeweight') ||
-      normalized.contains('coffeedose') ||
-      normalized == 'coffee' ||
-      normalized == 'dose') {
+String? _semanticIdForEntry(BrewParamEntry entry) {
+  final resolvedKey = resolveParamKey(
+    paramKey: entry.paramKey,
+    name: entry.name,
+  );
+  if (resolvedKey == BrewParamKeys.coffeeWeight ||
+      resolvedKey == BrewParamKeys.coffeeDose) {
     return 'dose';
   }
-  if (normalized == 'water' ||
-      normalized == 'yield' ||
-      normalized.contains('waterweight')) {
+  if (resolvedKey == BrewParamKeys.waterWeight ||
+      resolvedKey == BrewParamKeys.yieldAmount) {
     return 'yield';
   }
-  if (normalized.contains('ratio')) {
+  if (resolvedKey == BrewParamKeys.brewRatio) {
     return 'ratio';
   }
-  if (normalized.contains('brewtime') ||
-      normalized.contains('duration') ||
-      normalized.contains('time') ||
-      normalized.contains('extractiontime')) {
+  if (resolvedKey == BrewParamKeys.brewTime ||
+      resolvedKey == BrewParamKeys.extractionTime) {
     return 'time';
   }
-  if (normalized.contains('watertemp') ||
-      normalized == 'temperature' ||
-      normalized == 'temp') {
+  if (resolvedKey == BrewParamKeys.waterTemp) {
     return 'temp';
   }
-  if (normalized.contains('grind') ||
-      normalized.contains('click') ||
-      normalized.contains('micron')) {
+  if (resolvedKey == BrewParamKeys.grindSize) {
     return 'grind';
   }
-  if (normalized.contains('bloom')) {
+  if (resolvedKey == BrewParamKeys.bloomTime ||
+      resolvedKey == BrewParamKeys.bloomWater) {
     return 'bloom';
   }
-  if (normalized.contains('pour')) {
+  if (resolvedKey == BrewParamKeys.pourMethod) {
     return 'pour';
-  }
-  if (normalized.contains('watertype')) {
-    return 'water-type';
-  }
-  if (normalized.contains('roomtemp')) {
-    return 'room-temp';
   }
   return null;
 }
@@ -1070,7 +1139,7 @@ List<String> _scoreSummaries(BrewDetail detail) {
   return scores;
 }
 
-List<String> _flavorTags(BrewDetail detail) {
+List<String> _flavorTags(BuildContext context, BrewDetail detail) {
   final raw = detail.flavorNotes?.trim();
   if (raw == null || raw.isEmpty) {
     return const [];
@@ -1080,8 +1149,19 @@ List<String> _flavorTags(BrewDetail detail) {
       .split(RegExp(r'[,;/·]'))
       .map((value) => value.trim())
       .where((value) => value.isNotEmpty)
-      .map(_capitalizeWords)
+      .map((value) => _displayFlavorTag(context, value))
       .toList();
+}
+
+String _displayFlavorTag(BuildContext context, String value) {
+  final localized = flavorNoteLabel(value, context.l10n);
+  if (localized != value) {
+    return localized;
+  }
+  if (!RegExp(r'[A-Za-z]').hasMatch(value)) {
+    return value;
+  }
+  return _capitalizeWords(value);
 }
 
 bool _hasQuickRating(BrewDetail detail) {
@@ -1101,7 +1181,7 @@ String _quickBadge(BrewDetail detail) {
   return '★ ${score.toStringAsFixed(1)}';
 }
 
-String? _formatGrind(BrewDetail detail) {
+String? _formatGrind(BrewDetail detail, {required AppLocalizations l10n}) {
   switch (detail.grindMode) {
     case GrindMode.equipment:
       final equipment = _shortEquipment(detail.equipmentName);
@@ -1120,7 +1200,11 @@ String? _formatGrind(BrewDetail detail) {
       }
       return '$equipment #$rounded';
     case GrindMode.simple:
-      return _clean(detail.grindSimpleLabel);
+      final label = _clean(detail.grindSimpleLabel);
+      if (label == null) {
+        return null;
+      }
+      return localizeGrindSimpleLabel(l10n, label);
     case GrindMode.pro:
       return detail.grindMicrons == null ? null : '${detail.grindMicrons} μm';
   }
@@ -1165,8 +1249,8 @@ String? _formatDuration(int seconds) {
   return '${minutes.toString().padLeft(2, '0')}:${remaining.toString().padLeft(2, '0')}';
 }
 
-String _formatPosterDate(DateTime date) {
-  return DateFormat('MMM d, y').format(date);
+String _formatPosterDate(DateTime date, {required String localeName}) {
+  return DateFormat.yMMMd(localeName).format(date);
 }
 
 String? _clean(String? value) {

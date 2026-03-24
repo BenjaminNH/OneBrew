@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_slider.dart';
+import '../../../../l10n/l10n.dart';
 
 class FlavorSliders extends StatelessWidget {
   const FlavorSliders({
@@ -29,37 +30,38 @@ class FlavorSliders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Professional Scores', style: AppTextStyles.titleLarge),
+        Text(l10n.ratingProScoresTitle, style: AppTextStyles.titleLarge),
         const SizedBox(height: AppSpacing.md),
         _FlavorSliderRow(
-          label: 'Acidity',
+          label: l10n.ratingLabelAcidity,
           value: acidity,
           onChanged: onAcidityChanged,
-          semanticLabel: 'Acidity score',
+          semanticLabel: l10n.ratingLabelAcidity,
         ),
         const SizedBox(height: AppSpacing.sm),
         _FlavorSliderRow(
-          label: 'Sweetness',
+          label: l10n.ratingLabelSweetness,
           value: sweetness,
           onChanged: onSweetnessChanged,
-          semanticLabel: 'Sweetness score',
+          semanticLabel: l10n.ratingLabelSweetness,
         ),
         const SizedBox(height: AppSpacing.sm),
         _FlavorSliderRow(
-          label: 'Bitterness',
+          label: l10n.ratingLabelBitterness,
           value: bitterness,
           onChanged: onBitternessChanged,
-          semanticLabel: 'Bitterness score',
+          semanticLabel: l10n.ratingLabelBitterness,
         ),
         const SizedBox(height: AppSpacing.sm),
         _FlavorSliderRow(
-          label: 'Body',
+          label: l10n.ratingLabelBody,
           value: body,
           onChanged: onBodyChanged,
-          semanticLabel: 'Body score',
+          semanticLabel: l10n.ratingLabelBody,
         ),
       ],
     );

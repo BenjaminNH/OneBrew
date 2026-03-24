@@ -16,6 +16,8 @@ import 'package:one_brew/core/widgets/app_timer_display.dart';
 import 'package:one_brew/core/widgets/progressive_expand.dart';
 import 'package:one_brew/shared/helpers/brew_param_defaults.dart';
 
+import '../helpers/localized_test_app.dart';
+
 void main() {
   // ─────────────────────────────────────────────────────────────
   // AppColors Tests
@@ -397,25 +399,23 @@ void main() {
   // ─────────────────────────────────────────────────────────────
   group('AppCard Widget', () {
     testWidgets('renders child content', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: Scaffold(body: AppCard(child: const Text('Test Card Content'))),
-        ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: Scaffold(body: AppCard(child: const Text('Test Card Content'))),
       );
       expect(find.text('Test Card Content'), findsOneWidget);
     });
 
     testWidgets('tap callback is invoked', (tester) async {
       var tapped = false;
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: Scaffold(
-            body: AppCard(
-              onTap: () => tapped = true,
-              child: const Text('Tappable'),
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: Scaffold(
+          body: AppCard(
+            onTap: () => tapped = true,
+            child: const Text('Tappable'),
           ),
         ),
       );
@@ -425,12 +425,11 @@ void main() {
     });
 
     testWidgets('press overlay appears on tap down', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: Scaffold(
-            body: AppCard(onTap: () {}, child: const Text('Pressable')),
-          ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: Scaffold(
+          body: AppCard(onTap: () {}, child: const Text('Pressable')),
         ),
       );
 
@@ -451,12 +450,11 @@ void main() {
     });
 
     testWidgets('press overlay uses dark token in dark theme', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: DarkTheme.dark,
-          home: Scaffold(
-            body: AppCard(onTap: () {}, child: const Text('Dark Pressable')),
-          ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: DarkTheme.dark,
+        child: Scaffold(
+          body: AppCard(onTap: () {}, child: const Text('Dark Pressable')),
         ),
       );
 
@@ -477,11 +475,10 @@ void main() {
     });
 
     testWidgets('AppCardFlat renders child', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: Scaffold(body: const AppCardFlat(child: Text('Flat Card'))),
-        ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: const Scaffold(body: AppCardFlat(child: Text('Flat Card'))),
       );
       expect(find.text('Flat Card'), findsOneWidget);
     });
@@ -489,11 +486,10 @@ void main() {
 
   group('AppSlider Widget', () {
     testWidgets('uses standardized track height and overlay', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: Scaffold(body: AppSlider(value: 0.5, onChanged: (_) {})),
-        ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: Scaffold(body: AppSlider(value: 0.5, onChanged: (_) {})),
       );
 
       final sliderTheme = tester.widget<SliderTheme>(find.byType(SliderTheme));
@@ -507,27 +503,25 @@ void main() {
 
   group('AppTimerDisplay Widget', () {
     testWidgets('renders timer text', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: const Scaffold(
-            body: AppTimerDisplay(elapsedSeconds: 90, targetSeconds: 180),
-          ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: const Scaffold(
+          body: AppTimerDisplay(elapsedSeconds: 90, targetSeconds: 180),
         ),
       );
       expect(find.text('1:30'), findsOneWidget);
     });
 
     testWidgets('shows Bloom phase label', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: const Scaffold(
-            body: AppTimerDisplay(
-              elapsedSeconds: 15,
-              bloomSeconds: 30,
-              targetSeconds: 180,
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: const Scaffold(
+          body: AppTimerDisplay(
+            elapsedSeconds: 15,
+            bloomSeconds: 30,
+            targetSeconds: 180,
           ),
         ),
       );
@@ -535,24 +529,22 @@ void main() {
     });
 
     testWidgets('shows Done when elapsed exceeds target', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: const Scaffold(
-            body: AppTimerDisplay(elapsedSeconds: 200, targetSeconds: 180),
-          ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: const Scaffold(
+          body: AppTimerDisplay(elapsedSeconds: 200, targetSeconds: 180),
         ),
       );
       expect(find.text('Done ✓'), findsOneWidget);
     });
 
     testWidgets('progress bar uses standardized track height', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: const Scaffold(
-            body: AppTimerDisplay(elapsedSeconds: 90, targetSeconds: 180),
-          ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: const Scaffold(
+          body: AppTimerDisplay(elapsedSeconds: 90, targetSeconds: 180),
         ),
       );
       final progress = tester.widget<LinearProgressIndicator>(
@@ -564,14 +556,13 @@ void main() {
 
   group('ProgressiveExpand Widget', () {
     testWidgets('collapsed content is shown', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: Scaffold(
-            body: ProgressiveExpand(
-              collapsedChild: const Text('Collapsed Content'),
-              expandedChild: const Text('Expanded Content'),
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: Scaffold(
+          body: ProgressiveExpand(
+            collapsedChild: const Text('Collapsed Content'),
+            expandedChild: const Text('Expanded Content'),
           ),
         ),
       );
@@ -579,14 +570,13 @@ void main() {
     });
 
     testWidgets('expanded content appears after toggle', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: Scaffold(
-            body: ProgressiveExpand(
-              collapsedChild: const Text('Always Visible'),
-              expandedChild: const Text('Hidden Content'),
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: Scaffold(
+          body: ProgressiveExpand(
+            collapsedChild: const Text('Always Visible'),
+            expandedChild: const Text('Hidden Content'),
           ),
         ),
       );
@@ -604,16 +594,15 @@ void main() {
     });
 
     testWidgets('shows custom expand label', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light,
-          home: Scaffold(
-            body: ProgressiveExpand(
-              collapsedChild: const Text('Collapsed'),
-              expandedChild: const Text('Expanded'),
-              expandLabel: 'Show advanced',
-              collapseLabel: 'Hide advanced',
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        theme: AppTheme.light,
+        child: Scaffold(
+          body: ProgressiveExpand(
+            collapsedChild: const Text('Collapsed'),
+            expandedChild: const Text('Expanded'),
+            expandLabel: 'Show advanced',
+            collapseLabel: 'Hide advanced',
           ),
         ),
       );

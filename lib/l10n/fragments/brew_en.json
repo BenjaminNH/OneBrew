@@ -1,0 +1,252 @@
+{
+  "brewMethodsUnavailable": "Brew methods unavailable.",
+  "brewEnableMethodInPreferences": "Enable a brew method in preferences to start logging.",
+  "brewMethodSelectorLabel": "Brew Method",
+  "brewMethodNamePourOver": "Pour Over",
+  "brewMethodNameEspresso": "Espresso",
+  "brewPreferencesTitle": "Record Preferences",
+  "brewPreferencesSubtitle": "Set your default brew methods and parameter list.",
+  "brewPreferencesSectionMethodsTitle": "Brew Methods",
+  "brewPreferencesSectionMethodsSubtitle": "Choose which methods appear in the Brew page.",
+  "brewPreferencesSectionParamsTitle": "Parameter List",
+  "brewPreferencesSectionParamsSubtitle": "Hide defaults or add custom parameters for each brew method.",
+  "brewEnableMethodToConfigureParams": "Enable a brew method to configure parameters.",
+  "brewNoParamsConfiguredYet": "No parameters configured for this brew method yet.",
+  "brewTooltipDeleteParameter": "Delete parameter",
+  "brewActionAddCustomParameter": "Add Custom Parameter",
+  "brewAddParamSheetTitle": "New Parameter",
+  "brewAddParamFieldNameHint": "e.g. Flow Rate",
+  "brewAddParamFieldTypeLabel": "Type",
+  "brewParamTypeNumber": "Number",
+  "brewParamTypeText": "Text",
+  "brewAddParamFieldUnitLabel": "Unit (optional)",
+  "brewAddParamFieldUnitHint": "e.g. g, ml, bar",
+  "brewAddParamFieldMinLabel": "Min",
+  "brewAddParamFieldMaxLabel": "Max",
+  "brewAddParamFieldStepLabel": "Step (optional)",
+  "brewAddParamFieldDefaultLabel": "Default (optional)",
+  "brewAddParamValidationNameRequired": "Name is required.",
+  "brewAddParamValidationMinRequired": "Min is required.",
+  "brewAddParamValidationMaxRequired": "Max is required.",
+  "brewAddParamValidationMaxGreaterThanMin": "Max must be greater than min.",
+  "brewAddParamValidationStepPositive": "Step must be greater than 0.",
+  "brewAddParamValidationDefaultWithinRange": "Default must stay within range.",
+  "brewActionAddParameter": "Add Parameter",
+  "onboardingStepChooseMethodsTitle": "Choose brew methods",
+  "onboardingStepChooseMethodsSubtitle": "Select at least one method to start. You can add one custom method for your workflow.",
+  "onboardingPrimaryNext": "Next",
+  "onboardingPrimaryNextMethod": "Next Method",
+  "onboardingPrimaryFinish": "Finish",
+  "onboardingSkip": "Skip",
+  "onboardingWelcomeTo": "Welcome to",
+  "onboardingTagline": "Focus on one brew at a time.",
+  "onboardingParamListTitle": "Parameter list",
+  "onboardingParamListSubtitle": "Hide defaults or add custom parameters.",
+  "brewBeanLabel": "Coffee Bean",
+  "brewBeanHint": "Search or add bean...",
+  "brewLabelCoffee": "Coffee",
+  "brewLabelDose": "Dose",
+  "brewLabelWater": "Water",
+  "brewLabelYield": "Yield",
+  "brewParamLabelCoffeeDose": "Dose",
+  "brewParamLabelWaterWeight": "Water",
+  "brewParamLabelYield": "Yield",
+  "brewParamLabelBrewRatio": "Brew Ratio",
+  "brewParamLabelWaterTemp": "Water Temp",
+  "brewParamLabelGrindSize": "Grind Size",
+  "brewParamLabelBrewTime": "Brew Time",
+  "brewParamLabelExtractionTime": "Extraction Time",
+  "brewParamLabelBloomTime": "Bloom Time",
+  "brewParamLabelBloomWater": "Bloom Water",
+  "brewParamLabelPourMethod": "Pour Method",
+  "brewParamLabelAgitation": "Agitation",
+  "brewParamLabelFilterDripper": "Filter/Dripper",
+  "brewParamLabelPressure": "Pressure",
+  "brewParamLabelPreInfusion": "Pre-infusion Time",
+  "brewParamLabelDistributionTamping": "Distribution/Tamping",
+  "@brewSemanticWeight": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewSemanticWeight": "{label} weight",
+  "@brewRatioBadge": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "brewRatioBadge": "1 : {ratio}",
+  "brewGrindModeLabel": "Grind Mode",
+  "brewAdvancedTempLabel": "Temp",
+  "brewAdvancedTempSemantic": "Water temperature",
+  "brewAdvancedBloomLabel": "Bloom",
+  "brewAdvancedBloomSemantic": "Bloom time in seconds",
+  "brewAdvancedSelectGrinderHint": "Select grinder...",
+  "brewAdvancedEquipmentLabel": "Grinder / Equipment",
+  "brewAdvancedGrindClicksLabel": "Grind Clicks",
+  "brewAdvancedGrindClicksSemantic": "Grind click value",
+  "brewAdvancedPourMethodLabel": "Pour Method",
+  "brewAdvancedPourMethodHint": "e.g. Spiral, Pulse, Centre",
+  "brewAdvancedGrindModeGrinder": "Grinder",
+  "brewAdvancedGrindModeSimple": "Simple",
+  "brewAdvancedGrindModePro": "Pro (μm)",
+  "brewAdvancedCoarsenessLabel": "Coarseness",
+  "brewAdvancedCoarsenessHint": "Select coarseness",
+  "brewAdvancedGrindSizeLabel": "Grind size (μm)",
+  "brewGrindSimpleExtraFine": "Extra Fine",
+  "brewGrindSimpleFine": "Fine",
+  "brewGrindSimpleMediumFine": "Medium Fine",
+  "brewGrindSimpleMedium": "Medium",
+  "brewGrindSimpleMediumCoarse": "Medium Coarse",
+  "brewGrindSimpleCoarse": "Coarse",
+  "brewGrindSimpleExtraCoarse": "Extra Coarse",
+  "brewTimerTargetOff": "Target Off",
+  "@brewTimerTargetValue": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTimerTargetValue": "Target {time}",
+  "@brewTimerAdjustStepTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerAdjustStepTooltip": "Adjust target by {seconds}s",
+  "brewTimerDecreaseTargetSemantics": "Decrease target",
+  "brewTimerIncreaseTargetSemantics": "Increase target",
+  "brewTimerUseTarget": "Use Target",
+  "brewTimerTargetOn": "Target On",
+  "brewTimerReset": "Reset timer",
+  "brewTimerPause": "Pause",
+  "brewTimerResume": "Resume",
+  "brewTimerBrew": "Brew",
+  "brewTimerEnableTargetToUseCountdown": "Enable target to use countdown",
+  "brewTimerSwitchToCountUp": "Switch to count-up",
+  "brewTimerSwitchToCountdown": "Switch to countdown",
+  "brewTimerToggleCountdownSemantics": "Toggle countdown mode",
+  "@brewTimerDecreaseTargetTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerDecreaseTargetTooltip": "Decrease target by {seconds}s",
+  "@brewTimerIncreaseTargetTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerIncreaseTargetTooltip": "Increase target by {seconds}s",
+  "brewTemplateLoadedFromHistory": "Template loaded from history",
+  "brewTemplatesUnavailable": "Templates unavailable right now.",
+  "@brewTemplateApplied": {
+    "placeholders": {
+      "beanName": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplateApplied": "Template applied: {beanName}",
+  "brewUntitledBrew": "Untitled Brew",
+  "@brewTemplateSubtitle": {
+    "placeholders": {
+      "coffeeGrams": {
+        "type": "String"
+      },
+      "waterGrams": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplateSubtitle": "{coffeeGrams}g -> {waterGrams}g | {duration}",
+  "brewSaveRecordSemantics": "Save brew record",
+  "brewSaveActionReady": "Save Brew",
+  "brewSaveActionDisabled": "Start timer to save",
+  "brewSaveSuccessMessage": "Brew saved. You can rate now or later in History detail.",
+  "brewSaveSuccessRateNow": "Rate now",
+  "brewRatingSaved": "Rating saved!",
+  "@brewAdjustedToNearestStep": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "brewAdjustedToNearestStep": "Adjusted to nearest step: {value}{unit}",
+  "@brewAdjustDialogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewAdjustDialogTitle": "Adjust {label}",
+  "brewActionClear": "Clear",
+  "brewActionApply": "Apply",
+  "brewValueLabel": "Value",
+  "@brewValueLabelWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "brewValueLabelWithUnit": "Value ({unit})",
+  "brewErrorValueRequired": "Value is required.",
+  "brewErrorInvalidNumber": "Please enter a valid number.",
+  "@brewErrorValueOutOfRange": {
+    "placeholders": {
+      "min": {
+        "type": "double"
+      },
+      "max": {
+        "type": "double"
+      }
+    }
+  },
+  "brewErrorValueOutOfRange": "Value must be between {min} and {max}.",
+  "@brewSemanticValue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewSemanticValue": "{label} value",
+  "brewTextFieldHintEnterText": "Enter text",
+  "brewCustomMethodSheetTitle": "Custom Brew Method",
+  "brewRenameCustomMethodSheetTitle": "Rename Custom Method",
+  "brewCustomMethodNameLabel": "Method name",
+  "brewCustomMethodNameHint": "e.g. AeroPress",
+  "brewCustomMethodSave": "Save",
+  "brewCustomMethodWantAnother": "Want another method? Add one",
+  "@brewCustomMethodDisplay": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "brewCustomMethodDisplay": "Custom method: {name}",
+  "brewCustomMethodDefaultName": "Custom",
+  "brewCustomMethodRename": "Rename",
+  "brewCustomMethodDelete": "Delete"
+}

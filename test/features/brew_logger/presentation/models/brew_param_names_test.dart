@@ -4,25 +4,34 @@ import 'package:one_brew/features/brew_logger/presentation/models/brew_param_nam
 
 void main() {
   group('brew_param_names rules', () {
+    test('custom param keys use stable custom prefix', () {
+      expect(customParamKeyForId(42), 'custom:42');
+      expect(isCustomParamKey('custom:42'), isTrue);
+      expect(isCustomParamKey(BrewParamKeys.coffeeWeight), isFalse);
+    });
+
     test('custom defaults can be toggled in custom method', () {
       expect(
         canToggleParam(
           method: BrewMethod.custom,
-          name: BrewParamNames.coffeeWeight,
+          paramKey: BrewParamKeys.coffeeWeight,
+          name: 'Coffee Weight',
         ),
         isTrue,
       );
       expect(
         canToggleParam(
           method: BrewMethod.custom,
-          name: BrewParamNames.waterWeight,
+          paramKey: BrewParamKeys.waterWeight,
+          name: 'Water Weight',
         ),
         isTrue,
       );
       expect(
         canToggleParam(
           method: BrewMethod.custom,
-          name: BrewParamNames.brewRatio,
+          paramKey: BrewParamKeys.brewRatio,
+          name: 'Brew Ratio',
         ),
         isTrue,
       );
@@ -32,14 +41,16 @@ void main() {
       expect(
         canToggleParam(
           method: BrewMethod.pourOver,
-          name: BrewParamNames.coffeeWeight,
+          paramKey: BrewParamKeys.coffeeWeight,
+          name: 'Coffee Weight',
         ),
         isFalse,
       );
       expect(
         canToggleParam(
           method: BrewMethod.espresso,
-          name: BrewParamNames.yieldAmount,
+          paramKey: BrewParamKeys.yieldAmount,
+          name: 'Yield',
         ),
         isFalse,
       );

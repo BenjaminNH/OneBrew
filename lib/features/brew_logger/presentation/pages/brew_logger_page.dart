@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -71,6 +72,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     final timerProfile = BrewParamDefaults.timerProfileForMethod(
       loggerState.brewMethod,
     );
+    final l10n = context.l10n;
     final templatesAsync = ref.watch(recentBrewTemplatesProvider);
     final methodConfigsAsync = ref.watch(brewMethodConfigsProvider);
 
@@ -108,7 +110,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'OneBrew',
+                      l10n.appTitle,
                       style: AppTextStyles.displayMedium.copyWith(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,
@@ -122,7 +124,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
                       ),
                       error: (_, _) => AppCard(
                         child: Text(
-                          'Brew methods unavailable.',
+                          l10n.brewMethodsUnavailable,
                           style: AppTextStyles.bodySmall,
                         ),
                       ),
@@ -151,7 +153,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
                   ),
                   error: (error, stackTrace) => AppCard(
                     child: Text(
-                      'Templates unavailable right now.',
+                      l10n.brewTemplatesUnavailable,
                       style: AppTextStyles.bodySmall,
                     ),
                   ),
@@ -220,8 +222,8 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     ref.read(brewTimerControllerProvider.notifier).reset();
     setState(() => _currentElapsed = 0);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Template loaded from history'),
+      SnackBar(
+        content: Text(context.l10n.brewTemplateLoadedFromHistory),
         backgroundColor: AppColors.success,
       ),
     );
@@ -250,22 +252,24 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Template applied: ${selected.beanName}'),
+        content: Text(context.l10n.brewTemplateApplied(selected.beanName)),
         backgroundColor: AppColors.success,
       ),
     );
   }
 
   List<BrewTemplateOption> _toTemplateOptions(List<BrewRecord> records) {
+    final l10n = context.l10n;
     return records
         .map((record) {
           final title = record.beanName.trim().isEmpty
-              ? 'Untitled Brew'
+              ? l10n.brewUntitledBrew
               : record.beanName;
-          final subtitle =
-              '${record.coffeeWeightG.toStringAsFixed(1)}g -> '
-              '${record.waterWeightG.toStringAsFixed(0)}g | '
-              '${TimerUtils.formatSeconds(record.brewDurationS)}';
+          final subtitle = l10n.brewTemplateSubtitle(
+            record.coffeeWeightG.toStringAsFixed(1),
+            record.waterWeightG.toStringAsFixed(0),
+            TimerUtils.formatSeconds(record.brewDurationS),
+          );
           return BrewTemplateOption(
             brewRecordId: record.id,
             title: title,
@@ -290,18 +294,17 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
 
   void _showSaveSuccessSnackBar(int savedId) {
     final rootNavigator = Navigator.of(context, rootNavigator: true);
+    final l10n = context.l10n;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text(
-          'Brew saved. You can rate now or later in History detail.',
-        ),
+        content: Text(l10n.brewSaveSuccessMessage),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 4),
         persist: false,
         action: SnackBarAction(
-          label: 'Rate now',
+          label: l10n.brewSaveSuccessRateNow,
           textColor: Colors.white,
           onPressed: () {
             _openOptionalRatingSheet(
@@ -318,6 +321,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     required BuildContext rootContext,
     required int brewRecordId,
   }) async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.maybeOf(rootContext);
     final didSaveRating = await _openRatingSheet(
       rootContext: rootContext,
@@ -328,8 +332,8 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     }
 
     messenger.showSnackBar(
-      const SnackBar(
-        content: Text('Rating saved!'),
+      SnackBar(
+        content: Text(l10n.brewRatingSaved),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
       ),
@@ -374,6 +378,7 @@ class _SaveActionBarState extends State<_SaveActionBar> {
   @override
   Widget build(BuildContext context) {
     final canSave = widget.elapsed > 0 && !widget.isSaving;
+    final l10n = context.l10n;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -390,7 +395,7 @@ class _SaveActionBarState extends State<_SaveActionBar> {
         onTapCancel: () => setState(() => _pressed = false),
         child: Semantics(
           button: true,
-          label: 'Save brew record',
+          label: l10n.brewSaveRecordSemantics,
           enabled: canSave,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
@@ -424,7 +429,9 @@ class _SaveActionBarState extends State<_SaveActionBar> {
                         ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          canSave ? 'Save Brew' : 'Start timer to save',
+                          canSave
+                              ? l10n.brewSaveActionReady
+                              : l10n.brewSaveActionDisabled,
                           style: AppTextStyles.labelLarge.copyWith(
                             color: canSave
                                 ? Colors.white

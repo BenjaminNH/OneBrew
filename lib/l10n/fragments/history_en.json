@@ -1,0 +1,177 @@
+{
+  "historyTitle": "Brew History",
+  "historyEmptyFiltered": "No brew records match the current filter.",
+  "historyErrorLoad": "Failed to load history.",
+  "historyErrorFilter": "Failed to filter history.",
+  "historyErrorReset": "Failed to reset history filter.",
+
+  "historyStatsBrews": "Brews",
+  "historyStatsRated": "Rated",
+  "historyStatsAvg": "Avg",
+
+  "historyTopBrew": "Top Brew",
+  "@historyRoasterPrefix": {
+    "placeholders": {
+      "roaster": {
+        "type": "String"
+      }
+    }
+  },
+  "historyRoasterPrefix": "Roaster: {roaster}",
+  "@historySecondsSuffix": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "historySecondsSuffix": "{seconds}s",
+
+  "historyFilterBeanHint": "Bean",
+  "historyFilterBeanAddAction": "Use custom text",
+  "historyFilterBeanDialogTitle": "Filter by Bean",
+  "historyFilterBeanDialogHint": "Bean name",
+  "historyFilterBeanDialogConfirm": "Use text",
+  "historyFilterScoreHint": "Score",
+  "historyFilterScoreAll": "All",
+  "historyFilterClearTooltip": "Clear filters",
+  "historyFilterAnyDate": "Any date",
+
+  "brewDetailTitle": "Brew Detail",
+  "brewDetailDeleteTooltip": "Delete brew",
+  "brewDetailNotFound": "Brew record not found.",
+  "brewDetailRatingUpdated": "Rating updated.",
+
+  "brewDetailSectionBasic": "Basic",
+  "brewDetailSectionRecordedParams": "Recorded Params",
+  "brewDetailSectionBrewParams": "Brew Params",
+  "brewDetailSectionEnvironment": "Environment",
+  "brewDetailSectionGrind": "Grind",
+  "brewDetailSectionRating": "Rating",
+  "brewDetailSectionMeta": "Meta",
+
+  "brewDetailLabelBrewedAt": "Brewed At",
+  "brewDetailLabelBean": "Bean",
+  "brewDetailLabelRoaster": "Roaster",
+  "brewDetailLabelOrigin": "Origin",
+  "brewDetailLabelRoastLevel": "Roast Level",
+  "brewDetailLabelDuration": "Duration",
+  "brewDetailLabelNotes": "Notes",
+  "brewDetailLabelCreatedAt": "Created At",
+  "brewDetailLabelUpdatedAt": "Updated At",
+
+  "brewDetailLabelWaterType": "Water Type",
+  "brewDetailLabelRoomTemp": "Room Temp",
+  "brewDetailLabelCoffee": "Coffee",
+  "brewDetailLabelWater": "Water",
+  "brewDetailLabelRatio": "Ratio",
+  "brewDetailLabelWaterTemp": "Water Temp",
+  "brewDetailLabelBloomTime": "Bloom Time",
+  "brewDetailLabelPourMethod": "Pour Method",
+
+  "brewDetailLabelGrindMode": "Mode",
+  "brewDetailLabelGrindEquipment": "Equipment",
+  "brewDetailLabelGrindClick": "Click",
+  "brewDetailLabelGrindLabel": "Label",
+  "brewDetailLabelGrindMicrons": "Microns",
+  "brewDetailGrindModeEquipment": "Equipment",
+  "brewDetailGrindModeSimple": "Simple",
+  "brewDetailGrindModePro": "Pro",
+  "brewDetailGrindClickUnitDefault": "clicks",
+
+  "brewDetailLabelQuick": "Quick",
+  "brewDetailUnrated": "Unrated",
+  "@brewDetailQuickScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "brewDetailQuickScore": "{score}/5",
+
+  "brewDetailLabelAcidity": "Acidity",
+  "brewDetailLabelSweetness": "Sweetness",
+  "brewDetailLabelBitterness": "Bitterness",
+  "brewDetailLabelBody": "Body",
+  "brewDetailLabelFlavorNotes": "Flavor Notes",
+
+  "brewDetailRatingEmpty": "No rating recorded yet.",
+  "brewDetailEditRating": "Edit Rating",
+  "brewDetailAddRating": "Add Rating",
+
+  "deleteBrewDialogTitle": "Delete Brew",
+  "deleteBrewDialogBody": "Delete this brew record? This action cannot be undone.",
+  "actionDelete": "Delete",
+  "brewDetailDeleteFailed": "Failed to delete brew.",
+  "brewDetailDeleted": "Brew deleted.",
+  "actionRetry": "Retry",
+  "actionBrewAgain": "Brew Again",
+  "actionShare": "Share",
+
+  "sharePreviewTitle": "Share your brew",
+  "sharePreviewSaving": "Saving...",
+  "sharePreviewSavePoster": "Save Poster",
+  "sharePreviewSaved": "Poster saved to your photo library.",
+  "@sharePreviewSaveFailed": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "sharePreviewSaveFailed": "Failed to save poster: {details}",
+
+  "posterMetricDose": "DOSE",
+  "posterMetricYield": "YIELD",
+  "posterMetricRatio": "RATIO",
+  "posterMetricTime": "TIME",
+  "posterMetricTemp": "TEMP",
+  "posterMetricGrind": "GRIND",
+  "posterMetricBloom": "BLOOM",
+  "posterMetricPour": "POUR",
+  "posterMetricWater": "WATER",
+  "posterMetricRoom": "ROOM",
+
+  "posterScoreAcid": "ACID",
+  "posterScoreSweet": "SWEET",
+  "posterScoreBitter": "BITTER",
+  "posterScoreBody": "BODY",
+
+  "ratingSheetTitle": "Rate this brew",
+  "ratingSheetSubtitle": "Saved successfully. Add a quick score or detailed flavor notes.",
+  "ratingModeQuick": "Quick",
+  "ratingModeProfessional": "Professional",
+  "ratingQuickTitle": "Quick Rating",
+  "ratingMoodTitle": "Mood",
+  "@ratingStarTooltip": {
+    "placeholders": {
+      "star": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingStarTooltip": "{star} star",
+  "ratingSkipForNow": "Skip for now",
+  "ratingSaving": "Saving...",
+  "ratingSave": "Save rating",
+  "ratingProScoresTitle": "Professional Scores",
+  "ratingFlavorNotesTitle": "Flavor Notes",
+  "ratingLabelAcidity": "Acidity",
+  "ratingLabelSweetness": "Sweetness",
+  "ratingLabelBitterness": "Bitterness",
+  "ratingLabelBody": "Body",
+
+  "flavorNoteCitrus": "Citrus",
+  "flavorNoteFloral": "Floral",
+  "flavorNoteBerry": "Berry",
+  "flavorNoteStoneFruit": "Stone Fruit",
+  "flavorNoteChocolate": "Chocolate",
+  "flavorNoteCaramel": "Caramel",
+  "flavorNoteNutty": "Nutty",
+  "flavorNoteSpice": "Spice",
+  "flavorNoteTea": "Tea",
+  "flavorNoteTropical": "Tropical",
+  "flavorNoteHerbal": "Herbal",
+  "flavorNoteClean": "Clean"
+}

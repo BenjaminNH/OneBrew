@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_durations.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../l10n/l10n.dart';
 import '../controllers/rating_controller.dart';
 import 'flavor_sliders.dart';
 import 'flavor_wheel.dart';
@@ -35,6 +36,7 @@ class _BrewRatingSheetState extends ConsumerState<BrewRatingSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final ratingState = ref.watch(ratingControllerProvider);
     final notifier = ref.read(ratingControllerProvider.notifier);
     final screenHeight = MediaQuery.sizeOf(context).height;
@@ -82,26 +84,26 @@ class _BrewRatingSheetState extends ConsumerState<BrewRatingSheet> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.md,
-                  AppSpacing.pageHorizontal,
-                  AppSpacing.sm,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Rate this brew', style: AppTextStyles.headlineMedium),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Saved successfully. Add a quick score or detailed flavor notes.',
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.pageHorizontal,
+          AppSpacing.md,
+          AppSpacing.pageHorizontal,
+          AppSpacing.sm,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.ratingSheetTitle, style: AppTextStyles.headlineMedium),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              l10n.ratingSheetSubtitle,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
               ),
+            ),
+          ],
+        ),
+      ),
               Expanded(
                 child: ratingState.isLoading
                     ? const Center(
@@ -161,7 +163,7 @@ class _BrewRatingSheetState extends ConsumerState<BrewRatingSheet> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Skip for now'),
+                        child: Text(l10n.ratingSkipForNow),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
@@ -179,7 +181,9 @@ class _BrewRatingSheetState extends ConsumerState<BrewRatingSheet> {
                               )
                             : const Icon(Icons.star_rounded),
                         label: Text(
-                          ratingState.isSaving ? 'Saving...' : 'Save rating',
+                          ratingState.isSaving
+                              ? l10n.ratingSaving
+                              : l10n.ratingSave,
                         ),
                       ),
                     ),
@@ -212,18 +216,19 @@ class _RatingModeSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(
       children: [
         ChoiceChip(
           key: const Key('rating-mode-quick'),
-          label: const Text('Quick'),
+          label: Text(l10n.ratingModeQuick),
           selected: isQuickMode,
           onSelected: (_) => onModeChanged(true),
         ),
         const SizedBox(width: AppSpacing.sm),
         ChoiceChip(
           key: const Key('rating-mode-pro'),
-          label: const Text('Professional'),
+          label: Text(l10n.ratingModeProfessional),
           selected: !isQuickMode,
           onSelected: (_) => onModeChanged(false),
         ),

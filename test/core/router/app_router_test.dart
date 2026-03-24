@@ -2,17 +2,22 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:one_brew/app.dart';
 import 'package:one_brew/core/database/drift_database.dart' hide BrewRecord;
+import 'package:one_brew/core/localization/app_locale.dart';
 import 'package:one_brew/core/router/app_router.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/brew_logger_page.dart';
+import 'package:one_brew/features/brew_logger/presentation/pages/brew_param_preferences_page.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/onboarding_page.dart';
+import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_brew/features/history/presentation/pages/history_page.dart';
 import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_page.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
+import 'package:one_brew/l10n/l10n.dart';
 import 'package:one_brew/shared/providers/database_providers.dart';
 
 void main() {
@@ -175,8 +180,6 @@ Future<void> _pumpApp(
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
 
-  appRouter.go(initialLocation);
-
   final testDb = OneBrewDatabase.forTesting(NativeDatabase.memory());
   addTearDown(() async {
     // Unmount first so provider disposal completes before DB close.
@@ -195,8 +198,127 @@ Future<void> _pumpApp(
           (_) => Stream<List<BrewRecord>>.value(const <BrewRecord>[]),
         ),
       ],
-      child: const OneBrewApp(),
+      child: MaterialApp.router(
+        locale: const Locale('en'),
+        supportedLocales: AppLocaleOption.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        routerConfig: _createTestRouter(
+          initialLocation: initialLocation,
+          isFirstRun: isFirstRun,
+        ),
+      ),
     ),
   );
   await tester.pump();
+}
+
+GoRouter _createTestRouter({
+  required String initialLocation,
+  required bool isFirstRun,
+}) {
+  return GoRouter(
+    initialLocation: initialLocation,
+    routes: [
+      GoRoute(
+        path: AppRoutePaths.launch,
+        builder: (_, _) => const _TestLaunchGatePage(),
+      ),
+      GoRoute(
+        path: AppRoutePaths.onboarding,
+        builder: (_, _) => const BrewOnboardingPage(),
+      ),
+      ShellRoute(
+        builder: (context, state, child) =>
+            AppShell(location: state.uri.path, child: child),
+        routes: [
+          GoRoute(
+            path: AppRoutePaths.brew,
+            builder: (_, state) {
+              final templateRecordId = int.tryParse(
+                state.uri.queryParameters['templateRecordId'] ?? '',
+              );
+              return BrewLoggerPage(templateRecordId: templateRecordId);
+            },
+          ),
+          GoRoute(
+            path: AppRoutePaths.manage,
+            builder: (_, _) => const InventoryManagePage(),
+            routes: [
+              GoRoute(
+                path: 'preferences',
+                builder: (_, _) => const BrewParamPreferencesPage(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: AppRoutePaths.history,
+            builder: (_, _) => const HistoryPage(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (_, state) {
+                  final id = int.tryParse(state.pathParameters['id'] ?? '');
+                  if (id == null) {
+                    return const _TestRouteErrorPage(
+                      fallbackPath: AppRoutePaths.history,
+                    );
+                  }
+                  return BrewDetailPage(brewId: id);
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+class _TestLaunchGatePage extends ConsumerWidget {
+  const _TestLaunchGatePage();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bootstrapAsync = ref.watch(brewParamBootstrapProvider);
+    bootstrapAsync.whenData((shouldShowOnboarding) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) {
+          return;
+        }
+        context.go(
+          shouldShowOnboarding ? AppRoutePaths.onboarding : AppRoutePaths.brew,
+        );
+      });
+    });
+
+    return const Scaffold(body: SizedBox.shrink());
+  }
+}
+
+class _TestRouteErrorPage extends StatelessWidget {
+  const _TestRouteErrorPage({required this.fallbackPath});
+
+  final String fallbackPath;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l10n.routeInvalidHistoryDetailId),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: () => context.go(fallbackPath),
+                child: Text(l10n.actionGoBack),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

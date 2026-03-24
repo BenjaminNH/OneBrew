@@ -1,0 +1,181 @@
+{
+  "inventoryTabBeans": "Beans",
+  "inventoryTabGrinders": "Grinders",
+  "inventoryFabTooltipAddBean": "Add bean",
+  "inventoryFabTooltipAddGrinder": "Add grinder",
+  "inventoryTooltipDebugRerunOnboarding": "Debug: Re-run onboarding",
+  "inventoryTooltipAbout": "About",
+  "inventoryTooltipRecordPreferences": "Record Preferences",
+  "inventoryTooltipLanguage": "Language",
+  "inventoryAboutTitle": "About OneBrew",
+  "@inventoryAboutAuthor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryAboutAuthor": "Author: {name}",
+  "@inventoryAboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryAboutVersion": "Version: {version}",
+  "inventoryAboutVersionLoading": "Loading...",
+  "inventoryAboutVersionUnavailable": "Unavailable",
+  "inventoryAboutOpenGithub": "Open GitHub Repository",
+  "inventoryAboutOpenGithubFailed": "Unable to open GitHub link.",
+  "inventoryLanguageTitle": "Language",
+  "inventorySearchBeansHint": "Search beans",
+  "inventorySearchGrindersHint": "Search grinders",
+  "inventoryEmptyBeans": "No beans found.",
+  "inventoryEmptyGrinders": "No grinders found.",
+  "@inventoryMetaUseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryMetaUseCount": "Use {count}",
+  "@inventoryMetaAdded": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryMetaAdded": "Added {date}",
+  "@inventoryGrinderMetaStep": {
+    "placeholders": {
+      "step": {
+        "type": "num"
+      }
+    }
+  },
+  "inventoryGrinderMetaStep": "step {step}",
+  "inventoryBeanCreated": "Bean created.",
+  "inventoryBeanUpdated": "Bean updated successfully.",
+  "inventoryGrinderCreated": "Grinder created successfully.",
+  "inventoryGrinderUpdated": "Grinder updated successfully.",
+  "@inventoryErrorWithDetails": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryErrorWithDetails": "Error: {details}",
+  "@inventoryFailedToSaveBean": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveBean": "Failed to save bean: {error}",
+  "@inventoryFailedToDeleteBean": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToDeleteBean": "Failed to delete bean: {error}",
+  "@inventoryFailedToSaveGrinder": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveGrinder": "Failed to save grinder: {error}",
+  "@inventoryFailedToDeleteGrinder": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToDeleteGrinder": "Failed to delete grinder: {error}",
+  "inventoryDeleteBeanTitle": "Delete Bean",
+  "inventoryDeleteGrinderTitle": "Delete Grinder",
+  "@inventoryDeletePrompt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryDeletePrompt": "Delete \"{name}\"?",
+  "inventoryActionDelete": "Delete",
+  "inventoryActionCreate": "Create",
+  "inventoryActionSave": "Save",
+  "inventoryEditBeanTooltip": "Edit bean",
+  "inventoryDeleteBeanTooltip": "Delete bean",
+  "inventoryEditGrinderTooltip": "Edit grinder",
+  "inventoryDeleteGrinderTooltip": "Delete grinder",
+  "inventoryBeanFormAddTitle": "Add Bean",
+  "inventoryBeanFormEditTitle": "Edit Bean",
+  "inventoryBeanFormLabelName": "Bean name",
+  "inventoryBeanFormLabelRoaster": "Roaster",
+  "inventoryBeanFormLabelOrigin": "Origin",
+  "inventoryBeanFormLabelRoastLevel": "Roast level",
+  "inventoryBeanFormNameRequired": "Please enter bean name.",
+  "inventoryGrinderFormAddTitle": "Add Grinder",
+  "inventoryGrinderFormEditTitle": "Edit Grinder",
+  "inventoryGrinderFormLabelName": "Name",
+  "inventoryGrinderFormLabelMinClick": "Min click",
+  "inventoryGrinderFormLabelMaxClick": "Max click",
+  "inventoryGrinderFormLabelStep": "Step",
+  "inventoryGrinderFormLabelUnit": "Unit",
+  "inventoryGrinderFormNameRequired": "Please enter grinder name.",
+  "inventoryConflictGrinderNameExists": "A grinder with the same name already exists.",
+  "inventoryValidationInvalid": "Invalid",
+  "inventoryValidationMustBeGreaterThanMin": "Must be > min",
+  "inventoryValidationMustBeGreaterThanZero": "Must be > 0",
+  "inventoryValidationRangeTooLarge": "Range too large",
+  "inventoryValidationRequired": "Required",
+  "inventorySmartTagHint": "Type to add...",
+  "inventorySmartTagAddBean": "Add bean",
+  "inventorySmartTagAddGrinder": "Add grinder",
+  "inventorySmartTagEmptyBeansYet": "No beans yet",
+  "inventorySmartTagEmptyGrindersYet": "No grinders yet",
+  "inventorySmartTagDialogAddBean": "Add Coffee Bean",
+  "inventorySmartTagDialogAddGrinder": "Add Grinder",
+  "inventorySmartTagDialogHintBeanName": "Bean name",
+  "inventorySmartTagDialogHintGrinderName": "Grinder name",
+  "inventoryQuickGrinderSetupTitle": "Quick Grinder Setup",
+  "@inventoryQuickGrinderSetupDescription": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryQuickGrinderSetupDescription": "Configure \"{tag}\". Leave blank to use defaults.",
+  "inventoryQuickGrinderSetupLabelMin": "Min",
+  "inventoryQuickGrinderSetupLabelMax": "Max",
+  "inventoryQuickGrinderSetupLabelStep": "Step",
+  "inventoryQuickGrinderSetupLabelUnit": "Unit",
+  "inventoryQuickGrinderSetupValidationError": "Please enter a valid range and step.",
+  "inventoryQuickGrinderSetupUseDefaults": "Use Defaults",
+  "inventoryQuickGrinderSetupSaveGrinder": "Save Grinder",
+  "@inventoryFailedToSaveTag": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveTag": "Failed to save \"{tag}\": {error}",
+  "inventoryTemplatePickerTitle": "Brew Again (Templates)",
+  "inventoryTemplatePickerEmptyHint": "Save one brew first, then reuse it here in one tap.",
+  "inventoryTemplatePickerFooter": "Showing latest 3 brews only. Tap a chip to reuse."
+}

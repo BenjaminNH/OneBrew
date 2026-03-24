@@ -7,6 +7,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../l10n/l10n.dart';
 import '../../domain/entities/bean.dart';
 import '../../domain/inventory_exceptions.dart';
 import '../controllers/inventory_controller.dart';
@@ -88,6 +89,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
   }
 
   Future<void> _openBeanForm({Bean? initial}) async {
+    final l10n = context.l10n;
     final result = await showModalBottomSheet<_BeanFormResult>(
       context: context,
       isScrollControlled: true,
@@ -111,7 +113,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            initial == null ? 'Bean created.' : 'Bean updated successfully.',
+            initial == null ? l10n.inventoryBeanCreated : l10n.inventoryBeanUpdated,
           ),
           backgroundColor: AppColors.success,
         ),
@@ -120,7 +122,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error.message),
+          content: Text(_inventoryExceptionMessage(context, error)),
           backgroundColor: AppColors.error,
         ),
       );
@@ -128,7 +130,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to save bean: $error'),
+          content: Text(l10n.inventoryFailedToSaveBean(error.toString())),
           backgroundColor: AppColors.error,
         ),
       );
@@ -136,22 +138,23 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
   }
 
   Future<void> _deleteBean(Bean bean) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Bean'),
-        content: Text('Delete "${bean.name}"?'),
+        title: Text(l10n.inventoryDeleteBeanTitle),
+        content: Text(l10n.inventoryDeletePrompt(bean.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
               textStyle: AppTextStyles.buttonSecondary,
             ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.inventoryActionDelete),
           ),
         ],
       ),
@@ -166,7 +169,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error.message),
+          content: Text(_inventoryExceptionMessage(context, error)),
           backgroundColor: AppColors.error,
         ),
       );
@@ -174,7 +177,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to delete bean: $error'),
+          content: Text(l10n.inventoryFailedToDeleteBean(error.toString())),
           backgroundColor: AppColors.error,
         ),
       );
@@ -183,6 +186,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontal,
@@ -196,10 +200,10 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
             key: const Key('bean-manage-search-field'),
             controller: _queryController,
             onChanged: (_) => _reload(),
-            decoration: const InputDecoration(
-              hintText: 'Search beans',
+            decoration: InputDecoration(
+              hintText: l10n.inventorySearchBeansHint,
               floatingLabelBehavior: FloatingLabelBehavior.never,
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -209,7 +213,7 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
                     child: CircularProgressIndicator(color: AppColors.primary),
                   )
                 : _beans.isEmpty
-                ? const Center(child: Text('No beans found.'))
+                ? Center(child: Text(l10n.inventoryEmptyBeans))
                 : ListView.separated(
                     key: const Key('bean-manage-list'),
                     padding: EdgeInsets.only(bottom: widget.listBottomInset),
@@ -225,8 +229,13 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
                           bean.origin!.trim(),
                         if ((bean.roastLevel ?? '').trim().isNotEmpty)
                           bean.roastLevel!.trim(),
-                        'Use ${bean.useCount}',
-                        'Added ${AppDateUtils.formatDateShort(bean.addedAt)}',
+                        l10n.inventoryMetaUseCount(bean.useCount),
+                        l10n.inventoryMetaAdded(
+                          AppDateUtils.formatDateShort(
+                            bean.addedAt,
+                            localeName: l10n.localeName,
+                          ),
+                        ),
                       ].join(' • ');
 
                       return AppCard(
@@ -253,12 +262,12 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
                               ),
                             ),
                             IconButton(
-                              tooltip: 'Edit bean',
+                              tooltip: l10n.inventoryEditBeanTooltip,
                               onPressed: () => _openBeanForm(initial: bean),
                               icon: const Icon(Icons.edit_outlined),
                             ),
                             IconButton(
-                              tooltip: 'Delete bean',
+                              tooltip: l10n.inventoryDeleteBeanTooltip,
                               onPressed: () => _deleteBean(bean),
                               icon: const Icon(Icons.delete_outline),
                             ),
@@ -272,6 +281,24 @@ class _BeanManageListState extends ConsumerState<BeanManageList> {
       ),
     );
   }
+}
+
+String _inventoryExceptionMessage(BuildContext context, InventoryException error) {
+  final l10n = context.l10n;
+  if (error is InventoryValidationException) {
+    return switch (error.message) {
+      'validation.bean_name_empty' => l10n.inventoryBeanFormNameRequired,
+      'validation.grinder_name_empty' => l10n.inventoryGrinderFormNameRequired,
+      _ => l10n.inventoryErrorWithDetails(error.message),
+    };
+  }
+  if (error is InventoryConflictException) {
+    return switch (error.message) {
+      'conflict.grinder_name_exists' => l10n.inventoryConflictGrinderNameExists,
+      _ => l10n.inventoryErrorWithDetails(error.message),
+    };
+  }
+  return l10n.inventoryErrorWithDetails(error.message);
 }
 
 class _BeanFormResult {
@@ -332,6 +359,7 @@ class _BeanFormSheetState extends State<_BeanFormSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return AnimatedPadding(
@@ -378,17 +406,21 @@ class _BeanFormSheetState extends State<_BeanFormSheet> {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      _isEditing ? 'Edit Bean' : 'Add Bean',
+                      _isEditing
+                          ? l10n.inventoryBeanFormEditTitle
+                          : l10n.inventoryBeanFormAddTitle,
                       style: AppTextStyles.headlineMedium,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     TextFormField(
                       key: const Key('bean-form-name'),
                       controller: _nameController,
-                      decoration: const InputDecoration(labelText: 'Bean name'),
+                      decoration: InputDecoration(
+                        labelText: l10n.inventoryBeanFormLabelName,
+                      ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter bean name.';
+                          return l10n.inventoryBeanFormNameRequired;
                         }
                         return null;
                       },
@@ -397,20 +429,24 @@ class _BeanFormSheetState extends State<_BeanFormSheet> {
                     TextFormField(
                       key: const Key('bean-form-roaster'),
                       controller: _roasterController,
-                      decoration: const InputDecoration(labelText: 'Roaster'),
+                      decoration: InputDecoration(
+                        labelText: l10n.inventoryBeanFormLabelRoaster,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     TextFormField(
                       key: const Key('bean-form-origin'),
                       controller: _originController,
-                      decoration: const InputDecoration(labelText: 'Origin'),
+                      decoration: InputDecoration(
+                        labelText: l10n.inventoryBeanFormLabelOrigin,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     TextFormField(
                       key: const Key('bean-form-roast-level'),
                       controller: _roastLevelController,
-                      decoration: const InputDecoration(
-                        labelText: 'Roast level',
+                      decoration: InputDecoration(
+                        labelText: l10n.inventoryBeanFormLabelRoastLevel,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -419,7 +455,7 @@ class _BeanFormSheetState extends State<_BeanFormSheet> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Cancel'),
+                            child: Text(l10n.actionCancel),
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
@@ -429,7 +465,11 @@ class _BeanFormSheetState extends State<_BeanFormSheet> {
                               textStyle: AppTextStyles.buttonSecondary,
                             ),
                             onPressed: _submit,
-                            child: Text(_isEditing ? 'Save' : 'Create'),
+                            child: Text(
+                              _isEditing
+                                  ? l10n.inventoryActionSave
+                                  : l10n.inventoryActionCreate,
+                            ),
                           ),
                         ),
                       ],

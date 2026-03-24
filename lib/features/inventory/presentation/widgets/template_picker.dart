@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
@@ -38,6 +39,7 @@ class TemplatePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final visibleTemplates = templates
         .take(_maxVisibleTemplates)
         .toList(growable: false);
@@ -46,7 +48,7 @@ class TemplatePicker extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Brew Again (Templates)', style: AppTextStyles.titleSmall),
+          Text(l10n.inventoryTemplatePickerTitle, style: AppTextStyles.titleSmall),
           const SizedBox(height: AppSpacing.sm),
           if (isLoading) ...[
             const LinearProgressIndicator(minHeight: 2),
@@ -54,7 +56,7 @@ class TemplatePicker extends StatelessWidget {
           ],
           if (!isLoading && templates.isEmpty) ...[
             Text(
-              'Save one brew first, then reuse it here in one tap.',
+              l10n.inventoryTemplatePickerEmptyHint,
               style: AppTextStyles.bodySmall,
             ),
           ],
@@ -86,7 +88,7 @@ class TemplatePicker extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Showing latest 3 brews only. Tap a chip to reuse.',
+              l10n.inventoryTemplatePickerFooter,
               style: AppTextStyles.labelSmall,
             ),
           ],

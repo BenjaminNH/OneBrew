@@ -7,6 +7,7 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_single_select_field.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../inventory/presentation/controllers/inventory_controller.dart';
 import '../../domain/repositories/history_repository.dart';
 
@@ -74,6 +75,8 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final localeName = Localizations.localeOf(context).toString();
     final hasActiveFilter =
         _beanQuery.trim().isNotEmpty ||
         _minScore != null ||
@@ -90,11 +93,11 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
               key: const Key('history-filter-bean-input'),
               value: _beanTags.isEmpty ? null : _beanTags.first,
               suggestions: _beanSuggestions,
-              hintText: 'Bean',
-              addActionLabel: 'Use custom text',
-              dialogTitle: 'Filter by Bean',
-              dialogHintText: 'Bean name',
-              dialogConfirmLabel: 'Use text',
+              hintText: l10n.historyFilterBeanHint,
+              addActionLabel: l10n.historyFilterBeanAddAction,
+              dialogTitle: l10n.historyFilterBeanDialogTitle,
+              dialogHintText: l10n.historyFilterBeanDialogHint,
+              dialogConfirmLabel: l10n.historyFilterBeanDialogConfirm,
               showInlineClearButton: false,
               minFieldHeight: _filterControlHeight,
               fieldPadding: const EdgeInsets.symmetric(
@@ -131,7 +134,12 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
                   ),
                   icon: const Icon(Icons.expand_more_rounded),
                   selectedItemBuilder: (context) {
-                    const labels = <String>['All', '≥3', '≥4', '5'];
+                    final labels = <String>[
+                      l10n.historyFilterScoreAll,
+                      '≥3',
+                      '≥4',
+                      '5',
+                    ];
                     return labels
                         .map(
                           (label) => Align(
@@ -142,16 +150,19 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
                         .toList(growable: false);
                   },
                   hint: Text(
-                    'Score',
+                    l10n.historyFilterScoreHint,
                     style: AppTextStyles.bodySmall.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  items: const [
-                    DropdownMenuItem<int?>(value: null, child: Text('All')),
-                    DropdownMenuItem<int?>(value: 3, child: Text('≥3')),
-                    DropdownMenuItem<int?>(value: 4, child: Text('≥4')),
-                    DropdownMenuItem<int?>(value: 5, child: Text('5')),
+                  items: [
+                    DropdownMenuItem<int?>(
+                      value: null,
+                      child: Text(l10n.historyFilterScoreAll),
+                    ),
+                    const DropdownMenuItem<int?>(value: 3, child: Text('≥3')),
+                    const DropdownMenuItem<int?>(value: 4, child: Text('≥4')),
+                    const DropdownMenuItem<int?>(value: 5, child: Text('5')),
                   ],
                   onChanged: (value) {
                     setState(() => _minScore = value);
@@ -164,7 +175,7 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
           const SizedBox(width: AppSpacing.xs),
           _CompactActionButton(
             key: const Key('history-filter-date-button'),
-            tooltip: _dateRangeLabel(),
+            tooltip: _dateRangeLabel(l10n: l10n, localeName: localeName),
             icon: Icons.date_range_rounded,
             isActive: _from != null || _to != null,
             onPressed: _pickDateRange,
@@ -173,7 +184,7 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
             const SizedBox(width: AppSpacing.xs),
             _CompactActionButton(
               key: const Key('history-filter-clear'),
-              tooltip: 'Clear filters',
+              tooltip: l10n.historyFilterClearTooltip,
               icon: Icons.refresh_rounded,
               onPressed: _clear,
             ),
@@ -183,9 +194,14 @@ class _HistoryFilterBarState extends ConsumerState<HistoryFilterBar> {
     );
   }
 
-  String _dateRangeLabel() {
-    if (_from == null || _to == null) return 'Any date';
-    return '${AppDateUtils.formatDateShort(_from!)} - ${AppDateUtils.formatDateShort(_to!)}';
+  String _dateRangeLabel({
+    required dynamic l10n,
+    required String localeName,
+  }) {
+    if (_from == null || _to == null) {
+      return l10n.historyFilterAnyDate as String;
+    }
+    return '${AppDateUtils.formatDateShort(_from!, localeName: localeName)} - ${AppDateUtils.formatDateShort(_to!, localeName: localeName)}';
   }
 
   Future<void> _pickDateRange() async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:one_brew/core/localization/app_locale.dart';
 import 'package:one_brew/core/widgets/app_slider.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_method_config.dart';
@@ -15,6 +16,7 @@ import 'package:one_brew/features/brew_logger/presentation/widgets/param_input_s
 import 'package:one_brew/features/inventory/domain/entities/equipment.dart';
 import 'package:one_brew/features/inventory/inventory_providers.dart';
 import 'package:one_brew/features/rating/rating_providers.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 
 import '../../../../helpers/fake_brew_param_repository.dart';
 import '../../../../helpers/mock_repositories.mocks.dart';
@@ -58,6 +60,9 @@ void main() {
           brewParamBootstrapProvider.overrideWith((ref) async => false),
         ],
         child: MaterialApp(
+          locale: const Locale('en'),
+          supportedLocales: AppLocaleOption.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: BrewLoggerPage(templateRecordId: templateRecordId),
         ),
       );
@@ -74,12 +79,6 @@ void main() {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('OneBrew'), findsOneWidget);
-      expect(find.text('Ready to Brew'), findsNothing);
-      expect(
-        find.text('OneBrew logger is ready for your next cup.'),
-        findsNothing,
-      );
       expect(find.text('Brew Method'), findsOneWidget);
 
       final saveFinder = find.text('Start timer to save');

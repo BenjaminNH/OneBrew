@@ -6,6 +6,7 @@ import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../l10n/l10n.dart';
 import '../../domain/entities/equipment.dart';
 import '../../domain/inventory_exceptions.dart';
 import '../controllers/inventory_controller.dart';
@@ -89,6 +90,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
   }
 
   Future<void> _openGrinderForm({Equipment? initial}) async {
+    final l10n = context.l10n;
     final result = await showModalBottomSheet<GrinderFormResult>(
       context: context,
       isScrollControlled: true,
@@ -114,8 +116,8 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
         SnackBar(
           content: Text(
             initial == null
-                ? 'Grinder created successfully.'
-                : 'Grinder updated successfully.',
+                ? l10n.inventoryGrinderCreated
+                : l10n.inventoryGrinderUpdated,
           ),
           backgroundColor: AppColors.success,
         ),
@@ -124,7 +126,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error.message),
+          content: Text(_inventoryExceptionMessage(context, error)),
           backgroundColor: AppColors.error,
         ),
       );
@@ -132,7 +134,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to save grinder: $error'),
+          content: Text(l10n.inventoryFailedToSaveGrinder(error.toString())),
           backgroundColor: AppColors.error,
         ),
       );
@@ -140,22 +142,23 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
   }
 
   Future<void> _deleteGrinder(Equipment grinder) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Grinder'),
-        content: Text('Delete "${grinder.name}"?'),
+        title: Text(l10n.inventoryDeleteGrinderTitle),
+        content: Text(l10n.inventoryDeletePrompt(grinder.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.actionCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
               textStyle: AppTextStyles.buttonSecondary,
             ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.inventoryActionDelete),
           ),
         ],
       ),
@@ -170,7 +173,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(error.message),
+          content: Text(_inventoryExceptionMessage(context, error)),
           backgroundColor: AppColors.error,
         ),
       );
@@ -178,7 +181,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to delete grinder: $error'),
+          content: Text(l10n.inventoryFailedToDeleteGrinder(error.toString())),
           backgroundColor: AppColors.error,
         ),
       );
@@ -187,6 +190,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontal,
@@ -200,10 +204,10 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
             key: const Key('grinder-manage-search-field'),
             controller: _queryController,
             onChanged: (_) => _reload(),
-            decoration: const InputDecoration(
-              hintText: 'Search grinders',
+            decoration: InputDecoration(
+              hintText: l10n.inventorySearchGrindersHint,
               floatingLabelBehavior: FloatingLabelBehavior.never,
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -213,7 +217,7 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
                     child: CircularProgressIndicator(color: AppColors.primary),
                   )
                 : _grinders.isEmpty
-                ? const Center(child: Text('No grinders found.'))
+                ? Center(child: Text(l10n.inventoryEmptyGrinders))
                 : ListView.separated(
                     key: const Key('grinder-manage-list'),
                     padding: EdgeInsets.only(bottom: widget.listBottomInset),
@@ -227,10 +231,17 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
                       final step = grinder.grindClickStep ?? 0;
                       final unit = (grinder.grindClickUnit ?? 'clicks').trim();
 
-                      final subtitle =
-                          '$min-$max $unit • step $step • '
-                          'Use ${grinder.useCount} • '
-                          'Added ${AppDateUtils.formatDateShort(grinder.addedAt)}';
+                      final subtitle = [
+                        '$min-$max $unit',
+                        l10n.inventoryGrinderMetaStep(step),
+                        l10n.inventoryMetaUseCount(grinder.useCount),
+                        l10n.inventoryMetaAdded(
+                          AppDateUtils.formatDateShort(
+                            grinder.addedAt,
+                            localeName: l10n.localeName,
+                          ),
+                        ),
+                      ].join(' • ');
 
                       return AppCard(
                         child: Row(
@@ -256,13 +267,13 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
                               ),
                             ),
                             IconButton(
-                              tooltip: 'Edit grinder',
+                              tooltip: l10n.inventoryEditGrinderTooltip,
                               onPressed: () =>
                                   _openGrinderForm(initial: grinder),
                               icon: const Icon(Icons.tune),
                             ),
                             IconButton(
-                              tooltip: 'Delete grinder',
+                              tooltip: l10n.inventoryDeleteGrinderTooltip,
                               onPressed: () => _deleteGrinder(grinder),
                               icon: const Icon(Icons.delete_outline),
                             ),
@@ -276,4 +287,25 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
       ),
     );
   }
+}
+
+String _inventoryExceptionMessage(
+  BuildContext context,
+  InventoryException error,
+) {
+  final l10n = context.l10n;
+  if (error is InventoryValidationException) {
+    return switch (error.message) {
+      'validation.bean_name_empty' => l10n.inventoryBeanFormNameRequired,
+      'validation.grinder_name_empty' => l10n.inventoryGrinderFormNameRequired,
+      _ => l10n.inventoryErrorWithDetails(error.message),
+    };
+  }
+  if (error is InventoryConflictException) {
+    return switch (error.message) {
+      'conflict.grinder_name_exists' => l10n.inventoryConflictGrinderNameExists,
+      _ => l10n.inventoryErrorWithDetails(error.message),
+    };
+  }
+  return l10n.inventoryErrorWithDetails(error.message);
 }

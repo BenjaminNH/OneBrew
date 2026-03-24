@@ -1,41 +1,37 @@
 import 'package:intl/intl.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 
 /// OneBrew Date & Time Formatting Utilities
 /// Provides consistent date/time display across the app.
 /// Uses the `intl` package for locale-aware formatting.
 abstract final class AppDateUtils {
   // ─────────────────────────────────────────
-  // Formatters (lazy-initialized, not const to allow locale reuse)
-  // ─────────────────────────────────────────
-
-  static final DateFormat _timeFormatter = DateFormat('HH:mm');
-  static final DateFormat _dateShort = DateFormat('MM/dd');
-  static final DateFormat _dateMedium = DateFormat('MMM d');
-  static final DateFormat _dateLong = DateFormat('MMMM d, y');
-  static final DateFormat _dateTimeShort = DateFormat('MM/dd HH:mm');
-  static final DateFormat _dateTimeFull = DateFormat('yyyy-MM-dd HH:mm');
-
-  // ─────────────────────────────────────────
   // Date Formatting
   // ─────────────────────────────────────────
 
   /// Format as "HH:mm" — e.g. "14:30"
-  static String formatTime(DateTime dt) => _timeFormatter.format(dt);
+  static String formatTime(DateTime dt, {String? localeName}) =>
+      DateFormat.Hm(localeName).format(dt);
 
   /// Format as "MM/dd" — e.g. "03/07"
-  static String formatDateShort(DateTime dt) => _dateShort.format(dt);
+  static String formatDateShort(DateTime dt, {String? localeName}) =>
+      DateFormat.Md(localeName).format(dt);
 
   /// Format as "Mar 7" — e.g. "Mar 7"
-  static String formatDateMedium(DateTime dt) => _dateMedium.format(dt);
+  static String formatDateMedium(DateTime dt, {String? localeName}) =>
+      DateFormat.MMMd(localeName).format(dt);
 
   /// Format as "March 7, 2026"
-  static String formatDateLong(DateTime dt) => _dateLong.format(dt);
+  static String formatDateLong(DateTime dt, {String? localeName}) =>
+      DateFormat.yMMMMd(localeName).format(dt);
 
   /// Format as "03/07 14:30"
-  static String formatDateTimeShort(DateTime dt) => _dateTimeShort.format(dt);
+  static String formatDateTimeShort(DateTime dt, {String? localeName}) =>
+      DateFormat.Md(localeName).add_Hm().format(dt);
 
   /// Format as "2026-03-07 14:30"
-  static String formatDateTimeFull(DateTime dt) => _dateTimeFull.format(dt);
+  static String formatDateTimeFull(DateTime dt, {String? localeName}) =>
+      DateFormat.yMd(localeName).add_Hm().format(dt);
 
   // ─────────────────────────────────────────
   // Relative Time Display
@@ -43,24 +39,32 @@ abstract final class AppDateUtils {
 
   /// Returns a human-friendly relative description:
   /// "Just now" / "X minutes ago" / "Today 14:30" / "Yesterday" / "Mar 7"
-  static String formatRelative(DateTime dt) {
+  static String formatRelative(
+    DateTime dt, {
+    AppLocalizations? l10n,
+    String? localeName,
+  }) {
     final now = DateTime.now();
     final diff = now.difference(dt);
 
     if (diff.inSeconds < 60) {
-      return 'Just now';
+      return l10n?.dateJustNow ?? 'Just now';
     } else if (diff.inMinutes < 60) {
-      final m = diff.inMinutes;
-      return '$m ${m == 1 ? 'minute' : 'minutes'} ago';
+      final minutes = diff.inMinutes;
+      return l10n?.dateMinutesAgo(minutes) ??
+          '$minutes ${minutes == 1 ? 'minute' : 'minutes'} ago';
     } else if (_isSameDay(dt, now)) {
-      return 'Today ${formatTime(dt)}';
+      final time = formatTime(dt, localeName: localeName);
+      return l10n?.dateTodayAt(time) ?? 'Today $time';
     } else if (_isSameDay(dt, now.subtract(const Duration(days: 1)))) {
-      return 'Yesterday ${formatTime(dt)}';
+      final time = formatTime(dt, localeName: localeName);
+      return l10n?.dateYesterdayAt(time) ?? 'Yesterday $time';
     } else if (diff.inDays < 7) {
-      final d = diff.inDays;
-      return '$d ${d == 1 ? 'day' : 'days'} ago';
+      final days = diff.inDays;
+      return l10n?.dateDaysAgo(days) ??
+          '$days ${days == 1 ? 'day' : 'days'} ago';
     } else {
-      return formatDateMedium(dt);
+      return formatDateMedium(dt, localeName: localeName);
     }
   }
 
@@ -81,15 +85,19 @@ abstract final class AppDateUtils {
 
   /// Returns a section header label for history grouping:
   /// "Today" / "Yesterday" / "This Week" / "Mar 2026"
-  static String sectionHeader(DateTime dt) {
+  static String sectionHeader(
+    DateTime dt, {
+    AppLocalizations? l10n,
+    String? localeName,
+  }) {
     final now = DateTime.now();
-    if (_isSameDay(dt, now)) return 'Today';
+    if (_isSameDay(dt, now)) return l10n?.dateToday ?? 'Today';
     if (_isSameDay(dt, now.subtract(const Duration(days: 1)))) {
-      return 'Yesterday';
+      return l10n?.dateYesterday ?? 'Yesterday';
     }
     final diff = now.difference(dt).inDays;
-    if (diff < 7) return 'This Week';
-    return DateFormat('MMMM yyyy').format(dt);
+    if (diff < 7) return l10n?.dateThisWeek ?? 'This Week';
+    return DateFormat.yMMMM(localeName).format(dt);
   }
 
   // ─────────────────────────────────────────

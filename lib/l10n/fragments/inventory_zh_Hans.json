@@ -1,0 +1,181 @@
+{
+  "inventoryTabBeans": "咖啡豆",
+  "inventoryTabGrinders": "磨豆机",
+  "inventoryFabTooltipAddBean": "新增咖啡豆",
+  "inventoryFabTooltipAddGrinder": "新增磨豆机",
+  "inventoryTooltipDebugRerunOnboarding": "调试：重新运行引导",
+  "inventoryTooltipAbout": "关于",
+  "inventoryTooltipRecordPreferences": "记录偏好",
+  "inventoryTooltipLanguage": "语言",
+  "inventoryAboutTitle": "关于 OneBrew",
+  "@inventoryAboutAuthor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryAboutAuthor": "作者：{name}",
+  "@inventoryAboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryAboutVersion": "版本：{version}",
+  "inventoryAboutVersionLoading": "加载中…",
+  "inventoryAboutVersionUnavailable": "不可用",
+  "inventoryAboutOpenGithub": "打开 GitHub 仓库",
+  "inventoryAboutOpenGithubFailed": "无法打开 GitHub 链接。",
+  "inventoryLanguageTitle": "语言",
+  "inventorySearchBeansHint": "搜索咖啡豆",
+  "inventorySearchGrindersHint": "搜索磨豆机",
+  "inventoryEmptyBeans": "没有找到咖啡豆。",
+  "inventoryEmptyGrinders": "没有找到磨豆机。",
+  "@inventoryMetaUseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryMetaUseCount": "使用 {count} 次",
+  "@inventoryMetaAdded": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryMetaAdded": "添加于 {date}",
+  "@inventoryGrinderMetaStep": {
+    "placeholders": {
+      "step": {
+        "type": "num"
+      }
+    }
+  },
+  "inventoryGrinderMetaStep": "步长 {step}",
+  "inventoryBeanCreated": "咖啡豆已创建。",
+  "inventoryBeanUpdated": "咖啡豆已更新。",
+  "inventoryGrinderCreated": "磨豆机已创建。",
+  "inventoryGrinderUpdated": "磨豆机已更新。",
+  "@inventoryErrorWithDetails": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryErrorWithDetails": "错误：{details}",
+  "@inventoryFailedToSaveBean": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveBean": "保存咖啡豆失败：{error}",
+  "@inventoryFailedToDeleteBean": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToDeleteBean": "删除咖啡豆失败：{error}",
+  "@inventoryFailedToSaveGrinder": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveGrinder": "保存磨豆机失败：{error}",
+  "@inventoryFailedToDeleteGrinder": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToDeleteGrinder": "删除磨豆机失败：{error}",
+  "inventoryDeleteBeanTitle": "删除咖啡豆",
+  "inventoryDeleteGrinderTitle": "删除磨豆机",
+  "@inventoryDeletePrompt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryDeletePrompt": "删除“{name}”？",
+  "inventoryActionDelete": "删除",
+  "inventoryActionCreate": "创建",
+  "inventoryActionSave": "保存",
+  "inventoryEditBeanTooltip": "编辑咖啡豆",
+  "inventoryDeleteBeanTooltip": "删除咖啡豆",
+  "inventoryEditGrinderTooltip": "编辑磨豆机",
+  "inventoryDeleteGrinderTooltip": "删除磨豆机",
+  "inventoryBeanFormAddTitle": "新增咖啡豆",
+  "inventoryBeanFormEditTitle": "编辑咖啡豆",
+  "inventoryBeanFormLabelName": "咖啡豆名称",
+  "inventoryBeanFormLabelRoaster": "烘焙商",
+  "inventoryBeanFormLabelOrigin": "产地",
+  "inventoryBeanFormLabelRoastLevel": "烘焙度",
+  "inventoryBeanFormNameRequired": "请输入咖啡豆名称。",
+  "inventoryGrinderFormAddTitle": "新增磨豆机",
+  "inventoryGrinderFormEditTitle": "编辑磨豆机",
+  "inventoryGrinderFormLabelName": "名称",
+  "inventoryGrinderFormLabelMinClick": "最小刻度",
+  "inventoryGrinderFormLabelMaxClick": "最大刻度",
+  "inventoryGrinderFormLabelStep": "步长",
+  "inventoryGrinderFormLabelUnit": "单位",
+  "inventoryGrinderFormNameRequired": "请输入磨豆机名称。",
+  "inventoryConflictGrinderNameExists": "已存在同名磨豆机。",
+  "inventoryValidationInvalid": "无效",
+  "inventoryValidationMustBeGreaterThanMin": "必须大于最小值",
+  "inventoryValidationMustBeGreaterThanZero": "必须大于 0",
+  "inventoryValidationRangeTooLarge": "范围过大",
+  "inventoryValidationRequired": "必填",
+  "inventorySmartTagHint": "输入以添加…",
+  "inventorySmartTagAddBean": "新增咖啡豆",
+  "inventorySmartTagAddGrinder": "新增磨豆机",
+  "inventorySmartTagEmptyBeansYet": "暂无咖啡豆",
+  "inventorySmartTagEmptyGrindersYet": "暂无磨豆机",
+  "inventorySmartTagDialogAddBean": "添加咖啡豆",
+  "inventorySmartTagDialogAddGrinder": "添加磨豆机",
+  "inventorySmartTagDialogHintBeanName": "咖啡豆名称",
+  "inventorySmartTagDialogHintGrinderName": "磨豆机名称",
+  "inventoryQuickGrinderSetupTitle": "磨豆机快速设置",
+  "@inventoryQuickGrinderSetupDescription": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryQuickGrinderSetupDescription": "配置“{tag}”。留空将使用默认值。",
+  "inventoryQuickGrinderSetupLabelMin": "最小",
+  "inventoryQuickGrinderSetupLabelMax": "最大",
+  "inventoryQuickGrinderSetupLabelStep": "步长",
+  "inventoryQuickGrinderSetupLabelUnit": "单位",
+  "inventoryQuickGrinderSetupValidationError": "请输入有效的范围和步长。",
+  "inventoryQuickGrinderSetupUseDefaults": "使用默认值",
+  "inventoryQuickGrinderSetupSaveGrinder": "保存磨豆机",
+  "@inventoryFailedToSaveTag": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveTag": "保存“{tag}”失败：{error}",
+  "inventoryTemplatePickerTitle": "再萃取一次（模板）",
+  "inventoryTemplatePickerEmptyHint": "先保存一条萃取记录，再在这里一键复用。",
+  "inventoryTemplatePickerFooter": "仅显示最近 3 条萃取记录。点按即可复用。"
+}

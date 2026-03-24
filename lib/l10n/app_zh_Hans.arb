@@ -1,0 +1,652 @@
+{
+  "@@locale": "zh_Hans",
+  "actionAdd": "添加",
+  "actionBrewAgain": "再萃取一次",
+  "actionCancel": "取消",
+  "actionDelete": "删除",
+  "actionGoBack": "返回",
+  "actionRetry": "重试",
+  "actionShare": "分享",
+  "appTitle": "OneBrew",
+  "brewActionAddCustomParameter": "添加自定义参数",
+  "brewActionAddParameter": "添加参数",
+  "brewActionApply": "应用",
+  "brewActionClear": "清除",
+  "brewAddParamFieldDefaultLabel": "默认值（可选）",
+  "brewAddParamFieldMaxLabel": "最大值",
+  "brewAddParamFieldMinLabel": "最小值",
+  "brewAddParamFieldNameHint": "例如：流速",
+  "brewAddParamFieldStepLabel": "步长（可选）",
+  "brewAddParamFieldTypeLabel": "类型",
+  "brewAddParamFieldUnitHint": "例如：g、ml、bar",
+  "brewAddParamFieldUnitLabel": "单位（可选）",
+  "brewAddParamSheetTitle": "新参数",
+  "brewAddParamValidationDefaultWithinRange": "默认值必须在范围内。",
+  "brewAddParamValidationMaxGreaterThanMin": "最大值必须大于最小值。",
+  "brewAddParamValidationMaxRequired": "请输入最大值。",
+  "brewAddParamValidationMinRequired": "请输入最小值。",
+  "brewAddParamValidationNameRequired": "请输入名称。",
+  "brewAddParamValidationStepPositive": "步长必须大于 0。",
+  "brewAdjustDialogTitle": "调整 {label}",
+  "@brewAdjustDialogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewAdjustedToNearestStep": "已调整到最近的步进：{value}{unit}",
+  "@brewAdjustedToNearestStep": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "brewAdvancedBloomLabel": "闷蒸",
+  "brewAdvancedBloomSemantic": "闷蒸时间（秒）",
+  "brewAdvancedCoarsenessHint": "选择粗细",
+  "brewAdvancedCoarsenessLabel": "粗细",
+  "brewAdvancedEquipmentLabel": "磨豆机 / 器具",
+  "brewAdvancedGrindClicksLabel": "刻度",
+  "brewAdvancedGrindClicksSemantic": "研磨刻度",
+  "brewAdvancedGrindModeGrinder": "磨豆机",
+  "brewAdvancedGrindModePro": "专业（μm）",
+  "brewAdvancedGrindModeSimple": "简易",
+  "brewAdvancedGrindSizeLabel": "研磨粒径（μm）",
+  "brewAdvancedPourMethodHint": "例如：螺旋、脉冲、中心",
+  "brewAdvancedPourMethodLabel": "注水方式",
+  "brewAdvancedSelectGrinderHint": "选择磨豆机…",
+  "brewAdvancedTempLabel": "水温",
+  "brewAdvancedTempSemantic": "水温",
+  "brewBeanHint": "搜索或添加咖啡豆…",
+  "brewBeanLabel": "咖啡豆",
+  "brewCustomMethodDefaultName": "自定义",
+  "brewCustomMethodDelete": "删除",
+  "brewCustomMethodDisplay": "自定义方式：{name}",
+  "@brewCustomMethodDisplay": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "brewCustomMethodNameHint": "例如：AeroPress",
+  "brewCustomMethodNameLabel": "方式名称",
+  "brewCustomMethodRename": "重命名",
+  "brewCustomMethodSave": "保存",
+  "brewCustomMethodSheetTitle": "自定义萃取方式",
+  "brewCustomMethodWantAnother": "需要另一种方式？点此添加",
+  "brewDetailAddRating": "添加评分",
+  "brewDetailDeleteFailed": "删除失败。",
+  "brewDetailDeleteTooltip": "删除记录",
+  "brewDetailDeleted": "已删除记录。",
+  "brewDetailEditRating": "编辑评分",
+  "brewDetailGrindClickUnitDefault": "格",
+  "brewDetailGrindModeEquipment": "器具",
+  "brewDetailGrindModePro": "专业",
+  "brewDetailGrindModeSimple": "简易",
+  "brewDetailLabelAcidity": "酸度",
+  "brewDetailLabelBean": "咖啡豆",
+  "brewDetailLabelBitterness": "苦度",
+  "brewDetailLabelBloomTime": "闷蒸时间",
+  "brewDetailLabelBody": "醇厚",
+  "brewDetailLabelBrewedAt": "萃取时间",
+  "brewDetailLabelCoffee": "粉量",
+  "brewDetailLabelCreatedAt": "创建时间",
+  "brewDetailLabelDuration": "时长",
+  "brewDetailLabelFlavorNotes": "风味",
+  "brewDetailLabelGrindClick": "刻度",
+  "brewDetailLabelGrindEquipment": "器具",
+  "brewDetailLabelGrindLabel": "描述",
+  "brewDetailLabelGrindMicrons": "粒径",
+  "brewDetailLabelGrindMode": "模式",
+  "brewDetailLabelNotes": "备注",
+  "brewDetailLabelOrigin": "产地",
+  "brewDetailLabelPourMethod": "注水方式",
+  "brewDetailLabelQuick": "快速",
+  "brewDetailLabelRatio": "比例",
+  "brewDetailLabelRoastLevel": "烘焙度",
+  "brewDetailLabelRoaster": "烘焙商",
+  "brewDetailLabelRoomTemp": "室温",
+  "brewDetailLabelSweetness": "甜度",
+  "brewDetailLabelUpdatedAt": "更新时间",
+  "brewDetailLabelWater": "水量",
+  "brewDetailLabelWaterTemp": "水温",
+  "brewDetailLabelWaterType": "水质",
+  "brewDetailNotFound": "未找到萃取记录。",
+  "brewDetailQuickScore": "{score}/5",
+  "@brewDetailQuickScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "brewDetailRatingEmpty": "还没有评分。",
+  "brewDetailRatingUpdated": "评分已更新。",
+  "brewDetailSectionBasic": "基础",
+  "brewDetailSectionBrewParams": "萃取参数",
+  "brewDetailSectionEnvironment": "环境",
+  "brewDetailSectionGrind": "研磨",
+  "brewDetailSectionMeta": "信息",
+  "brewDetailSectionRating": "评分",
+  "brewDetailSectionRecordedParams": "参数",
+  "brewDetailTitle": "萃取详情",
+  "brewDetailUnrated": "未评分",
+  "brewEnableMethodInPreferences": "请先在偏好中启用至少一种萃取方式。",
+  "brewEnableMethodToConfigureParams": "启用一种方式以配置参数。",
+  "brewErrorInvalidNumber": "请输入有效数字。",
+  "brewErrorValueOutOfRange": "数值必须在 {min} 和 {max} 之间。",
+  "@brewErrorValueOutOfRange": {
+    "placeholders": {
+      "min": {
+        "type": "double"
+      },
+      "max": {
+        "type": "double"
+      }
+    }
+  },
+  "brewErrorValueRequired": "请输入数值。",
+  "brewGrindModeLabel": "研磨模式",
+  "brewGrindSimpleCoarse": "较粗",
+  "brewGrindSimpleExtraCoarse": "极粗",
+  "brewGrindSimpleExtraFine": "极细",
+  "brewGrindSimpleFine": "较细",
+  "brewGrindSimpleMedium": "中",
+  "brewGrindSimpleMediumCoarse": "中粗",
+  "brewGrindSimpleMediumFine": "中细",
+  "brewLabelCoffee": "粉量",
+  "brewLabelDose": "粉量",
+  "brewLabelWater": "水量",
+  "brewLabelYield": "出杯量",
+  "brewMethodNameEspresso": "意式",
+  "brewMethodNamePourOver": "手冲",
+  "brewMethodSelectorLabel": "萃取方式",
+  "brewMethodsUnavailable": "萃取方式不可用。",
+  "brewNoParamsConfiguredYet": "该方式暂未配置任何参数。",
+  "brewParamLabelAgitation": "扰流",
+  "brewParamLabelBloomTime": "闷蒸时间",
+  "brewParamLabelBloomWater": "闷蒸水量",
+  "brewParamLabelBrewRatio": "比例",
+  "brewParamLabelBrewTime": "萃取时间",
+  "brewParamLabelCoffeeDose": "粉量",
+  "brewParamLabelDistributionTamping": "布粉 / 压粉",
+  "brewParamLabelExtractionTime": "萃取时间",
+  "brewParamLabelFilterDripper": "滤杯 / 滤纸",
+  "brewParamLabelGrindSize": "研磨",
+  "brewParamLabelPourMethod": "注水方式",
+  "brewParamLabelPreInfusion": "预浸泡时间",
+  "brewParamLabelPressure": "压力",
+  "brewParamLabelWaterTemp": "水温",
+  "brewParamLabelWaterWeight": "水量",
+  "brewParamLabelYield": "出杯量",
+  "brewParamTypeNumber": "数字",
+  "brewParamTypeText": "文本",
+  "brewPreferencesSectionMethodsSubtitle": "选择哪些方式显示在“萃取”页。",
+  "brewPreferencesSectionMethodsTitle": "萃取方式",
+  "brewPreferencesSectionParamsSubtitle": "为每种方式隐藏默认参数或添加自定义参数。",
+  "brewPreferencesSectionParamsTitle": "参数列表",
+  "brewPreferencesSubtitle": "设置默认萃取方式与参数列表。",
+  "brewPreferencesTitle": "记录偏好",
+  "brewRatingSaved": "评分已保存！",
+  "brewRatioBadge": "1 : {ratio}",
+  "@brewRatioBadge": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "brewRenameCustomMethodSheetTitle": "重命名自定义方式",
+  "brewSaveActionDisabled": "开始计时后可保存",
+  "brewSaveActionReady": "保存",
+  "brewSaveRecordSemantics": "保存萃取记录",
+  "brewSaveSuccessMessage": "已保存。你可以现在评分，或稍后在历史详情中评分。",
+  "brewSaveSuccessRateNow": "立即评分",
+  "brewSemanticValue": "{label} 值",
+  "@brewSemanticValue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewSemanticWeight": "{label} 重量",
+  "@brewSemanticWeight": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplateApplied": "已应用模板：{beanName}",
+  "@brewTemplateApplied": {
+    "placeholders": {
+      "beanName": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplateLoadedFromHistory": "已从历史加载模板",
+  "brewTemplateSubtitle": "{coffeeGrams}g -> {waterGrams}g | {duration}",
+  "@brewTemplateSubtitle": {
+    "placeholders": {
+      "coffeeGrams": {
+        "type": "String"
+      },
+      "waterGrams": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplatesUnavailable": "当前暂时无法使用模板。",
+  "brewTextFieldHintEnterText": "输入文本",
+  "brewTimerAdjustStepTooltip": "调整倒计时 {seconds} 秒",
+  "@brewTimerAdjustStepTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerBrew": "萃取",
+  "brewTimerDecreaseTargetSemantics": "减少倒计时",
+  "brewTimerDecreaseTargetTooltip": "倒计时减少 {seconds} 秒",
+  "@brewTimerDecreaseTargetTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerEnableTargetToUseCountdown": "开启倒计时后可使用倒计时模式",
+  "brewTimerIncreaseTargetSemantics": "增加倒计时",
+  "brewTimerIncreaseTargetTooltip": "倒计时增加 {seconds} 秒",
+  "@brewTimerIncreaseTargetTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerPause": "暂停",
+  "brewTimerReset": "重置计时器",
+  "brewTimerResume": "继续",
+  "brewTimerSwitchToCountUp": "切换为正计时",
+  "brewTimerSwitchToCountdown": "切换为倒计时",
+  "brewTimerTargetOff": "倒计时：关闭",
+  "brewTimerTargetOn": "关闭倒计时",
+  "brewTimerTargetValue": "倒计时 {time}",
+  "@brewTimerTargetValue": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTimerToggleCountdownSemantics": "切换计时模式",
+  "brewTimerUseTarget": "开启倒计时",
+  "brewTooltipDeleteParameter": "删除参数",
+  "brewUntitledBrew": "未命名萃取",
+  "brewValueLabel": "数值",
+  "brewValueLabelWithUnit": "数值（{unit}）",
+  "@brewValueLabelWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "chipInputAddMore": "继续添加…",
+  "chipInputHint": "输入后按回车…",
+  "commonName": "名称",
+  "dateDaysAgo": "{count} 天前",
+  "@dateDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateJustNow": "刚刚",
+  "dateMinutesAgo": "{count} 分钟前",
+  "@dateMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateThisWeek": "本周",
+  "dateToday": "今天",
+  "dateTodayAt": "今天 {time}",
+  "@dateTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dateYesterday": "昨天",
+  "dateYesterdayAt": "昨天 {time}",
+  "@dateYesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteBrewDialogBody": "删除这条萃取记录？此操作不可撤销。",
+  "deleteBrewDialogTitle": "删除萃取记录",
+  "flavorNoteBerry": "莓果",
+  "flavorNoteCaramel": "焦糖",
+  "flavorNoteChocolate": "巧克力",
+  "flavorNoteCitrus": "柑橘",
+  "flavorNoteClean": "干净",
+  "flavorNoteFloral": "花香",
+  "flavorNoteHerbal": "草本",
+  "flavorNoteNutty": "坚果",
+  "flavorNoteSpice": "香料",
+  "flavorNoteStoneFruit": "核果",
+  "flavorNoteTea": "茶感",
+  "flavorNoteTropical": "热带水果",
+  "historyEmptyFiltered": "没有记录符合当前筛选条件。",
+  "historyErrorFilter": "筛选历史失败。",
+  "historyErrorLoad": "加载历史失败。",
+  "historyErrorReset": "重置筛选失败。",
+  "historyFilterAnyDate": "任意日期",
+  "historyFilterBeanAddAction": "自定义文本",
+  "historyFilterBeanDialogConfirm": "使用",
+  "historyFilterBeanDialogHint": "咖啡豆名称",
+  "historyFilterBeanDialogTitle": "按咖啡豆筛选",
+  "historyFilterBeanHint": "豆子",
+  "historyFilterClearTooltip": "清除筛选",
+  "historyFilterScoreAll": "全部",
+  "historyFilterScoreHint": "评分",
+  "historyRoasterPrefix": "烘焙商：{roaster}",
+  "@historyRoasterPrefix": {
+    "placeholders": {
+      "roaster": {
+        "type": "String"
+      }
+    }
+  },
+  "historySecondsSuffix": "{seconds}秒",
+  "@historySecondsSuffix": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "historyStatsAvg": "均分",
+  "historyStatsBrews": "杯数",
+  "historyStatsRated": "已评分",
+  "historyTitle": "萃取历史",
+  "historyTopBrew": "高分",
+  "inventoryAboutAuthor": "作者：{name}",
+  "@inventoryAboutAuthor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryAboutOpenGithub": "打开 GitHub 仓库",
+  "inventoryAboutOpenGithubFailed": "无法打开 GitHub 链接。",
+  "inventoryAboutTitle": "关于 OneBrew",
+  "inventoryAboutVersion": "版本：{version}",
+  "@inventoryAboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryAboutVersionLoading": "加载中…",
+  "inventoryAboutVersionUnavailable": "不可用",
+  "inventoryActionCreate": "创建",
+  "inventoryActionDelete": "删除",
+  "inventoryActionSave": "保存",
+  "inventoryBeanCreated": "咖啡豆已创建。",
+  "inventoryBeanFormAddTitle": "新增咖啡豆",
+  "inventoryBeanFormEditTitle": "编辑咖啡豆",
+  "inventoryBeanFormLabelName": "咖啡豆名称",
+  "inventoryBeanFormLabelOrigin": "产地",
+  "inventoryBeanFormLabelRoastLevel": "烘焙度",
+  "inventoryBeanFormLabelRoaster": "烘焙商",
+  "inventoryBeanFormNameRequired": "请输入咖啡豆名称。",
+  "inventoryBeanUpdated": "咖啡豆已更新。",
+  "inventoryConflictGrinderNameExists": "已存在同名磨豆机。",
+  "inventoryDeleteBeanTitle": "删除咖啡豆",
+  "inventoryDeleteBeanTooltip": "删除咖啡豆",
+  "inventoryDeleteGrinderTitle": "删除磨豆机",
+  "inventoryDeleteGrinderTooltip": "删除磨豆机",
+  "inventoryDeletePrompt": "删除“{name}”？",
+  "@inventoryDeletePrompt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryEditBeanTooltip": "编辑咖啡豆",
+  "inventoryEditGrinderTooltip": "编辑磨豆机",
+  "inventoryEmptyBeans": "没有找到咖啡豆。",
+  "inventoryEmptyGrinders": "没有找到磨豆机。",
+  "inventoryErrorWithDetails": "错误：{details}",
+  "@inventoryErrorWithDetails": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFabTooltipAddBean": "新增咖啡豆",
+  "inventoryFabTooltipAddGrinder": "新增磨豆机",
+  "inventoryFailedToDeleteBean": "删除咖啡豆失败：{error}",
+  "@inventoryFailedToDeleteBean": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToDeleteGrinder": "删除磨豆机失败：{error}",
+  "@inventoryFailedToDeleteGrinder": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveBean": "保存咖啡豆失败：{error}",
+  "@inventoryFailedToSaveBean": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveGrinder": "保存磨豆机失败：{error}",
+  "@inventoryFailedToSaveGrinder": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveTag": "保存“{tag}”失败：{error}",
+  "@inventoryFailedToSaveTag": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryGrinderCreated": "磨豆机已创建。",
+  "inventoryGrinderFormAddTitle": "新增磨豆机",
+  "inventoryGrinderFormEditTitle": "编辑磨豆机",
+  "inventoryGrinderFormLabelMaxClick": "最大刻度",
+  "inventoryGrinderFormLabelMinClick": "最小刻度",
+  "inventoryGrinderFormLabelName": "名称",
+  "inventoryGrinderFormLabelStep": "步长",
+  "inventoryGrinderFormLabelUnit": "单位",
+  "inventoryGrinderFormNameRequired": "请输入磨豆机名称。",
+  "inventoryGrinderMetaStep": "步长 {step}",
+  "@inventoryGrinderMetaStep": {
+    "placeholders": {
+      "step": {
+        "type": "num"
+      }
+    }
+  },
+  "inventoryGrinderUpdated": "磨豆机已更新。",
+  "inventoryLanguageTitle": "语言",
+  "inventoryMetaAdded": "添加于 {date}",
+  "@inventoryMetaAdded": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryMetaUseCount": "使用 {count} 次",
+  "@inventoryMetaUseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryQuickGrinderSetupDescription": "配置“{tag}”。留空将使用默认值。",
+  "@inventoryQuickGrinderSetupDescription": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryQuickGrinderSetupLabelMax": "最大",
+  "inventoryQuickGrinderSetupLabelMin": "最小",
+  "inventoryQuickGrinderSetupLabelStep": "步长",
+  "inventoryQuickGrinderSetupLabelUnit": "单位",
+  "inventoryQuickGrinderSetupSaveGrinder": "保存磨豆机",
+  "inventoryQuickGrinderSetupTitle": "磨豆机快速设置",
+  "inventoryQuickGrinderSetupUseDefaults": "使用默认值",
+  "inventoryQuickGrinderSetupValidationError": "请输入有效的范围和步长。",
+  "inventorySearchBeansHint": "搜索咖啡豆",
+  "inventorySearchGrindersHint": "搜索磨豆机",
+  "inventorySmartTagAddBean": "新增咖啡豆",
+  "inventorySmartTagAddGrinder": "新增磨豆机",
+  "inventorySmartTagDialogAddBean": "添加咖啡豆",
+  "inventorySmartTagDialogAddGrinder": "添加磨豆机",
+  "inventorySmartTagDialogHintBeanName": "咖啡豆名称",
+  "inventorySmartTagDialogHintGrinderName": "磨豆机名称",
+  "inventorySmartTagEmptyBeansYet": "暂无咖啡豆",
+  "inventorySmartTagEmptyGrindersYet": "暂无磨豆机",
+  "inventorySmartTagHint": "输入以添加…",
+  "inventoryTabBeans": "咖啡豆",
+  "inventoryTabGrinders": "磨豆机",
+  "inventoryTemplatePickerEmptyHint": "先保存一条萃取记录，再在这里一键复用。",
+  "inventoryTemplatePickerFooter": "仅显示最近 3 条萃取记录。点按即可复用。",
+  "inventoryTemplatePickerTitle": "再萃取一次（模板）",
+  "inventoryTooltipAbout": "关于",
+  "inventoryTooltipDebugRerunOnboarding": "调试：重新运行引导",
+  "inventoryTooltipLanguage": "语言",
+  "inventoryTooltipRecordPreferences": "记录偏好",
+  "inventoryValidationInvalid": "无效",
+  "inventoryValidationMustBeGreaterThanMin": "必须大于最小值",
+  "inventoryValidationMustBeGreaterThanZero": "必须大于 0",
+  "inventoryValidationRangeTooLarge": "范围过大",
+  "inventoryValidationRequired": "必填",
+  "languageEnglish": "English",
+  "languageSimplifiedChinese": "简体中文",
+  "languageSystemDefault": "跟随系统",
+  "navBrew": "萃取",
+  "navHistory": "历史",
+  "navManage": "管理",
+  "onboardingParamListSubtitle": "隐藏默认参数或添加自定义参数。",
+  "onboardingParamListTitle": "参数列表",
+  "onboardingPrimaryFinish": "完成",
+  "onboardingPrimaryNext": "下一步",
+  "onboardingPrimaryNextMethod": "下一个方式",
+  "onboardingSkip": "跳过",
+  "onboardingStepChooseMethodsSubtitle": "至少选择一种方式开始使用。也可以添加自定义方式来匹配你的习惯。",
+  "onboardingStepChooseMethodsTitle": "选择萃取方式",
+  "onboardingTagline": "Focus on one brew at a time.",
+  "onboardingWelcomeTo": "Welcome to",
+  "posterMetricBloom": "闷蒸",
+  "posterMetricDose": "粉量",
+  "posterMetricGrind": "研磨",
+  "posterMetricPour": "注水",
+  "posterMetricRatio": "比例",
+  "posterMetricRoom": "室温",
+  "posterMetricTemp": "水温",
+  "posterMetricTime": "时间",
+  "posterMetricWater": "水质",
+  "posterMetricYield": "出杯",
+  "posterScoreAcid": "酸",
+  "posterScoreBitter": "苦",
+  "posterScoreBody": "醇",
+  "posterScoreSweet": "甜",
+  "progressiveExpandShowLess": "收起",
+  "progressiveExpandShowMore": "展开更多",
+  "ratingFlavorNotesTitle": "风味",
+  "ratingLabelAcidity": "酸度",
+  "ratingLabelBitterness": "苦度",
+  "ratingLabelBody": "醇厚",
+  "ratingLabelSweetness": "甜度",
+  "ratingModeProfessional": "专业",
+  "ratingModeQuick": "快速",
+  "ratingMoodTitle": "心情",
+  "ratingProScoresTitle": "专业评分",
+  "ratingQuickTitle": "快速评分",
+  "ratingSave": "保存评分",
+  "ratingSaving": "保存中…",
+  "ratingSheetSubtitle": "已保存。你可以快速评分，或记录更详细的风味。",
+  "ratingSheetTitle": "为这杯打分",
+  "ratingSkipForNow": "先跳过",
+  "ratingStarTooltip": "{star} 星",
+  "@ratingStarTooltip": {
+    "placeholders": {
+      "star": {
+        "type": "int"
+      }
+    }
+  },
+  "routeInvalidHistoryDetailId": "无效的历史记录详情 ID。",
+  "sharePreviewSaveFailed": "保存海报失败：{details}",
+  "@sharePreviewSaveFailed": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "sharePreviewSavePoster": "保存海报",
+  "sharePreviewSaved": "海报已保存到相册。",
+  "sharePreviewSaving": "保存中…",
+  "sharePreviewTitle": "分享你的萃取",
+  "singleSelectAddAction": "新增",
+  "singleSelectDialogConfirm": "添加",
+  "singleSelectDialogHint": "名称",
+  "singleSelectDialogTitle": "添加项目",
+  "singleSelectEmptyState": "暂无建议项",
+  "singleSelectHint": "请选择",
+  "timerPhaseBloom": "闷蒸",
+  "timerPhaseBrewing": "萃取中",
+  "timerPhaseDone": "完成 ✓",
+  "timerPhaseReady": "准备就绪"
+}

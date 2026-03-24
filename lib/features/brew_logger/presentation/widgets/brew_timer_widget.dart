@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_durations.dart';
@@ -63,6 +64,7 @@ class _BrewTimerWidgetState extends ConsumerState<BrewTimerWidget> {
   Widget build(BuildContext context) {
     final timer = ref.watch(brewTimerControllerProvider);
     final ctrl = ref.read(brewTimerControllerProvider.notifier);
+    final l10n = context.l10n;
 
     // Propagate elapsed to parent (for save operation).
     ref.listen<BrewTimerState>(brewTimerControllerProvider, (previous, next) {
@@ -114,9 +116,9 @@ class _BrewTimerWidgetState extends ConsumerState<BrewTimerWidget> {
             _CircleButton(
               icon: Icons.refresh_rounded,
               onPressed: ctrl.reset,
-              tooltip: 'Reset timer',
+              tooltip: l10n.brewTimerReset,
               size: 48,
-              semanticsLabel: 'Reset timer',
+              semanticsLabel: l10n.brewTimerReset,
             ),
             const SizedBox(width: AppSpacing.xxxl),
 
@@ -143,12 +145,12 @@ class _BrewTimerWidgetState extends ConsumerState<BrewTimerWidget> {
                   ? null
                   : ctrl.toggleCountingDown,
               tooltip: activeTargetSeconds == null
-                  ? 'Enable target to use countdown'
+                  ? l10n.brewTimerEnableTargetToUseCountdown
                   : (timer.isCountingDown
-                        ? 'Switch to count-up'
-                        : 'Switch to countdown'),
+                        ? l10n.brewTimerSwitchToCountUp
+                        : l10n.brewTimerSwitchToCountdown),
               size: 48,
-              semanticsLabel: 'Toggle countdown mode',
+              semanticsLabel: l10n.brewTimerToggleCountdownSemantics,
             ),
           ],
         ),
@@ -211,9 +213,10 @@ class _TargetTimeStrategyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final targetLabel = targetSeconds == null
-        ? 'Target Off'
-        : 'Target ${_formatMmSs(targetSeconds!)}';
+        ? l10n.brewTimerTargetOff
+        : l10n.brewTimerTargetValue(_formatMmSs(targetSeconds!));
 
     return Column(
       children: [
@@ -232,9 +235,9 @@ class _TargetTimeStrategyRow extends StatelessWidget {
             _CircleButton(
               icon: Icons.remove_rounded,
               onPressed: onDecrease,
-              tooltip: 'Decrease target by 15s',
+              tooltip: l10n.brewTimerDecreaseTargetTooltip(15),
               size: 36,
-              semanticsLabel: 'Decrease target',
+              semanticsLabel: l10n.brewTimerDecreaseTargetSemantics,
             ),
             const SizedBox(width: AppSpacing.md),
             TextButton.icon(
@@ -243,15 +246,17 @@ class _TargetTimeStrategyRow extends StatelessWidget {
                 isEnabled ? Icons.toggle_on_rounded : Icons.toggle_off_rounded,
                 color: isEnabled ? AppColors.primary : AppColors.textSecondary,
               ),
-              label: Text(isEnabled ? 'Target On' : 'Use Target'),
+              label: Text(
+                isEnabled ? l10n.brewTimerTargetOn : l10n.brewTimerUseTarget,
+              ),
             ),
             const SizedBox(width: AppSpacing.md),
             _CircleButton(
               icon: Icons.add_rounded,
               onPressed: onIncrease,
-              tooltip: 'Increase target by 15s',
+              tooltip: l10n.brewTimerIncreaseTargetTooltip(15),
               size: 36,
-              semanticsLabel: 'Increase target',
+              semanticsLabel: l10n.brewTimerIncreaseTargetSemantics,
             ),
           ],
         ),
@@ -322,9 +327,10 @@ class _BrewCtaButtonState extends State<_BrewCtaButton> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final label = widget.isRunning
-        ? 'Pause'
-        : (widget.isPaused ? 'Resume' : 'Brew');
+        ? l10n.brewTimerPause
+        : (widget.isPaused ? l10n.brewTimerResume : l10n.brewTimerBrew);
     final icon = widget.isRunning
         ? Icons.pause_rounded
         : (widget.isPaused ? Icons.play_arrow_rounded : Icons.coffee_rounded);

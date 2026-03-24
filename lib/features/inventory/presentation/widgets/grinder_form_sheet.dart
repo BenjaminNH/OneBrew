@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_durations.dart';
@@ -79,6 +80,7 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return AnimatedPadding(
@@ -125,7 +127,9 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      _isEditing ? 'Edit Grinder' : 'Add Grinder',
+                      _isEditing
+                          ? l10n.inventoryGrinderFormEditTitle
+                          : l10n.inventoryGrinderFormAddTitle,
                       style: AppTextStyles.headlineMedium,
                     ),
                     const SizedBox(height: AppSpacing.sm),
@@ -133,10 +137,12 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
                       key: const Key('grinder-form-name'),
                       controller: _nameController,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'Name'),
+                      decoration: InputDecoration(
+                        labelText: l10n.inventoryGrinderFormLabelName,
+                      ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter grinder name.';
+                          return l10n.inventoryGrinderFormNameRequired;
                         }
                         return null;
                       },
@@ -152,8 +158,8 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
                               decimal: true,
                             ),
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Min click',
+                            decoration: InputDecoration(
+                              labelText: l10n.inventoryGrinderFormLabelMinClick,
                             ),
                             validator: _validateMin,
                           ),
@@ -167,8 +173,8 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
                               decimal: true,
                             ),
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Max click',
+                            decoration: InputDecoration(
+                              labelText: l10n.inventoryGrinderFormLabelMaxClick,
                             ),
                             validator: _validateMax,
                           ),
@@ -186,8 +192,8 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
                               decimal: true,
                             ),
                             textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Step',
+                            decoration: InputDecoration(
+                              labelText: l10n.inventoryGrinderFormLabelStep,
                             ),
                             validator: _validateStep,
                           ),
@@ -198,12 +204,12 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
                             key: const Key('grinder-form-unit'),
                             controller: _unitController,
                             textInputAction: TextInputAction.done,
-                            decoration: const InputDecoration(
-                              labelText: 'Unit',
+                            decoration: InputDecoration(
+                              labelText: l10n.inventoryGrinderFormLabelUnit,
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Required';
+                                return l10n.inventoryValidationRequired;
                               }
                               return null;
                             },
@@ -217,7 +223,7 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Cancel'),
+                            child: Text(l10n.actionCancel),
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
@@ -227,7 +233,11 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
                               textStyle: AppTextStyles.buttonSecondary,
                             ),
                             onPressed: _submit,
-                            child: Text(_isEditing ? 'Save' : 'Create'),
+                            child: Text(
+                              _isEditing
+                                  ? l10n.inventoryActionSave
+                                  : l10n.inventoryActionCreate,
+                            ),
                           ),
                         ),
                       ],
@@ -243,24 +253,27 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
   }
 
   String? _validateMin(String? value) {
+    final l10n = context.l10n;
     final parsed = double.tryParse(value?.trim() ?? '');
-    if (parsed == null) return 'Invalid';
+    if (parsed == null) return l10n.inventoryValidationInvalid;
     return null;
   }
 
   String? _validateMax(String? value) {
+    final l10n = context.l10n;
     final max = double.tryParse(value?.trim() ?? '');
     final min = double.tryParse(_minController.text.trim());
-    if (max == null) return 'Invalid';
+    if (max == null) return l10n.inventoryValidationInvalid;
     if (min == null) return null;
-    if (max <= min) return 'Must be > min';
+    if (max <= min) return l10n.inventoryValidationMustBeGreaterThanMin;
     return null;
   }
 
   String? _validateStep(String? value) {
+    final l10n = context.l10n;
     final step = double.tryParse(value?.trim() ?? '');
-    if (step == null) return 'Invalid';
-    if (step <= 0) return 'Must be > 0';
+    if (step == null) return l10n.inventoryValidationInvalid;
+    if (step <= 0) return l10n.inventoryValidationMustBeGreaterThanZero;
 
     final min = double.tryParse(_minController.text.trim());
     final max = double.tryParse(_maxController.text.trim());
@@ -268,7 +281,7 @@ class _GrinderFormSheetState extends State<GrinderFormSheet> {
 
     final segments = (max - min) / step;
     if (!segments.isFinite || segments <= 0 || segments > _maxSegments) {
-      return 'Range too large';
+      return l10n.inventoryValidationRangeTooLarge;
     }
     return null;
   }

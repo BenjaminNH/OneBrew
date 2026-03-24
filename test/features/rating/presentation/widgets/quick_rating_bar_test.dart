@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:one_brew/features/rating/presentation/widgets/quick_rating_bar.dart';
 
+import '../../../../helpers/localized_test_app.dart';
+
 void main() {
   group('QuickRatingBar', () {
     testWidgets('renders score area and mood area', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: QuickRatingBar(
-              score: 3,
-              emoji: '🙂',
-              onScoreChanged: (_) {},
-              onEmojiChanged: (_) {},
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        child: Scaffold(
+          body: QuickRatingBar(
+            score: 3,
+            emoji: '🙂',
+            onScoreChanged: (_) {},
+            onEmojiChanged: (_) {},
           ),
         ),
       );
@@ -29,23 +30,22 @@ void main() {
       int selectedScore = 3;
       String selectedEmoji = '🙂';
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: StatefulBuilder(
-              builder: (context, setState) {
-                return QuickRatingBar(
-                  score: selectedScore,
-                  emoji: selectedEmoji,
-                  onScoreChanged: (value) => setState(() {
-                    selectedScore = value;
-                  }),
-                  onEmojiChanged: (value) => setState(() {
-                    selectedEmoji = value;
-                  }),
-                );
-              },
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        child: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, setState) {
+              return QuickRatingBar(
+                score: selectedScore,
+                emoji: selectedEmoji,
+                onScoreChanged: (value) => setState(() {
+                  selectedScore = value;
+                }),
+                onEmojiChanged: (value) => setState(() {
+                  selectedEmoji = value;
+                }),
+              );
+            },
           ),
         ),
       );
@@ -59,23 +59,22 @@ void main() {
       int selectedScore = 4;
       String selectedEmoji = '😐';
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: StatefulBuilder(
-              builder: (context, setState) {
-                return QuickRatingBar(
-                  score: selectedScore,
-                  emoji: selectedEmoji,
-                  onScoreChanged: (value) => setState(() {
-                    selectedScore = value;
-                  }),
-                  onEmojiChanged: (value) => setState(() {
-                    selectedEmoji = value;
-                  }),
-                );
-              },
-            ),
+      await pumpLocalizedWidget(
+        tester,
+        child: Scaffold(
+          body: StatefulBuilder(
+            builder: (context, setState) {
+              return QuickRatingBar(
+                score: selectedScore,
+                emoji: selectedEmoji,
+                onScoreChanged: (value) => setState(() {
+                  selectedScore = value;
+                }),
+                onEmojiChanged: (value) => setState(() {
+                  selectedEmoji = value;
+                }),
+              );
+            },
           ),
         ),
       );

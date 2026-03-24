@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../l10n/l10n.dart';
 import '../controllers/history_controller.dart';
 
 class BrewStatsHeader extends StatelessWidget {
@@ -13,6 +14,7 @@ class BrewStatsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AppCard(
       key: const Key('history-stats-header'),
       padding: const EdgeInsets.symmetric(
@@ -24,7 +26,7 @@ class BrewStatsHeader extends StatelessWidget {
           Expanded(
             child: _StatPanel(
               key: const Key('history-stats-total'),
-              label: 'Brews',
+              label: l10n.historyStatsBrews,
               value: '${stats.totalBrews}',
               icon: Icons.local_cafe_rounded,
             ),
@@ -33,7 +35,7 @@ class BrewStatsHeader extends StatelessWidget {
           Expanded(
             child: _StatPanel(
               key: const Key('history-stats-rated'),
-              label: 'Rated',
+              label: l10n.historyStatsRated,
               value: '${stats.ratedBrews}',
               icon: Icons.star_rounded,
             ),
@@ -42,7 +44,7 @@ class BrewStatsHeader extends StatelessWidget {
           Expanded(
             child: _StatPanel(
               key: const Key('history-stats-average'),
-              label: 'Avg',
+              label: l10n.historyStatsAvg,
               value: stats.averageQuickScore == null
                   ? '-'
                   : stats.averageQuickScore!.toStringAsFixed(1),

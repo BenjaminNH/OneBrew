@@ -8,7 +8,11 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_route_paths.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../l10n/l10n.dart';
 import '../../../brew_logger/domain/entities/brew_record.dart';
+import '../../../brew_logger/presentation/models/brew_param_display.dart';
+import '../../../brew_logger/presentation/models/grind_simple_label_localizer.dart';
+import '../../../rating/presentation/constants/rating_presets.dart';
 import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
 import '../../domain/entities/brew_detail.dart';
 import '../controllers/brew_detail_controller.dart';
@@ -52,8 +56,9 @@ class BrewDetailPage extends ConsumerWidget {
 
             final detail = state.detail;
             if (detail == null) {
+              final l10n = context.l10n;
               return _ErrorState(
-                message: 'Brew record not found.',
+                message: l10n.brewDetailNotFound,
                 onRetry: controller.load,
               );
             }
@@ -109,9 +114,10 @@ class BrewDetailPage extends ConsumerWidget {
     if (!context.mounted) {
       return;
     }
+    final l10n = context.l10n;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Rating updated.'),
+      SnackBar(
+        content: Text(l10n.brewDetailRatingUpdated),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
       ),
@@ -131,18 +137,16 @@ class BrewDetailPage extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Brew'),
-        content: const Text(
-          'Delete this brew record? This action cannot be undone.',
-        ),
+        title: Text(context.l10n.deleteBrewDialogTitle),
+        content: Text(context.l10n.deleteBrewDialogBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: Text(context.l10n.actionDelete),
           ),
         ],
       ),
@@ -156,9 +160,12 @@ class BrewDetailPage extends ConsumerWidget {
       return;
     }
     if (!deleteResult.didDelete) {
+      final l10n = context.l10n;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(deleteResult.errorMessage ?? 'Failed to delete brew.'),
+          content: Text(
+            deleteResult.errorMessage ?? l10n.brewDetailDeleteFailed,
+          ),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -172,11 +179,12 @@ class BrewDetailPage extends ConsumerWidget {
     }
 
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Brew deleted.'),
+        SnackBar(
+          content: Text(l10n.brewDetailDeleted),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
@@ -209,36 +217,59 @@ class _Content extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final localeName = Localizations.localeOf(context).toString();
     final hasParamEntries = paramEntries.isNotEmpty;
     final basicRows = <Widget>[
       _DataRow(
-        label: 'Brewed At',
-        value: AppDateUtils.formatDateTimeFull(detail.brewDate),
+        label: l10n.brewDetailLabelBrewedAt,
+        value: AppDateUtils.formatDateTimeFull(
+          detail.brewDate,
+          localeName: localeName,
+        ),
       ),
-      _DataRow(label: 'Bean', value: _text(detail.beanName)),
+      _DataRow(label: l10n.brewDetailLabelBean, value: _text(detail.beanName)),
       if (_hasText(detail.roaster))
-        _DataRow(label: 'Roaster', value: _text(detail.roaster)),
+        _DataRow(
+          label: l10n.brewDetailLabelRoaster,
+          value: _text(detail.roaster),
+        ),
       if (_hasText(detail.origin))
-        _DataRow(label: 'Origin', value: _text(detail.origin)),
+        _DataRow(
+          label: l10n.brewDetailLabelOrigin,
+          value: _text(detail.origin),
+        ),
       if (_hasText(detail.roastLevel))
-        _DataRow(label: 'Roast Level', value: _text(detail.roastLevel)),
-      _DataRow(label: 'Duration', value: '${detail.brewDurationS}s'),
+        _DataRow(
+          label: l10n.brewDetailLabelRoastLevel,
+          value: _text(detail.roastLevel),
+        ),
+      _DataRow(
+        label: l10n.brewDetailLabelDuration,
+        value: l10n.historySecondsSuffix(detail.brewDurationS),
+      ),
     ];
-    final environmentRows = _buildEnvironmentRows(detail);
-    final fallbackParamRows = _buildFallbackParamRows(detail);
-    final grindRows = _buildGrindRows(detail);
-    final ratingRows = _buildRatingRows(detail);
+    final environmentRows = _buildEnvironmentRows(detail, l10n: l10n);
+    final fallbackParamRows = _buildFallbackParamRows(detail, l10n: l10n);
+    final grindRows = _buildGrindRows(detail, l10n: l10n);
+    final ratingRows = _buildRatingRows(detail, l10n: l10n);
     final hasRating = ratingRows.isNotEmpty;
     final metaRows = <Widget>[
       if (_hasText(detail.notes))
-        _DataRow(label: 'Notes', value: _text(detail.notes)),
+        _DataRow(label: l10n.brewDetailLabelNotes, value: _text(detail.notes)),
       _DataRow(
-        label: 'Created At',
-        value: AppDateUtils.formatDateTimeFull(detail.createdAt),
+        label: l10n.brewDetailLabelCreatedAt,
+        value: AppDateUtils.formatDateTimeFull(
+          detail.createdAt,
+          localeName: localeName,
+        ),
       ),
       _DataRow(
-        label: 'Updated At',
-        value: AppDateUtils.formatDateTimeFull(detail.updatedAt),
+        label: l10n.brewDetailLabelUpdatedAt,
+        value: AppDateUtils.formatDateTimeFull(
+          detail.updatedAt,
+          localeName: localeName,
+        ),
       ),
     ];
 
@@ -267,7 +298,7 @@ class _Content extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xs),
                     Expanded(
                       child: Text(
-                        'Brew Detail',
+                        l10n.brewDetailTitle,
                         style: AppTextStyles.displayMedium.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -275,7 +306,7 @@ class _Content extends StatelessWidget {
                     ),
                     IconButton(
                       key: const Key('brew-detail-delete-icon-button'),
-                      tooltip: 'Delete brew',
+                      tooltip: l10n.brewDetailDeleteTooltip,
                       onPressed: onDelete,
                       icon: const Icon(Icons.delete_outline_rounded),
                       color: AppColors.error,
@@ -283,51 +314,67 @@ class _Content extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                _SectionCard(title: 'Basic', children: basicRows),
+                _SectionCard(
+                  title: l10n.brewDetailSectionBasic,
+                  children: basicRows,
+                ),
                 const SizedBox(height: AppSpacing.md),
                 if (hasParamEntries) ...[
                   _SectionCard(
-                    title: 'Recorded Params',
+                    title: l10n.brewDetailSectionRecordedParams,
                     children: paramEntries
                         .map(
-                          (entry) =>
-                              _DataRow(label: entry.name, value: entry.value),
+                          (entry) => _DataRow(
+                            label: localizedParamLabel(
+                              l10n: l10n,
+                              paramKey: entry.paramKey,
+                              fallbackName: entry.name,
+                            ),
+                            value: localizedParamValue(
+                              l10n: l10n,
+                              paramKey: entry.paramKey,
+                              value: entry.value,
+                            ),
+                          ),
                         )
                         .toList(),
                   ),
                   if (environmentRows.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.md),
                     _SectionCard(
-                      title: 'Environment',
+                      title: l10n.brewDetailSectionEnvironment,
                       children: environmentRows,
                     ),
                   ],
                 ] else ...[
                   _SectionCard(
-                    title: 'Brew Params',
+                    title: l10n.brewDetailSectionBrewParams,
                     children: fallbackParamRows,
                   ),
                   if (environmentRows.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.md),
                     _SectionCard(
-                      title: 'Environment',
+                      title: l10n.brewDetailSectionEnvironment,
                       children: environmentRows,
                     ),
                   ],
                 ],
                 if (grindRows.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.md),
-                  _SectionCard(title: 'Grind', children: grindRows),
+                  _SectionCard(
+                    title: l10n.brewDetailSectionGrind,
+                    children: grindRows,
+                  ),
                 ],
                 const SizedBox(height: AppSpacing.md),
                 _SectionCard(
-                  title: 'Rating',
+                  title: l10n.brewDetailSectionRating,
                   children: [
                     if (hasRating)
                       ...ratingRows
                     else
                       Text(
-                        'No rating recorded yet.',
+                        l10n.brewDetailRatingEmpty,
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -344,13 +391,20 @@ class _Content extends StatelessWidget {
                         ),
                         onPressed: onEditRating,
                         icon: const Icon(Icons.edit_note_rounded),
-                        label: Text(hasRating ? 'Edit Rating' : 'Add Rating'),
+                        label: Text(
+                          hasRating
+                              ? l10n.brewDetailEditRating
+                              : l10n.brewDetailAddRating,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.md),
-                _SectionCard(title: 'Meta', children: metaRows),
+                _SectionCard(
+                  title: l10n.brewDetailSectionMeta,
+                  children: metaRows,
+                ),
               ],
             ),
           ),
@@ -369,74 +423,126 @@ class _Content extends StatelessWidget {
     context.go(AppRoutePaths.history);
   }
 
-  List<Widget> _buildEnvironmentRows(BrewDetail detail) {
+  List<Widget> _buildEnvironmentRows(
+    BrewDetail detail, {
+    required dynamic l10n,
+  }) {
     final rows = <Widget>[];
     if (_hasText(detail.waterType)) {
-      rows.add(_DataRow(label: 'Water Type', value: _text(detail.waterType)));
+      rows.add(
+        _DataRow(
+          label: l10n.brewDetailLabelWaterType as String,
+          value: _text(detail.waterType),
+        ),
+      );
     }
     final roomTemp = _double(detail.roomTempC, suffix: '°C');
     if (_isRecorded(roomTemp)) {
-      rows.add(_DataRow(label: 'Room Temp', value: roomTemp));
+      rows.add(
+        _DataRow(
+          label: l10n.brewDetailLabelRoomTemp as String,
+          value: roomTemp,
+        ),
+      );
     }
     return rows;
   }
 
-  List<Widget> _buildFallbackParamRows(BrewDetail detail) {
+  List<Widget> _buildFallbackParamRows(
+    BrewDetail detail, {
+    required dynamic l10n,
+  }) {
     final rows = <Widget>[
       _DataRow(
-        label: 'Coffee',
+        label: l10n.brewDetailLabelCoffee as String,
         value: '${detail.coffeeWeightG.toStringAsFixed(1)}g',
       ),
       _DataRow(
-        label: 'Water',
+        label: l10n.brewDetailLabelWater as String,
         value: '${detail.waterWeightG.toStringAsFixed(0)}g',
       ),
     ];
     final ratio = _ratio(detail.coffeeWeightG, detail.waterWeightG);
     if (_isRecorded(ratio)) {
-      rows.add(_DataRow(label: 'Ratio', value: ratio));
+      rows.add(
+        _DataRow(label: l10n.brewDetailLabelRatio as String, value: ratio),
+      );
     }
     final waterTemp = _double(detail.waterTempC, suffix: '°C');
     if (_isRecorded(waterTemp)) {
-      rows.add(_DataRow(label: 'Water Temp', value: waterTemp));
+      rows.add(
+        _DataRow(
+          label: l10n.brewDetailLabelWaterTemp as String,
+          value: waterTemp,
+        ),
+      );
     }
     final bloomTime = _int(detail.bloomTimeS, suffix: 's');
     if (_isRecorded(bloomTime)) {
-      rows.add(_DataRow(label: 'Bloom Time', value: bloomTime));
+      rows.add(
+        _DataRow(
+          label: l10n.brewDetailLabelBloomTime as String,
+          value: bloomTime,
+        ),
+      );
     }
     if (_hasText(detail.pourMethod)) {
-      rows.add(_DataRow(label: 'Pour Method', value: _text(detail.pourMethod)));
+      rows.add(
+        _DataRow(
+          label: l10n.brewDetailLabelPourMethod as String,
+          value: _text(detail.pourMethod),
+        ),
+      );
     }
     return rows;
   }
 
-  List<Widget> _buildGrindRows(BrewDetail detail) {
+  List<Widget> _buildGrindRows(BrewDetail detail, {required dynamic l10n}) {
     switch (detail.grindMode) {
       case GrindMode.equipment:
         final equipment = _text(detail.equipmentName);
         final click = _double(detail.grindClickValue);
-        final unit = _text(detail.grindClickUnit ?? 'clicks');
+        final unit = _text(
+          detail.grindClickUnit ??
+              l10n.brewDetailGrindClickUnitDefault as String,
+        );
         if (!_isRecorded(equipment) && !_isRecorded(click)) {
           return const <Widget>[];
         }
         return <Widget>[
-          _DataRow(label: 'Mode', value: _grindMode(detail.grindMode)),
+          _DataRow(
+            label: l10n.brewDetailLabelGrindMode as String,
+            value: _grindMode(detail.grindMode, l10n: l10n),
+          ),
           if (_isRecorded(equipment))
-            _DataRow(label: 'Equipment', value: equipment),
+            _DataRow(
+              label: l10n.brewDetailLabelGrindEquipment as String,
+              value: equipment,
+            ),
           if (_isRecorded(click))
             _DataRow(
-              label: 'Click',
-              value: '$click ${_isRecorded(unit) ? unit : 'clicks'}',
+              label: l10n.brewDetailLabelGrindClick as String,
+              value:
+                  '$click ${_isRecorded(unit) ? unit : (l10n.brewDetailGrindClickUnitDefault as String)}',
             ),
         ];
       case GrindMode.simple:
-        final label = _text(detail.grindSimpleLabel);
+        final rawLabel = _text(detail.grindSimpleLabel);
+        final label = _isRecorded(rawLabel)
+            ? localizeGrindSimpleLabel(l10n, rawLabel)
+            : rawLabel;
         if (!_isRecorded(label)) {
           return const <Widget>[];
         }
         return <Widget>[
-          _DataRow(label: 'Mode', value: _grindMode(detail.grindMode)),
-          _DataRow(label: 'Label', value: label),
+          _DataRow(
+            label: l10n.brewDetailLabelGrindMode as String,
+            value: _grindMode(detail.grindMode, l10n: l10n),
+          ),
+          _DataRow(
+            label: l10n.brewDetailLabelGrindLabel as String,
+            value: label,
+          ),
         ];
       case GrindMode.pro:
         final microns = _int(detail.grindMicrons, suffix: ' μm');
@@ -444,42 +550,65 @@ class _Content extends StatelessWidget {
           return const <Widget>[];
         }
         return <Widget>[
-          _DataRow(label: 'Mode', value: _grindMode(detail.grindMode)),
-          _DataRow(label: 'Microns', value: microns),
+          _DataRow(
+            label: l10n.brewDetailLabelGrindMode as String,
+            value: _grindMode(detail.grindMode, l10n: l10n),
+          ),
+          _DataRow(
+            label: l10n.brewDetailLabelGrindMicrons as String,
+            value: microns,
+          ),
         ];
     }
   }
 
-  List<Widget> _buildRatingRows(BrewDetail detail) {
+  List<Widget> _buildRatingRows(BrewDetail detail, {required dynamic l10n}) {
     final rows = <Widget>[];
     final hasQuick = detail.quickScore != null || _hasText(detail.emoji);
     if (hasQuick) {
       rows.add(
         _DataRow(
-          label: 'Quick',
-          value: _quickRating(detail.quickScore, detail.emoji),
+          label: l10n.brewDetailLabelQuick as String,
+          value: _quickRating(detail.quickScore, detail.emoji, l10n: l10n),
         ),
       );
     }
     final acidity = _double(detail.acidity);
     if (_isRecorded(acidity)) {
-      rows.add(_DataRow(label: 'Acidity', value: acidity));
+      rows.add(
+        _DataRow(label: l10n.brewDetailLabelAcidity as String, value: acidity),
+      );
     }
     final sweetness = _double(detail.sweetness);
     if (_isRecorded(sweetness)) {
-      rows.add(_DataRow(label: 'Sweetness', value: sweetness));
+      rows.add(
+        _DataRow(
+          label: l10n.brewDetailLabelSweetness as String,
+          value: sweetness,
+        ),
+      );
     }
     final bitterness = _double(detail.bitterness);
     if (_isRecorded(bitterness)) {
-      rows.add(_DataRow(label: 'Bitterness', value: bitterness));
+      rows.add(
+        _DataRow(
+          label: l10n.brewDetailLabelBitterness as String,
+          value: bitterness,
+        ),
+      );
     }
     final body = _double(detail.body);
     if (_isRecorded(body)) {
-      rows.add(_DataRow(label: 'Body', value: body));
+      rows.add(
+        _DataRow(label: l10n.brewDetailLabelBody as String, value: body),
+      );
     }
     if (_hasText(detail.flavorNotes)) {
       rows.add(
-        _DataRow(label: 'Flavor Notes', value: _text(detail.flavorNotes)),
+        _DataRow(
+          label: l10n.brewDetailLabelFlavorNotes as String,
+          value: _localizedFlavorNotes(detail.flavorNotes, l10n: l10n),
+        ),
       );
     }
     return rows;
@@ -494,6 +623,7 @@ class _BottomActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.pageHorizontal,
@@ -514,7 +644,7 @@ class _BottomActions extends StatelessWidget {
               ),
               onPressed: onBrewAgain,
               icon: const Icon(Icons.replay_rounded),
-              label: const Text('Brew Again'),
+              label: Text(l10n.actionBrewAgain),
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -528,7 +658,7 @@ class _BottomActions extends StatelessWidget {
               ),
               onPressed: onShare,
               icon: const Icon(Icons.ios_share_rounded),
-              label: const Text('Share'),
+              label: Text(l10n.actionShare),
             ),
           ),
         ],
@@ -598,6 +728,7 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.pageHorizontal),
@@ -614,7 +745,7 @@ class _ErrorState extends StatelessWidget {
               key: const Key('brew-detail-retry'),
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(l10n.actionRetry),
             ),
           ],
         ),
@@ -655,15 +786,34 @@ String _ratio(double coffeeWeight, double waterWeight) {
   return '1:${(waterWeight / coffeeWeight).toStringAsFixed(1)}';
 }
 
-String _quickRating(int? score, String? emoji) {
+String _quickRating(int? score, String? emoji, {required dynamic l10n}) {
   if (score == null && (emoji == null || emoji.trim().isEmpty)) {
-    return 'Unrated';
+    return l10n.brewDetailUnrated as String;
   }
   final emojiText = _text(emoji);
   if (score == null) {
     return emojiText;
   }
-  return '$score/5 ${emojiText == '--' ? '' : emojiText}'.trim();
+  final scoreText = l10n.brewDetailQuickScore(score) as String;
+  return '$scoreText ${emojiText == '--' ? '' : emojiText}'.trim();
+}
+
+String _localizedFlavorNotes(String? raw, {required dynamic l10n}) {
+  final trimmed = raw?.trim();
+  if (trimmed == null || trimmed.isEmpty) {
+    return '--';
+  }
+
+  final parts = trimmed
+      .split(RegExp(r'[,;/·]'))
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .map((value) => flavorNoteLabel(value, l10n))
+      .toList();
+  if (parts.isEmpty) {
+    return trimmed;
+  }
+  return parts.join('、');
 }
 
 bool _hasText(String? value) {
@@ -673,13 +823,13 @@ bool _hasText(String? value) {
 
 bool _isRecorded(String value) => value != '--';
 
-String _grindMode(GrindMode mode) {
+String _grindMode(GrindMode mode, {required dynamic l10n}) {
   switch (mode) {
     case GrindMode.equipment:
-      return 'Equipment';
+      return l10n.brewDetailGrindModeEquipment as String;
     case GrindMode.simple:
-      return 'Simple';
+      return l10n.brewDetailGrindModeSimple as String;
     case GrindMode.pro:
-      return 'Pro';
+      return l10n.brewDetailGrindModePro as String;
   }
 }

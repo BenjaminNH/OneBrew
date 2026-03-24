@@ -1,0 +1,652 @@
+{
+  "@@locale": "en",
+  "actionAdd": "Add",
+  "actionBrewAgain": "Brew Again",
+  "actionCancel": "Cancel",
+  "actionDelete": "Delete",
+  "actionGoBack": "Go Back",
+  "actionRetry": "Retry",
+  "actionShare": "Share",
+  "appTitle": "OneBrew",
+  "brewActionAddCustomParameter": "Add Custom Parameter",
+  "brewActionAddParameter": "Add Parameter",
+  "brewActionApply": "Apply",
+  "brewActionClear": "Clear",
+  "brewAddParamFieldDefaultLabel": "Default (optional)",
+  "brewAddParamFieldMaxLabel": "Max",
+  "brewAddParamFieldMinLabel": "Min",
+  "brewAddParamFieldNameHint": "e.g. Flow Rate",
+  "brewAddParamFieldStepLabel": "Step (optional)",
+  "brewAddParamFieldTypeLabel": "Type",
+  "brewAddParamFieldUnitHint": "e.g. g, ml, bar",
+  "brewAddParamFieldUnitLabel": "Unit (optional)",
+  "brewAddParamSheetTitle": "New Parameter",
+  "brewAddParamValidationDefaultWithinRange": "Default must stay within range.",
+  "brewAddParamValidationMaxGreaterThanMin": "Max must be greater than min.",
+  "brewAddParamValidationMaxRequired": "Max is required.",
+  "brewAddParamValidationMinRequired": "Min is required.",
+  "brewAddParamValidationNameRequired": "Name is required.",
+  "brewAddParamValidationStepPositive": "Step must be greater than 0.",
+  "brewAdjustDialogTitle": "Adjust {label}",
+  "@brewAdjustDialogTitle": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewAdjustedToNearestStep": "Adjusted to nearest step: {value}{unit}",
+  "@brewAdjustedToNearestStep": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "brewAdvancedBloomLabel": "Bloom",
+  "brewAdvancedBloomSemantic": "Bloom time in seconds",
+  "brewAdvancedCoarsenessHint": "Select coarseness",
+  "brewAdvancedCoarsenessLabel": "Coarseness",
+  "brewAdvancedEquipmentLabel": "Grinder / Equipment",
+  "brewAdvancedGrindClicksLabel": "Grind Clicks",
+  "brewAdvancedGrindClicksSemantic": "Grind click value",
+  "brewAdvancedGrindModeGrinder": "Grinder",
+  "brewAdvancedGrindModePro": "Pro (μm)",
+  "brewAdvancedGrindModeSimple": "Simple",
+  "brewAdvancedGrindSizeLabel": "Grind size (μm)",
+  "brewAdvancedPourMethodHint": "e.g. Spiral, Pulse, Centre",
+  "brewAdvancedPourMethodLabel": "Pour Method",
+  "brewAdvancedSelectGrinderHint": "Select grinder...",
+  "brewAdvancedTempLabel": "Temp",
+  "brewAdvancedTempSemantic": "Water temperature",
+  "brewBeanHint": "Search or add bean...",
+  "brewBeanLabel": "Coffee Bean",
+  "brewCustomMethodDefaultName": "Custom",
+  "brewCustomMethodDelete": "Delete",
+  "brewCustomMethodDisplay": "Custom method: {name}",
+  "@brewCustomMethodDisplay": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "brewCustomMethodNameHint": "e.g. AeroPress",
+  "brewCustomMethodNameLabel": "Method name",
+  "brewCustomMethodRename": "Rename",
+  "brewCustomMethodSave": "Save",
+  "brewCustomMethodSheetTitle": "Custom Brew Method",
+  "brewCustomMethodWantAnother": "Want another method? Add one",
+  "brewDetailAddRating": "Add Rating",
+  "brewDetailDeleteFailed": "Failed to delete brew.",
+  "brewDetailDeleteTooltip": "Delete brew",
+  "brewDetailDeleted": "Brew deleted.",
+  "brewDetailEditRating": "Edit Rating",
+  "brewDetailGrindClickUnitDefault": "clicks",
+  "brewDetailGrindModeEquipment": "Equipment",
+  "brewDetailGrindModePro": "Pro",
+  "brewDetailGrindModeSimple": "Simple",
+  "brewDetailLabelAcidity": "Acidity",
+  "brewDetailLabelBean": "Bean",
+  "brewDetailLabelBitterness": "Bitterness",
+  "brewDetailLabelBloomTime": "Bloom Time",
+  "brewDetailLabelBody": "Body",
+  "brewDetailLabelBrewedAt": "Brewed At",
+  "brewDetailLabelCoffee": "Coffee",
+  "brewDetailLabelCreatedAt": "Created At",
+  "brewDetailLabelDuration": "Duration",
+  "brewDetailLabelFlavorNotes": "Flavor Notes",
+  "brewDetailLabelGrindClick": "Click",
+  "brewDetailLabelGrindEquipment": "Equipment",
+  "brewDetailLabelGrindLabel": "Label",
+  "brewDetailLabelGrindMicrons": "Microns",
+  "brewDetailLabelGrindMode": "Mode",
+  "brewDetailLabelNotes": "Notes",
+  "brewDetailLabelOrigin": "Origin",
+  "brewDetailLabelPourMethod": "Pour Method",
+  "brewDetailLabelQuick": "Quick",
+  "brewDetailLabelRatio": "Ratio",
+  "brewDetailLabelRoastLevel": "Roast Level",
+  "brewDetailLabelRoaster": "Roaster",
+  "brewDetailLabelRoomTemp": "Room Temp",
+  "brewDetailLabelSweetness": "Sweetness",
+  "brewDetailLabelUpdatedAt": "Updated At",
+  "brewDetailLabelWater": "Water",
+  "brewDetailLabelWaterTemp": "Water Temp",
+  "brewDetailLabelWaterType": "Water Type",
+  "brewDetailNotFound": "Brew record not found.",
+  "brewDetailQuickScore": "{score}/5",
+  "@brewDetailQuickScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "brewDetailRatingEmpty": "No rating recorded yet.",
+  "brewDetailRatingUpdated": "Rating updated.",
+  "brewDetailSectionBasic": "Basic",
+  "brewDetailSectionBrewParams": "Brew Params",
+  "brewDetailSectionEnvironment": "Environment",
+  "brewDetailSectionGrind": "Grind",
+  "brewDetailSectionMeta": "Meta",
+  "brewDetailSectionRating": "Rating",
+  "brewDetailSectionRecordedParams": "Recorded Params",
+  "brewDetailTitle": "Brew Detail",
+  "brewDetailUnrated": "Unrated",
+  "brewEnableMethodInPreferences": "Enable a brew method in preferences to start logging.",
+  "brewEnableMethodToConfigureParams": "Enable a brew method to configure parameters.",
+  "brewErrorInvalidNumber": "Please enter a valid number.",
+  "brewErrorValueOutOfRange": "Value must be between {min} and {max}.",
+  "@brewErrorValueOutOfRange": {
+    "placeholders": {
+      "min": {
+        "type": "double"
+      },
+      "max": {
+        "type": "double"
+      }
+    }
+  },
+  "brewErrorValueRequired": "Value is required.",
+  "brewGrindModeLabel": "Grind Mode",
+  "brewGrindSimpleCoarse": "Coarse",
+  "brewGrindSimpleExtraCoarse": "Extra Coarse",
+  "brewGrindSimpleExtraFine": "Extra Fine",
+  "brewGrindSimpleFine": "Fine",
+  "brewGrindSimpleMedium": "Medium",
+  "brewGrindSimpleMediumCoarse": "Medium Coarse",
+  "brewGrindSimpleMediumFine": "Medium Fine",
+  "brewLabelCoffee": "Coffee",
+  "brewLabelDose": "Dose",
+  "brewLabelWater": "Water",
+  "brewLabelYield": "Yield",
+  "brewMethodNameEspresso": "Espresso",
+  "brewMethodNamePourOver": "Pour Over",
+  "brewMethodSelectorLabel": "Brew Method",
+  "brewMethodsUnavailable": "Brew methods unavailable.",
+  "brewNoParamsConfiguredYet": "No parameters configured for this brew method yet.",
+  "brewParamLabelAgitation": "Agitation",
+  "brewParamLabelBloomTime": "Bloom Time",
+  "brewParamLabelBloomWater": "Bloom Water",
+  "brewParamLabelBrewRatio": "Brew Ratio",
+  "brewParamLabelBrewTime": "Brew Time",
+  "brewParamLabelCoffeeDose": "Dose",
+  "brewParamLabelDistributionTamping": "Distribution/Tamping",
+  "brewParamLabelExtractionTime": "Extraction Time",
+  "brewParamLabelFilterDripper": "Filter/Dripper",
+  "brewParamLabelGrindSize": "Grind Size",
+  "brewParamLabelPourMethod": "Pour Method",
+  "brewParamLabelPreInfusion": "Pre-infusion Time",
+  "brewParamLabelPressure": "Pressure",
+  "brewParamLabelWaterTemp": "Water Temp",
+  "brewParamLabelWaterWeight": "Water",
+  "brewParamLabelYield": "Yield",
+  "brewParamTypeNumber": "Number",
+  "brewParamTypeText": "Text",
+  "brewPreferencesSectionMethodsSubtitle": "Choose which methods appear in the Brew page.",
+  "brewPreferencesSectionMethodsTitle": "Brew Methods",
+  "brewPreferencesSectionParamsSubtitle": "Hide defaults or add custom parameters for each brew method.",
+  "brewPreferencesSectionParamsTitle": "Parameter List",
+  "brewPreferencesSubtitle": "Set your default brew methods and parameter list.",
+  "brewPreferencesTitle": "Record Preferences",
+  "brewRatingSaved": "Rating saved!",
+  "brewRatioBadge": "1 : {ratio}",
+  "@brewRatioBadge": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "brewRenameCustomMethodSheetTitle": "Rename Custom Method",
+  "brewSaveActionDisabled": "Start timer to save",
+  "brewSaveActionReady": "Save Brew",
+  "brewSaveRecordSemantics": "Save brew record",
+  "brewSaveSuccessMessage": "Brew saved. You can rate now or later in History detail.",
+  "brewSaveSuccessRateNow": "Rate now",
+  "brewSemanticValue": "{label} value",
+  "@brewSemanticValue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewSemanticWeight": "{label} weight",
+  "@brewSemanticWeight": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplateApplied": "Template applied: {beanName}",
+  "@brewTemplateApplied": {
+    "placeholders": {
+      "beanName": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplateLoadedFromHistory": "Template loaded from history",
+  "brewTemplateSubtitle": "{coffeeGrams}g -> {waterGrams}g | {duration}",
+  "@brewTemplateSubtitle": {
+    "placeholders": {
+      "coffeeGrams": {
+        "type": "String"
+      },
+      "waterGrams": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTemplatesUnavailable": "Templates unavailable right now.",
+  "brewTextFieldHintEnterText": "Enter text",
+  "brewTimerAdjustStepTooltip": "Adjust target by {seconds}s",
+  "@brewTimerAdjustStepTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerBrew": "Brew",
+  "brewTimerDecreaseTargetSemantics": "Decrease target",
+  "brewTimerDecreaseTargetTooltip": "Decrease target by {seconds}s",
+  "@brewTimerDecreaseTargetTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerEnableTargetToUseCountdown": "Enable target to use countdown",
+  "brewTimerIncreaseTargetSemantics": "Increase target",
+  "brewTimerIncreaseTargetTooltip": "Increase target by {seconds}s",
+  "@brewTimerIncreaseTargetTooltip": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "brewTimerPause": "Pause",
+  "brewTimerReset": "Reset timer",
+  "brewTimerResume": "Resume",
+  "brewTimerSwitchToCountUp": "Switch to count-up",
+  "brewTimerSwitchToCountdown": "Switch to countdown",
+  "brewTimerTargetOff": "Target Off",
+  "brewTimerTargetOn": "Target On",
+  "brewTimerTargetValue": "Target {time}",
+  "@brewTimerTargetValue": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "brewTimerToggleCountdownSemantics": "Toggle countdown mode",
+  "brewTimerUseTarget": "Use Target",
+  "brewTooltipDeleteParameter": "Delete parameter",
+  "brewUntitledBrew": "Untitled Brew",
+  "brewValueLabel": "Value",
+  "brewValueLabelWithUnit": "Value ({unit})",
+  "@brewValueLabelWithUnit": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "chipInputAddMore": "Add more…",
+  "chipInputHint": "Type and press Enter…",
+  "commonName": "Name",
+  "dateDaysAgo": "{count, plural, =1{# day ago} other{# days ago}}",
+  "@dateDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateJustNow": "Just now",
+  "dateMinutesAgo": "{count, plural, =1{# minute ago} other{# minutes ago}}",
+  "@dateMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateThisWeek": "This Week",
+  "dateToday": "Today",
+  "dateTodayAt": "Today {time}",
+  "@dateTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dateYesterday": "Yesterday",
+  "dateYesterdayAt": "Yesterday {time}",
+  "@dateYesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteBrewDialogBody": "Delete this brew record? This action cannot be undone.",
+  "deleteBrewDialogTitle": "Delete Brew",
+  "flavorNoteBerry": "Berry",
+  "flavorNoteCaramel": "Caramel",
+  "flavorNoteChocolate": "Chocolate",
+  "flavorNoteCitrus": "Citrus",
+  "flavorNoteClean": "Clean",
+  "flavorNoteFloral": "Floral",
+  "flavorNoteHerbal": "Herbal",
+  "flavorNoteNutty": "Nutty",
+  "flavorNoteSpice": "Spice",
+  "flavorNoteStoneFruit": "Stone Fruit",
+  "flavorNoteTea": "Tea",
+  "flavorNoteTropical": "Tropical",
+  "historyEmptyFiltered": "No brew records match the current filter.",
+  "historyErrorFilter": "Failed to filter history.",
+  "historyErrorLoad": "Failed to load history.",
+  "historyErrorReset": "Failed to reset history filter.",
+  "historyFilterAnyDate": "Any date",
+  "historyFilterBeanAddAction": "Use custom text",
+  "historyFilterBeanDialogConfirm": "Use text",
+  "historyFilterBeanDialogHint": "Bean name",
+  "historyFilterBeanDialogTitle": "Filter by Bean",
+  "historyFilterBeanHint": "Bean",
+  "historyFilterClearTooltip": "Clear filters",
+  "historyFilterScoreAll": "All",
+  "historyFilterScoreHint": "Score",
+  "historyRoasterPrefix": "Roaster: {roaster}",
+  "@historyRoasterPrefix": {
+    "placeholders": {
+      "roaster": {
+        "type": "String"
+      }
+    }
+  },
+  "historySecondsSuffix": "{seconds}s",
+  "@historySecondsSuffix": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "historyStatsAvg": "Avg",
+  "historyStatsBrews": "Brews",
+  "historyStatsRated": "Rated",
+  "historyTitle": "Brew History",
+  "historyTopBrew": "Top Brew",
+  "inventoryAboutAuthor": "Author: {name}",
+  "@inventoryAboutAuthor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryAboutOpenGithub": "Open GitHub Repository",
+  "inventoryAboutOpenGithubFailed": "Unable to open GitHub link.",
+  "inventoryAboutTitle": "About OneBrew",
+  "inventoryAboutVersion": "Version: {version}",
+  "@inventoryAboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryAboutVersionLoading": "Loading...",
+  "inventoryAboutVersionUnavailable": "Unavailable",
+  "inventoryActionCreate": "Create",
+  "inventoryActionDelete": "Delete",
+  "inventoryActionSave": "Save",
+  "inventoryBeanCreated": "Bean created.",
+  "inventoryBeanFormAddTitle": "Add Bean",
+  "inventoryBeanFormEditTitle": "Edit Bean",
+  "inventoryBeanFormLabelName": "Bean name",
+  "inventoryBeanFormLabelOrigin": "Origin",
+  "inventoryBeanFormLabelRoastLevel": "Roast level",
+  "inventoryBeanFormLabelRoaster": "Roaster",
+  "inventoryBeanFormNameRequired": "Please enter bean name.",
+  "inventoryBeanUpdated": "Bean updated successfully.",
+  "inventoryConflictGrinderNameExists": "A grinder with the same name already exists.",
+  "inventoryDeleteBeanTitle": "Delete Bean",
+  "inventoryDeleteBeanTooltip": "Delete bean",
+  "inventoryDeleteGrinderTitle": "Delete Grinder",
+  "inventoryDeleteGrinderTooltip": "Delete grinder",
+  "inventoryDeletePrompt": "Delete \"{name}\"?",
+  "@inventoryDeletePrompt": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryEditBeanTooltip": "Edit bean",
+  "inventoryEditGrinderTooltip": "Edit grinder",
+  "inventoryEmptyBeans": "No beans found.",
+  "inventoryEmptyGrinders": "No grinders found.",
+  "inventoryErrorWithDetails": "Error: {details}",
+  "@inventoryErrorWithDetails": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFabTooltipAddBean": "Add bean",
+  "inventoryFabTooltipAddGrinder": "Add grinder",
+  "inventoryFailedToDeleteBean": "Failed to delete bean: {error}",
+  "@inventoryFailedToDeleteBean": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToDeleteGrinder": "Failed to delete grinder: {error}",
+  "@inventoryFailedToDeleteGrinder": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveBean": "Failed to save bean: {error}",
+  "@inventoryFailedToSaveBean": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveGrinder": "Failed to save grinder: {error}",
+  "@inventoryFailedToSaveGrinder": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryFailedToSaveTag": "Failed to save \"{tag}\": {error}",
+  "@inventoryFailedToSaveTag": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryGrinderCreated": "Grinder created successfully.",
+  "inventoryGrinderFormAddTitle": "Add Grinder",
+  "inventoryGrinderFormEditTitle": "Edit Grinder",
+  "inventoryGrinderFormLabelMaxClick": "Max click",
+  "inventoryGrinderFormLabelMinClick": "Min click",
+  "inventoryGrinderFormLabelName": "Name",
+  "inventoryGrinderFormLabelStep": "Step",
+  "inventoryGrinderFormLabelUnit": "Unit",
+  "inventoryGrinderFormNameRequired": "Please enter grinder name.",
+  "inventoryGrinderMetaStep": "step {step}",
+  "@inventoryGrinderMetaStep": {
+    "placeholders": {
+      "step": {
+        "type": "num"
+      }
+    }
+  },
+  "inventoryGrinderUpdated": "Grinder updated successfully.",
+  "inventoryLanguageTitle": "Language",
+  "inventoryMetaAdded": "Added {date}",
+  "@inventoryMetaAdded": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryMetaUseCount": "Use {count}",
+  "@inventoryMetaUseCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryQuickGrinderSetupDescription": "Configure \"{tag}\". Leave blank to use defaults.",
+  "@inventoryQuickGrinderSetupDescription": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "inventoryQuickGrinderSetupLabelMax": "Max",
+  "inventoryQuickGrinderSetupLabelMin": "Min",
+  "inventoryQuickGrinderSetupLabelStep": "Step",
+  "inventoryQuickGrinderSetupLabelUnit": "Unit",
+  "inventoryQuickGrinderSetupSaveGrinder": "Save Grinder",
+  "inventoryQuickGrinderSetupTitle": "Quick Grinder Setup",
+  "inventoryQuickGrinderSetupUseDefaults": "Use Defaults",
+  "inventoryQuickGrinderSetupValidationError": "Please enter a valid range and step.",
+  "inventorySearchBeansHint": "Search beans",
+  "inventorySearchGrindersHint": "Search grinders",
+  "inventorySmartTagAddBean": "Add bean",
+  "inventorySmartTagAddGrinder": "Add grinder",
+  "inventorySmartTagDialogAddBean": "Add Coffee Bean",
+  "inventorySmartTagDialogAddGrinder": "Add Grinder",
+  "inventorySmartTagDialogHintBeanName": "Bean name",
+  "inventorySmartTagDialogHintGrinderName": "Grinder name",
+  "inventorySmartTagEmptyBeansYet": "No beans yet",
+  "inventorySmartTagEmptyGrindersYet": "No grinders yet",
+  "inventorySmartTagHint": "Type to add...",
+  "inventoryTabBeans": "Beans",
+  "inventoryTabGrinders": "Grinders",
+  "inventoryTemplatePickerEmptyHint": "Save one brew first, then reuse it here in one tap.",
+  "inventoryTemplatePickerFooter": "Showing latest 3 brews only. Tap a chip to reuse.",
+  "inventoryTemplatePickerTitle": "Brew Again (Templates)",
+  "inventoryTooltipAbout": "About",
+  "inventoryTooltipDebugRerunOnboarding": "Debug: Re-run onboarding",
+  "inventoryTooltipLanguage": "Language",
+  "inventoryTooltipRecordPreferences": "Record Preferences",
+  "inventoryValidationInvalid": "Invalid",
+  "inventoryValidationMustBeGreaterThanMin": "Must be > min",
+  "inventoryValidationMustBeGreaterThanZero": "Must be > 0",
+  "inventoryValidationRangeTooLarge": "Range too large",
+  "inventoryValidationRequired": "Required",
+  "languageEnglish": "English",
+  "languageSimplifiedChinese": "Simplified Chinese",
+  "languageSystemDefault": "System Default",
+  "navBrew": "Brew",
+  "navHistory": "History",
+  "navManage": "Manage",
+  "onboardingParamListSubtitle": "Hide defaults or add custom parameters.",
+  "onboardingParamListTitle": "Parameter list",
+  "onboardingPrimaryFinish": "Finish",
+  "onboardingPrimaryNext": "Next",
+  "onboardingPrimaryNextMethod": "Next Method",
+  "onboardingSkip": "Skip",
+  "onboardingStepChooseMethodsSubtitle": "Select at least one method to start. You can add one custom method for your workflow.",
+  "onboardingStepChooseMethodsTitle": "Choose brew methods",
+  "onboardingTagline": "Focus on one brew at a time.",
+  "onboardingWelcomeTo": "Welcome to",
+  "posterMetricBloom": "BLOOM",
+  "posterMetricDose": "DOSE",
+  "posterMetricGrind": "GRIND",
+  "posterMetricPour": "POUR",
+  "posterMetricRatio": "RATIO",
+  "posterMetricRoom": "ROOM",
+  "posterMetricTemp": "TEMP",
+  "posterMetricTime": "TIME",
+  "posterMetricWater": "WATER",
+  "posterMetricYield": "YIELD",
+  "posterScoreAcid": "ACID",
+  "posterScoreBitter": "BITTER",
+  "posterScoreBody": "BODY",
+  "posterScoreSweet": "SWEET",
+  "progressiveExpandShowLess": "Show less",
+  "progressiveExpandShowMore": "Show more",
+  "ratingFlavorNotesTitle": "Flavor Notes",
+  "ratingLabelAcidity": "Acidity",
+  "ratingLabelBitterness": "Bitterness",
+  "ratingLabelBody": "Body",
+  "ratingLabelSweetness": "Sweetness",
+  "ratingModeProfessional": "Professional",
+  "ratingModeQuick": "Quick",
+  "ratingMoodTitle": "Mood",
+  "ratingProScoresTitle": "Professional Scores",
+  "ratingQuickTitle": "Quick Rating",
+  "ratingSave": "Save rating",
+  "ratingSaving": "Saving...",
+  "ratingSheetSubtitle": "Saved successfully. Add a quick score or detailed flavor notes.",
+  "ratingSheetTitle": "Rate this brew",
+  "ratingSkipForNow": "Skip for now",
+  "ratingStarTooltip": "{star} star",
+  "@ratingStarTooltip": {
+    "placeholders": {
+      "star": {
+        "type": "int"
+      }
+    }
+  },
+  "routeInvalidHistoryDetailId": "Invalid history detail id.",
+  "sharePreviewSaveFailed": "Failed to save poster: {details}",
+  "@sharePreviewSaveFailed": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "sharePreviewSavePoster": "Save Poster",
+  "sharePreviewSaved": "Poster saved to your photo library.",
+  "sharePreviewSaving": "Saving...",
+  "sharePreviewTitle": "Share your brew",
+  "singleSelectAddAction": "Add new",
+  "singleSelectDialogConfirm": "Add",
+  "singleSelectDialogHint": "Name",
+  "singleSelectDialogTitle": "Add item",
+  "singleSelectEmptyState": "No suggestions yet",
+  "singleSelectHint": "Select an option",
+  "timerPhaseBloom": "Bloom",
+  "timerPhaseBrewing": "Brewing",
+  "timerPhaseDone": "Done ✓",
+  "timerPhaseReady": "Ready"
+}

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../l10n/l10n.dart';
 import '../constants/rating_presets.dart';
 
 class QuickRatingBar extends StatelessWidget {
@@ -21,12 +22,13 @@ class QuickRatingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final currentScore = (score ?? 3).clamp(1, 5);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Quick Rating', style: AppTextStyles.titleLarge),
+        Text(l10n.ratingQuickTitle, style: AppTextStyles.titleLarge),
         const SizedBox(height: AppSpacing.xs),
         Row(
           children: List.generate(5, (index) {
@@ -39,12 +41,12 @@ class QuickRatingBar extends StatelessWidget {
                 filled ? Icons.star_rounded : Icons.star_border_rounded,
                 color: AppColors.primary,
               ),
-              tooltip: '$star star',
+              tooltip: l10n.ratingStarTooltip(star),
             );
           }),
         ),
         const SizedBox(height: AppSpacing.sm),
-        Text('Mood', style: AppTextStyles.titleMedium),
+        Text(l10n.ratingMoodTitle, style: AppTextStyles.titleMedium),
         const SizedBox(height: AppSpacing.xs),
         Wrap(
           spacing: AppSpacing.xs,

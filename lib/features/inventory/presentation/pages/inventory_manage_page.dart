@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,7 +8,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/localization/app_locale.dart';
+import '../../../../core/localization/app_locale_controller.dart';
 import '../../../../core/router/app_route_paths.dart';
+import '../../../../l10n/l10n.dart';
 import '../widgets/bean_manage_list.dart';
 import '../widgets/grinder_manage_list.dart';
 
@@ -49,6 +53,7 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
   }
 
   Future<void> _openAboutSheet() async {
+    final l10n = context.l10n;
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: AppColors.surface,
@@ -71,7 +76,7 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'About OneBrew',
+                l10n.inventoryAboutTitle,
                 style: AppTextStyles.headlineSmall.copyWith(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,
@@ -79,7 +84,7 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Author: $_authorName',
+                l10n.inventoryAboutAuthor(_authorName),
                 style: AppTextStyles.bodyMedium.copyWith(
                   color: AppColors.textPrimary,
                 ),
@@ -91,11 +96,11 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                   final versionLabel = switch (snapshot.connectionState) {
                     ConnectionState.done when snapshot.hasData =>
                       'v${snapshot.data!.version} (${snapshot.data!.buildNumber})',
-                    ConnectionState.done => 'Unavailable',
-                    _ => 'Loading...',
+                    ConnectionState.done => l10n.inventoryAboutVersionUnavailable,
+                    _ => l10n.inventoryAboutVersionLoading,
                   };
                   return Text(
-                    'Version: $versionLabel',
+                    l10n.inventoryAboutVersion(versionLabel),
                     key: const Key('manage-about-version-text'),
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textSecondary,
@@ -110,7 +115,7 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                   key: const Key('manage-about-github-button'),
                   onPressed: () => _openGithubRepo(sheetContext),
                   icon: const Icon(Icons.open_in_new_rounded),
-                  label: const Text('Open GitHub Repository'),
+                  label: Text(l10n.inventoryAboutOpenGithub),
                 ),
               ),
             ],
@@ -121,6 +126,7 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
   }
 
   Future<void> _openGithubRepo(BuildContext sheetContext) async {
+    final l10n = sheetContext.l10n;
     final launched = await launchUrl(
       _githubRepoUri,
       mode: LaunchMode.externalApplication,
@@ -129,15 +135,80 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
       return;
     }
     ScaffoldMessenger.of(sheetContext).showSnackBar(
-      const SnackBar(
-        content: Text('Unable to open GitHub link.'),
+      SnackBar(
+        content: Text(l10n.inventoryAboutOpenGithubFailed),
         backgroundColor: AppColors.error,
       ),
     );
   }
 
+  Future<void> _openLanguageSheet() async {
+    final l10n = context.l10n;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Consumer(
+            builder: (context, ref, _) {
+              final selected = ref.watch(appLocaleOptionProvider);
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.pageHorizontal,
+                  AppSpacing.sm,
+                  AppSpacing.pageHorizontal,
+                  AppSpacing.lg,
+                ),
+                child: RadioGroup<AppLocaleOption>(
+                  groupValue: selected,
+                  onChanged: (value) async {
+                    if (value == null) return;
+                    await ref
+                        .read(appLocaleControllerProvider)
+                        .setLocaleOption(value);
+                    if (sheetContext.mounted) {
+                      Navigator.of(sheetContext).pop();
+                    }
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.inventoryLanguageTitle,
+                        style: AppTextStyles.headlineSmall,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      ...AppLocaleOption.values.map((option) {
+                        final title = switch (option) {
+                          AppLocaleOption.systemDefault =>
+                            context.l10n.languageSystemDefault,
+                          AppLocaleOption.english =>
+                            context.l10n.languageEnglish,
+                          AppLocaleOption.simplifiedChinese =>
+                            context.l10n.languageSimplifiedChinese,
+                        };
+                        return RadioListTile<AppLocaleOption>(
+                          value: option,
+                          selected: option == selected,
+                          title: Text(title),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return DefaultTabController(
       length: 2,
       child: Builder(
@@ -157,7 +228,9 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
               floatingActionButton: FloatingActionButton(
                 key: const Key('manage-add-fab'),
                 onPressed: () => _openAddEntry(tabController),
-                tooltip: tabController.index == 0 ? 'Add bean' : 'Add grinder',
+                tooltip: tabController.index == 0
+                    ? l10n.inventoryFabTooltipAddBean
+                    : l10n.inventoryFabTooltipAddGrinder,
                 child: const Icon(Icons.add),
               ),
               body: SafeArea(
@@ -174,7 +247,7 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                         children: [
                           Expanded(
                             child: Text(
-                              'Manage',
+                              l10n.navManage,
                               style: AppTextStyles.displayMedium.copyWith(
                                 color: AppColors.textPrimary,
                                 fontWeight: FontWeight.w700,
@@ -184,7 +257,7 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                           if (kDebugMode)
                             IconButton(
                               key: const Key('manage-debug-onboarding-button'),
-                              tooltip: 'Debug: Re-run onboarding',
+                              tooltip: l10n.inventoryTooltipDebugRerunOnboarding,
                               onPressed: () =>
                                   context.go(AppRoutePaths.onboarding),
                               icon: const Icon(Icons.bug_report_rounded),
@@ -192,17 +265,24 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                             ),
                           IconButton(
                             key: const Key('manage-about-icon-button'),
-                            tooltip: 'About',
+                            tooltip: l10n.inventoryTooltipAbout,
                             onPressed: _openAboutSheet,
                             icon: const Icon(Icons.info_outline_rounded),
                             color: AppColors.primary,
                           ),
                           IconButton(
                             key: const Key('manage-preferences-icon-button'),
-                            tooltip: 'Record Preferences',
+                            tooltip: l10n.inventoryTooltipRecordPreferences,
                             onPressed: () =>
                                 context.push(AppRoutePaths.managePreferences),
                             icon: const Icon(Icons.tune_rounded),
+                            color: AppColors.primary,
+                          ),
+                          IconButton(
+                            key: const Key('manage-language-icon-button'),
+                            tooltip: l10n.inventoryTooltipLanguage,
+                            onPressed: _openLanguageSheet,
+                            icon: const Icon(Icons.language_rounded),
                             color: AppColors.primary,
                           ),
                         ],
@@ -229,9 +309,9 @@ class _InventoryManagePageState extends State<InventoryManagePage> {
                               AppSpacing.radiusLg,
                             ),
                           ),
-                          tabs: const [
-                            Tab(text: 'Beans'),
-                            Tab(text: 'Grinders'),
+                          tabs: [
+                            Tab(text: l10n.inventoryTabBeans),
+                            Tab(text: l10n.inventoryTabGrinders),
                           ],
                         ),
                       ),

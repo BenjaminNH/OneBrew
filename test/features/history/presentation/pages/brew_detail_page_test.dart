@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:one_brew/core/localization/app_locale.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_key.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_value.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_brew/features/history/history_providers.dart';
 import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_brew/features/rating/rating_providers.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 
 import '../../../../helpers/fake_brew_param_repository.dart';
 import '../../../../helpers/mock_repositories.mocks.dart';
@@ -46,6 +49,7 @@ void main() {
       required int brewId,
       VoidCallback? onBrewAgain,
       VoidCallback? onDelete,
+      Locale locale = const Locale('en'),
     }) {
       return ProviderScope(
         overrides: [
@@ -55,6 +59,9 @@ void main() {
           ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
         ],
         child: MaterialApp(
+          locale: locale,
+          supportedLocales: AppLocaleOption.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: BrewDetailPage(
             brewId: brewId,
             onBrewAgain: onBrewAgain,
@@ -224,7 +231,12 @@ void main() {
               historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
               brewParamRepositoryProvider.overrideWithValue(paramRepo),
             ],
-            child: const MaterialApp(home: BrewDetailPage(brewId: 12)),
+            child: const MaterialApp(
+              locale: Locale('en'),
+              supportedLocales: AppLocaleOption.supportedLocales,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              home: BrewDetailPage(brewId: 12),
+            ),
           ),
         );
         await tester.pumpAndSettle();
@@ -236,6 +248,75 @@ void main() {
         expect(find.text('Medium Fine'), findsOneWidget);
       },
     );
+
+    testWidgets('localizes simple grind label in zh detail and share preview', (
+      tester,
+    ) async {
+      final detail = TestFixtures.brewDetail(
+        id: 120,
+        beanName: 'Yunnan',
+        grindMode: GrindMode.simple,
+        grindSimpleLabel: 'Medium Fine',
+      );
+      when(
+        mockHistoryRepo.getBrewDetailById(120),
+      ).thenAnswer((_) async => detail);
+
+      final paramRepo = FakeBrewParamRepository(
+        definitions: {
+          BrewMethod.pourOver: [
+            const BrewParamDefinition(
+              id: 1201,
+              method: BrewMethod.pourOver,
+              paramKey: BrewParamKeys.grindSize,
+              name: 'Grind Size',
+              type: ParamType.text,
+              isSystem: true,
+              sortOrder: 1,
+            ),
+          ],
+        },
+        valuesByBrew: {
+          120: const [
+            BrewParamValue(
+              id: 1,
+              brewRecordId: 120,
+              paramId: 1201,
+              valueText: 'Medium Fine',
+            ),
+          ],
+        },
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
+            brewParamRepositoryProvider.overrideWithValue(paramRepo),
+          ],
+          child: const MaterialApp(
+            locale: Locale('zh', 'Hans'),
+            supportedLocales: AppLocaleOption.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            home: BrewDetailPage(brewId: 120),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('中细'), findsWidgets);
+      expect(find.text('Medium Fine'), findsNothing);
+
+      await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('share-preview-bottom-sheet')),
+        findsOneWidget,
+      );
+      expect(find.text('中细'), findsWidgets);
+      expect(find.text('Medium Fine'), findsNothing);
+    });
 
     testWidgets(
       'renames basic time label and hides duplicate duration params from recorded list',
@@ -307,7 +388,12 @@ void main() {
               historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
               brewParamRepositoryProvider.overrideWithValue(paramRepo),
             ],
-            child: const MaterialApp(home: BrewDetailPage(brewId: 14)),
+            child: const MaterialApp(
+              locale: Locale('en'),
+              supportedLocales: AppLocaleOption.supportedLocales,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              home: BrewDetailPage(brewId: 14),
+            ),
           ),
         );
         await tester.pumpAndSettle();
@@ -551,7 +637,12 @@ void main() {
             brewParamRepositoryProvider.overrideWithValue(paramRepo),
             ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
           ],
-          child: const MaterialApp(home: BrewDetailPage(brewId: 20)),
+          child: const MaterialApp(
+            locale: Locale('en'),
+            supportedLocales: AppLocaleOption.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            home: BrewDetailPage(brewId: 20),
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -565,10 +656,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(
-          of: sheet,
-          matching: find.text('Distribution/tamping'),
-        ),
+        find.descendant(of: sheet, matching: find.text('Distribution/tamping')),
         findsNothing,
       );
     });

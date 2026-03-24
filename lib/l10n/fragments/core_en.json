@@ -1,0 +1,64 @@
+{
+  "appTitle": "OneBrew",
+  "navBrew": "Brew",
+  "navHistory": "History",
+  "navManage": "Manage",
+  "routeInvalidHistoryDetailId": "Invalid history detail id.",
+  "actionGoBack": "Go Back",
+  "actionCancel": "Cancel",
+  "actionAdd": "Add",
+  "commonName": "Name",
+  "chipInputHint": "Type and press Enter…",
+  "chipInputAddMore": "Add more…",
+  "singleSelectHint": "Select an option",
+  "singleSelectAddAction": "Add new",
+  "singleSelectEmptyState": "No suggestions yet",
+  "singleSelectDialogTitle": "Add item",
+  "singleSelectDialogHint": "Name",
+  "singleSelectDialogConfirm": "Add",
+  "timerPhaseBloom": "Bloom",
+  "timerPhaseDone": "Done ✓",
+  "timerPhaseReady": "Ready",
+  "timerPhaseBrewing": "Brewing",
+  "progressiveExpandShowMore": "Show more",
+  "progressiveExpandShowLess": "Show less",
+  "dateJustNow": "Just now",
+  "@dateMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateMinutesAgo": "{count, plural, =1{# minute ago} other{# minutes ago}}",
+  "@dateDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dateDaysAgo": "{count, plural, =1{# day ago} other{# days ago}}",
+  "@dateTodayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dateTodayAt": "Today {time}",
+  "@dateYesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "dateYesterdayAt": "Yesterday {time}",
+  "dateToday": "Today",
+  "dateYesterday": "Yesterday",
+  "dateThisWeek": "This Week",
+  "languageSystemDefault": "System Default",
+  "languageEnglish": "English",
+  "languageSimplifiedChinese": "Simplified Chinese"
+}

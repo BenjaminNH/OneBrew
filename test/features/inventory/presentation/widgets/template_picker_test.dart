@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:one_brew/features/inventory/presentation/widgets/template_picker.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 
 void main() {
   group('TemplatePicker', () {
     Widget wrapWithMaterial(Widget child) {
-      return MaterialApp(home: Scaffold(body: child));
+      return MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
+        home: Scaffold(body: child),
+      );
     }
 
     testWidgets('shows empty-state hint when no templates', (tester) async {

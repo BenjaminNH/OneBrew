@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:one_brew/l10n/l10n.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_method_config.dart';
 import '../controllers/brew_logger_controller.dart';
 
@@ -18,11 +21,12 @@ class BrewMethodSelector extends ConsumerWidget {
     final state = ref.watch(brewLoggerControllerProvider);
     final controller = ref.read(brewLoggerControllerProvider.notifier);
     final enabled = configs.where((c) => c.isEnabled).toList();
+    final l10n = context.l10n;
 
     if (enabled.isEmpty) {
       return AppCard(
         child: Text(
-          'Enable a brew method in preferences to start logging.',
+          l10n.brewEnableMethodInPreferences,
           style: AppTextStyles.bodySmall,
         ),
       );
@@ -43,7 +47,7 @@ class BrewMethodSelector extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Brew Method', style: AppTextStyles.labelMedium),
+          Text(l10n.brewMethodSelectorLabel, style: AppTextStyles.labelMedium),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
@@ -81,6 +85,8 @@ class _MethodOptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foregroundColor = selected ? Colors.white : AppColors.textSecondary;
+    final l10n = context.l10n;
+    final displayName = _displayNameFor(config, l10n);
 
     return AnimatedContainer(
       key: Key('brew-method-option-${config.method.name}'),
@@ -102,7 +108,7 @@ class _MethodOptionButton extends StatelessWidget {
           onTap: onPressed,
           child: Center(
             child: Text(
-              config.displayName,
+              displayName,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
@@ -115,5 +121,19 @@ class _MethodOptionButton extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _displayNameFor(BrewMethodConfig config, AppLocalizations l10n) {
+    switch (config.method) {
+      case BrewMethod.pourOver:
+        return l10n.brewMethodNamePourOver;
+      case BrewMethod.espresso:
+        return l10n.brewMethodNameEspresso;
+      case BrewMethod.custom:
+        final name = config.displayName.trim();
+        if (name.isEmpty) return l10n.brewCustomMethodDefaultName;
+        if (name.toLowerCase() == 'custom') return l10n.brewCustomMethodDefaultName;
+        return name;
+    }
   }
 }

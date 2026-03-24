@@ -11,7 +11,11 @@ import 'package:one_brew/features/history/domain/repositories/history_repository
 import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
 import 'package:one_brew/features/history/presentation/pages/history_page.dart';
 import 'package:one_brew/features/history/history_providers.dart';
+import 'package:one_brew/features/inventory/domain/entities/bean.dart' as domain;
+import 'package:one_brew/features/inventory/presentation/controllers/inventory_controller.dart';
 import 'package:one_brew/features/rating/rating_providers.dart';
+import 'package:one_brew/core/localization/app_locale.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 import 'package:one_brew/shared/providers/database_providers.dart';
 import 'package:go_router/go_router.dart';
 
@@ -90,7 +94,12 @@ void main() {
 
     return ProviderScope(
       overrides: overrides,
-      child: MaterialApp(home: HistoryPage(onOpenDetail: onOpenDetail)),
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocaleOption.supportedLocales,
+        locale: const Locale('en'),
+        home: HistoryPage(onOpenDetail: onOpenDetail),
+      ),
     );
   }
 
@@ -120,11 +129,85 @@ void main() {
         brewParamRepositoryProvider.overrideWithValue(fakeBrewParamRepo),
         ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
       ],
-      child: MaterialApp.router(routerConfig: router),
+      child: MaterialApp.router(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocaleOption.supportedLocales,
+        locale: const Locale('en'),
+        routerConfig: router,
+      ),
     );
   }
 
   group('HistoryPage widget', () {
+    testWidgets('refreshes visible bean metadata after bean update', (
+      tester,
+    ) async {
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final beanId = await db.insertBean(
+        BeansCompanion.insert(
+          name: 'Original Bean',
+          roaster: const drift.Value('Roaster A'),
+        ),
+      );
+      await db.insertBrewRecord(
+        BrewRecordsCompanion.insert(
+          brewDate: DateTime(2026, 3, 10, 9, 0),
+          beanName: 'Original Bean',
+          beanId: drift.Value(beanId),
+          grindMode: const drift.Value('simple'),
+          grindSimpleLabel: const drift.Value('Medium'),
+          coffeeWeightG: 15,
+          waterWeightG: 225,
+          brewDurationS: 180,
+          createdAt: drift.Value(DateTime(2026, 3, 10, 9, 0)),
+          updatedAt: drift.Value(DateTime(2026, 3, 10, 9, 0)),
+        ),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [databaseProvider.overrideWithValue(db)],
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocaleOption.supportedLocales,
+            locale: Locale('en'),
+            home: HistoryPage(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Original Bean'), findsOneWidget);
+      expect(find.textContaining('Roaster: Roaster A'), findsOneWidget);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(HistoryPage)),
+      );
+      final existingBean = await db.getBeanById(beanId);
+      expect(existingBean, isNotNull);
+
+      await container.read(inventoryControllerProvider.notifier).saveBean(
+        initial: domain.Bean(
+          id: existingBean!.id,
+          name: existingBean.name,
+          roaster: existingBean.roaster,
+          origin: existingBean.origin,
+          roastLevel: existingBean.roastLevel,
+          addedAt: existingBean.addedAt,
+          useCount: existingBean.useCount,
+        ),
+        name: 'Renamed Bean',
+        roaster: 'Roaster B',
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Renamed Bean'), findsOneWidget);
+      expect(find.textContaining('Roaster: Roaster B'), findsOneWidget);
+      expect(find.text('Original Bean'), findsNothing);
+    });
+
     testWidgets('renders stats header and brew list', (tester) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();

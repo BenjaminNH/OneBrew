@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:one_brew/core/constants/app_colors.dart';
+import 'package:one_brew/l10n/l10n.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/brew_logger_page.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/brew_param_preferences_page.dart';
@@ -59,7 +60,7 @@ final GoRouter appRouter = GoRouter(
                 final id = int.tryParse(state.pathParameters['id'] ?? '');
                 if (id == null) {
                   return const _RouteErrorPage(
-                    message: 'Invalid history detail id.',
+                    messageKey: _RouteErrorMessage.invalidHistoryDetailId,
                     fallbackPath: AppRoutePaths.history,
                   );
                 }
@@ -121,6 +122,7 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = _locationToIndex(widget.location);
+    final l10n = context.l10n;
 
     return Scaffold(
       body: widget.child,
@@ -179,21 +181,21 @@ class _AppShellState extends State<AppShell> {
               context.go(target);
             }
           },
-          destinations: const [
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.coffee_outlined),
-              selectedIcon: Icon(Icons.coffee),
-              label: 'Brew',
+              icon: const Icon(Icons.coffee_outlined),
+              selectedIcon: const Icon(Icons.coffee),
+              label: l10n.navBrew,
             ),
             NavigationDestination(
-              icon: Icon(Icons.history_outlined),
-              selectedIcon: Icon(Icons.history),
-              label: 'History',
+              icon: const Icon(Icons.history_outlined),
+              selectedIcon: const Icon(Icons.history),
+              label: l10n.navHistory,
             ),
             NavigationDestination(
-              icon: Icon(Icons.inventory_2_outlined),
-              selectedIcon: Icon(Icons.inventory_2),
-              label: 'Manage',
+              icon: const Icon(Icons.inventory_2_outlined),
+              selectedIcon: const Icon(Icons.inventory_2),
+              label: l10n.navManage,
             ),
           ],
         ),
@@ -226,14 +228,24 @@ class _AppShellState extends State<AppShell> {
   }
 }
 
-class _RouteErrorPage extends StatelessWidget {
-  const _RouteErrorPage({required this.message, required this.fallbackPath});
+enum _RouteErrorMessage { invalidHistoryDetailId }
 
-  final String message;
+class _RouteErrorPage extends StatelessWidget {
+  const _RouteErrorPage({
+    required this.messageKey,
+    required this.fallbackPath,
+  });
+
+  final _RouteErrorMessage messageKey;
   final String fallbackPath;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final message = switch (messageKey) {
+      _RouteErrorMessage.invalidHistoryDetailId =>
+        l10n.routeInvalidHistoryDetailId,
+    };
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -247,7 +259,7 @@ class _RouteErrorPage extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () => context.go(fallbackPath),
                   icon: const Icon(Icons.arrow_back_rounded),
-                  label: const Text('Go Back'),
+                  label: Text(l10n.actionGoBack),
                 ),
               ],
             ),

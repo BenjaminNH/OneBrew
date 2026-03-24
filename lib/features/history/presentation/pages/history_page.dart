@@ -6,6 +6,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/router/app_route_paths.dart';
+import '../../../../l10n/l10n.dart';
 import '../controllers/history_controller.dart';
 import '../widgets/brew_record_card.dart';
 import '../widgets/brew_stats_header.dart';
@@ -22,22 +23,16 @@ class HistoryPage extends ConsumerStatefulWidget {
 
 class _HistoryPageState extends ConsumerState<HistoryPage> {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(historyControllerProvider.notifier).load();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final state = ref.watch(historyControllerProvider);
+    final l10n = context.l10n;
 
     ref.listen<HistoryState>(historyControllerProvider, (_, next) {
       final message = next.errorMessage;
       if (message == null || message.isEmpty) return;
+      final localized = _localizeErrorMessage(message, l10n: l10n);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: AppColors.error),
+        SnackBar(content: Text(localized), backgroundColor: AppColors.error),
       );
       ref.read(historyControllerProvider.notifier).clearError();
     });
@@ -57,7 +52,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Brew History',
+                  l10n.historyTitle,
                   style: AppTextStyles.displayMedium.copyWith(
                     color: AppColors.textPrimary,
                     fontWeight: FontWeight.w700,
@@ -104,7 +99,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                   if (state.visibleBrews.isEmpty) {
                     return Center(
                       child: Text(
-                        'No brew records match the current filter.',
+                        l10n.historyEmptyFiltered,
                         style: AppTextStyles.bodyMedium.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -153,4 +148,21 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
       ),
     );
   }
+}
+
+String _localizeErrorMessage(
+  String message, {
+  required dynamic l10n,
+}) {
+  final normalized = message.toLowerCase();
+  if (normalized.startsWith('failed to load history')) {
+    return l10n.historyErrorLoad as String;
+  }
+  if (normalized.startsWith('failed to filter history')) {
+    return l10n.historyErrorFilter as String;
+  }
+  if (normalized.startsWith('failed to reset history filter')) {
+    return l10n.historyErrorReset as String;
+  }
+  return message;
 }

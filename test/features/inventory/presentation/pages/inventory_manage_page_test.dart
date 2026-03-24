@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:one_brew/core/database/drift_database.dart';
+import 'package:one_brew/core/utils/date_utils.dart';
 import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_page.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 import 'package:one_brew/shared/providers/database_providers.dart';
 
 void main() {
@@ -17,7 +19,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [databaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: InventoryManagePage()),
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('en'),
+          home: InventoryManagePage(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -35,6 +42,7 @@ void main() {
     );
     expect(find.byKey(const Key('manage-about-icon-button')), findsOneWidget);
     expect(find.byKey(const Key('manage-add-fab')), findsOneWidget);
+    expect(find.byKey(const Key('manage-language-icon-button')), findsOneWidget);
     expect(find.byKey(const Key('bean-manage-search-field')), findsOneWidget);
 
     await tester.tap(find.text('Grinders'));
@@ -65,14 +73,25 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [databaseProvider.overrideWithValue(db)],
-          child: const MaterialApp(home: InventoryManagePage()),
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale('en'),
+            home: InventoryManagePage(),
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
       expect(find.text('Ethiopia Yirgacheffe'), findsOneWidget);
+      final dateLabel = AppDateUtils.formatDateShort(
+        DateTime(2026, 3, 1),
+        localeName: 'en',
+      );
       expect(
-        find.textContaining('Blue Bottle • Light Roast • Use 5 • Added 03/01'),
+        find.textContaining(
+          'Blue Bottle • Light Roast • Use 5 • Added $dateLabel',
+        ),
         findsOneWidget,
       );
     },
@@ -85,7 +104,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [databaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: InventoryManagePage()),
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('en'),
+          home: InventoryManagePage(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -116,7 +140,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [databaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: InventoryManagePage()),
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('en'),
+          home: InventoryManagePage(),
+        ),
       ),
     );
     await tester.pumpAndSettle();

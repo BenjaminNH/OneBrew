@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:one_brew/l10n/l10n.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -6,8 +8,9 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_method_config.dart';
+import '../../domain/entities/brew_param_key.dart';
 import '../controllers/brew_preferences_controller.dart';
-import '../models/brew_param_names.dart';
+import '../models/brew_param_display.dart';
 
 class BrewMethodToggleList extends StatelessWidget {
   const BrewMethodToggleList({
@@ -21,6 +24,7 @@ class BrewMethodToggleList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: methodConfigs.map((config) {
         return AppCard(
@@ -29,7 +33,7 @@ class BrewMethodToggleList extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  config.displayName,
+                  _displayNameFor(config, l10n),
                   style: AppTextStyles.titleMedium,
                 ),
               ),
@@ -59,11 +63,12 @@ class BrewMethodSegmented extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final enabled = methodConfigs.where((m) => m.isEnabled).toList();
     if (enabled.isEmpty) {
       return AppCard(
         child: Text(
-          'Enable a brew method to configure parameters.',
+          l10n.brewEnableMethodToConfigureParams,
           style: AppTextStyles.bodySmall,
         ),
       );
@@ -77,7 +82,7 @@ class BrewMethodSegmented extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(right: AppSpacing.xs),
             child: ChoiceChip(
-              label: Text(config.displayName),
+              label: Text(_displayNameFor(config, l10n)),
               selected: selected,
               onSelected: (_) => onSelected(config.method),
               selectedColor: AppColors.primary,
@@ -96,6 +101,22 @@ class BrewMethodSegmented extends StatelessWidget {
   }
 }
 
+String _displayNameFor(BrewMethodConfig config, AppLocalizations l10n) {
+  switch (config.method) {
+    case BrewMethod.pourOver:
+      return l10n.brewMethodNamePourOver;
+    case BrewMethod.espresso:
+      return l10n.brewMethodNameEspresso;
+    case BrewMethod.custom:
+      final name = config.displayName.trim();
+      if (name.isEmpty) return l10n.brewCustomMethodDefaultName;
+      if (name.toLowerCase() == 'custom') {
+        return l10n.brewCustomMethodDefaultName;
+      }
+      return name;
+  }
+}
+
 class BrewParamListEditor extends StatelessWidget {
   const BrewParamListEditor({
     super.key,
@@ -111,14 +132,16 @@ class BrewParamListEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
+      final l10n = context.l10n;
       return AppCard(
         child: Text(
-          'No parameters configured for this brew method yet.',
+          l10n.brewNoParamsConfiguredYet,
           style: AppTextStyles.bodySmall,
         ),
       );
     }
 
+    final l10n = context.l10n;
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -126,14 +149,15 @@ class BrewParamListEditor extends StatelessWidget {
       separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.xs),
       itemBuilder: (context, index) {
         final item = items[index];
-        final label = item.definition.name;
+        final label = localizedParamLabelForDefinition(item.definition, l10n);
         final type = item.definition.type == ParamType.number
-            ? 'Number'
-            : 'Text';
+            ? l10n.brewParamTypeNumber
+            : l10n.brewParamTypeText;
         final unit = item.definition.unit;
         final canToggle = canToggleParam(
           method: item.definition.method,
-          name: label,
+          paramKey: item.definition.paramKey,
+          name: item.definition.name,
         );
         final canDelete = !item.isSystem;
 
@@ -164,7 +188,7 @@ class BrewParamListEditor extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.delete_outline),
                   color: AppColors.error,
-                  tooltip: 'Delete parameter',
+                  tooltip: l10n.brewTooltipDeleteParameter,
                   onPressed: () => onDelete(item),
                 ),
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -9,8 +10,8 @@ import '../../../../shared/helpers/brew_param_defaults.dart';
 import '../../brew_logger_providers.dart';
 import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_param_definition.dart';
+import '../../domain/entities/brew_param_key.dart';
 import '../controllers/brew_logger_controller.dart';
-import '../models/brew_param_names.dart';
 import 'number_param_control.dart';
 
 /// Top-level parameter bar that follows current visibility settings.
@@ -26,26 +27,26 @@ class QuickParamsBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(brewLoggerControllerProvider);
     final ctrl = ref.read(brewLoggerControllerProvider.notifier);
+    final l10n = context.l10n;
     final isEspresso = state.brewMethod == BrewMethod.espresso;
-    final coffeeLabel = isEspresso ? 'Dose' : 'Coffee';
-    final waterLabel = isEspresso ? 'Yield' : 'Water';
-    final coffeeParamName = isEspresso
-        ? BrewParamNames.coffeeDose
-        : BrewParamNames.coffeeWeight;
-    final waterParamName = isEspresso
-        ? BrewParamNames.yieldAmount
-        : BrewParamNames.waterWeight;
+    final coffeeLabel = isEspresso ? l10n.brewLabelDose : l10n.brewLabelCoffee;
+    final waterLabel = isEspresso ? l10n.brewLabelYield : l10n.brewLabelWater;
+    final coffeeParamKey = isEspresso
+        ? BrewParamKeys.coffeeDose
+        : BrewParamKeys.coffeeWeight;
+    final waterParamKey = isEspresso
+        ? BrewParamKeys.yieldAmount
+        : BrewParamKeys.waterWeight;
     final catalogAsync = ref.watch(brewParamCatalogProvider(state.brewMethod));
     final catalog = catalogAsync.asData?.value;
-    final showCoffee = catalog?.isVisibleByName(coffeeParamName) ?? true;
-    final showWater = catalog?.isVisibleByName(waterParamName) ?? true;
-    final showRatio =
-        catalog?.isVisibleByName(BrewParamNames.brewRatio) ?? true;
-    final coffeeDefinition = catalog?.definitionByName(coffeeParamName);
-    final waterDefinition = catalog?.definitionByName(waterParamName);
+    final showCoffee = catalog?.isVisibleByKey(coffeeParamKey) ?? true;
+    final showWater = catalog?.isVisibleByKey(waterParamKey) ?? true;
+    final showRatio = catalog?.isVisibleByKey(BrewParamKeys.brewRatio) ?? true;
+    final coffeeDefinition = catalog?.definitionByKey(coffeeParamKey);
+    final waterDefinition = catalog?.definitionByKey(waterParamKey);
     final coffeeRange = _resolveNumberRange(
       method: state.brewMethod,
-      name: coffeeParamName,
+      paramKey: coffeeParamKey,
       definition: coffeeDefinition,
       fallback: const BrewParamNumberRange(
         min: 8.0,
@@ -56,7 +57,7 @@ class QuickParamsBar extends ConsumerWidget {
     );
     final waterRange = _resolveNumberRange(
       method: state.brewMethod,
-      name: waterParamName,
+      paramKey: waterParamKey,
       definition: waterDefinition,
       fallback: const BrewParamNumberRange(
         min: 120.0,
@@ -73,8 +74,8 @@ class QuickParamsBar extends ConsumerWidget {
         SmartTagField(
           type: TagFieldType.bean,
           tags: state.beanName.isEmpty ? [] : [state.beanName],
-          labelText: 'Coffee Bean',
-          hintText: 'Search or add bean...',
+          labelText: l10n.brewBeanLabel,
+          hintText: l10n.brewBeanHint,
           singleSelection: true,
           onTagsChanged: (tags) =>
               ctrl.setBeanName(tags.isEmpty ? '' : tags.first),
@@ -96,7 +97,7 @@ class QuickParamsBar extends ConsumerWidget {
                       if (value == null) return;
                       ctrl.setCoffeeWeight(value);
                     },
-                    semanticLabel: '${coffeeLabel.toLowerCase()} weight',
+                    semanticLabel: l10n.brewSemanticWeight(coffeeLabel),
                   ),
                 ),
               if (showCoffee && showWater) const SizedBox(width: AppSpacing.md),
@@ -111,7 +112,7 @@ class QuickParamsBar extends ConsumerWidget {
                       if (value == null) return;
                       ctrl.setWaterWeight(value);
                     },
-                    semanticLabel: '${waterLabel.toLowerCase()} weight',
+                    semanticLabel: l10n.brewSemanticWeight(waterLabel),
                   ),
                 ),
             ],
@@ -151,7 +152,7 @@ class _RatioBadge extends StatelessWidget {
         ),
       ),
       child: Text(
-        '1 : ${ratio.toStringAsFixed(1)}',
+        context.l10n.brewRatioBadge(ratio.toStringAsFixed(1)),
         style: AppTextStyles.labelSmall.copyWith(color: AppColors.primary),
       ),
     );
@@ -160,7 +161,7 @@ class _RatioBadge extends StatelessWidget {
 
 BrewParamNumberRange _resolveNumberRange({
   required BrewMethod method,
-  required String name,
+  required String paramKey,
   required BrewParamDefinition? definition,
   required BrewParamNumberRange fallback,
 }) {
@@ -168,7 +169,7 @@ BrewParamNumberRange _resolveNumberRange({
   if (fromDefinition != null) return fromDefinition;
   final fromTemplate = BrewParamDefaults.numberRangeFor(
     method: method,
-    name: name,
+    paramKey: paramKey,
   );
   return fromTemplate ?? fallback;
 }

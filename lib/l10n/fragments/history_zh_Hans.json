@@ -1,0 +1,177 @@
+{
+  "historyTitle": "萃取历史",
+  "historyEmptyFiltered": "没有记录符合当前筛选条件。",
+  "historyErrorLoad": "加载历史失败。",
+  "historyErrorFilter": "筛选历史失败。",
+  "historyErrorReset": "重置筛选失败。",
+
+  "historyStatsBrews": "杯数",
+  "historyStatsRated": "已评分",
+  "historyStatsAvg": "均分",
+
+  "historyTopBrew": "高分",
+  "@historyRoasterPrefix": {
+    "placeholders": {
+      "roaster": {
+        "type": "String"
+      }
+    }
+  },
+  "historyRoasterPrefix": "烘焙商：{roaster}",
+  "@historySecondsSuffix": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "historySecondsSuffix": "{seconds}秒",
+
+  "historyFilterBeanHint": "豆子",
+  "historyFilterBeanAddAction": "自定义文本",
+  "historyFilterBeanDialogTitle": "按咖啡豆筛选",
+  "historyFilterBeanDialogHint": "咖啡豆名称",
+  "historyFilterBeanDialogConfirm": "使用",
+  "historyFilterScoreHint": "评分",
+  "historyFilterScoreAll": "全部",
+  "historyFilterClearTooltip": "清除筛选",
+  "historyFilterAnyDate": "任意日期",
+
+  "brewDetailTitle": "萃取详情",
+  "brewDetailDeleteTooltip": "删除记录",
+  "brewDetailNotFound": "未找到萃取记录。",
+  "brewDetailRatingUpdated": "评分已更新。",
+
+  "brewDetailSectionBasic": "基础",
+  "brewDetailSectionRecordedParams": "参数",
+  "brewDetailSectionBrewParams": "萃取参数",
+  "brewDetailSectionEnvironment": "环境",
+  "brewDetailSectionGrind": "研磨",
+  "brewDetailSectionRating": "评分",
+  "brewDetailSectionMeta": "信息",
+
+  "brewDetailLabelBrewedAt": "萃取时间",
+  "brewDetailLabelBean": "咖啡豆",
+  "brewDetailLabelRoaster": "烘焙商",
+  "brewDetailLabelOrigin": "产地",
+  "brewDetailLabelRoastLevel": "烘焙度",
+  "brewDetailLabelDuration": "时长",
+  "brewDetailLabelNotes": "备注",
+  "brewDetailLabelCreatedAt": "创建时间",
+  "brewDetailLabelUpdatedAt": "更新时间",
+
+  "brewDetailLabelWaterType": "水质",
+  "brewDetailLabelRoomTemp": "室温",
+  "brewDetailLabelCoffee": "粉量",
+  "brewDetailLabelWater": "水量",
+  "brewDetailLabelRatio": "比例",
+  "brewDetailLabelWaterTemp": "水温",
+  "brewDetailLabelBloomTime": "闷蒸时间",
+  "brewDetailLabelPourMethod": "注水方式",
+
+  "brewDetailLabelGrindMode": "模式",
+  "brewDetailLabelGrindEquipment": "器具",
+  "brewDetailLabelGrindClick": "刻度",
+  "brewDetailLabelGrindLabel": "描述",
+  "brewDetailLabelGrindMicrons": "粒径",
+  "brewDetailGrindModeEquipment": "器具",
+  "brewDetailGrindModeSimple": "简易",
+  "brewDetailGrindModePro": "专业",
+  "brewDetailGrindClickUnitDefault": "格",
+
+  "brewDetailLabelQuick": "快速",
+  "brewDetailUnrated": "未评分",
+  "@brewDetailQuickScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "brewDetailQuickScore": "{score}/5",
+
+  "brewDetailLabelAcidity": "酸度",
+  "brewDetailLabelSweetness": "甜度",
+  "brewDetailLabelBitterness": "苦度",
+  "brewDetailLabelBody": "醇厚",
+  "brewDetailLabelFlavorNotes": "风味",
+
+  "brewDetailRatingEmpty": "还没有评分。",
+  "brewDetailEditRating": "编辑评分",
+  "brewDetailAddRating": "添加评分",
+
+  "deleteBrewDialogTitle": "删除萃取记录",
+  "deleteBrewDialogBody": "删除这条萃取记录？此操作不可撤销。",
+  "actionDelete": "删除",
+  "brewDetailDeleteFailed": "删除失败。",
+  "brewDetailDeleted": "已删除记录。",
+  "actionRetry": "重试",
+  "actionBrewAgain": "再萃取一次",
+  "actionShare": "分享",
+
+  "sharePreviewTitle": "分享你的萃取",
+  "sharePreviewSaving": "保存中…",
+  "sharePreviewSavePoster": "保存海报",
+  "sharePreviewSaved": "海报已保存到相册。",
+  "@sharePreviewSaveFailed": {
+    "placeholders": {
+      "details": {
+        "type": "String"
+      }
+    }
+  },
+  "sharePreviewSaveFailed": "保存海报失败：{details}",
+
+  "posterMetricDose": "粉量",
+  "posterMetricYield": "出杯",
+  "posterMetricRatio": "比例",
+  "posterMetricTime": "时间",
+  "posterMetricTemp": "水温",
+  "posterMetricGrind": "研磨",
+  "posterMetricBloom": "闷蒸",
+  "posterMetricPour": "注水",
+  "posterMetricWater": "水质",
+  "posterMetricRoom": "室温",
+
+  "posterScoreAcid": "酸",
+  "posterScoreSweet": "甜",
+  "posterScoreBitter": "苦",
+  "posterScoreBody": "醇",
+
+  "ratingSheetTitle": "为这杯打分",
+  "ratingSheetSubtitle": "已保存。你可以快速评分，或记录更详细的风味。",
+  "ratingModeQuick": "快速",
+  "ratingModeProfessional": "专业",
+  "ratingQuickTitle": "快速评分",
+  "ratingMoodTitle": "心情",
+  "@ratingStarTooltip": {
+    "placeholders": {
+      "star": {
+        "type": "int"
+      }
+    }
+  },
+  "ratingStarTooltip": "{star} 星",
+  "ratingSkipForNow": "先跳过",
+  "ratingSaving": "保存中…",
+  "ratingSave": "保存评分",
+  "ratingProScoresTitle": "专业评分",
+  "ratingFlavorNotesTitle": "风味",
+  "ratingLabelAcidity": "酸度",
+  "ratingLabelSweetness": "甜度",
+  "ratingLabelBitterness": "苦度",
+  "ratingLabelBody": "醇厚",
+
+  "flavorNoteCitrus": "柑橘",
+  "flavorNoteFloral": "花香",
+  "flavorNoteBerry": "莓果",
+  "flavorNoteStoneFruit": "核果",
+  "flavorNoteChocolate": "巧克力",
+  "flavorNoteCaramel": "焦糖",
+  "flavorNoteNutty": "坚果",
+  "flavorNoteSpice": "香料",
+  "flavorNoteTea": "茶感",
+  "flavorNoteTropical": "热带水果",
+  "flavorNoteHerbal": "草本",
+  "flavorNoteClean": "干净"
+}
