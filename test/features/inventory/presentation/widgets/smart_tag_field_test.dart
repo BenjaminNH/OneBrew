@@ -10,7 +10,10 @@ import 'package:one_brew/core/widgets/app_single_select_field.dart';
 import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_brew/features/inventory/inventory_providers.dart';
 import 'package:one_brew/features/inventory/presentation/widgets/smart_tag_field.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 import 'package:one_brew/shared/providers/database_providers.dart';
+
+import '../../../../helpers/localized_test_app.dart';
 
 class _EquipmentSelectionHarness extends ConsumerStatefulWidget {
   const _EquipmentSelectionHarness();
@@ -72,6 +75,9 @@ void main() {
       ProviderScope(
         overrides: [databaseProvider.overrideWithValue(db)],
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
           home: Scaffold(
             body: StatefulBuilder(
               builder: (context, setState) {
@@ -117,6 +123,9 @@ void main() {
       ProviderScope(
         overrides: [databaseProvider.overrideWithValue(db)],
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('en'),
           home: Scaffold(
             body: StatefulBuilder(
               builder: (context, setState) {
@@ -170,6 +179,9 @@ void main() {
         ProviderScope(
           overrides: [databaseProvider.overrideWithValue(db)],
           child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale('en'),
             home: Scaffold(body: _EquipmentSelectionHarness()),
           ),
         ),
@@ -198,6 +210,9 @@ void main() {
         ProviderScope(
           overrides: [databaseProvider.overrideWithValue(db)],
           child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale('en'),
             home: Scaffold(body: _EquipmentSelectionHarness()),
           ),
         ),
@@ -237,12 +252,11 @@ void main() {
     final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
 
-    await tester.pumpWidget(
-      ProviderScope(
+    await pumpLocalizedWidget(
+      tester,
+      child: ProviderScope(
         overrides: [databaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(
-          home: Scaffold(body: _EquipmentSelectionHarness()),
-        ),
+        child: const Scaffold(body: _EquipmentSelectionHarness()),
       ),
     );
     await tester.pumpAndSettle();
@@ -279,6 +293,9 @@ void main() {
         ProviderScope(
           overrides: [databaseProvider.overrideWithValue(db)],
           child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale('en'),
             home: Scaffold(body: _EquipmentSelectionHarness()),
           ),
         ),
@@ -334,6 +351,9 @@ void main() {
         ProviderScope(
           overrides: [databaseProvider.overrideWithValue(db)],
           child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale('en'),
             home: Scaffold(body: _EquipmentSelectionHarness()),
           ),
         ),

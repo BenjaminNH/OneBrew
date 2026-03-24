@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../constants/app_text_styles.dart';
+import 'app_input_style.dart';
 
 /// Dedicated single-select input for mobile workflows.
 ///
@@ -17,44 +19,46 @@ class AppSingleSelectField extends StatefulWidget {
     required this.onChanged,
     this.onCreate,
     this.suggestions = const [],
-    this.hintText = 'Select an option',
+    this.hintText,
     this.labelText,
     this.enabled = true,
     this.maxVisibleSuggestions = 5,
-    this.addActionLabel = 'Add new',
-    this.emptyStateText = 'No suggestions yet',
-    this.dialogTitle = 'Add item',
-    this.dialogHintText = 'Name',
-    this.dialogConfirmLabel = 'Add',
+    this.addActionLabel,
+    this.emptyStateText,
+    this.dialogTitle,
+    this.dialogHintText,
+    this.dialogConfirmLabel,
     this.leadingIcon = Icons.coffee_rounded,
     this.showInlineClearButton = true,
     this.minFieldHeight = kMinInteractiveDimension,
     this.fieldPadding,
-    this.backgroundColor = AppColors.background,
+    this.backgroundColor,
     this.border,
     this.boxShadow,
+    this.suggestionVisibility = AppSuggestionVisibility.enabled,
   });
 
   final String? value;
   final ValueChanged<String?> onChanged;
   final Future<bool> Function(String value)? onCreate;
   final List<String> suggestions;
-  final String hintText;
+  final String? hintText;
   final String? labelText;
   final bool enabled;
   final int maxVisibleSuggestions;
-  final String addActionLabel;
-  final String emptyStateText;
-  final String dialogTitle;
-  final String dialogHintText;
-  final String dialogConfirmLabel;
+  final String? addActionLabel;
+  final String? emptyStateText;
+  final String? dialogTitle;
+  final String? dialogHintText;
+  final String? dialogConfirmLabel;
   final IconData leadingIcon;
   final bool showInlineClearButton;
   final double minFieldHeight;
   final EdgeInsetsGeometry? fieldPadding;
-  final Color backgroundColor;
+  final Color? backgroundColor;
   final BoxBorder? border;
   final List<BoxShadow>? boxShadow;
+  final AppSuggestionVisibility suggestionVisibility;
 
   @override
   State<AppSingleSelectField> createState() => _AppSingleSelectFieldState();
@@ -68,6 +72,10 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
   }
 
   List<String> get _visibleSuggestions {
+    if (!widget.suggestionVisibility.shouldRenderSuggestions) {
+      return const [];
+    }
+
     final selected = _normalizedValue;
     final output = <String>[];
     final seen = <String>{};
@@ -97,6 +105,7 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
       showDragHandle: true,
       isScrollControlled: true,
       builder: (sheetContext) {
+        final l10n = sheetContext.l10n;
         final suggestions = _visibleSuggestions;
         final selected = _normalizedValue;
 
@@ -112,7 +121,10 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(widget.hintText, style: AppTextStyles.titleMedium),
+                Text(
+                  widget.hintText ?? l10n.singleSelectHint,
+                  style: AppTextStyles.titleMedium,
+                ),
                 const SizedBox(height: AppSpacing.md),
                 Flexible(
                   child: SingleChildScrollView(
@@ -125,7 +137,8 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
                               vertical: AppSpacing.md,
                             ),
                             child: Text(
-                              widget.emptyStateText,
+                              widget.emptyStateText ??
+                                  l10n.singleSelectEmptyState,
                               style: AppTextStyles.bodySmall,
                             ),
                           )
@@ -164,7 +177,7 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
                           minTileHeight: kMinInteractiveDimension,
                           leading: const Icon(Icons.add_rounded),
                           title: Text(
-                            widget.addActionLabel,
+                            widget.addActionLabel ?? l10n.singleSelectAddAction,
                             style: AppTextStyles.bodyMedium,
                           ),
                           onTap: () {
@@ -207,19 +220,19 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
   }
 
   Future<String?> _promptForCustomValue() async {
+    final l10n = context.l10n;
     final controller = TextEditingController(text: _normalizedValue ?? '');
     final value = await showDialog<String>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: Text(widget.dialogTitle),
+          title: Text(widget.dialogTitle ?? l10n.singleSelectDialogTitle),
           content: TextField(
             controller: controller,
             autofocus: true,
             textInputAction: TextInputAction.done,
-            decoration: InputDecoration(
-              hintText: widget.dialogHintText,
-              border: const OutlineInputBorder(),
+            decoration: AppInputStyle.decoration(
+              hintText: widget.dialogHintText ?? l10n.singleSelectDialogHint,
             ),
             onSubmitted: (submitted) {
               Navigator.of(dialogContext).pop(submitted.trim());
@@ -228,12 +241,14 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.actionCancel),
             ),
             FilledButton(
               onPressed: () =>
                   Navigator.of(dialogContext).pop(controller.text.trim()),
-              child: Text(widget.dialogConfirmLabel),
+              child: Text(
+                widget.dialogConfirmLabel ?? l10n.singleSelectDialogConfirm,
+              ),
             ),
           ],
         );
@@ -246,7 +261,9 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final value = _normalizedValue;
+    final backgroundColor = widget.backgroundColor ?? AppInputStyle.shellColor;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -262,12 +279,22 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
             borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
             child: Container(
               constraints: BoxConstraints(minHeight: widget.minFieldHeight),
-              decoration: BoxDecoration(
-                color: widget.backgroundColor,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                border: widget.border,
-                boxShadow: widget.boxShadow ?? AppColors.debossedShadow,
-              ),
+              decoration: (widget.boxShadow == null && widget.border == null)
+                  ? AppInputStyle.surfaceDecoration(
+                      backgroundColor: backgroundColor,
+                    )
+                  : BoxDecoration(
+                      color: backgroundColor,
+                      borderRadius: AppInputStyle.borderRadius,
+                      border:
+                          widget.border ??
+                          Border.all(color: AppInputStyle.borderColor),
+                      boxShadow:
+                          widget.boxShadow ??
+                          AppInputStyle.surfaceDecoration(
+                            backgroundColor: backgroundColor,
+                          ).boxShadow,
+                    ),
               padding:
                   widget.fieldPadding ??
                   const EdgeInsets.symmetric(
@@ -283,7 +310,7 @@ class _AppSingleSelectFieldState extends State<AppSingleSelectField> {
                   children: [
                     Expanded(
                       child: Text(
-                        value ?? widget.hintText,
+                        value ?? (widget.hintText ?? l10n.singleSelectHint),
                         style: value == null
                             ? AppTextStyles.inputHint
                             : AppTextStyles.inputText,

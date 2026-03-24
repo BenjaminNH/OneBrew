@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/app_input_style.dart';
 import '../../../../core/widgets/app_chip_input.dart';
 import '../../../../core/widgets/app_single_select_field.dart';
 import '../controllers/inventory_controller.dart';
@@ -130,6 +132,7 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (widget.singleSelection) {
       return AppSingleSelectField(
         value: widget.tags.isEmpty ? null : widget.tags.first,
@@ -138,20 +141,20 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
         },
         onCreate: _persistNewTag,
         suggestions: _suggestions,
-        hintText: widget.hintText ?? 'Type to add...',
+        hintText: widget.hintText ?? l10n.inventorySmartTagHint,
         labelText: widget.labelText,
         addActionLabel: widget.type == TagFieldType.bean
-            ? 'Add bean'
-            : 'Add grinder',
+            ? l10n.inventorySmartTagAddBean
+            : l10n.inventorySmartTagAddGrinder,
         emptyStateText: widget.type == TagFieldType.bean
-            ? 'No beans yet'
-            : 'No grinders yet',
+            ? l10n.inventorySmartTagEmptyBeansYet
+            : l10n.inventorySmartTagEmptyGrindersYet,
         dialogTitle: widget.type == TagFieldType.bean
-            ? 'Add Coffee Bean'
-            : 'Add Grinder',
+            ? l10n.inventorySmartTagDialogAddBean
+            : l10n.inventorySmartTagDialogAddGrinder,
         dialogHintText: widget.type == TagFieldType.bean
-            ? 'Bean name'
-            : 'Grinder name',
+            ? l10n.inventorySmartTagDialogHintBeanName
+            : l10n.inventorySmartTagDialogHintGrinderName,
       );
     }
 
@@ -159,7 +162,7 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
       tags: widget.tags,
       onTagsChanged: widget.onTagsChanged,
       suggestions: _suggestions,
-      hintText: widget.hintText ?? 'Type to add...',
+      hintText: widget.hintText ?? l10n.inventorySmartTagHint,
       labelText: widget.labelText,
       singleSelection: false,
       onSubmit: (tag) async {
@@ -202,7 +205,11 @@ class _SmartTagFieldState extends ConsumerState<SmartTagField> {
     } catch (error) {
       if (mounted) {
         messenger?.showSnackBar(
-          SnackBar(content: Text('Failed to save "$tag": $error')),
+          SnackBar(
+            content: Text(
+              context.l10n.inventoryFailedToSaveTag(tag, error.toString()),
+            ),
+          ),
         );
       }
       return false;
@@ -264,7 +271,8 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
     );
     if (resolved == null) {
       setState(() {
-        _validationError = 'Please enter a valid range and step.';
+        _validationError =
+            context.l10n.inventoryQuickGrinderSetupValidationError;
       });
       return;
     }
@@ -273,6 +281,7 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
@@ -286,12 +295,12 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Quick Grinder Setup',
+              l10n.inventoryQuickGrinderSetupTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 6),
             Text(
-              'Configure "${widget.tag}". Leave blank to use defaults.',
+              l10n.inventoryQuickGrinderSetupDescription(widget.tag),
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 12),
@@ -300,7 +309,7 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
                 Expanded(
                   child: _GrinderSetupField(
                     controller: _minCtrl,
-                    label: 'Min',
+                    label: l10n.inventoryQuickGrinderSetupLabelMin,
                     hint: '${_defaultGrinderSetup.minClick}',
                   ),
                 ),
@@ -308,7 +317,7 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
                 Expanded(
                   child: _GrinderSetupField(
                     controller: _maxCtrl,
-                    label: 'Max',
+                    label: l10n.inventoryQuickGrinderSetupLabelMax,
                     hint: '${_defaultGrinderSetup.maxClick}',
                   ),
                 ),
@@ -320,7 +329,7 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
                 Expanded(
                   child: _GrinderSetupField(
                     controller: _stepCtrl,
-                    label: 'Step',
+                    label: l10n.inventoryQuickGrinderSetupLabelStep,
                     hint: '${_defaultGrinderSetup.clickStep}',
                   ),
                 ),
@@ -328,7 +337,7 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
                 Expanded(
                   child: _GrinderSetupField(
                     controller: _unitCtrl,
-                    label: 'Unit',
+                    label: l10n.inventoryQuickGrinderSetupLabelUnit,
                     hint: _defaultGrinderSetup.clickUnit,
                     isNumber: false,
                   ),
@@ -349,7 +358,7 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
                   child: OutlinedButton(
                     onPressed: () =>
                         Navigator.of(context).pop(_defaultGrinderSetup),
-                    child: const Text('Use Defaults'),
+                    child: Text(l10n.inventoryQuickGrinderSetupUseDefaults),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -359,7 +368,7 @@ class _QuickGrinderSetupSheetState extends State<_QuickGrinderSetupSheet> {
                       textStyle: AppTextStyles.buttonSecondary,
                     ),
                     onPressed: _submit,
-                    child: const Text('Save Grinder'),
+                    child: Text(l10n.inventoryQuickGrinderSetupSaveGrinder),
                   ),
                 ),
               ],
@@ -394,11 +403,7 @@ class _GrinderSetupField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        filled: true,
-        fillColor: Colors.grey.shade100,
-        border: const OutlineInputBorder(),
-        isDense: true,
-      ),
+      ).applyDefaults(AppInputStyle.theme()),
     );
   }
 }

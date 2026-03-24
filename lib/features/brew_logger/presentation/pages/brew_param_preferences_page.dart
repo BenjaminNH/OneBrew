@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -9,6 +10,7 @@ import '../../../../core/router/app_route_paths.dart';
 import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_method_config.dart';
 import '../controllers/brew_preferences_controller.dart';
+import '../widgets/add_custom_param_sheet.dart';
 import '../widgets/brew_preferences_widgets.dart';
 import '../widgets/custom_method_actions.dart';
 
@@ -26,6 +28,7 @@ class _BrewParamPreferencesPageState
   Widget build(BuildContext context) {
     final state = ref.watch(brewPreferencesControllerProvider);
     final controller = ref.read(brewPreferencesControllerProvider.notifier);
+    final l10n = context.l10n;
 
     ref.listen<BrewPreferencesState>(brewPreferencesControllerProvider, (
       _,
@@ -68,7 +71,7 @@ class _BrewParamPreferencesPageState
                               const SizedBox(width: AppSpacing.xs),
                               Expanded(
                                 child: Text(
-                                  'Record Preferences',
+                                  l10n.brewPreferencesTitle,
                                   style: AppTextStyles.displayMedium,
                                 ),
                               ),
@@ -76,7 +79,7 @@ class _BrewParamPreferencesPageState
                           ),
                           const SizedBox(height: AppSpacing.sm),
                           Text(
-                            'Set your default brew methods and parameter list.',
+                            l10n.brewPreferencesSubtitle,
                             style: AppTextStyles.bodySmall.copyWith(
                               color: AppColors.textSecondary,
                             ),
@@ -94,9 +97,8 @@ class _BrewParamPreferencesPageState
                     ),
                     sliver: SliverToBoxAdapter(
                       child: _SectionHeader(
-                        title: 'Brew Methods',
-                        subtitle:
-                            'Choose which methods appear in the Brew page.',
+                        title: l10n.brewPreferencesSectionMethodsTitle,
+                        subtitle: l10n.brewPreferencesSectionMethodsSubtitle,
                       ),
                     ),
                   ),
@@ -152,9 +154,8 @@ class _BrewParamPreferencesPageState
                     ),
                     sliver: SliverToBoxAdapter(
                       child: _SectionHeader(
-                        title: 'Parameter List',
-                        subtitle:
-                            'Hide defaults or add custom parameters for each brew method.',
+                        title: l10n.brewPreferencesSectionParamsTitle,
+                        subtitle: l10n.brewPreferencesSectionParamsSubtitle,
                       ),
                     ),
                   ),
@@ -202,13 +203,25 @@ class _BrewParamPreferencesPageState
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
-                            onPressed: () => _showAddParamSheet(
-                              context,
-                              state.selectedMethod,
-                              controller,
-                            ),
+                            onPressed: () async {
+                              final draft = await showAddCustomParamSheet(
+                                context,
+                                useRootNavigator: true,
+                              );
+                              if (draft == null || !context.mounted) return;
+                              await controller.addCustomParam(
+                                method: state.selectedMethod,
+                                name: draft.name,
+                                type: draft.type,
+                                unit: draft.unit,
+                                numberMin: draft.numberMin,
+                                numberMax: draft.numberMax,
+                                numberStep: draft.numberStep,
+                                numberDefault: draft.numberDefault,
+                              );
+                            },
                             icon: const Icon(Icons.add_rounded),
-                            label: const Text('Add Custom Parameter'),
+                            label: Text(l10n.brewActionAddCustomParameter),
                           ),
                         ),
                       ]),
@@ -217,116 +230,6 @@ class _BrewParamPreferencesPageState
                 ],
               ),
       ),
-    );
-  }
-
-  Future<void> _showAddParamSheet(
-    BuildContext context,
-    BrewMethod method,
-    BrewPreferencesController controller,
-  ) async {
-    final nameController = TextEditingController();
-    final unitController = TextEditingController();
-    ParamType selectedType = ParamType.number;
-
-    await showModalBottomSheet<void>(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (context) {
-        final platformView =
-            WidgetsBinding.instance.platformDispatcher.views.first;
-        final keyboardInset =
-            platformView.viewInsets.bottom / platformView.devicePixelRatio;
-        final keyboardBottomGap = keyboardInset > 0
-            ? AppSpacing.sm
-            : AppSpacing.pageBottom;
-        return MediaQuery.removePadding(
-          context: context,
-          removeBottom: true,
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: AppSpacing.pageHorizontal,
-              right: AppSpacing.pageHorizontal,
-              bottom: keyboardInset + keyboardBottomGap,
-              top: AppSpacing.pageTop,
-            ),
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('New Parameter', style: AppTextStyles.headlineSmall),
-                    const SizedBox(height: AppSpacing.md),
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        hintText: 'e.g. Flow Rate',
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    Text('Type', style: AppTextStyles.labelMedium),
-                    const SizedBox(height: AppSpacing.xs),
-                    Wrap(
-                      spacing: AppSpacing.xs,
-                      children: ParamType.values.map((type) {
-                        final selected = selectedType == type;
-                        return ChoiceChip(
-                          label: Text(
-                            type == ParamType.number ? 'Number' : 'Text',
-                          ),
-                          selected: selected,
-                          onSelected: (_) =>
-                              setState(() => selectedType = type),
-                          selectedColor: AppColors.primary,
-                          labelStyle: AppTextStyles.labelSmall.copyWith(
-                            color: selected
-                                ? Colors.white
-                                : AppColors.textSecondary,
-                          ),
-                          side: BorderSide(
-                            color: selected
-                                ? AppColors.primary
-                                : AppColors.shadowDark,
-                          ),
-                          backgroundColor: AppColors.background,
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    TextField(
-                      controller: unitController,
-                      decoration: const InputDecoration(
-                        labelText: 'Unit (optional)',
-                        hintText: 'e.g. g, ml, bar',
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await controller.addCustomParam(
-                            method: method,
-                            name: nameController.text,
-                            type: selectedType,
-                            unit: unitController.text,
-                          );
-                          if (context.mounted) Navigator.of(context).pop();
-                        },
-                        child: const Text('Add Parameter'),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                  ],
-                );
-              },
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -358,6 +261,7 @@ class _BrewParamPreferencesPageState
     final name = await showCustomMethodNameSheet(
       context,
       currentName: currentName,
+      title: context.l10n.brewCustomMethodSheetTitle,
     );
     if (name == null) return;
     await controller.renameCustomMethod(name);
@@ -382,6 +286,7 @@ class _BrewParamPreferencesPageState
     final name = await showCustomMethodNameSheet(
       context,
       currentName: customConfig?.displayName ?? 'Custom',
+      title: context.l10n.brewCustomMethodSheetTitle,
     );
     if (name == null) return;
     await controller.renameCustomMethod(name);
@@ -395,7 +300,7 @@ class _BrewParamPreferencesPageState
     final name = await showCustomMethodNameSheet(
       context,
       currentName: customConfig?.displayName ?? 'Custom',
-      title: 'Rename Custom Method',
+      title: context.l10n.brewRenameCustomMethodSheetTitle,
     );
     if (name == null) return;
     await controller.renameCustomMethod(name);

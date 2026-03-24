@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/app_durations.dart';
 import '../constants/app_spacing.dart';
 import '../constants/app_text_styles.dart';
+import 'app_input_style.dart';
 
 /// OneBrew Tag/Chip Input with Autocomplete
 /// A text field that converts typed input into removable Chip tags.
@@ -33,13 +35,14 @@ class AppChipInput extends StatefulWidget {
     required this.tags,
     required this.onTagsChanged,
     this.suggestions = const [],
-    this.hintText = 'Type and press Enter…',
+    this.hintText,
     this.maxTags,
     this.enabled = true,
     this.labelText,
     this.singleSelection = false,
     this.onSubmit,
     this.onInputChanged,
+    this.suggestionVisibility = AppSuggestionVisibility.enabled,
   });
 
   /// Currently selected tags (controlled)
@@ -52,7 +55,7 @@ class AppChipInput extends StatefulWidget {
   final List<String> suggestions;
 
   /// Input placeholder text
-  final String hintText;
+  final String? hintText;
 
   /// Maximum number of tags allowed (null = unlimited)
   final int? maxTags;
@@ -71,6 +74,7 @@ class AppChipInput extends StatefulWidget {
 
   /// Called when the raw input text changes.
   final ValueChanged<String>? onInputChanged;
+  final AppSuggestionVisibility suggestionVisibility;
 
   @override
   State<AppChipInput> createState() => _AppChipInputState();
@@ -125,6 +129,14 @@ class _AppChipInputState extends State<AppChipInput> {
   }
 
   void _updateSuggestions() {
+    if (!widget.suggestionVisibility.shouldRenderSuggestions) {
+      setState(() {
+        _filteredSuggestions = [];
+        _showSuggestions = false;
+      });
+      return;
+    }
+
     if (!_focusNode.hasFocus) return;
 
     final query = _textController.text.trim().toLowerCase();
@@ -189,8 +201,24 @@ class _AppChipInputState extends State<AppChipInput> {
   bool get _canAddMore =>
       widget.maxTags == null || widget.tags.length < widget.maxTags!;
 
+  BoxBorder _outlineBorder({required bool focused, bool dropTop = false}) {
+    final color = focused
+        ? AppInputStyle.focusBorderColor
+        : AppInputStyle.borderColor;
+    final width = focused ? 1.9 : 1.15;
+    return Border(
+      left: BorderSide(color: color, width: width),
+      right: BorderSide(color: color, width: width),
+      bottom: BorderSide(color: color, width: width),
+      top: dropTop ? BorderSide.none : BorderSide(color: color, width: width),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final hasAttachedSuggestions = _showSuggestions;
+    final isFocused = _focusNode.hasFocus;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -203,11 +231,19 @@ class _AppChipInputState extends State<AppChipInput> {
 
         // ── Input + Chips container ────────────────
         Container(
-          decoration: BoxDecoration(
-            color: AppColors.background,
-            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-            boxShadow: AppColors.debossedShadow,
-          ),
+          key: const Key('app-chip-input-field-shell'),
+          decoration:
+              AppInputStyle.surfaceDecoration(
+                backgroundColor: AppInputStyle.shellColor,
+                focused: isFocused,
+                border: _outlineBorder(focused: isFocused, dropTop: false),
+              ).copyWith(
+                borderRadius: hasAttachedSuggestions
+                    ? const BorderRadius.vertical(
+                        top: Radius.circular(AppSpacing.radiusSm),
+                      )
+                    : AppInputStyle.borderRadius,
+              ),
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.md,
             vertical: AppSpacing.sm,
@@ -248,8 +284,8 @@ class _AppChipInputState extends State<AppChipInput> {
                         textAlignVertical: TextAlignVertical.center,
                         decoration: InputDecoration(
                           hintText: widget.tags.isEmpty
-                              ? widget.hintText
-                              : 'Add more…',
+                              ? (widget.hintText ?? l10n.chipInputHint)
+                              : l10n.chipInputAddMore,
                           hintStyle: AppTextStyles.inputHint,
                           border: InputBorder.none,
                           isDense: true,
@@ -303,53 +339,71 @@ class _AppChipInputState extends State<AppChipInput> {
   }
 
   Widget _buildSuggestionsDropdown() {
-    return Container(
-      margin: const EdgeInsets.only(top: AppSpacing.xs),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-        boxShadow: AppColors.softShadow,
-      ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 160),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: _filteredSuggestions.map((suggestion) {
-              return InkWell(
-                onTap: () {
-                  unawaited(_addTag(suggestion));
-                },
-                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    minHeight: kMinInteractiveDimension,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                      vertical: AppSpacing.sm,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.coffee,
-                          size: AppSpacing.iconSmall,
-                          color: AppColors.textSecondary,
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: Text(
-                            suggestion,
-                            style: AppTextStyles.bodyMedium,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+    return Transform.translate(
+      offset: const Offset(0, -1),
+      child: Container(
+        key: const Key('app-chip-input-suggestion-panel'),
+        decoration:
+            AppInputStyle.surfaceDecoration(
+              focused: _focusNode.hasFocus,
+              backgroundColor: AppInputStyle.shellColor,
+              border: _outlineBorder(
+                focused: _focusNode.hasFocus,
+                dropTop: true,
+              ),
+            ).copyWith(
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(AppSpacing.radiusSm),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.shadowDark.withValues(alpha: 0.14),
+                  offset: const Offset(0, 4),
+                  blurRadius: 8,
                 ),
-              );
-            }).toList(),
+              ],
+            ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 160),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _filteredSuggestions.map((suggestion) {
+                return InkWell(
+                  onTap: () {
+                    unawaited(_addTag(suggestion));
+                  },
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: kMinInteractiveDimension,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                        vertical: AppSpacing.sm,
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.coffee,
+                            size: AppSpacing.iconSmall,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              suggestion,
+                              style: AppTextStyles.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),

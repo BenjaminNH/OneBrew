@@ -1,31 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:one_brew/core/widgets/app_input_style.dart';
 import 'package:one_brew/core/widgets/app_chip_input.dart';
+
+import '../../helpers/localized_test_app.dart';
 
 void main() {
   testWidgets('shows top-5 suggestions immediately when input gains focus', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: StatefulBuilder(
-            builder: (context, setState) {
-              final tags = <String>[];
-              return AppChipInput(
-                tags: tags,
-                onTagsChanged: (_) {},
-                suggestions: const [
-                  'Focus Bean 06',
-                  'Focus Bean 05',
-                  'Focus Bean 04',
-                  'Focus Bean 03',
-                  'Focus Bean 02',
-                  'Focus Bean 01',
-                ],
-              );
-            },
-          ),
+    await pumpLocalizedWidget(
+      tester,
+      child: Scaffold(
+        body: StatefulBuilder(
+          builder: (context, setState) {
+            final tags = <String>[];
+            return AppChipInput(
+              tags: tags,
+              onTagsChanged: (_) {},
+              suggestions: const [
+                'Focus Bean 06',
+                'Focus Bean 05',
+                'Focus Bean 04',
+                'Focus Bean 03',
+                'Focus Bean 02',
+                'Focus Bean 01',
+              ],
+            );
+          },
         ),
       ),
     );
@@ -48,24 +50,23 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final tags = <String>[];
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: StatefulBuilder(
-            builder: (context, setState) {
-              return AppChipInput(
-                tags: tags,
-                onTagsChanged: (newTags) {
-                  setState(() {
-                    tags
-                      ..clear()
-                      ..addAll(newTags);
-                  });
-                },
-                suggestions: const ['Gesha', 'Ethiopia'],
-              );
-            },
-          ),
+    await pumpLocalizedWidget(
+      tester,
+      child: Scaffold(
+        body: StatefulBuilder(
+          builder: (context, setState) {
+            return AppChipInput(
+              tags: tags,
+              onTagsChanged: (newTags) {
+                setState(() {
+                  tags
+                    ..clear()
+                    ..addAll(newTags);
+                });
+              },
+              suggestions: const ['Gesha', 'Ethiopia'],
+            );
+          },
         ),
       ),
     );
@@ -84,19 +85,18 @@ void main() {
   testWidgets('chip and suggestion row meet touch target expectations', (
     tester,
   ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: StatefulBuilder(
-            builder: (context, setState) {
-              final tags = <String>['Gesha'];
-              return AppChipInput(
-                tags: tags,
-                onTagsChanged: (_) {},
-                suggestions: const ['Geisha', 'Yirgacheffe'],
-              );
-            },
-          ),
+    await pumpLocalizedWidget(
+      tester,
+      child: Scaffold(
+        body: StatefulBuilder(
+          builder: (context, setState) {
+            final tags = <String>['Gesha'];
+            return AppChipInput(
+              tags: tags,
+              onTagsChanged: (_) {},
+              suggestions: const ['Geisha', 'Yirgacheffe'],
+            );
+          },
         ),
       ),
     );
@@ -119,4 +119,61 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('suggestion panel is visually attached to input shell', (
+    tester,
+  ) async {
+    await pumpLocalizedWidget(
+      tester,
+      child: Scaffold(
+        body: AppChipInput(
+          tags: const [],
+          onTagsChanged: (_) {},
+          suggestions: const ['Swirl', 'Pulse', 'Center pour'],
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(TextField));
+    await tester.pumpAndSettle();
+
+    final inputRect = tester.getRect(
+      find.byKey(const Key('app-chip-input-field-shell')),
+    );
+    final panelRect = tester.getRect(
+      find.byKey(const Key('app-chip-input-suggestion-panel')),
+    );
+    final gap = panelRect.top - inputRect.bottom;
+    expect(gap.abs(), lessThanOrEqualTo(2));
+  });
+
+  testWidgets('suggestions can be disabled without affecting input focus', (
+    tester,
+  ) async {
+    await pumpLocalizedWidget(
+      tester,
+      child: Scaffold(
+        body: StatefulBuilder(
+          builder: (context, setState) {
+            return const AppChipInput(
+              tags: [],
+              onTagsChanged: _noopTagChange,
+              suggestions: ['Swirl', 'Pulse', 'Center pour'],
+              suggestionVisibility: AppSuggestionVisibility.disabled,
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.byType(TextField));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Swirl'), findsNothing);
+    expect(find.text('Pulse'), findsNothing);
+    expect(find.text('Center pour'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }
+
+void _noopTagChange(List<String> _) {}

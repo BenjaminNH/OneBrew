@@ -4,6 +4,7 @@ import '../../brew_logger_providers.dart';
 import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_method_config.dart';
 import '../../domain/entities/brew_param_definition.dart';
+import '../../domain/entities/brew_param_key.dart';
 import '../../domain/entities/brew_param_visibility.dart';
 import '../../domain/repositories/brew_param_repository.dart';
 import '../../../../shared/helpers/brew_param_defaults.dart';
@@ -327,11 +328,42 @@ class BrewPreferencesController extends Notifier<BrewPreferencesState> {
     required String name,
     required ParamType type,
     String? unit,
+    double? numberMin,
+    double? numberMax,
+    double? numberStep,
+    double? numberDefault,
   }) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) {
       state = state.copyWith(errorMessage: 'Parameter name is required.');
       return;
+    }
+
+    if (type == ParamType.number) {
+      if (numberMin == null || numberMax == null) {
+        state = state.copyWith(
+          errorMessage:
+              'Number parameters require both minimum and maximum values.',
+        );
+        return;
+      }
+      if (numberMax <= numberMin) {
+        state = state.copyWith(
+          errorMessage: 'Maximum value must be greater than minimum value.',
+        );
+        return;
+      }
+      if (numberStep != null && numberStep <= 0) {
+        state = state.copyWith(errorMessage: 'Step must be greater than zero.');
+        return;
+      }
+      if (numberDefault != null &&
+          (numberDefault < numberMin || numberDefault > numberMax)) {
+        state = state.copyWith(
+          errorMessage: 'Default value must be within the min/max range.',
+        );
+        return;
+      }
     }
 
     final defs = state.paramDefinitions[method] ?? const [];
@@ -353,9 +385,30 @@ class BrewPreferencesController extends Notifier<BrewPreferencesState> {
         BrewParamDefinition(
           id: 0,
           method: method,
+          paramKey: null,
           name: trimmed,
           type: type,
           unit: unit?.trim().isEmpty == true ? null : unit?.trim(),
+          numberMin: type == ParamType.number ? numberMin : null,
+          numberMax: type == ParamType.number ? numberMax : null,
+          numberStep: type == ParamType.number ? numberStep : null,
+          numberDefault: type == ParamType.number ? numberDefault : null,
+          isSystem: false,
+          sortOrder: maxOrder + 1,
+        ),
+      );
+      await repo.updateParamDefinition(
+        BrewParamDefinition(
+          id: defId,
+          method: method,
+          paramKey: customParamKeyForId(defId),
+          name: trimmed,
+          type: type,
+          unit: unit?.trim().isEmpty == true ? null : unit?.trim(),
+          numberMin: type == ParamType.number ? numberMin : null,
+          numberMax: type == ParamType.number ? numberMax : null,
+          numberStep: type == ParamType.number ? numberStep : null,
+          numberDefault: type == ParamType.number ? numberDefault : null,
           isSystem: false,
           sortOrder: maxOrder + 1,
         ),
@@ -422,6 +475,7 @@ class BrewPreferencesController extends Notifier<BrewPreferencesState> {
         BrewParamDefinition(
           id: 0,
           method: BrewMethod.custom,
+          paramKey: template.paramKey,
           name: template.name,
           type: template.type,
           unit: template.unit,

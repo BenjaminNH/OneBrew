@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/app_input_style.dart';
 import '../../domain/entities/brew_method_config.dart';
 
 const _defaultCustomMethodName = 'custom';
@@ -14,8 +16,9 @@ bool isDefaultCustomMethodName(String name) {
 Future<String?> showCustomMethodNameSheet(
   BuildContext context, {
   required String currentName,
-  String title = 'Custom Brew Method',
+  required String title,
 }) async {
+  final l10n = context.l10n;
   final resolvedName = isDefaultCustomMethodName(currentName)
       ? ''
       : currentName;
@@ -55,9 +58,9 @@ Future<String?> showCustomMethodNameSheet(
                   const SizedBox(height: AppSpacing.md),
                   TextField(
                     controller: controller,
-                    decoration: const InputDecoration(
-                      labelText: 'Method name',
-                      hintText: 'e.g. AeroPress',
+                    decoration: AppInputStyle.decoration(
+                      labelText: l10n.brewCustomMethodNameLabel,
+                      hintText: l10n.brewCustomMethodNameHint,
                     ),
                     onChanged: (value) => setState(() => draft = value),
                   ),
@@ -67,14 +70,14 @@ Future<String?> showCustomMethodNameSheet(
                     children: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+                        child: Text(l10n.actionCancel),
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       ElevatedButton(
                         onPressed: canSubmit
                             ? () => Navigator.of(context).pop(draft.trim())
                             : null,
-                        child: const Text('Save'),
+                        child: Text(l10n.brewCustomMethodSave),
                       ),
                     ],
                   ),
@@ -111,6 +114,7 @@ class CustomMethodActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     if (!_hasConfiguredCustomMethod) {
       return Align(
         alignment: Alignment.center,
@@ -118,7 +122,7 @@ class CustomMethodActions extends StatelessWidget {
           key: const Key('custom-method-add-button'),
           onPressed: onAdd,
           child: Text(
-            'Want another method? Add one',
+            l10n.brewCustomMethodWantAnother,
             textAlign: TextAlign.center,
             style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.textSecondary,
@@ -131,14 +135,14 @@ class CustomMethodActions extends StatelessWidget {
 
     final displayName = customConfig?.displayName.trim();
     final methodName = (displayName == null || displayName.isEmpty)
-        ? 'Custom'
+        ? l10n.brewCustomMethodDefaultName
         : displayName;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Custom method: $methodName',
+          l10n.brewCustomMethodDisplay(methodName),
           textAlign: TextAlign.center,
           style: AppTextStyles.bodySmall.copyWith(
             color: AppColors.textSecondary,
@@ -154,14 +158,14 @@ class CustomMethodActions extends StatelessWidget {
               key: const Key('custom-method-rename-button'),
               onPressed: onRename,
               icon: const Icon(Icons.edit_outlined),
-              label: const Text('Rename'),
+              label: Text(l10n.brewCustomMethodRename),
             ),
             TextButton.icon(
               key: const Key('custom-method-delete-button'),
               onPressed: onDelete,
               icon: const Icon(Icons.delete_outline_rounded),
               style: TextButton.styleFrom(foregroundColor: AppColors.error),
-              label: const Text('Delete'),
+              label: Text(l10n.brewCustomMethodDelete),
             ),
           ],
         ),

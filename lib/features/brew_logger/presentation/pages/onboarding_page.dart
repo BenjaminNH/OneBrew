@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:one_brew/l10n/l10n.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
@@ -13,6 +14,7 @@ import '../../brew_logger_providers.dart';
 import '../../domain/entities/brew_method.dart';
 import '../../domain/entities/brew_method_config.dart';
 import '../controllers/brew_preferences_controller.dart';
+import '../widgets/add_custom_param_sheet.dart';
 import '../widgets/brew_preferences_widgets.dart';
 import '../widgets/custom_method_actions.dart';
 
@@ -40,6 +42,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(brewPreferencesControllerProvider);
     final controller = ref.read(brewPreferencesControllerProvider.notifier);
+    final l10n = context.l10n;
     final bottomInset = MediaQuery.of(context).padding.bottom;
     final reduceMotion = _shouldReduceMotion(context);
 
@@ -80,9 +83,8 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                           setState(() => _pageIndex = index),
                       children: [
                         _StepContainer(
-                          title: 'Choose brew methods',
-                          subtitle:
-                              'Select at least one method to start. You can add one custom method for your workflow.',
+                          title: l10n.onboardingStepChooseMethodsTitle,
+                          subtitle: l10n.onboardingStepChooseMethodsSubtitle,
                           topSpacer: AppSpacing.huge,
                           footer: CustomMethodActions(
                             customConfig: state.customMethodConfig,
@@ -115,11 +117,22 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                           state: state,
                           controller: controller,
                           scrollController: _paramScrollController,
-                          onAddParam: () => _showAddParamSheet(
-                            context,
-                            state.selectedMethod,
-                            controller,
-                          ),
+                          onAddParam: () async {
+                            final draft = await showAddCustomParamSheet(
+                              context,
+                            );
+                            if (draft == null || !context.mounted) return;
+                            await controller.addCustomParam(
+                              method: state.selectedMethod,
+                              name: draft.name,
+                              type: draft.type,
+                              unit: draft.unit,
+                              numberMin: draft.numberMin,
+                              numberMax: draft.numberMax,
+                              numberStep: draft.numberStep,
+                              numberDefault: draft.numberDefault,
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -139,6 +152,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
                             ? () => _advance(state)
                             : null,
                         child: Text(_primaryActionLabel(state)),
+                        // label already localized by _primaryActionLabel.
                       ),
                     ),
                   ),
@@ -156,8 +170,11 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
   }
 
   String _primaryActionLabel(BrewPreferencesState state) {
-    if (_pageIndex == 0) return 'Next';
-    return _hasNextEnabledMethod(state) ? 'Next Method' : 'Finish';
+    final l10n = context.l10n;
+    if (_pageIndex == 0) return l10n.onboardingPrimaryNext;
+    return _hasNextEnabledMethod(state)
+        ? l10n.onboardingPrimaryNextMethod
+        : l10n.onboardingPrimaryFinish;
   }
 
   bool _hasNextEnabledMethod(BrewPreferencesState state) {
@@ -283,6 +300,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
     final name = await showCustomMethodNameSheet(
       context,
       currentName: currentName,
+      title: context.l10n.brewCustomMethodSheetTitle,
     );
     if (name == null) return;
     await controller.renameCustomMethod(name);
@@ -296,6 +314,7 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
     final name = await showCustomMethodNameSheet(
       context,
       currentName: customConfig?.displayName ?? 'Custom',
+      title: context.l10n.brewCustomMethodSheetTitle,
     );
     if (name == null) return;
     await controller.renameCustomMethod(name);
@@ -309,119 +328,10 @@ class _BrewOnboardingPageState extends ConsumerState<BrewOnboardingPage> {
     final name = await showCustomMethodNameSheet(
       context,
       currentName: customConfig?.displayName ?? 'Custom',
-      title: 'Rename Custom Method',
+      title: context.l10n.brewRenameCustomMethodSheetTitle,
     );
     if (name == null) return;
     await controller.renameCustomMethod(name);
-  }
-
-  Future<void> _showAddParamSheet(
-    BuildContext context,
-    BrewMethod method,
-    BrewPreferencesController controller,
-  ) async {
-    final nameController = TextEditingController();
-    final unitController = TextEditingController();
-    ParamType selectedType = ParamType.number;
-
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        final platformView =
-            WidgetsBinding.instance.platformDispatcher.views.first;
-        final keyboardInset =
-            platformView.viewInsets.bottom / platformView.devicePixelRatio;
-        final keyboardBottomGap = keyboardInset > 0
-            ? AppSpacing.sm
-            : AppSpacing.pageBottom;
-        return MediaQuery.removePadding(
-          context: context,
-          removeBottom: true,
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: AppSpacing.pageHorizontal,
-              right: AppSpacing.pageHorizontal,
-              bottom: keyboardInset + keyboardBottomGap,
-              top: AppSpacing.pageTop,
-            ),
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('New Parameter', style: AppTextStyles.headlineSmall),
-                    const SizedBox(height: AppSpacing.md),
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        hintText: 'e.g. Flow Rate',
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    Text('Type', style: AppTextStyles.labelMedium),
-                    const SizedBox(height: AppSpacing.xs),
-                    Wrap(
-                      spacing: AppSpacing.xs,
-                      children: ParamType.values.map((type) {
-                        final selected = selectedType == type;
-                        return ChoiceChip(
-                          label: Text(
-                            type == ParamType.number ? 'Number' : 'Text',
-                          ),
-                          selected: selected,
-                          onSelected: (_) =>
-                              setState(() => selectedType = type),
-                          selectedColor: AppColors.primary,
-                          labelStyle: AppTextStyles.labelSmall.copyWith(
-                            color: selected
-                                ? Colors.white
-                                : AppColors.textSecondary,
-                          ),
-                          side: BorderSide(
-                            color: selected
-                                ? AppColors.primary
-                                : AppColors.shadowDark,
-                          ),
-                          backgroundColor: AppColors.background,
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    TextField(
-                      controller: unitController,
-                      decoration: const InputDecoration(
-                        labelText: 'Unit (optional)',
-                        hintText: 'e.g. g, ml, bar',
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await controller.addCustomParam(
-                            method: method,
-                            name: nameController.text,
-                            type: selectedType,
-                            unit: unitController.text,
-                          );
-                          if (context.mounted) Navigator.of(context).pop();
-                        },
-                        child: const Text('Add Parameter'),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                  ],
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
   }
 }
 
@@ -534,7 +444,7 @@ class _OnboardingHero extends StatelessWidget {
                   height: isNarrow ? 36 : 40,
                   child: Center(
                     child: Text(
-                      'Skip',
+                      context.l10n.onboardingSkip,
                       style: AppTextStyles.labelMedium.copyWith(
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w600,
@@ -581,7 +491,7 @@ class _OnboardingHero extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   height: 1.1,
                                 ),
-                          child: const Text('Welcome to'),
+                          child: Text(context.l10n.onboardingWelcomeTo),
                         ),
                         const SizedBox(height: AppSpacing.xs),
                         AnimatedDefaultTextStyle(
@@ -600,13 +510,13 @@ class _OnboardingHero extends StatelessWidget {
                                   fontWeight: FontWeight.w700,
                                   height: 1.0,
                                 ),
-                          child: const SizedBox(
+                          child: SizedBox(
                             width: double.infinity,
                             child: FittedBox(
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                'OneBrew',
+                                context.l10n.appTitle,
                                 maxLines: 1,
                                 softWrap: false,
                               ),
@@ -620,7 +530,7 @@ class _OnboardingHero extends StatelessWidget {
                             curve: curve,
                             opacity: 1.0,
                             child: Text(
-                              'Focus on one brew at a time.',
+                              context.l10n.onboardingTagline,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.bodySmall.copyWith(
@@ -802,10 +712,13 @@ class _OnboardingParamStep extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Parameter list', style: AppTextStyles.headlineLarge),
+                Text(
+                  context.l10n.onboardingParamListTitle,
+                  style: AppTextStyles.headlineLarge,
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Hide defaults or add custom parameters. Continue with Next Method, then Finish on the last method.',
+                  context.l10n.onboardingParamListSubtitle,
                   style: AppTextStyles.bodySmall.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -858,9 +771,10 @@ class _OnboardingParamStep extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
+                  key: const Key('onboarding-add-custom-param-button'),
                   onPressed: onAddParam,
                   icon: const Icon(Icons.add_rounded),
-                  label: const Text('Add Custom Parameter'),
+                  label: Text(context.l10n.brewActionAddCustomParameter),
                 ),
               ),
               const SizedBox(height: AppSpacing.huge),

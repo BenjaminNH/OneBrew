@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:one_brew/core/localization/app_locale.dart';
 import 'package:one_brew/core/router/app_route_paths.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/presentation/controllers/brew_preferences_controller.dart';
 import 'package:one_brew/features/brew_logger/presentation/pages/onboarding_page.dart';
+import 'package:one_brew/l10n/app_localizations.dart';
 
 import '../../../../helpers/fake_brew_param_repository.dart';
 
@@ -22,7 +24,12 @@ void main() {
           brewParamRepositoryProvider.overrideWithValue(fakeRepo),
           brewParamBootstrapProvider.overrideWith((ref) async => true),
         ],
-        child: const MaterialApp(home: BrewOnboardingPage()),
+        child: const MaterialApp(
+          locale: Locale('en'),
+          supportedLocales: AppLocaleOption.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: BrewOnboardingPage(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -53,7 +60,12 @@ void main() {
           brewParamRepositoryProvider.overrideWithValue(fakeRepo),
           brewParamBootstrapProvider.overrideWith((ref) async => true),
         ],
-        child: const MaterialApp(home: BrewOnboardingPage()),
+        child: const MaterialApp(
+          locale: Locale('en'),
+          supportedLocales: AppLocaleOption.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: BrewOnboardingPage(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -109,7 +121,12 @@ void main() {
           brewParamRepositoryProvider.overrideWithValue(fakeRepo),
           brewParamBootstrapProvider.overrideWith((ref) async => true),
         ],
-        child: const MaterialApp(home: BrewOnboardingPage()),
+        child: const MaterialApp(
+          locale: Locale('en'),
+          supportedLocales: AppLocaleOption.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: BrewOnboardingPage(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -142,7 +159,12 @@ void main() {
           brewParamRepositoryProvider.overrideWithValue(fakeRepo),
           brewParamBootstrapProvider.overrideWith((ref) async => true),
         ],
-        child: const MaterialApp(home: BrewOnboardingPage()),
+        child: const MaterialApp(
+          locale: Locale('en'),
+          supportedLocales: AppLocaleOption.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: BrewOnboardingPage(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -212,6 +234,11 @@ Widget _buildOnboardingRouterApp(FakeBrewParamRepository fakeRepo) {
       brewParamRepositoryProvider.overrideWithValue(fakeRepo),
       brewParamBootstrapProvider.overrideWith((ref) async => true),
     ],
-    child: MaterialApp.router(routerConfig: router),
+    child: MaterialApp.router(
+      locale: const Locale('en'),
+      supportedLocales: AppLocaleOption.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      routerConfig: router,
+    ),
   );
 }

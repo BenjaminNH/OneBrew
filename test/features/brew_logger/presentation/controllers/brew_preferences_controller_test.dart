@@ -158,5 +158,75 @@ void main() {
       expect(defs.any((d) => d.id == 11), isTrue);
       expect(state.errorMessage, 'System parameters cannot be deleted.');
     });
+
+    test('persists numeric range fields for custom number params', () async {
+      final repo = FakeBrewParamRepository();
+      final container = _makeContainer(repo);
+      addTearDown(container.dispose);
+
+      final controller = container.read(
+        brewPreferencesControllerProvider.notifier,
+      );
+      await controller.load(showLoading: true);
+      await controller.addCustomParam(
+        method: BrewMethod.pourOver,
+        name: 'Pulse Count',
+        type: ParamType.number,
+        unit: 'times',
+        numberMin: 1,
+        numberMax: 8,
+        numberStep: 1,
+        numberDefault: 3,
+      );
+
+      final defs = await repo.getParamDefinitions(BrewMethod.pourOver);
+      final created = defs.firstWhere((d) => d.name == 'Pulse Count');
+      expect(created.numberMin, 1);
+      expect(created.numberMax, 8);
+      expect(created.numberStep, 1);
+      expect(created.numberDefault, 3);
+      expect(created.unit, 'times');
+      expect(
+        container.read(brewPreferencesControllerProvider).errorMessage,
+        isNull,
+      );
+    });
+
+    test('rejects invalid numeric ranges for custom number params', () async {
+      final repo = FakeBrewParamRepository();
+      final container = _makeContainer(repo);
+      addTearDown(container.dispose);
+
+      final controller = container.read(
+        brewPreferencesControllerProvider.notifier,
+      );
+      await controller.load(showLoading: true);
+
+      await controller.addCustomParam(
+        method: BrewMethod.pourOver,
+        name: 'Broken Param',
+        type: ParamType.number,
+        numberMin: 10,
+        numberMax: 2,
+      );
+      expect(
+        container.read(brewPreferencesControllerProvider).errorMessage,
+        'Maximum value must be greater than minimum value.',
+      );
+
+      controller.clearError();
+      await controller.addCustomParam(
+        method: BrewMethod.pourOver,
+        name: 'Broken Param 2',
+        type: ParamType.number,
+        numberMin: 0,
+        numberMax: 10,
+        numberDefault: 20,
+      );
+      expect(
+        container.read(brewPreferencesControllerProvider).errorMessage,
+        'Default value must be within the min/max range.',
+      );
+    });
   });
 }
