@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/extensions.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../brew_logger/domain/entities/brew_record.dart';
@@ -181,7 +182,6 @@ class _SharePreviewBottomSheetState extends State<SharePreviewBottomSheet> {
     setState(() => _isSaving = true);
 
     try {
-      final messenger = ScaffoldMessenger.of(context);
       final navigator = Navigator.of(context);
       final l10n = context.l10n;
 
@@ -212,14 +212,8 @@ class _SharePreviewBottomSheetState extends State<SharePreviewBottomSheet> {
         return;
       }
 
+      context.showTopSuccessToast(l10n.sharePreviewSaved);
       navigator.pop();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(l10n.sharePreviewSaved),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
     } catch (error) {
       if (!mounted) {
         return;
@@ -284,7 +278,9 @@ class _PosterCard extends StatelessWidget {
           children: [
             _PosterTopBlock(detail: detail, rating: rating),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: EdgeInsets.symmetric(
+                vertical: rating.hasDetailed ? 8 : 4,
+              ),
               child: _PosterMetricGrid(metrics: visibleMetrics, spec: gridSpec),
             ),
             _PosterFooter(
@@ -328,7 +324,7 @@ class _PosterTopBlock extends StatelessWidget {
               letterSpacing: 1,
             ),
           ),
-        if (overline != null) SizedBox(height: isDetailed ? 6 : 6),
+        if (overline != null) SizedBox(height: isDetailed ? 6 : 4),
         Text(
           detail.beanName,
           maxLines: 2,
@@ -341,7 +337,7 @@ class _PosterTopBlock extends StatelessWidget {
           ),
         ),
         if (isDetailed) ...[
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 5,
@@ -349,7 +345,7 @@ class _PosterTopBlock extends StatelessWidget {
             children: _buildScoreSummaryWidgets(context, rating.summaries),
           ),
           if (rating.flavorTags.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Wrap(
               spacing: 6,
               runSpacing: 6,
@@ -359,13 +355,13 @@ class _PosterTopBlock extends StatelessWidget {
             ),
           ],
         ] else if (rating.quickLabel != null) ...[
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           _QuickRatingStrip(rating: rating),
           if (rating.flavorTags.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 6,
+              runSpacing: 6,
               children: rating.flavorTags
                   .take(2)
                   .map((tag) => _FlavorTagChip(label: tag))
@@ -745,30 +741,30 @@ _MetricGridSpec _gridSpecFor(int count) {
     return const _MetricGridSpec(
       columns: 3,
       maxItems: 9,
-      labelFontSize: 8.5,
-      valueFontSize: 13,
-      valueHeight: 20,
-      columnGap: 16,
-      rowGap: 12,
+      labelFontSize: 12.5,
+      valueFontSize: 20.5,
+      valueHeight: 26,
+      columnGap: 12,
+      rowGap: 10,
     );
   }
   if (count >= 5) {
     return const _MetricGridSpec(
       columns: 3,
       maxItems: 6,
-      labelFontSize: 10.5,
-      valueFontSize: 17.5,
-      valueHeight: 26,
-      columnGap: 24,
-      rowGap: 16,
+      labelFontSize: 12,
+      valueFontSize: 19.5,
+      valueHeight: 30,
+      columnGap: 22,
+      rowGap: 14,
     );
   }
   return const _MetricGridSpec(
     columns: 2,
     maxItems: 4,
-    labelFontSize: 10.5,
-    valueFontSize: 20,
-    valueHeight: 30,
+    labelFontSize: 12,
+    valueFontSize: 22,
+    valueHeight: 32,
     columnGap: 16,
     rowGap: 16,
   );
@@ -807,7 +803,7 @@ List<Widget> _buildScoreSummaryWidgets(
       Text(
         _posterScoreSummary(context, summaries[index]),
         style: _outfit(
-          9,
+          11,
           FontWeight.w700,
           AppColors.textPrimary,
           letterSpacing: 1,
@@ -816,7 +812,10 @@ List<Widget> _buildScoreSummaryWidgets(
     );
     if (index < summaries.length - 1) {
       widgets.add(
-        Text('•', style: _inter(9, FontWeight.w400, const Color(0xFFD1D5DB))),
+        Text(
+          '•',
+          style: _inter(10, FontWeight.w400, const Color(0xFFD1D5DB)),
+        ),
       );
     }
   }

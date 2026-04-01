@@ -7,6 +7,7 @@ import 'package:mockito/mockito.dart';
 import 'package:one_brew/core/database/drift_database.dart'
     show OneBrewDatabase, EquipmentsCompanion, BrewRecordsCompanion;
 import 'package:one_brew/core/localization/app_locale.dart';
+import 'package:one_brew/core/widgets/app_top_toast.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_key.dart';
@@ -34,6 +35,8 @@ void main() {
     late FakeBrewParamRepository fakeBrewParamRepo;
 
     setUp(() {
+      addTearDown(AppTopToast.dismiss);
+
       mockHistoryRepo = MockHistoryRepository();
       when(mockHistoryRepo.getAllBrewSummaries()).thenAnswer((_) async => []);
       when(
@@ -550,6 +553,12 @@ void main() {
       expect(find.textContaining('Black Tea'), findsOneWidget);
       expect(find.text('TIME'), findsOneWidget);
       expect(find.text('POUR'), findsOneWidget);
+
+      final sheet = find.byKey(const Key('share-preview-bottom-sheet'));
+      final acidSummary = tester.widget<Text>(
+        find.descendant(of: sheet, matching: find.text('ACID 4.5')).first,
+      );
+      expect(acidSummary.style?.fontSize, 11.0);
     });
 
     testWidgets(
@@ -668,6 +677,125 @@ void main() {
         find.descendant(of: sheet, matching: find.text('Distribution/tamping')),
         findsNothing,
       );
+    });
+
+    testWidgets('share preview uses larger type for 9-metric layout', (
+      tester,
+    ) async {
+      final detail = TestFixtures.brewDetail(id: 22, beanName: 'Nine Metrics');
+      when(
+        mockHistoryRepo.getBrewDetailById(22),
+      ).thenAnswer((_) async => detail);
+
+      await tester.pumpWidget(createWidget(brewId: 22));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+      await tester.pumpAndSettle();
+
+      final sheet = find.byKey(const Key('share-preview-bottom-sheet'));
+      final timeLabel = tester.widget<Text>(
+        find.descendant(of: sheet, matching: find.text('TIME')).first,
+      );
+      final doseValue = tester.widget<Text>(
+        find.descendant(of: sheet, matching: find.text('15.0g')).first,
+      );
+
+      expect(timeLabel.style?.fontSize, 12.5);
+      expect(doseValue.style?.fontSize, 20.5);
+    });
+
+    testWidgets('share preview uses larger type for 6-metric layout', (
+      tester,
+    ) async {
+      final detail =
+          TestFixtures.brewDetail(
+            id: 23,
+            beanName: 'Six Metrics',
+            grindMode: GrindMode.simple,
+            grindSimpleLabel: null,
+            quickScore: null,
+            emoji: null,
+          ).copyWith(
+            equipmentId: null,
+            equipmentName: null,
+            pourMethod: null,
+            bloomTimeS: null,
+            waterType: null,
+            roomTempC: null,
+            acidity: null,
+            sweetness: null,
+            bitterness: null,
+            body: null,
+            flavorNotes: null,
+          );
+      when(
+        mockHistoryRepo.getBrewDetailById(23),
+      ).thenAnswer((_) async => detail);
+
+      await tester.pumpWidget(createWidget(brewId: 23));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+      await tester.pumpAndSettle();
+
+      final sheet = find.byKey(const Key('share-preview-bottom-sheet'));
+      final tempLabel = tester.widget<Text>(
+        find.descendant(of: sheet, matching: find.text('TEMP')).first,
+      );
+      final tempValue = tester.widget<Text>(
+        find.descendant(of: sheet, matching: find.text('93°C')).first,
+      );
+
+      expect(tempLabel.style?.fontSize, 12.0);
+      expect(tempValue.style?.fontSize, 19.5);
+    });
+
+    testWidgets('share preview uses larger type for 4-metric layout', (
+      tester,
+    ) async {
+      final detail =
+          TestFixtures.brewDetail(
+            id: 24,
+            beanName: 'Four Metrics',
+            grindMode: GrindMode.simple,
+            grindSimpleLabel: null,
+            quickScore: null,
+            emoji: null,
+          ).copyWith(
+            equipmentId: null,
+            equipmentName: null,
+            waterTempC: null,
+            pourMethod: null,
+            bloomTimeS: null,
+            waterType: null,
+            roomTempC: null,
+            acidity: null,
+            sweetness: null,
+            bitterness: null,
+            body: null,
+            flavorNotes: null,
+          );
+      when(
+        mockHistoryRepo.getBrewDetailById(24),
+      ).thenAnswer((_) async => detail);
+
+      await tester.pumpWidget(createWidget(brewId: 24));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+      await tester.pumpAndSettle();
+
+      final sheet = find.byKey(const Key('share-preview-bottom-sheet'));
+      final ratioLabel = tester.widget<Text>(
+        find.descendant(of: sheet, matching: find.text('RATIO')).first,
+      );
+      final ratioValue = tester.widget<Text>(
+        find.descendant(of: sheet, matching: find.text('1:16.0')).first,
+      );
+
+      expect(ratioLabel.style?.fontSize, 12.0);
+      expect(ratioValue.style?.fontSize, 22.0);
     });
 
     testWidgets('grinder edits refresh an open detail page', (tester) async {
@@ -832,11 +960,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(historyLoadCount, greaterThanOrEqualTo(2));
+      expect(find.byKey(const Key('app-top-toast')), findsOneWidget);
       expect(
         container.read(historyControllerProvider).visibleBrews.single.quickScore,
         3,
       );
       expect(find.textContaining('3/5'), findsOneWidget);
+
+      AppTopToast.dismiss();
     });
   });
 }
