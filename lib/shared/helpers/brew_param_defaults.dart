@@ -209,10 +209,17 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.pourOver,
-      paramKey: BrewParamKeys.filterDripper,
-      name: 'Filter/Dripper',
+      paramKey: BrewParamKeys.filter,
+      name: 'Filter',
       type: ParamType.text,
       sortOrder: 11,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.pourOver,
+      paramKey: BrewParamKeys.dripper,
+      name: 'Dripper',
+      type: ParamType.text,
+      sortOrder: 12,
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
@@ -306,10 +313,17 @@ abstract final class BrewParamDefaults {
     ),
     BrewParamTemplate(
       method: BrewMethod.espresso,
-      paramKey: BrewParamKeys.distributionTamping,
-      name: 'Distribution/Tamping',
+      paramKey: BrewParamKeys.distribution,
+      name: 'Distribution',
       type: ParamType.text,
       sortOrder: 9,
+    ),
+    BrewParamTemplate(
+      method: BrewMethod.espresso,
+      paramKey: BrewParamKeys.tamping,
+      name: 'Tamping',
+      type: ParamType.text,
+      sortOrder: 10,
     ),
     BrewParamTemplate(
       method: BrewMethod.custom,

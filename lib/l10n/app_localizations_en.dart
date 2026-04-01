@@ -427,13 +427,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get brewParamLabelCoffeeDose => 'Dose';
 
   @override
-  String get brewParamLabelDistributionTamping => 'Distribution/Tamping';
+  String get brewParamLabelDistribution => 'Distribution';
 
   @override
   String get brewParamLabelExtractionTime => 'Extraction Time';
 
   @override
-  String get brewParamLabelFilterDripper => 'Filter/Dripper';
+  String get brewParamLabelFilter => 'Filter';
+
+  @override
+  String get brewParamLabelDripper => 'Dripper';
 
   @override
   String get brewParamLabelGrindSize => 'Grind Size';
@@ -446,6 +449,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get brewParamLabelPressure => 'Pressure';
+
+  @override
+  String get brewParamLabelTamping => 'Tamping';
 
   @override
   String get brewParamLabelWaterTemp => 'Water Temp';

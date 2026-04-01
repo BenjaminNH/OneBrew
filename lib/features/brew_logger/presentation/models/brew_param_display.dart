@@ -35,14 +35,18 @@ String localizedParamLabel({
       return l10n.brewParamLabelPourMethod;
     case BrewParamKeys.agitation:
       return l10n.brewParamLabelAgitation;
-    case BrewParamKeys.filterDripper:
-      return l10n.brewParamLabelFilterDripper;
+    case BrewParamKeys.filter:
+      return l10n.brewParamLabelFilter;
+    case BrewParamKeys.dripper:
+      return l10n.brewParamLabelDripper;
     case BrewParamKeys.pressure:
       return l10n.brewParamLabelPressure;
     case BrewParamKeys.preInfusion:
       return l10n.brewParamLabelPreInfusion;
-    case BrewParamKeys.distributionTamping:
-      return l10n.brewParamLabelDistributionTamping;
+    case BrewParamKeys.distribution:
+      return l10n.brewParamLabelDistribution;
+    case BrewParamKeys.tamping:
+      return l10n.brewParamLabelTamping;
     default:
       return fallbackName;
   }

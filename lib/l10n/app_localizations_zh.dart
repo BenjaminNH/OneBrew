@@ -421,13 +421,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get brewParamLabelCoffeeDose => '粉量';
 
   @override
-  String get brewParamLabelDistributionTamping => '布粉 / 压粉';
+  String get brewParamLabelDistribution => '布粉';
 
   @override
   String get brewParamLabelExtractionTime => '萃取时间';
 
   @override
-  String get brewParamLabelFilterDripper => '滤杯 / 滤纸';
+  String get brewParamLabelFilter => '滤纸';
+
+  @override
+  String get brewParamLabelDripper => '滤杯';
 
   @override
   String get brewParamLabelGrindSize => '研磨';
@@ -440,6 +443,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get brewParamLabelPressure => '压力';
+
+  @override
+  String get brewParamLabelTamping => '压粉';
 
   @override
   String get brewParamLabelWaterTemp => '水温';
@@ -1649,13 +1655,16 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
   String get brewParamLabelCoffeeDose => '粉量';
 
   @override
-  String get brewParamLabelDistributionTamping => '布粉 / 压粉';
+  String get brewParamLabelDistribution => '布粉';
 
   @override
   String get brewParamLabelExtractionTime => '萃取时间';
 
   @override
-  String get brewParamLabelFilterDripper => '滤杯 / 滤纸';
+  String get brewParamLabelFilter => '滤纸';
+
+  @override
+  String get brewParamLabelDripper => '滤杯';
 
   @override
   String get brewParamLabelGrindSize => '研磨';
@@ -1668,6 +1677,9 @@ class AppLocalizationsZhHans extends AppLocalizationsZh {
 
   @override
   String get brewParamLabelPressure => '压力';
+
+  @override
+  String get brewParamLabelTamping => '压粉';
 
   @override
   String get brewParamLabelWaterTemp => '水温';

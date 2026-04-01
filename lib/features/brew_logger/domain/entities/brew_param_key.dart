@@ -16,10 +16,12 @@ abstract final class BrewParamKeys {
   static const bloomWater = 'bloom_water';
   static const pourMethod = 'pour_method';
   static const agitation = 'agitation';
-  static const filterDripper = 'filter_dripper';
+  static const filter = 'filter';
+  static const dripper = 'dripper';
   static const pressure = 'pressure';
   static const preInfusion = 'pre_infusion_time';
-  static const distributionTamping = 'distribution_tamping';
+  static const distribution = 'distribution';
+  static const tamping = 'tamping';
 }
 
 const Set<String> essentialParamKeys = {
@@ -83,14 +85,18 @@ String? legacyParamKeyFromName(String name) {
       return BrewParamKeys.pourMethod;
     case 'agitation':
       return BrewParamKeys.agitation;
-    case 'filter_dripper':
-      return BrewParamKeys.filterDripper;
+    case 'filter':
+      return BrewParamKeys.filter;
+    case 'dripper':
+      return BrewParamKeys.dripper;
     case 'pressure':
       return BrewParamKeys.pressure;
     case 'pre_infusion_time':
       return BrewParamKeys.preInfusion;
-    case 'distribution_tamping':
-      return BrewParamKeys.distributionTamping;
+    case 'distribution':
+      return BrewParamKeys.distribution;
+    case 'tamping':
+      return BrewParamKeys.tamping;
     default:
       return null;
   }

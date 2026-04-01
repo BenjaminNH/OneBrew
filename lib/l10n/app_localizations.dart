@@ -903,11 +903,11 @@ abstract class AppLocalizations {
   /// **'Dose'**
   String get brewParamLabelCoffeeDose;
 
-  /// No description provided for @brewParamLabelDistributionTamping.
+  /// No description provided for @brewParamLabelDistribution.
   ///
   /// In en, this message translates to:
-  /// **'Distribution/Tamping'**
-  String get brewParamLabelDistributionTamping;
+  /// **'Distribution'**
+  String get brewParamLabelDistribution;
 
   /// No description provided for @brewParamLabelExtractionTime.
   ///
@@ -915,11 +915,17 @@ abstract class AppLocalizations {
   /// **'Extraction Time'**
   String get brewParamLabelExtractionTime;
 
-  /// No description provided for @brewParamLabelFilterDripper.
+  /// No description provided for @brewParamLabelFilter.
   ///
   /// In en, this message translates to:
-  /// **'Filter/Dripper'**
-  String get brewParamLabelFilterDripper;
+  /// **'Filter'**
+  String get brewParamLabelFilter;
+
+  /// No description provided for @brewParamLabelDripper.
+  ///
+  /// In en, this message translates to:
+  /// **'Dripper'**
+  String get brewParamLabelDripper;
 
   /// No description provided for @brewParamLabelGrindSize.
   ///
@@ -944,6 +950,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pressure'**
   String get brewParamLabelPressure;
+
+  /// No description provided for @brewParamLabelTamping.
+  ///
+  /// In en, this message translates to:
+  /// **'Tamping'**
+  String get brewParamLabelTamping;
 
   /// No description provided for @brewParamLabelWaterTemp.
   ///

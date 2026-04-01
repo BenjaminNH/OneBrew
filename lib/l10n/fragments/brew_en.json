@@ -60,10 +60,12 @@
   "brewParamLabelBloomWater": "Bloom Water",
   "brewParamLabelPourMethod": "Pour Method",
   "brewParamLabelAgitation": "Agitation",
-  "brewParamLabelFilterDripper": "Filter/Dripper",
+  "brewParamLabelFilter": "Filter",
+  "brewParamLabelDripper": "Dripper",
   "brewParamLabelPressure": "Pressure",
   "brewParamLabelPreInfusion": "Pre-infusion Time",
-  "brewParamLabelDistributionTamping": "Distribution/Tamping",
+  "brewParamLabelDistribution": "Distribution",
+  "brewParamLabelTamping": "Tamping",
   "@brewSemanticWeight": {
     "placeholders": {
       "label": {

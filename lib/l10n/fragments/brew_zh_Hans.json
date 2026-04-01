@@ -60,10 +60,12 @@
   "brewParamLabelBloomWater": "闷蒸水量",
   "brewParamLabelPourMethod": "注水方式",
   "brewParamLabelAgitation": "扰流",
-  "brewParamLabelFilterDripper": "滤杯 / 滤纸",
+  "brewParamLabelFilter": "滤纸",
+  "brewParamLabelDripper": "滤杯",
   "brewParamLabelPressure": "压力",
   "brewParamLabelPreInfusion": "预浸泡时间",
-  "brewParamLabelDistributionTamping": "布粉 / 压粉",
+  "brewParamLabelDistribution": "布粉",
+  "brewParamLabelTamping": "压粉",
   "@brewSemanticWeight": {
     "placeholders": {
       "label": {

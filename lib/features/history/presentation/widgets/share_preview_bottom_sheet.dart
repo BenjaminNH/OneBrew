@@ -997,10 +997,14 @@ _PosterMetric? _metricFromEntry(
     paramKey: entry.paramKey,
     value: rawValue,
   );
-  return _PosterMetric(_displayMetricLabel(entry), value);
+  final label = _displayMetricLabel(entry, l10n: l10n);
+  return _PosterMetric(label, value);
 }
 
-String _displayMetricLabel(BrewParamEntry entry) {
+String _displayMetricLabel(
+  BrewParamEntry entry, {
+  required AppLocalizations l10n,
+}) {
   final semanticId = resolveParamKey(
     paramKey: entry.paramKey,
     name: entry.name,
@@ -1026,8 +1030,22 @@ String _displayMetricLabel(BrewParamEntry entry) {
       return 'BLOOM';
     case BrewParamKeys.pourMethod:
       return 'POUR';
+    case BrewParamKeys.filter:
+    case BrewParamKeys.dripper:
+    case BrewParamKeys.distribution:
+    case BrewParamKeys.tamping:
+    case BrewParamKeys.agitation:
+      return localizedParamLabel(
+        l10n: l10n,
+        paramKey: semanticId,
+        fallbackName: entry.name,
+      ).toUpperCase();
     default:
-      return _compactMetricLabel(entry.name);
+      return localizedParamLabel(
+        l10n: l10n,
+        paramKey: semanticId,
+        fallbackName: entry.name,
+      ).toUpperCase();
   }
 }
 
@@ -1065,61 +1083,6 @@ String? _semanticIdForEntry(BrewParamEntry entry) {
     return 'pour';
   }
   return null;
-}
-
-String _compactMetricLabel(String raw) {
-  final cleaned = raw.trim().replaceAll(RegExp(r'\s+'), ' ');
-  if (cleaned.isEmpty) {
-    return '--';
-  }
-
-  final upper = cleaned.toUpperCase();
-  if (upper.length <= 12 && !RegExp(r'[/&_+-]').hasMatch(cleaned)) {
-    return upper;
-  }
-
-  if (cleaned.contains('/')) {
-    return cleaned
-        .split('/')
-        .map(_compactMetricChunk)
-        .where((part) => part.isNotEmpty)
-        .join('/');
-  }
-
-  if (cleaned.contains('&')) {
-    return cleaned
-        .split('&')
-        .map(_compactMetricChunk)
-        .where((part) => part.isNotEmpty)
-        .join('&');
-  }
-
-  return _compactMetricChunk(cleaned);
-}
-
-String _compactMetricChunk(String raw) {
-  final tokens = raw
-      .split(RegExp(r'[\s+_-]+'))
-      .map((token) => token.trim())
-      .where((token) => token.isNotEmpty)
-      .toList();
-
-  if (tokens.isEmpty) {
-    return '';
-  }
-  if (tokens.length == 1) {
-    return _compactMetricWord(tokens.first);
-  }
-
-  return tokens.map(_compactMetricWord).join(' ');
-}
-
-String _compactMetricWord(String raw) {
-  final upper = raw.toUpperCase();
-  if (upper.length <= 5 || RegExp(r'\d').hasMatch(upper)) {
-    return upper;
-  }
-  return upper.substring(0, 4);
 }
 
 List<String> _scoreSummaries(BrewDetail detail) {
