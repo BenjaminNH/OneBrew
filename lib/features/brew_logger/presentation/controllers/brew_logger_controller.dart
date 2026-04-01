@@ -547,7 +547,7 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       resolvedGrindClickValue = null;
     }
 
-    state = state.copyWith(
+    final templateState = state.copyWith(
       beanName: template.beanName,
       beanId: template.beanId,
       equipmentId: template.equipmentId,
@@ -597,7 +597,11 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       originalBrewDate: null,
       originalCreatedAt: null,
     );
-    await loadParamValuesForRecord(template.id);
+    state = await _sanitizeStateForMethod(
+      templateState,
+      method: template.brewMethod,
+    );
+    await loadParamValuesForRecord(template.id, method: template.brewMethod);
   }
 
   /// Loads a historical brew by id and applies it as a template.
@@ -613,15 +617,24 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     return true;
   }
 
-  Future<void> loadParamValuesForRecord(int recordId) async {
+  Future<void> loadParamValuesForRecord(
+    int recordId, {
+    BrewMethod? method,
+  }) async {
     try {
       final values = await _paramRepository.getParamValuesForBrew(recordId);
       if (values.isEmpty) {
         state = state.copyWith(paramValues: const {});
         return;
       }
+      final visibility = await _loadParamVisibilitySnapshot(
+        method ?? state.brewMethod,
+      );
       final updated = <int, BrewParamValueDraft>{};
       for (final value in values) {
+        if (!visibility.visibleParamIds.contains(value.paramId)) {
+          continue;
+        }
         final def = await _paramRepository.getParamDefinitionById(
           value.paramId,
         );
@@ -646,7 +659,11 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
       state = state.copyWith(errorMessage: 'Please enter a bean name.');
       return null;
     }
-    state = state.copyWith(isSaving: true, errorMessage: null);
+    final sanitizedState = await _sanitizeStateForMethod(
+      state,
+      method: state.brewMethod,
+    );
+    state = sanitizedState.copyWith(isSaving: true, errorMessage: null);
     try {
       final now = DateTime.now();
       final resolvedBeanId = await _resolveBeanIdForPersist();
@@ -703,7 +720,11 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     required DateTime originalBrewDate,
     required DateTime originalCreatedAt,
   }) async {
-    state = state.copyWith(isSaving: true, errorMessage: null);
+    final sanitizedState = await _sanitizeStateForMethod(
+      state,
+      method: state.brewMethod,
+    );
+    state = sanitizedState.copyWith(isSaving: true, errorMessage: null);
     try {
       final now = DateTime.now();
       final resolvedBeanId = await _resolveBeanIdForPersist();
@@ -1012,6 +1033,88 @@ class BrewLoggerController extends Notifier<BrewLoggerState> {
     final bounded = snapped.clamp(min, max).toDouble();
     return double.parse(bounded.toStringAsFixed(4));
   }
+
+  Future<_ParamVisibilitySnapshot> _loadParamVisibilitySnapshot(
+    BrewMethod method,
+  ) async {
+    final definitions = await _paramRepository.getParamDefinitions(method);
+    final visibilities = await _paramRepository.getParamVisibilities(method);
+    final visibilityByParamId = {
+      for (final visibility in visibilities) visibility.paramId: visibility,
+    };
+    final visibleParamIds = <int>{};
+    final visibleParamKeys = <String>{};
+    for (final definition in definitions) {
+      final isVisible = visibilityByParamId[definition.id]?.isVisible ?? true;
+      if (!isVisible) {
+        continue;
+      }
+      visibleParamIds.add(definition.id);
+      final resolvedKey = definition.resolvedParamKey;
+      if (resolvedKey != null) {
+        visibleParamKeys.add(resolvedKey);
+      }
+    }
+    return _ParamVisibilitySnapshot(
+      visibleParamIds: visibleParamIds,
+      visibleParamKeys: visibleParamKeys,
+    );
+  }
+
+  Future<BrewLoggerState> _sanitizeStateForMethod(
+    BrewLoggerState source, {
+    required BrewMethod method,
+  }) async {
+    final visibility = await _loadParamVisibilitySnapshot(method);
+    final showWaterTemp = visibility.visibleParamKeys.contains(
+      BrewParamKeys.waterTemp,
+    );
+    final showBloomTime = visibility.visibleParamKeys.contains(
+      BrewParamKeys.bloomTime,
+    );
+    final showGrindSize = visibility.visibleParamKeys.contains(
+      BrewParamKeys.grindSize,
+    );
+    final showPourMethod = visibility.visibleParamKeys.contains(
+      BrewParamKeys.pourMethod,
+    );
+    final filteredParamValues = <int, BrewParamValueDraft>{
+      for (final entry in source.paramValues.entries)
+        if (visibility.visibleParamIds.contains(entry.key))
+          entry.key: entry.value,
+    };
+
+    return source.copyWith(
+      equipmentId: showGrindSize ? source.equipmentId : null,
+      selectedEquipmentName: showGrindSize
+          ? source.selectedEquipmentName
+          : null,
+      grindMode: showGrindSize ? source.grindMode : GrindMode.simple,
+      grindClickValue: showGrindSize ? source.grindClickValue : null,
+      grindSimpleLabel: showGrindSize ? source.grindSimpleLabel : null,
+      grindMicrons: showGrindSize ? source.grindMicrons : null,
+      grindMinClick: showGrindSize ? source.grindMinClick : null,
+      grindMaxClick: showGrindSize ? source.grindMaxClick : null,
+      grindClickStep: showGrindSize ? source.grindClickStep : null,
+      grindClickUnit: showGrindSize ? source.grindClickUnit : null,
+      waterTempC: showWaterTemp ? source.waterTempC : null,
+      bloomTimeS: showBloomTime ? source.bloomTimeS : null,
+      pourMethod: showPourMethod ? source.pourMethod : null,
+      waterType: null,
+      roomTempC: null,
+      paramValues: filteredParamValues,
+    );
+  }
+}
+
+class _ParamVisibilitySnapshot {
+  const _ParamVisibilitySnapshot({
+    required this.visibleParamIds,
+    required this.visibleParamKeys,
+  });
+
+  final Set<int> visibleParamIds;
+  final Set<String> visibleParamKeys;
 }
 
 /// Riverpod provider for [BrewLoggerController].

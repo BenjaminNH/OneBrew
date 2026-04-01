@@ -11,6 +11,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 // mockito used transitively via mock_repositories.mocks.dart
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_key.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_value.dart';
+import 'package:one_brew/features/brew_logger/domain/entities/brew_param_visibility.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logger_controller.dart';
 import 'package:one_brew/features/inventory/domain/entities/bean.dart';
@@ -399,7 +403,98 @@ void main() {
             useCount: 5,
           );
           final inventoryRepo = _FakeInventoryRepo(equipments: [equipment]);
-          final container = _makeContainer(inventoryRepo: inventoryRepo);
+          final brewParamRepo = FakeBrewParamRepository(
+            definitions: {
+              BrewMethod.pourOver: const [
+                BrewParamDefinition(
+                  id: 1,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.waterTemp,
+                  name: 'Water Temp',
+                  type: ParamType.number,
+                  unit: '°C',
+                  isSystem: true,
+                  sortOrder: 1,
+                ),
+                BrewParamDefinition(
+                  id: 2,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.bloomTime,
+                  name: 'Bloom Time',
+                  type: ParamType.number,
+                  unit: 's',
+                  isSystem: true,
+                  sortOrder: 2,
+                ),
+                BrewParamDefinition(
+                  id: 3,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.pourMethod,
+                  name: 'Pour Method',
+                  type: ParamType.text,
+                  isSystem: true,
+                  sortOrder: 3,
+                ),
+                BrewParamDefinition(
+                  id: 4,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.grindSize,
+                  name: 'Grind Size',
+                  type: ParamType.text,
+                  isSystem: true,
+                  sortOrder: 4,
+                ),
+                BrewParamDefinition(
+                  id: 5,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.waterWeight,
+                  name: 'Water Weight',
+                  type: ParamType.number,
+                  unit: 'g',
+                  isSystem: true,
+                  sortOrder: 5,
+                ),
+              ],
+            },
+            visibilities: {
+              BrewMethod.pourOver: const [
+                BrewParamVisibility(
+                  id: 11,
+                  method: BrewMethod.pourOver,
+                  paramId: 1,
+                  isVisible: true,
+                ),
+                BrewParamVisibility(
+                  id: 12,
+                  method: BrewMethod.pourOver,
+                  paramId: 2,
+                  isVisible: true,
+                ),
+                BrewParamVisibility(
+                  id: 13,
+                  method: BrewMethod.pourOver,
+                  paramId: 3,
+                  isVisible: true,
+                ),
+                BrewParamVisibility(
+                  id: 14,
+                  method: BrewMethod.pourOver,
+                  paramId: 4,
+                  isVisible: true,
+                ),
+                BrewParamVisibility(
+                  id: 15,
+                  method: BrewMethod.pourOver,
+                  paramId: 5,
+                  isVisible: true,
+                ),
+              ],
+            },
+          );
+          final container = _makeContainer(
+            inventoryRepo: inventoryRepo,
+            brewParamRepo: brewParamRepo,
+          );
           addTearDown(container.dispose);
 
           final template = BrewRecord(
@@ -445,8 +540,8 @@ void main() {
           expect(state.brewDurationS, equals(template.brewDurationS));
           expect(state.bloomTimeS, equals(template.bloomTimeS));
           expect(state.pourMethod, equals(template.pourMethod));
-          expect(state.waterType, equals(template.waterType));
-          expect(state.roomTempC, equals(template.roomTempC));
+          expect(state.waterType, isNull);
+          expect(state.roomTempC, isNull);
           expect(state.notes, equals(template.notes));
         },
       );
@@ -496,6 +591,269 @@ void main() {
           expect(state.grindMode, equals(GrindMode.simple));
           expect(state.grindClickValue, isNull);
           expect(state.hasValidGrindClickConfig, isFalse);
+        },
+      );
+    });
+
+    group('visibility sanitization', () {
+      test(
+        'applyTemplate clears hidden system-bound values and hidden custom drafts',
+        () async {
+          final brewParamRepo = FakeBrewParamRepository(
+            definitions: {
+              BrewMethod.pourOver: [
+                const BrewParamDefinition(
+                  id: 1,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.waterTemp,
+                  name: 'Water Temp',
+                  type: ParamType.number,
+                  unit: '°C',
+                  isSystem: true,
+                  sortOrder: 1,
+                ),
+                const BrewParamDefinition(
+                  id: 2,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.bloomTime,
+                  name: 'Bloom Time',
+                  type: ParamType.number,
+                  unit: 's',
+                  isSystem: true,
+                  sortOrder: 2,
+                ),
+                const BrewParamDefinition(
+                  id: 3,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.pourMethod,
+                  name: 'Pour Method',
+                  type: ParamType.text,
+                  isSystem: true,
+                  sortOrder: 3,
+                ),
+                const BrewParamDefinition(
+                  id: 4,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.grindSize,
+                  name: 'Grind Size',
+                  type: ParamType.text,
+                  isSystem: true,
+                  sortOrder: 4,
+                ),
+                const BrewParamDefinition(
+                  id: 5,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.waterWeight,
+                  name: 'Water Weight',
+                  type: ParamType.number,
+                  unit: 'g',
+                  isSystem: true,
+                  sortOrder: 5,
+                ),
+                BrewParamDefinition(
+                  id: 501,
+                  method: BrewMethod.pourOver,
+                  paramKey: customParamKeyForId(501),
+                  name: 'Agitation',
+                  type: ParamType.text,
+                  isSystem: false,
+                  sortOrder: 6,
+                ),
+              ],
+            },
+            visibilities: {
+              BrewMethod.pourOver: const [
+                BrewParamVisibility(
+                  id: 11,
+                  method: BrewMethod.pourOver,
+                  paramId: 1,
+                  isVisible: false,
+                ),
+                BrewParamVisibility(
+                  id: 12,
+                  method: BrewMethod.pourOver,
+                  paramId: 2,
+                  isVisible: false,
+                ),
+                BrewParamVisibility(
+                  id: 13,
+                  method: BrewMethod.pourOver,
+                  paramId: 3,
+                  isVisible: false,
+                ),
+                BrewParamVisibility(
+                  id: 14,
+                  method: BrewMethod.pourOver,
+                  paramId: 4,
+                  isVisible: false,
+                ),
+                BrewParamVisibility(
+                  id: 15,
+                  method: BrewMethod.pourOver,
+                  paramId: 5,
+                  isVisible: true,
+                ),
+                BrewParamVisibility(
+                  id: 16,
+                  method: BrewMethod.pourOver,
+                  paramId: 501,
+                  isVisible: false,
+                ),
+              ],
+            },
+            valuesByBrew: {
+              77: const [
+                BrewParamValue(
+                  id: 1,
+                  brewRecordId: 77,
+                  paramId: 501,
+                  valueText: 'Swirl',
+                ),
+              ],
+            },
+          );
+          final equipment = Equipment(
+            id: 88,
+            name: 'Comandante C40',
+            isGrinder: true,
+            grindMinClick: 10,
+            grindMaxClick: 30,
+            grindClickStep: 0.5,
+            addedAt: DateTime(2024),
+            useCount: 0,
+          );
+          final inventoryRepo = _FakeInventoryRepo(equipments: [equipment]);
+          final container = _makeContainer(
+            inventoryRepo: inventoryRepo,
+            brewParamRepo: brewParamRepo,
+          );
+          addTearDown(container.dispose);
+
+          final template = BrewRecord(
+            id: 77,
+            brewDate: DateTime(2026, 3, 7, 8, 30),
+            beanName: 'Ethiopia Guji',
+            equipmentId: 88,
+            brewMethod: BrewMethod.pourOver,
+            grindMode: GrindMode.equipment,
+            grindClickValue: 24.0,
+            grindSimpleLabel: null,
+            grindMicrons: null,
+            coffeeWeightG: 18.0,
+            waterWeightG: 288.0,
+            waterTempC: 92.0,
+            brewDurationS: 195,
+            bloomTimeS: 30,
+            pourMethod: 'Pulse',
+            waterType: 'Filtered',
+            roomTempC: 24.0,
+            notes: 'Sweet finish',
+            createdAt: DateTime(2026, 3, 7, 8, 31),
+            updatedAt: DateTime(2026, 3, 7, 8, 31),
+          );
+
+          await container
+              .read(brewLoggerControllerProvider.notifier)
+              .applyTemplate(template);
+
+          final state = container.read(brewLoggerControllerProvider);
+          expect(state.waterTempC, isNull);
+          expect(state.bloomTimeS, isNull);
+          expect(state.pourMethod, isNull);
+          expect(state.equipmentId, isNull);
+          expect(state.selectedEquipmentName, isNull);
+          expect(state.grindClickValue, isNull);
+          expect(state.paramValues, isEmpty);
+          expect(state.waterType, isNull);
+          expect(state.roomTempC, isNull);
+        },
+      );
+
+      test(
+        'saveNewRecord strips hidden direct fields before persistence',
+        () async {
+          final fakeBrewRepo = _FakeBrewRepo();
+          final brewParamRepo = FakeBrewParamRepository(
+            definitions: {
+              BrewMethod.pourOver: const [
+                BrewParamDefinition(
+                  id: 1,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.waterTemp,
+                  name: 'Water Temp',
+                  type: ParamType.number,
+                  unit: '°C',
+                  isSystem: true,
+                  sortOrder: 1,
+                ),
+                BrewParamDefinition(
+                  id: 2,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.bloomTime,
+                  name: 'Bloom Time',
+                  type: ParamType.number,
+                  unit: 's',
+                  isSystem: true,
+                  sortOrder: 2,
+                ),
+                BrewParamDefinition(
+                  id: 3,
+                  method: BrewMethod.pourOver,
+                  paramKey: BrewParamKeys.pourMethod,
+                  name: 'Pour Method',
+                  type: ParamType.text,
+                  isSystem: true,
+                  sortOrder: 3,
+                ),
+              ],
+            },
+            visibilities: {
+              BrewMethod.pourOver: const [
+                BrewParamVisibility(
+                  id: 11,
+                  method: BrewMethod.pourOver,
+                  paramId: 1,
+                  isVisible: false,
+                ),
+                BrewParamVisibility(
+                  id: 12,
+                  method: BrewMethod.pourOver,
+                  paramId: 2,
+                  isVisible: false,
+                ),
+                BrewParamVisibility(
+                  id: 13,
+                  method: BrewMethod.pourOver,
+                  paramId: 3,
+                  isVisible: false,
+                ),
+              ],
+            },
+          );
+          final container = _makeContainer(
+            brewRepo: fakeBrewRepo,
+            brewParamRepo: brewParamRepo,
+          );
+          addTearDown(container.dispose);
+
+          final controller = container.read(
+            brewLoggerControllerProvider.notifier,
+          );
+          controller.setBeanName('Ethiopia Guji');
+          controller.setWaterTemp(92.0);
+          controller.setBloomTime(30);
+          controller.setPourMethod('Pulse');
+          controller.setWaterType('Filtered');
+          controller.setRoomTemp(24.0);
+
+          await controller.saveNewRecord(elapsedSeconds: 195);
+
+          final saved = fakeBrewRepo.lastCreatedRecord!;
+          expect(saved.waterTempC, isNull);
+          expect(saved.bloomTimeS, isNull);
+          expect(saved.pourMethod, isNull);
+          expect(saved.waterType, isNull);
+          expect(saved.roomTempC, isNull);
         },
       );
     });

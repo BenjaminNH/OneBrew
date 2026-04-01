@@ -1005,6 +1005,15 @@ String _displayMetricLabel(
   BrewParamEntry entry, {
   required AppLocalizations l10n,
 }) {
+  final normalizedName = entry.name
+      .trim()
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '_')
+      .replaceAll(RegExp(r'^_+|_+$'), '');
+  if (normalizedName == 'distribution_tamping') {
+    return 'DIST/TAMP';
+  }
+
   final semanticId = resolveParamKey(
     paramKey: entry.paramKey,
     name: entry.name,
@@ -1032,8 +1041,14 @@ String _displayMetricLabel(
       return 'POUR';
     case BrewParamKeys.filter:
     case BrewParamKeys.dripper:
+      return localizedParamLabel(
+        l10n: l10n,
+        paramKey: semanticId,
+        fallbackName: entry.name,
+      ).toUpperCase();
     case BrewParamKeys.distribution:
     case BrewParamKeys.tamping:
+      return 'DIST/TAMP';
     case BrewParamKeys.agitation:
       return localizedParamLabel(
         l10n: l10n,
