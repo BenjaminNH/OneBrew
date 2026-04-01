@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:one_brew/core/localization/app_locale.dart';
 import 'package:one_brew/core/widgets/app_slider.dart';
+import 'package:one_brew/core/widgets/app_top_toast.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_method_config.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
@@ -33,6 +34,9 @@ void main() {
     late FakeBrewParamRepository fakeBrewParamRepo;
 
     setUp(() {
+      addTearDown(AppTopToast.dismiss);
+      addTearDown(AppBottomActionPrompt.dismiss);
+
       mockBrewRepo = MockBrewRepository();
       when(mockBrewRepo.createBrewRecord(any)).thenAnswer((_) async => 1);
       when(
@@ -231,6 +235,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Rate this brew'), findsNothing);
+      expect(find.byKey(const Key('app-top-toast')), findsNothing);
+      expect(find.byKey(const Key('app-bottom-action-prompt')), findsOneWidget);
       expect(
         find.text('Brew saved. You can rate now or later in History detail.'),
         findsOneWidget,
@@ -245,6 +251,7 @@ void main() {
 
       await tester.tap(find.text('Skip for now'));
       await tester.pumpAndSettle();
+      AppBottomActionPrompt.dismiss();
     });
 
     testWidgets('saving invalidates history so it reloads with fresh records', (
@@ -326,6 +333,7 @@ void main() {
         container.read(historyControllerProvider).visibleBrews.single.beanName,
         'After Save',
       );
+      AppBottomActionPrompt.dismiss();
     });
 
     testWidgets('saving rating after brew save refreshes history again', (
@@ -440,9 +448,10 @@ void main() {
             .quickScore,
         3,
       );
+      AppBottomActionPrompt.dismiss();
     });
 
-    testWidgets('saving rating clears focus and does not show keyboard', (
+    testWidgets('interacting with form dismisses save prompt without blocking input', (
       WidgetTester tester,
     ) async {
       tester.view.physicalSize = const Size(1080, 3000);
@@ -479,19 +488,9 @@ void main() {
       await tester.tap(grindSizeField);
       await tester.pumpAndSettle();
       expect(tester.testTextInput.isVisible, isTrue);
-
-      await tester.ensureVisible(find.text('Rate now'));
-      await tester.tap(find.text('Rate now'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Rate this brew'), findsOneWidget);
-      expect(tester.testTextInput.isVisible, isFalse);
-
-      await tester.tap(find.text('Save rating'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Rating saved!'), findsOneWidget);
-      expect(tester.testTextInput.isVisible, isFalse);
+      expect(find.byKey(const Key('app-top-toast')), findsNothing);
+      expect(find.byKey(const Key('app-bottom-action-prompt')), findsNothing);
+      AppBottomActionPrompt.dismiss();
     });
 
     testWidgets('Equipment grind slider uses dynamic equipment config', (
@@ -584,6 +583,7 @@ void main() {
       expect(state.coffeeWeightG, 17.0);
       expect(state.waterWeightG, 272.0);
       expect(find.text('Template loaded from history'), findsOneWidget);
+      AppTopToast.dismiss();
     });
 
     testWidgets('quick params respect hidden visibility in custom method', (

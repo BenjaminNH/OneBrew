@@ -5,11 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:one_brew/core/database/drift_database.dart';
 import 'package:one_brew/core/utils/date_utils.dart';
+import 'package:one_brew/core/widgets/app_top_toast.dart';
 import 'package:one_brew/features/inventory/presentation/pages/inventory_manage_page.dart';
 import 'package:one_brew/l10n/app_localizations.dart';
 import 'package:one_brew/shared/providers/database_providers.dart';
 
 void main() {
+  setUp(() {
+    addTearDown(AppTopToast.dismiss);
+  });
+
   testWidgets('InventoryManagePage shows manage controls and tab switching', (
     WidgetTester tester,
   ) async {
@@ -129,6 +134,74 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Add Grinder'), findsOneWidget);
+  });
+
+  testWidgets('creating a bean shows top success toast', (
+    WidgetTester tester,
+  ) async {
+    final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('en'),
+          home: InventoryManagePage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('manage-add-fab')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('bean-form-name')),
+      'Toast Bean',
+    );
+    await tester.tap(find.text('Create'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('app-top-toast')), findsOneWidget);
+    AppTopToast.dismiss();
+  });
+
+  testWidgets('creating a grinder shows top success toast', (
+    WidgetTester tester,
+  ) async {
+    final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('en'),
+          home: InventoryManagePage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Grinders'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('manage-add-fab')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('grinder-form-name')),
+      'Toast Grinder',
+    );
+    await tester.tap(find.text('Create'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('app-top-toast')), findsOneWidget);
+    AppTopToast.dismiss();
   });
 
   testWidgets('About button opens sheet with author and version info', (

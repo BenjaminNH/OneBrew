@@ -5,6 +5,7 @@ import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:mockito/mockito.dart';
 import 'package:one_brew/core/database/drift_database.dart';
+import 'package:one_brew/core/widgets/app_top_toast.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/history/domain/entities/brew_summary.dart';
 import 'package:one_brew/features/history/data/datasources/history_local_datasource.dart';
@@ -57,6 +58,8 @@ void main() {
   ];
 
   setUp(() {
+    addTearDown(AppTopToast.dismiss);
+
     mockHistoryRepo = MockHistoryRepository();
     mockBrewRepo = MockBrewRepository();
     mockRatingRepo = MockRatingRepository();
@@ -422,6 +425,8 @@ void main() {
           ),
           findsOneWidget,
         );
+        expect(find.byKey(const Key('app-top-toast')), findsOneWidget);
+        AppTopToast.dismiss();
       },
     );
 
@@ -516,6 +521,7 @@ void main() {
         ),
         findsOneWidget,
       );
+      AppTopToast.dismiss();
     });
 
     testWidgets('editing existing rating refreshes stats after returning', (
@@ -614,6 +620,7 @@ void main() {
       );
       verify(mockRatingRepo.updateRating(any)).called(1);
       verifyNever(mockRatingRepo.createRating(any));
+      AppTopToast.dismiss();
     });
   });
 }

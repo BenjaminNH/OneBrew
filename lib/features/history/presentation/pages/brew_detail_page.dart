@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/extensions.dart';
 import '../../../../core/router/app_route_paths.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -118,13 +119,7 @@ class BrewDetailPage extends ConsumerWidget {
       return;
     }
     final l10n = context.l10n;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.brewDetailRatingUpdated),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    context.showTopSuccessToast(l10n.brewDetailRatingUpdated);
   }
 
   Future<void> _handleDelete(
@@ -181,17 +176,8 @@ class BrewDetailPage extends ConsumerWidget {
       return;
     }
 
-    final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(l10n.brewDetailDeleted),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    context.showTopSuccessToast(l10n.brewDetailDeleted);
 
     if (context.canPop()) {
       context.pop();

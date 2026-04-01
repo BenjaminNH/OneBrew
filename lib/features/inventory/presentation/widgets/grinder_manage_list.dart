@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../core/utils/extensions.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../l10n/l10n.dart';
 import '../../domain/entities/equipment.dart';
@@ -112,15 +113,10 @@ class _GrinderManageListState extends ConsumerState<GrinderManageList> {
 
       await _reload();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            initial == null
-                ? l10n.inventoryGrinderCreated
-                : l10n.inventoryGrinderUpdated,
-          ),
-          backgroundColor: AppColors.success,
-        ),
+      context.showTopSuccessToast(
+        initial == null
+            ? l10n.inventoryGrinderCreated
+            : l10n.inventoryGrinderUpdated,
       );
     } on InventoryException catch (error) {
       if (!mounted) return;

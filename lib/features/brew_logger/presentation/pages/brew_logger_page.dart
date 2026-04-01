@@ -5,6 +5,7 @@ import 'package:one_brew/l10n/l10n.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/timer_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../shared/helpers/brew_param_defaults.dart';
@@ -222,12 +223,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
 
     ref.read(brewTimerControllerProvider.notifier).reset();
     setState(() => _currentElapsed = 0);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.l10n.brewTemplateLoadedFromHistory),
-        backgroundColor: AppColors.success,
-      ),
-    );
+    context.showTopSuccessToast(context.l10n.brewTemplateLoadedFromHistory);
   }
 
   Future<void> _onTemplateSelected(
@@ -251,12 +247,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     ref.read(brewTimerControllerProvider.notifier).reset();
     setState(() => _currentElapsed = 0);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(context.l10n.brewTemplateApplied(selected.beanName)),
-        backgroundColor: AppColors.success,
-      ),
-    );
+    context.showTopSuccessToast(context.l10n.brewTemplateApplied(selected.beanName));
   }
 
   List<BrewTemplateOption> _toTemplateOptions(List<BrewRecord> records) {
@@ -290,32 +281,24 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _showSaveSuccessSnackBar(savedId);
+      _showSaveSuccessPrompt(savedId);
     });
   }
 
-  void _showSaveSuccessSnackBar(int savedId) {
+  void _showSaveSuccessPrompt(int savedId) {
     final rootNavigator = Navigator.of(context, rootNavigator: true);
     final l10n = context.l10n;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.brewSaveSuccessMessage),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 4),
-        persist: false,
-        action: SnackBarAction(
-          label: l10n.brewSaveSuccessRateNow,
-          textColor: Colors.white,
-          onPressed: () {
-            _openOptionalRatingSheet(
-              rootContext: rootNavigator.context,
-              brewRecordId: savedId,
-            );
-          },
-        ),
-      ),
+    context.showBottomActionPrompt(
+      l10n.brewSaveSuccessMessage,
+      duration: const Duration(seconds: 4),
+      actionLabel: l10n.brewSaveSuccessRateNow,
+      onAction: () {
+        _openOptionalRatingSheet(
+          rootContext: rootNavigator.context,
+          brewRecordId: savedId,
+        );
+      },
     );
   }
 
@@ -323,24 +306,17 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
     required BuildContext rootContext,
     required int brewRecordId,
   }) async {
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.maybeOf(rootContext);
     final didSaveRating = await _openRatingSheet(
       rootContext: rootContext,
       brewRecordId: brewRecordId,
     );
-    if (didSaveRating != true || messenger == null) {
+    if (!mounted || !rootContext.mounted || didSaveRating != true) {
       return;
     }
 
+    final l10n = context.l10n;
     ref.read(brewViewRefresherProvider).refreshHistory();
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.brewRatingSaved),
-        backgroundColor: AppColors.success,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    rootContext.showTopSuccessToast(l10n.brewRatingSaved);
   }
 
   Future<bool?> _openRatingSheet({

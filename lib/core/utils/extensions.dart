@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/app_top_toast.dart';
+
 /// OneBrew Dart Extension Methods
 /// Provides syntactic sugar and utility extensions across common types.
 /// Import this file to unlock convenient methods on String, num, DateTime, etc.
@@ -169,6 +171,46 @@ extension BuildContextX on BuildContext {
         content: Text(message),
         backgroundColor: isError ? colorScheme.error : null,
       ),
+    );
+  }
+
+  /// Show a non-blocking top success toast.
+  void showTopSuccessToast(
+    String message, {
+    Duration? duration,
+  }) {
+    AppTopToast.showSuccess(this, message, duration: duration);
+  }
+
+  /// Show a non-blocking top info toast.
+  void showTopInfoToast(
+    String message, {
+    Duration? duration,
+  }) {
+    AppTopToast.showInfo(
+      this,
+      message,
+      duration: duration,
+    );
+  }
+
+  /// Show a bottom floating prompt for feedback that includes a follow-up action.
+  void showBottomActionPrompt(
+    String message, {
+    required String actionLabel,
+    required VoidCallback onAction,
+    Duration? duration,
+    double bottomOffset = 0,
+  }) {
+    AppBottomActionPrompt.show(
+      this,
+      message: message,
+      action: AppBottomActionPromptAction(
+        label: actionLabel,
+        onPressed: onAction,
+      ),
+      duration: duration,
+      bottomOffset: bottomOffset,
     );
   }
 }
