@@ -13,6 +13,9 @@ import 'package:one_brew/features/brew_logger/presentation/controllers/brew_logg
 import 'package:one_brew/features/brew_logger/presentation/pages/brew_logger_page.dart';
 import 'package:one_brew/features/brew_logger/presentation/widgets/brew_timer_widget.dart';
 import 'package:one_brew/features/brew_logger/presentation/widgets/param_input_section.dart';
+import 'package:one_brew/features/history/domain/entities/brew_summary.dart';
+import 'package:one_brew/features/history/history_providers.dart';
+import 'package:one_brew/features/history/presentation/controllers/history_controller.dart';
 import 'package:one_brew/features/inventory/domain/entities/equipment.dart';
 import 'package:one_brew/features/inventory/inventory_providers.dart';
 import 'package:one_brew/features/rating/rating_providers.dart';
@@ -25,6 +28,7 @@ void main() {
   group('BrewLoggerPage Widget Tests', () {
     late MockBrewRepository mockBrewRepo;
     late MockInventoryRepository mockInventoryRepo;
+    late MockHistoryRepository mockHistoryRepo;
     late MockRatingRepository mockRatingRepo;
     late FakeBrewParamRepository fakeBrewParamRepo;
 
@@ -42,6 +46,15 @@ void main() {
       when(mockInventoryRepo.getAllBeans()).thenAnswer((_) async => []);
       when(mockInventoryRepo.getAllEquipments()).thenAnswer((_) async => []);
 
+      mockHistoryRepo = MockHistoryRepository();
+      when(mockHistoryRepo.getAllBrewSummaries()).thenAnswer((_) async => []);
+      when(
+        mockHistoryRepo.getTopBrews(limit: anyNamed('limit')),
+      ).thenAnswer((_) async => []);
+      when(
+        mockHistoryRepo.filterBrewSummaries(any),
+      ).thenAnswer((_) async => []);
+
       mockRatingRepo = MockRatingRepository();
       when(mockRatingRepo.getRatingForBrew(any)).thenAnswer((_) async => null);
       when(mockRatingRepo.createRating(any)).thenAnswer((_) async => 1);
@@ -55,6 +68,7 @@ void main() {
         overrides: [
           brewRepositoryProvider.overrideWithValue(mockBrewRepo),
           inventoryRepositoryProvider.overrideWithValue(mockInventoryRepo),
+          historyRepositoryProvider.overrideWithValue(mockHistoryRepo),
           ratingRepositoryProvider.overrideWithValue(mockRatingRepo),
           brewParamRepositoryProvider.overrideWithValue(fakeBrewParamRepo),
           brewParamBootstrapProvider.overrideWith((ref) async => false),
@@ -231,6 +245,201 @@ void main() {
 
       await tester.tap(find.text('Skip for now'));
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('saving invalidates history so it reloads with fresh records', (
+      WidgetTester tester,
+    ) async {
+      final initialHistory = [
+        BrewSummary(
+          id: 1,
+          brewDate: DateTime(2026, 3, 1, 9, 0),
+          beanName: 'Before Save',
+          roaster: null,
+          brewDurationS: 180,
+          coffeeWeightG: 15,
+          waterWeightG: 225,
+        ),
+      ];
+      final refreshedHistory = [
+        BrewSummary(
+          id: 2,
+          brewDate: DateTime(2026, 3, 2, 9, 0),
+          beanName: 'After Save',
+          roaster: null,
+          brewDurationS: 195,
+          coffeeWeightG: 16,
+          waterWeightG: 240,
+        ),
+      ];
+      var loadCount = 0;
+      when(mockHistoryRepo.getAllBrewSummaries()).thenAnswer((_) async {
+        loadCount += 1;
+        return loadCount == 1 ? initialHistory : refreshedHistory;
+      });
+      when(
+        mockHistoryRepo.getTopBrews(limit: anyNamed('limit')),
+      ).thenAnswer((_) async => const []);
+      when(
+        mockHistoryRepo.filterBrewSummaries(any),
+      ).thenAnswer((_) async => refreshedHistory);
+
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BrewLoggerPage)),
+      );
+      final historySubscription = container.listen<HistoryState>(
+        historyControllerProvider,
+        (_, _) {},
+        fireImmediately: true,
+      );
+      addTearDown(historySubscription.close);
+
+      await tester.pumpAndSettle();
+      expect(
+        container.read(historyControllerProvider).visibleBrews.single.beanName,
+        'Before Save',
+      );
+
+      container
+          .read(brewLoggerControllerProvider.notifier)
+          .setBeanName('Test Bean');
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.coffee_rounded));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Save Brew'));
+      await tester.pumpAndSettle();
+
+      expect(loadCount, greaterThanOrEqualTo(2));
+      expect(
+        container.read(historyControllerProvider).visibleBrews.single.beanName,
+        'After Save',
+      );
+    });
+
+    testWidgets('saving rating after brew save refreshes history again', (
+      WidgetTester tester,
+    ) async {
+      final initialHistory = [
+        BrewSummary(
+          id: 1,
+          brewDate: DateTime(2026, 3, 1, 9, 0),
+          beanName: 'Initial',
+          roaster: null,
+          brewDurationS: 180,
+          coffeeWeightG: 15,
+          waterWeightG: 225,
+        ),
+      ];
+      final unratedHistory = [
+        BrewSummary(
+          id: 2,
+          brewDate: DateTime(2026, 3, 2, 9, 0),
+          beanName: 'Fresh Brew',
+          roaster: null,
+          brewDurationS: 195,
+          coffeeWeightG: 16,
+          waterWeightG: 240,
+        ),
+      ];
+      final ratedHistory = [
+        BrewSummary(
+          id: 2,
+          brewDate: DateTime(2026, 3, 2, 9, 0),
+          beanName: 'Fresh Brew',
+          roaster: null,
+          brewDurationS: 195,
+          coffeeWeightG: 16,
+          waterWeightG: 240,
+          quickScore: 3,
+          emoji: '🙂',
+        ),
+      ];
+      var loadCount = 0;
+      when(mockHistoryRepo.getAllBrewSummaries()).thenAnswer((_) async {
+        loadCount += 1;
+        if (loadCount == 1) return initialHistory;
+        if (loadCount == 2) return unratedHistory;
+        return ratedHistory;
+      });
+      when(mockHistoryRepo.getTopBrews(limit: anyNamed('limit'))).thenAnswer((
+        _,
+      ) async {
+        if (loadCount >= 3) {
+          return ratedHistory;
+        }
+        return const [];
+      });
+      when(
+        mockHistoryRepo.filterBrewSummaries(any),
+      ).thenAnswer((_) async => ratedHistory);
+
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BrewLoggerPage)),
+      );
+      final historySubscription = container.listen<HistoryState>(
+        historyControllerProvider,
+        (_, _) {},
+        fireImmediately: true,
+      );
+      addTearDown(historySubscription.close);
+
+      await tester.pumpAndSettle();
+
+      container
+          .read(brewLoggerControllerProvider.notifier)
+          .setBeanName('Test Bean');
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.coffee_rounded));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Save Brew'));
+      await tester.pumpAndSettle();
+      expect(
+        container
+            .read(historyControllerProvider)
+            .visibleBrews
+            .single
+            .quickScore,
+        isNull,
+      );
+
+      await tester.tap(find.text('Rate now'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save rating'));
+      await tester.pumpAndSettle();
+
+      expect(loadCount, greaterThanOrEqualTo(3));
+      expect(
+        container
+            .read(historyControllerProvider)
+            .visibleBrews
+            .single
+            .quickScore,
+        3,
+      );
     });
 
     testWidgets('saving rating clears focus and does not show keyboard', (

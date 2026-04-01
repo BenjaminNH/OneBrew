@@ -8,6 +8,7 @@ import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/utils/timer_utils.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../shared/helpers/brew_param_defaults.dart';
+import '../../../history/presentation/controllers/brew_view_refresher.dart';
 import '../../../inventory/presentation/widgets/template_picker.dart';
 import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
 import '../../brew_logger_providers.dart';
@@ -282,6 +283,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
   void _onSaveSuccess(int savedId) {
     if (!mounted) return;
 
+    ref.read(brewViewRefresherProvider).refreshHistory();
     ref.read(brewTimerControllerProvider.notifier).reset();
     ref.read(brewLoggerControllerProvider.notifier).resetForm();
     setState(() => _currentElapsed = 0);
@@ -331,6 +333,7 @@ class _BrewLoggerPageState extends ConsumerState<BrewLoggerPage>
       return;
     }
 
+    ref.read(brewViewRefresherProvider).refreshHistory();
     messenger.showSnackBar(
       SnackBar(
         content: Text(l10n.brewRatingSaved),

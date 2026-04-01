@@ -15,8 +15,8 @@ import '../../../brew_logger/presentation/models/grind_simple_label_localizer.da
 import '../../../rating/presentation/constants/rating_presets.dart';
 import '../../../rating/presentation/widgets/brew_rating_sheet.dart';
 import '../../domain/entities/brew_detail.dart';
+import '../controllers/brew_view_refresher.dart';
 import '../controllers/brew_detail_controller.dart';
-import '../controllers/history_controller.dart';
 import '../widgets/share_preview_bottom_sheet.dart';
 
 class BrewDetailPage extends ConsumerWidget {
@@ -77,6 +77,7 @@ class BrewDetailPage extends ConsumerWidget {
                 _openRatingEditor(
                   context,
                   brewRecordId: detail.id,
+                  ref: ref,
                   controller: controller,
                 );
               },
@@ -98,6 +99,7 @@ class BrewDetailPage extends ConsumerWidget {
   Future<void> _openRatingEditor(
     BuildContext context, {
     required int brewRecordId,
+    required WidgetRef ref,
     required BrewDetailController controller,
   }) async {
     final didSave = await showModalBottomSheet<bool>(
@@ -111,6 +113,7 @@ class BrewDetailPage extends ConsumerWidget {
     }
 
     await controller.load();
+    ref.read(brewViewRefresherProvider).refreshHistory();
     if (!context.mounted) {
       return;
     }
@@ -173,7 +176,7 @@ class BrewDetailPage extends ConsumerWidget {
       return;
     }
 
-    await ref.read(historyControllerProvider.notifier).load();
+    ref.read(brewViewRefresherProvider).refreshHistory();
     if (!context.mounted) {
       return;
     }

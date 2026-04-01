@@ -1,7 +1,11 @@
+import 'package:drift/drift.dart' as drift;
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:one_brew/core/database/drift_database.dart'
+    show OneBrewDatabase, EquipmentsCompanion, BrewRecordsCompanion;
 import 'package:one_brew/core/localization/app_locale.dart';
 import 'package:one_brew/features/brew_logger/brew_logger_providers.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_definition.dart';
@@ -9,9 +13,14 @@ import 'package:one_brew/features/brew_logger/domain/entities/brew_param_key.dar
 import 'package:one_brew/features/brew_logger/domain/entities/brew_param_value.dart';
 import 'package:one_brew/features/brew_logger/domain/entities/brew_record.dart';
 import 'package:one_brew/features/history/history_providers.dart';
+import 'package:one_brew/features/history/presentation/controllers/history_controller.dart';
 import 'package:one_brew/features/history/presentation/pages/brew_detail_page.dart';
+import 'package:one_brew/features/inventory/domain/entities/equipment.dart'
+    as domain;
+import 'package:one_brew/features/inventory/presentation/controllers/inventory_controller.dart';
 import 'package:one_brew/features/rating/rating_providers.dart';
 import 'package:one_brew/l10n/app_localizations.dart';
+import 'package:one_brew/shared/providers/database_providers.dart';
 
 import '../../../../helpers/fake_brew_param_repository.dart';
 import '../../../../helpers/mock_repositories.mocks.dart';
@@ -659,6 +668,175 @@ void main() {
         find.descendant(of: sheet, matching: find.text('Distribution/tamping')),
         findsNothing,
       );
+    });
+
+    testWidgets('grinder edits refresh an open detail page', (tester) async {
+      final db = OneBrewDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump();
+        await db.close();
+        await tester.pump();
+      });
+
+      final grinderId = await db.insertEquipment(
+        EquipmentsCompanion.insert(
+          name: 'Original Grinder',
+          category: const drift.Value('grinder'),
+          isGrinder: const drift.Value(true),
+          grindMinClick: const drift.Value(10),
+          grindMaxClick: const drift.Value(30),
+          grindClickStep: const drift.Value(0.5),
+          grindClickUnit: const drift.Value('clicks'),
+          addedAt: drift.Value(DateTime(2026, 3, 1, 9, 0)),
+          useCount: const drift.Value(0),
+        ),
+      );
+      final brewId = await db.insertBrewRecord(
+        BrewRecordsCompanion.insert(
+          brewDate: DateTime(2026, 3, 2, 9, 0),
+          beanName: 'Detail Sync Brew',
+          equipmentId: drift.Value(grinderId),
+          grindMode: const drift.Value('equipment'),
+          grindClickValue: const drift.Value(18.0),
+          coffeeWeightG: 15,
+          waterWeightG: 225,
+          brewDurationS: 180,
+          createdAt: drift.Value(DateTime(2026, 3, 2, 9, 0)),
+          updatedAt: drift.Value(DateTime(2026, 3, 2, 9, 0)),
+        ),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [databaseProvider.overrideWithValue(db)],
+          child: MaterialApp(
+            locale: Locale('en'),
+            supportedLocales: AppLocaleOption.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            home: BrewDetailPage(brewId: brewId),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Original Grinder'), findsOneWidget);
+      expect(find.text('18 clicks'), findsOneWidget);
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BrewDetailPage)),
+      );
+      await container
+          .read(inventoryControllerProvider.notifier)
+          .saveGrinder(
+            initial: domain.Equipment(
+              id: grinderId,
+              name: 'Original Grinder',
+              category: 'grinder',
+              isGrinder: true,
+              grindMinClick: 10,
+              grindMaxClick: 30,
+              grindClickStep: 0.5,
+              grindClickUnit: 'clicks',
+              addedAt: DateTime(2026, 3, 1, 9, 0),
+              useCount: 0,
+            ),
+            name: 'Renamed Grinder',
+            minClick: 10,
+            maxClick: 30,
+            clickStep: 0.5,
+            clickUnit: 'steps',
+          );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Renamed Grinder'), findsOneWidget);
+      expect(find.text('18 steps'), findsOneWidget);
+      expect(find.text('Original Grinder'), findsNothing);
+    });
+
+    testWidgets('saving rating from detail refreshes history state', (
+      tester,
+    ) async {
+      final initialDetail = TestFixtures.brewDetail(
+        id: 21,
+        beanName: 'Detail Rated Brew',
+        quickScore: null,
+        emoji: null,
+      );
+      final ratedDetail = initialDetail.copyWith(quickScore: 3, emoji: '🙂');
+      var detailLoadCount = 0;
+      when(mockHistoryRepo.getBrewDetailById(21)).thenAnswer((_) async {
+        detailLoadCount += 1;
+        return detailLoadCount == 1 ? initialDetail : ratedDetail;
+      });
+
+      final initialHistory = [
+        TestFixtures.brewSummary(
+          id: 21,
+          beanName: 'Detail Rated Brew',
+          quickScore: null,
+          emoji: null,
+        ),
+      ];
+      final ratedHistory = [
+        TestFixtures.brewSummary(
+          id: 21,
+          beanName: 'Detail Rated Brew',
+          quickScore: 3,
+          emoji: '🙂',
+        ),
+      ];
+      var historyLoadCount = 0;
+      when(mockHistoryRepo.getAllBrewSummaries()).thenAnswer((_) async {
+        historyLoadCount += 1;
+        return historyLoadCount >= 2 ? ratedHistory : initialHistory;
+      });
+      when(mockHistoryRepo.getTopBrews(limit: anyNamed('limit'))).thenAnswer((
+        _,
+      ) async {
+        if (historyLoadCount >= 2) {
+          return ratedHistory;
+        }
+        return const [];
+      });
+      when(
+        mockHistoryRepo.filterBrewSummaries(any),
+      ).thenAnswer((_) async => ratedHistory);
+
+      await tester.pumpWidget(createWidget(brewId: 21));
+      await tester.pumpAndSettle();
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(BrewDetailPage)),
+      );
+      final historySubscription = container.listen<HistoryState>(
+        historyControllerProvider,
+        (_, _) {},
+        fireImmediately: true,
+      );
+      addTearDown(historySubscription.close);
+
+      await tester.pumpAndSettle();
+      expect(
+        container.read(historyControllerProvider).visibleBrews.single.quickScore,
+        isNull,
+      );
+
+      await tester.ensureVisible(
+        find.byKey(const Key('brew-detail-edit-rating')),
+      );
+      await tester.tap(find.byKey(const Key('brew-detail-edit-rating')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Save rating'));
+      await tester.pumpAndSettle();
+
+      expect(historyLoadCount, greaterThanOrEqualTo(2));
+      expect(
+        container.read(historyControllerProvider).visibleBrews.single.quickScore,
+        3,
+      );
+      expect(find.textContaining('3/5'), findsOneWidget);
     });
   });
 }

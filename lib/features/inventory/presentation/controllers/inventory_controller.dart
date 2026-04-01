@@ -5,8 +5,7 @@ import '../../domain/entities/bean.dart';
 import '../../domain/entities/equipment.dart';
 import '../../domain/inventory_exceptions.dart';
 import '../../domain/repositories/inventory_repository.dart';
-import '../../../history/presentation/controllers/brew_detail_controller.dart';
-import '../../../history/presentation/controllers/history_controller.dart';
+import '../../../history/presentation/controllers/brew_view_refresher.dart';
 import '../../domain/usecases/create_bean.dart';
 import '../../domain/usecases/create_equipment.dart';
 import '../../domain/usecases/delete_grinder_with_guard.dart';
@@ -155,16 +154,14 @@ class InventoryController extends AsyncNotifier<void> {
         ),
       );
     });
-    ref.invalidate(historyControllerProvider);
-    ref.invalidate(brewDetailControllerProvider);
+    ref.read(brewViewRefresherProvider).refreshHistoryAndDetails();
   }
 
   Future<void> deleteBean(int beanId) async {
     await _runMutation(() async {
       await ref.read(inventoryRepositoryProvider).deleteBean(beanId);
     });
-    ref.invalidate(historyControllerProvider);
-    ref.invalidate(brewDetailControllerProvider);
+    ref.read(brewViewRefresherProvider).refreshHistoryAndDetails();
   }
 
   Future<void> saveGrinder({
@@ -222,12 +219,14 @@ class InventoryController extends AsyncNotifier<void> {
             ),
           );
     });
+    ref.read(brewViewRefresherProvider).refreshDetails();
   }
 
   Future<void> deleteGrinder(int grinderId) async {
     await _runMutation(() async {
       await ref.read(deleteGrinderWithGuardProvider).call(grinderId);
     });
+    ref.read(brewViewRefresherProvider).refreshDetails();
   }
 
   Future<void> _ensureGrinderNameNotConflict({
