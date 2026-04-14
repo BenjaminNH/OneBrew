@@ -601,6 +601,160 @@ void main() {
       },
     );
 
+    testWidgets('share preview localizes pour-over water and ratio in zh', (
+      tester,
+    ) async {
+      final detail =
+          TestFixtures.brewDetail(
+            id: 29,
+            beanName: 'V60 Daily Brew',
+            quickScore: null,
+            emoji: null,
+          ).copyWith(
+            acidity: null,
+            sweetness: null,
+            bitterness: null,
+            body: null,
+            flavorNotes: null,
+          );
+      when(
+        mockHistoryRepo.getBrewDetailById(29),
+      ).thenAnswer((_) async => detail);
+
+      fakeBrewParamRepo = FakeBrewParamRepository(
+        definitions: {
+          BrewMethod.pourOver: const [
+            BrewParamDefinition(
+              id: 41,
+              method: BrewMethod.pourOver,
+              name: 'Water Weight',
+              paramKey: BrewParamKeys.waterWeight,
+              type: ParamType.number,
+              unit: 'g',
+              isSystem: true,
+              sortOrder: 1,
+            ),
+            BrewParamDefinition(
+              id: 42,
+              method: BrewMethod.pourOver,
+              name: 'Brew Ratio',
+              paramKey: BrewParamKeys.brewRatio,
+              type: ParamType.number,
+              unit: null,
+              isSystem: true,
+              sortOrder: 2,
+            ),
+          ],
+        },
+        valuesByBrew: {
+          29: const [
+            BrewParamValue(
+              id: 1,
+              brewRecordId: 29,
+              paramId: 41,
+              valueNumber: 225,
+            ),
+            BrewParamValue(
+              id: 2,
+              brewRecordId: 29,
+              paramId: 42,
+              valueNumber: 15,
+            ),
+          ],
+        },
+      );
+
+      await tester.pumpWidget(
+        createWidget(brewId: 29, locale: const Locale('zh', 'Hans')),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+      await tester.pumpAndSettle();
+
+      final sheet = find.byKey(const Key('share-preview-bottom-sheet'));
+      expect(
+        find.descendant(of: sheet, matching: find.text('水量')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: sheet, matching: find.text('出杯')),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: sheet, matching: find.text('比例')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: sheet, matching: find.text('1:15')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('share preview keeps espresso yield label in zh', (
+      tester,
+    ) async {
+      final detail =
+          TestFixtures.brewDetail(
+            id: 30,
+            beanName: 'Espresso Shot',
+            quickScore: null,
+            emoji: null,
+          ).copyWith(
+            coffeeWeightG: 18,
+            waterWeightG: 36,
+            acidity: null,
+            sweetness: null,
+            bitterness: null,
+            body: null,
+            flavorNotes: null,
+          );
+      when(
+        mockHistoryRepo.getBrewDetailById(30),
+      ).thenAnswer((_) async => detail);
+
+      fakeBrewParamRepo = FakeBrewParamRepository(
+        definitions: {
+          BrewMethod.espresso: const [
+            BrewParamDefinition(
+              id: 51,
+              method: BrewMethod.espresso,
+              name: 'Yield',
+              paramKey: BrewParamKeys.yieldAmount,
+              type: ParamType.number,
+              unit: 'g',
+              isSystem: true,
+              sortOrder: 1,
+            ),
+          ],
+        },
+        valuesByBrew: {
+          30: const [
+            BrewParamValue(
+              id: 1,
+              brewRecordId: 30,
+              paramId: 51,
+              valueNumber: 36,
+            ),
+          ],
+        },
+      );
+
+      await tester.pumpWidget(
+        createWidget(brewId: 30, locale: const Locale('zh', 'Hans')),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('brew-detail-share-button')));
+      await tester.pumpAndSettle();
+
+      final sheet = find.byKey(const Key('share-preview-bottom-sheet'));
+      expect(
+        find.descendant(of: sheet, matching: find.text('出杯')),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('share preview shortens distribution/tamping label', (
       tester,
     ) async {
@@ -791,7 +945,7 @@ void main() {
         find.descendant(of: sheet, matching: find.text('RATIO')).first,
       );
       final ratioValue = tester.widget<Text>(
-        find.descendant(of: sheet, matching: find.text('1:16.0')).first,
+        find.descendant(of: sheet, matching: find.text('1:16')).first,
       );
 
       expect(ratioLabel.style?.fontSize, 12.0);
@@ -946,7 +1100,11 @@ void main() {
 
       await tester.pumpAndSettle();
       expect(
-        container.read(historyControllerProvider).visibleBrews.single.quickScore,
+        container
+            .read(historyControllerProvider)
+            .visibleBrews
+            .single
+            .quickScore,
         isNull,
       );
 
@@ -962,7 +1120,11 @@ void main() {
       expect(historyLoadCount, greaterThanOrEqualTo(2));
       expect(find.byKey(const Key('app-top-toast')), findsOneWidget);
       expect(
-        container.read(historyControllerProvider).visibleBrews.single.quickScore,
+        container
+            .read(historyControllerProvider)
+            .visibleBrews
+            .single
+            .quickScore,
         3,
       );
       expect(find.textContaining('3/5'), findsOneWidget);

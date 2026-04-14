@@ -812,10 +812,7 @@ List<Widget> _buildScoreSummaryWidgets(
     );
     if (index < summaries.length - 1) {
       widgets.add(
-        Text(
-          '•',
-          style: _inter(10, FontWeight.w400, const Color(0xFFD1D5DB)),
-        ),
+        Text('•', style: _inter(10, FontWeight.w400, const Color(0xFFD1D5DB))),
       );
     }
   }
@@ -827,6 +824,8 @@ String _posterMetricLabel(BuildContext context, String label) {
   switch (label) {
     case 'DOSE':
       return l10n.posterMetricDose;
+    case 'WATER_WEIGHT':
+      return l10n.brewParamLabelWaterWeight.toUpperCase();
     case 'YIELD':
       return l10n.posterMetricYield;
     case 'RATIO':
@@ -897,7 +896,6 @@ List<_PosterMetric> _buildPosterMetrics(
   }
 
   addMetric(_doseMetric(detail), semanticId: 'dose');
-  addMetric(_yieldMetric(detail), semanticId: 'yield');
 
   for (final entry in paramEntries) {
     final metric = _metricFromEntry(entry, l10n: l10n);
@@ -908,6 +906,7 @@ List<_PosterMetric> _buildPosterMetrics(
     addMetric(metric, semanticId: semanticId);
   }
 
+  addMetric(_yieldMetric(detail), semanticId: 'yield');
   addMetric(_ratioMetric(detail), semanticId: 'ratio');
   addMetric(_timeMetric(detail), semanticId: 'time');
   addMetric(_temperatureMetric(detail), semanticId: 'temp');
@@ -930,10 +929,10 @@ _PosterMetric? _ratioMetric(BrewDetail detail) {
   if (detail.coffeeWeightG <= 0) {
     return null;
   }
-  return _PosterMetric(
-    'RATIO',
-    '1:${(detail.waterWeightG / detail.coffeeWeightG).toStringAsFixed(1)}',
+  final ratioText = _formatRatioNumber(
+    detail.waterWeightG / detail.coffeeWeightG,
   );
+  return _PosterMetric('RATIO', '1:$ratioText');
 }
 
 _PosterMetric? _timeMetric(BrewDetail detail) {
@@ -991,13 +990,20 @@ _PosterMetric? _metricFromEntry(
   if (rawValue == null) {
     return null;
   }
+  final semanticId = resolveParamKey(
+    paramKey: entry.paramKey,
+    name: entry.name,
+  );
   final value = localizedParamValue(
     l10n: l10n,
     paramKey: entry.paramKey,
     value: rawValue,
   );
+  final normalizedValue = semanticId == BrewParamKeys.brewRatio
+      ? _formatRatioValue(value)
+      : value;
   final label = _displayMetricLabel(entry, l10n: l10n);
-  return _PosterMetric(label, value);
+  return _PosterMetric(label, normalizedValue);
 }
 
 String _displayMetricLabel(
@@ -1022,6 +1028,7 @@ String _displayMetricLabel(
     case BrewParamKeys.coffeeDose:
       return 'DOSE';
     case BrewParamKeys.waterWeight:
+      return 'WATER_WEIGHT';
     case BrewParamKeys.yieldAmount:
       return 'YIELD';
     case BrewParamKeys.brewRatio:
@@ -1224,6 +1231,38 @@ String? _formatDuration(int seconds) {
   final minutes = seconds ~/ 60;
   final remaining = seconds % 60;
   return '${minutes.toString().padLeft(2, '0')}:${remaining.toString().padLeft(2, '0')}';
+}
+
+String _formatRatioValue(String raw) {
+  final trimmed = raw.trim();
+  if (trimmed.isEmpty) {
+    return raw;
+  }
+
+  if (trimmed.contains(':')) {
+    final parts = trimmed.split(':');
+    if (parts.length == 2) {
+      final head = parts[0].trim();
+      final tail = parts[1].trim();
+      if (head.isNotEmpty && tail.isNotEmpty) {
+        return '$head:$tail';
+      }
+    }
+    return trimmed;
+  }
+
+  final value = double.tryParse(trimmed);
+  if (value == null || value <= 0) {
+    return raw;
+  }
+  return '1:${_formatRatioNumber(value)}';
+}
+
+String _formatRatioNumber(double ratio) {
+  if (ratio % 1 == 0) {
+    return ratio.toStringAsFixed(0);
+  }
+  return ratio.toStringAsFixed(1);
 }
 
 String _formatPosterDate(DateTime date, {required String localeName}) {
