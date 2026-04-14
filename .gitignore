@@ -58,4 +58,6 @@ temp/
 
 # Local agent skills/config
 .agent/
+.agents/
+.skillshare/
 .codex/
